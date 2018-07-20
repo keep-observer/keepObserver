@@ -5,7 +5,7 @@
 	config params:
  */ 
 
-const type = ['unKownType','system','log','network','storage','vue'];
+const type = ['unKownType','system','log','network'];
 
 
 export default {

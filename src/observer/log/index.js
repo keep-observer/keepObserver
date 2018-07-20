@@ -19,6 +19,8 @@ class KeepObserverLog {
 		this._develop = this._config.develop;
 		//替换window.console
 		this.console = {};
+		//替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
+		this.$createElement = false;
 		//启动
 		this._init();
 	}
@@ -79,30 +81,81 @@ class KeepObserverLog {
 			self._handleMessage('clear',args);
 			self.console.clear.apply(window.console, args);
 		}
+		//是否需要捕获跨域JS错误
+		if(self._config.catchCrossDomain){
+			//侵入document.createElement  实现跨域JS捕获错误信息
+			if(window.document || window.document.createElement){
+				self.$createElement = window.document.createElement
+				window.document.createElement = function(type){
+					var resultDom = self.$createElement.call(window.document,type)
+					if(type === 'script'){
+						resultDom.crossOrigin = 'anonymous';
+					}
+					return resultDom
+				}
+			}
+		}
 		//监控window.onerror
 		if (typeof window.addEventListener != 'undefined') { 
-			window.addEventListener('error',self._handleError,true); 
+			window.addEventListener('error',(...args) =>{self._handleError(...args)},true); 
 		} else { 
-			window.attachEvent('onerror',self._handleError) 
-		} 
+			window.attachEvent('onerror',(...args) =>{self._handleError(...args)}) 
+		}
 	}
 	/*
 		处理打印信息
+		上报报文如下
+		@: type string  (log|info|debug.... jsError)
+		@: data string  (JSON格式对象报文)
 	 */
 	_handleMessage(type,agrs){
 		var self = this;
-		self.console.log(type,agrs);
+		var reportData = {}
+		//agrs不是数组 或是空数组 则不处理
+		if(!tool.isArray(agrs) || agrs.length === 0){
+			return false;
+		}
+		reportData.type = type;
+		//直接转成JSON
+		reportData.data = JSON.stringify(agrs);
+		//上报
+		self.noticeReport(reportData)
 	}
 	/*
 		监听 window.onerror,并处理错误信息
-		@err 		:错误信息
-		@source     :错误来源
-		@line       :代码错误行
-		@colno      :代码错误列
-		@stack      :部分浏览器包含这条堆栈信息 这里熟悉支持不全面
+		@errorEvent 		:错误信息对象
+		////////  上报error对象 /////////
+		errorObj object = {
+			errMsg: 			错误信息
+			url:                错误文件
+			line:         		错误所在行
+			colum:              错误所在列
+		}
 	 */
-	_handleError(err,source,line,colno,stack){
-		console.log(err,source,'error');
+	_handleError(errorEvent){
+		var self = this;
+		var errorObj = {};
+		var url = errorEvent.filename || errorEvent.url || false
+		//可能是跨域资源JS出现错误 这获取不到详细信息
+		if(errorEvent.message === 'Script error.' && !url){
+			errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:'+errorEvent.message;
+			errorObj.url = '';
+			errorObj.line = 0;
+			errorObj.colum = 0;
+			setTimeout(function(){
+				self._handleMessage('jsError',[errorObj])
+			})
+			return false;
+		}
+		//处理错误信息
+		errorObj.errMsg = errorEvent.message || '未获取到错误信息'
+		errorObj.url = url;
+		errorObj.line = errorEvent.lineno || '未获取到错误行'
+		errorObj.colum = errorEvent.colno || '未获取到错误列'
+		setTimeout(function(){
+			self._handleMessage('jsError',[errorObj])
+		})
+    	return true;
 	}
 	/***************  上报相关  ******************/
 	//注册上报监听
@@ -113,12 +166,6 @@ class KeepObserverLog {
 	}
 	/*
 		通知上报
-		上报报文如下
-		@: type string  (log|info|debug.... jsError)
-		@: data string  (JSON格式对象报文)
-		@: baseExtend  Boolean
-		@: preDelete   Boolean
-		@: ignore 	   Boolean
 	 */
 	noticeReport(content){
 		if(this.eventListener.length === 0){

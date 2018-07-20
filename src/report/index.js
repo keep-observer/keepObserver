@@ -18,6 +18,8 @@ class KeepObserverReport {
 
 		//当前是否处于开发模式
 		this.develop = this.$report_config.develop;
+		this.develogDeleteLog = this.$report_config.develogDeleteLog;
+		this.develogDiscardLog = this.$report_config.develogDiscardLog
 		//开发模式下的log 替换window.console.log
 		this.$devLog = false;
 
@@ -50,17 +52,20 @@ class KeepObserverReport {
 	}
 	/*
 		接受需要上报的内容
-		@params type object
-		@ .typeName string   	  (no null)	      上报类型名
-		@ .data  array or object  (no null) 	  上报内容
-		@ .lazy Boolean          				  是延时上报(由手动上传合并上报或者又下一次该上报合并上报) 不传立即上报
-		@ .baseExtend Boolean					  是否合并基础监控信息包括log以及network信息一起上报
-		@ .preDelete  Boolean                     是否删除之前保存typeName的缓存数据
-		@ .ignore     Boolean					  是否忽略本条数据
+		@params  object  = {
+			@ .typeName string   	  (no null)	      上报类型名
+			@ .data  array or object  (no null) 	  上报内容
+		}
+		@ .control null and object = {
+			@ .lazy       Boolean          		      是延时上报(由手动上传合并上报或者又下一次该上报合并上报) 不传立即上报
+			@ .baseExtend Boolean					  是否合并基础监控信息包括log以及network信息一起上报
+			@ .preDelete  Boolean                     是否删除之前保存typeName的缓存数据
+			@ .ignore     Boolean					  是否忽略本条数据
+		}
 	 */
-	$getReportContent(params){
+	$getReportContent(params,control){
 		//判断数据合法性
-		if(!params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))){
+		if(!params || !params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))){
 			return false;
 		}
 		//添加上传时间搓
@@ -71,18 +76,23 @@ class KeepObserverReport {
 			log.title= '获得'+log.typeName+"类型监控数据";
 			this.handleDevelopLog(log)
 		}
-
 		//是否删除之前保存的数据
+		if(control && control.preDelete){
+			this.removeReportData(params.typeName)
+		}
 		//是否忽略本条数据
+		if(control && control.ignore){
+			return false;
+		}
 		//保存到上报数据中
 		var cacheLen = this.saveReportData(params);
 		var maxCache = this.$report_config['max_'+params.typeName+'_cache'];
 		var isReport = this.$report_config['max_'+params.typeName+'_fillIsReport'];
 		//是否立即上报 或者缓存已满上报
-		if(!params.lazy || (isReport && cacheLen === maxCache)){
+		if( (control && !control.lazy) || (isReport && cacheLen === maxCache)){
 			//是否合并上报
-			if(params.baseExtend){
-
+			if(control && control.baseExtend ){
+				this.handleAllReport();
 			}else{
 				this.handleReport(params.typeName);
 			}
@@ -111,7 +121,7 @@ class KeepObserverReport {
 		if(reportData.length +1 >maxCache){
 			var discard = reportData.shift()
 			//开发模式打印
-			if(this.develop){
+			if(this.develop && this.develogDiscardLog){
 				discard.title = type+'类型监控数据超出缓存长度丢弃内容';
 				this.handleDevelopLog(discard)
 			}
@@ -131,7 +141,7 @@ class KeepObserverReport {
 			this.reportData[type] = [];
 			tool.removeStorage(type)
 			//开发模式下打印
-			if(this.develop){
+			if(this.develop && this.develogDeleteLog){
 				this.$devLog(type+'类型监控数据已清除')
 			}
 		}
@@ -154,7 +164,7 @@ class KeepObserverReport {
 	handleReport(type){
 		var self = this;
 		var reportData = {}
-		reportData.data = self.reportData[type];
+		reportData.data = tool.extend({},self.reportData[type]);
 		//处理上报类型, 添加信息头
 		reportData.reportType = type;
 		reportData.project = this._project;
@@ -166,13 +176,39 @@ class KeepObserverReport {
 			log.title = type+"类型即将上报服务器,上报内容在data中"
 			this.handleDevelopLog(log)
 		}
-		//上传到服务器。。 暂时未做
-			
-		
-		
-		//上传结束 删除data 以及缓存
+		//删除相关数据
 		self.removeReportData(type)
+		//上传到服务器。。 暂时未做	
 	}
+	/*
+		上报全部信息
+	*/
+	handleAllReport(){
+		var self = this;
+		var reportData  = {}
+		reportData.data = {}
+		reportData.reportType = 'all';
+		reportData.project = this._project;
+		reportData.projectVersion = this._version
+		reportData.reportTime = new Date().getTime();	
+		for(var key in self.reportData){
+			var value = self.reportData[key];
+			if(tool.isArray(value) && value.length > 0){
+				reportData.data[key] = tool.extend({},value);
+				//删除相关数据
+				self.removeReportData(key)
+			}
+		}
+		//开发模式下打印上报数据
+		if(self.develop){
+			var log = tool.extend({},reportData)
+			log.title = reportData.reportType+"类型即将上报服务器,上报内容在data中"
+			this.handleDevelopLog(log)
+		}
+		//上报到服务器。。 暂时未做
+	}
+
+	
 }
 
 

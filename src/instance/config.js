@@ -23,6 +23,10 @@ class  keepObserverConfig extends keepObserverReport {
 		var CustomConfig = config.reportCusom || {};
 		//是否是开发模式
 		CustomConfig.develop = config.develop? true : false;
+		//开发环境下丢弃数据 是否打印出来
+		CustomConfig.develogDiscardLog = config.develogDiscardLog? true : false,
+		//开发环境下删除出数据 是否打印出来
+		CustomConfig.develogDeleteLog  = config.develogDeleteLog? true : false,
 		//继承上报类
 		super(CustomConfig)
 		/********************  开始本实例配置  *******************/
@@ -31,7 +35,7 @@ class  keepObserverConfig extends keepObserverReport {
 		//版本号
 		this._version = '0.0.1';
 		//项目
-		this._project = config.project?config.project:'unKnow';
+		this._project = config.project || 'unKnow';
 		//初始化系统详情和首屏分析
 		this.initSyStem()
 		//初始化网络拦截分解
@@ -57,7 +61,10 @@ class  keepObserverConfig extends keepObserverReport {
 			reportParams.typeName = 'system';
 			reportParams.location = window.location.href;
 			reportParams.data = systemInfo;
-			self.$getReportContent(reportParams)
+			//系统信息和首屏性能立即上报
+			var control = {};
+			control.lazy = false;
+			self.$getReportContent(reportParams,control)
 		})
 	}
 	/*
@@ -72,14 +79,18 @@ class  keepObserverConfig extends keepObserverReport {
 		//注册监听
 		self.$network.addReportListener(function(ajaxInfo){
 			var reportParams = {};
+			var control = null;
 			reportParams.typeName = 'network';
 			reportParams.location = window.location.href;
-			reportParams.lazy = true;
 			reportParams.data = ajaxInfo;
+			//是否请求出错
 			if(ajaxInfo.isError){
-				reportParams.lazy = false;
+				control = {};
+				control.lazy = false;
+				//是否是超时请求,超时请求不合并上报
+				control.baseExtend = ajaxInfo.isTimeout? false :true;
 			}
-			self.$getReportContent(reportParams)
+			self.$getReportContent(reportParams,control)
 		})
 	}
 	/*
@@ -94,7 +105,28 @@ class  keepObserverConfig extends keepObserverReport {
 		CustomConfig.develop = self._config.develop? true : false;
 		self.$log = new KeepObserverLog(CustomConfig)
 		//注册监听
+		self.$log.addReportListener(function(logInfo){
+			var reportParams = {};
+			var control = null;
+			reportParams.typeName = 'log';
+			reportParams.location = window.location.href;
+			reportParams.data = logInfo;
+			//如果是clear,清除之前的console.log相关信息
+			if(logInfo.type === 'clear'){
+				control = {};
+				control.preDelete = true;
+				control.ignore = true
+			}
+			//如果是JS运行报错,或者打印错误error 或者警告 合并上报所有内容
+			if(logInfo.type === 'jsError' || logInfo.type === 'error' || logInfo.type === 'warn'){
+				control = {};
+				control.lazy = false;
+				control.baseExtend = true;
+			}
+			self.$getReportContent(reportParams,control)
+		})
 	}
+	/*************** end observer *******************/
 }
 
 
