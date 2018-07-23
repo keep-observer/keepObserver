@@ -18,6 +18,7 @@ class KeepObserverReport {
 
 		//当前是否处于开发模式
 		this.develop = this.$report_config.develop;
+		this.developGetMsgLog = this.$report_config.developGetMsgLog;
 		this.develogDeleteLog = this.$report_config.develogDeleteLog;
 		this.develogDiscardLog = this.$report_config.develogDiscardLog
 		//开发模式下的log 替换window.console.log
@@ -71,7 +72,7 @@ class KeepObserverReport {
 		//添加上传时间搓
 		params.reportTime = new Date().getTime();
 		//是否是开发模式需要打印
-		if(this.develop){
+		if(this.develop && this.developGetMsgLog){
 			var log = tool.extend({},params)
 			log.title= '获得'+log.typeName+"类型监控数据";
 			this.handleDevelopLog(log)

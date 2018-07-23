@@ -12,7 +12,7 @@ class KeepObserver extends keepObserverConfig {
 		super(config)
 
 		setTimeout(function(){
-			console.warn('test')
+			console.log('test')
 		},1500)
 
 	}

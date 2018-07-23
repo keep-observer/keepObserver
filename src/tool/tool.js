@@ -132,7 +132,13 @@ export function toArray(array){
   return Array.prototype.slice.call(array)
 }
 export function toString(content){
-  return Object.prototype.toString.call(content)
+  if(!content){
+    return '';
+  }
+  if(typeof content === 'string'){
+    return content
+  }
+  return content.toString()
 }
 
 

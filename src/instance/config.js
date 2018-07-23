@@ -1,5 +1,5 @@
 
-
+import * as tool from '../tool/tool.js';
 
 //继承通信类
 import keepObserverReport from '../report/index.js';
@@ -11,6 +11,8 @@ import KeepObserverSystem from '../observer/system/index.js';
 import KeepObserverNetwork from '../observer/network/index.js';
 //日志拦截请求分享
 import KeepObserverLog from '../observer/log/index.js';
+//vue错误监控和性能分析
+import KeepObserverVue from '../observer/vue/index.js';
 
 
 
@@ -23,6 +25,8 @@ class  keepObserverConfig extends keepObserverReport {
 		var CustomConfig = config.reportCusom || {};
 		//是否是开发模式
 		CustomConfig.develop = config.develop? true : false;
+		//开发环境下获取报文是否打印
+		CustomConfig.developGetMsgLog = config.developGetMsgLog? true : false,
 		//开发环境下丢弃数据 是否打印出来
 		CustomConfig.develogDiscardLog = config.develogDiscardLog? true : false,
 		//开发环境下删除出数据 是否打印出来
@@ -42,6 +46,10 @@ class  keepObserverConfig extends keepObserverReport {
 		this.initNetWork();
 		//初始化日志拦截
 		this.initLog();
+		//判断是否开启vue监控
+		if(this._config.isVue && !tool.isEmptyObject(this._config.vueInstance)){
+			this.initVue();
+		}
 	}
 
 	/*****************以下监控默认开启*****************/
@@ -69,7 +77,7 @@ class  keepObserverConfig extends keepObserverReport {
 	}
 	/*
 		开始监控网络
-		开始后将替换window.console相关原生方法
+		开始后将替换window.XMLHttpRequest相关原生方法
 	 */
 	initNetWork(){
 		var self = this;
@@ -117,9 +125,39 @@ class  keepObserverConfig extends keepObserverReport {
 				control.preDelete = true;
 				control.ignore = true
 			}
-			//如果是JS运行报错,或者打印错误error 或者警告 合并上报所有内容
-			if(logInfo.type === 'jsError' || logInfo.type === 'error' || logInfo.type === 'warn'){
+			//如果是JS运行报错,或者打印错误error合并上报所有内容
+			if(logInfo.type === 'jsError' || logInfo.type === 'error'){
 				control = {};
+				control.lazy = false;
+				control.baseExtend = true;
+			}
+			self.$getReportContent(reportParams,control)
+		})
+	}
+	/*
+		开始监控vue
+		监控vue运行错误和警告
+		performance暂时未做
+	 */
+	initVue(){
+		var self = this;
+		//初始化上传相关实例
+		var CustomConfig = self._config.vueCusom? self._config.vueCusom: {};
+		CustomConfig.vueInstance = self._config.vueInstance;
+		//判断是否存在实例
+		if(!CustomConfig.vueInstance.vue){
+			return false;
+		}
+		//注册监听
+		self.$vue = new KeepObserverVue(CustomConfig)
+		//注册监听
+		self.$vue.addReportListener(function(vueInfo){
+			var reportParams = {};
+			reportParams.typeName = 'vue';
+			reportParams.location = window.location.href;
+			reportParams.data = vueInfo;
+			var control = {};
+			if(vueInfo.isError){
 				control.lazy = false;
 				control.baseExtend = true;
 			}
