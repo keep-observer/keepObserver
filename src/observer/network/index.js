@@ -265,31 +265,22 @@ class KeepObserverNetwork{
 	_handleDoneXML(id){
 		var self = this;
 		var ajaxItem = tool.extend({},self.networkList[id]);
-		var { ignoreRequestList,handleJudgeResponse ,handleRequestData ,handleResponseData } = self._config;
+		var { onHandleJudgeResponse ,onHandleRequestData ,onHandleResponseData } = self._config;
 		//空的对象不做处理
 		if(tool.isEmptyObject(ajaxItem)){
 			return false;
 		}
 		/******   这里开始处理数据  *****/
 		//判断当前请求数据url是否需要屏蔽
-		if(ignoreRequestList && tool.isArray(ignoreRequestList)){
-			var url = ajaxItem.url
-			var unReport = false;
-			ignoreRequestList.forEach(function(item){
-				if(url.indexOf(item) > -1){
-					unReport = true;
-					return false;
-				}
-			});
-			if(unReport){
-				delete self.networkList[id];
-				return false;
-			}
+		if(!self._handleJudgeDisbale(ajaxItem)){
+			self.networkList[id];
+			return false;
 		}
+		//
 		//如果存在自定义处理 请求data配置
-		if(handleRequestData){
+		if(onHandleRequestData){
 			try{
-				ajaxItem.handleReqData = handleRequestData(ajaxItem.data,ajaxItem.reqHead)
+				ajaxItem.handleReqData = onHandleRequestData(ajaxItem)
 			}catch(err){
 				ajaxItem.handleReqData = '自定义handleRequestData出错:'+err
 			}
@@ -301,9 +292,9 @@ class KeepObserverNetwork{
 			ajaxItem.errorContent = 'http请求错误!错误状态码:'+status;
 		}
 		//如果存在自定义处理响应数据是否出错
-		if(handleJudgeResponse && !ajaxItem.isError){
+		if(onHandleJudgeResponse && !ajaxItem.isError){
 			try{
-				ajaxItem.isError = handleJudgeResponse(ajaxItem.response,ajaxItem.resHead);
+				ajaxItem.isError = onHandleJudgeResponse(ajaxItem);
 				if(ajaxItem.isError){
 					ajaxItem.errorContent = ajaxItem.isError;
 					ajaxItem.isError = true
@@ -314,9 +305,9 @@ class KeepObserverNetwork{
 			}
 		}
 		//如果存在自定义处理 响应data配置
-		if(handleResponseData && !ajaxItem.isError){
+		if(onHandleResponseData && !ajaxItem.isError){
 			try{
-				ajaxItem.handleResData = handleResponseData(ajaxItem.response,ajaxItem.resHead)
+				ajaxItem.handleResData = onHandleResponseData(ajaxItem)
 			}catch(err){
 				ajaxItem.handleResData = '自定义handleResponseData出错:'+err
 			}
@@ -325,6 +316,36 @@ class KeepObserverNetwork{
 		self.noticeReport(ajaxItem);
 		//上报后删除记录
 		delete self.networkList[id];
+	}
+	/*
+		判断该请求是否是屏蔽请求
+		params
+			ajaxInfo :即将上报的数据
+		return
+			忽略返回 false;
+			不忽略返回 true
+	 */
+	_handleJudgeDisbale(ajaxInfo){
+		var { ignoreRequestList } = this._config;
+		//判断是否是是屏蔽url
+		if(ignoreRequestList && tool.isArray(ignoreRequestList)){
+			var url = ajaxInfo.url
+			var unReport = false;
+			ignoreRequestList.forEach(function(item){
+				if(url.indexOf(item) > -1){
+					unReport = true;
+					return false;
+				}
+			});
+			if(unReport){
+				return false;
+			}
+		}
+		//判断是否是keepObserver的上报请求
+		if(ajaxInfo.reqHead && ajaxInfo.reqHead['keepObserver-reportAjax']){
+			return false;
+		}
+		return true;
 	}
 	/********************  上报相关  ***********************/
 	//注册上报监听
