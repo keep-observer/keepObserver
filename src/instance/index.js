@@ -34,7 +34,7 @@ class KeepObserver extends keepObserverReport {
 		//获取实例配置
 		this._config = config
 		//版本号
-		this._version = '0.0.1';
+		this._version = '1.0.0';
 		//项目
 		this._project = config.project || 'unKnow';
 		//监听内容
