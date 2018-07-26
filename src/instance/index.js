@@ -33,6 +33,7 @@ class KeepObserver extends keepObserverReport {
 		/********************  开始本实例配置  *******************/
 		//获取实例配置
 		this._config = config
+		
 		//版本号
 		this._version = '1.0.0';
 		//项目
