@@ -1,7 +1,7 @@
 
 
 import defaultConfig from './defaultConfig.js';
-import * as tool from '../../tool/tool.js';
+import * as tool from '../../tool/index.js';
 import * as networkTool from './tool.js';
 
 

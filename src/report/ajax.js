@@ -1,6 +1,6 @@
 
 
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 
 
 

@@ -1,6 +1,6 @@
 
 
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 
 //日志拦截请求分享
 import KeepObserverLog from '../observer/log/index.js';

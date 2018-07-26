@@ -1,7 +1,7 @@
 
 
 
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 
 //系统信息和首屏分析
 import KeepObserverSystem from '../observer/system/index.js';

@@ -1,0 +1,66 @@
+{
+  "name": "keep-observers",
+  "version": "1.0.0",
+  "description": "web -- watch  is JS-error netWork  console..log  observer",
+  "main": "./dist/keepObserver.mini.js.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build/build.js"
+  },
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-preset-stage-1": "^6.5.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "babel-preset-stage-3": "^6.5.0",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-preset-env": "^1.3.2",
+    "babel-register": "^6.22.0",
+    "chalk": "^2.0.1",
+    "connect-history-api-fallback": "^1.3.0",
+    "copy-webpack-plugin": "^4.3.1",
+    "echarts": "^3.7.0",
+    "eventsource-polyfill": "^0.9.6",
+    "express": "^4.14.1",
+    "extract-text-webpack-plugin": "^2.0.0",
+    "friendly-errors-webpack-plugin": "^1.1.3",
+    "http-proxy-middleware": "^0.17.3",
+    "iosselect": "^1.1.4",
+    "opn": "^5.1.0",
+    "optimize-css-assets-webpack-plugin": "^2.0.0",
+    "ora": "^1.2.0",
+    "postcss-import": "^11.0.0",
+    "rimraf": "^2.6.0",
+    "semver": "^5.3.0",
+    "shelljs": "^0.7.6",
+    "webpack": "^2.6.1",
+    "webpack-bundle-analyzer": "^2.2.1",
+    "webpack-dev-middleware": "^1.10.0",
+    "webpack-hot-middleware": "^2.18.0",
+    "webpack-merge": "^4.1.0",
+    "webpack-spritesmith": "^0.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keep-observer/keepObserver.git"
+  },
+  "keywords": [
+    "web",
+    "js-error",
+    "javascript",
+    "network",
+    "vue",
+    "console",
+    "log",
+    "ajax"
+  ],
+  "author": "wangkai1995",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wangkai1995/keepObserver/issues"
+  },
+  "homepage": "https://github.com/wangkai1995/keepObserver#readme"
+}

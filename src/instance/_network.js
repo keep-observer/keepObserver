@@ -1,6 +1,6 @@
 
 
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 //网络请求拦截分析
 import KeepObserverNetwork from '../observer/network/index.js';
 

@@ -1,8 +1,7 @@
 
 
 import defaultConfig from './defaultConfig.js';
-import * as tool from '../../tool/tool.js';
-
+import * as tool from '../../tool/index.js';
 
 
 // 获取系统信息

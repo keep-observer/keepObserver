@@ -4,7 +4,7 @@ import KeepObserverDefault from '../default/index.js';
 
 
 import defaultConfig from './defaultConfig.js';
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 import AjaxServer from './ajax.js';
 
 

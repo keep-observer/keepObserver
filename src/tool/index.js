@@ -107,7 +107,7 @@ export function isWindow(value) {
  * @return boolean
  */
 export function isPlainObject(obj) {
-  let hasOwn = Object.prototype.hasOwnProperty;
+  var hasOwn = Object.prototype.hasOwnProperty;
   // Must be an Object.
   if (!obj || typeof obj !== 'object' || obj.nodeType || isWindow(obj)) {
     return false;
@@ -119,7 +119,7 @@ export function isPlainObject(obj) {
   } catch (e) {
     return false;
   }
-  let key;
+  var key;
   for (key in obj) {}
   return key === undefined || hasOwn.call(obj, key);
 }

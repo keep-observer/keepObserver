@@ -1,7 +1,7 @@
 
 
 
-import * as tool from '../tool/tool.js';
+import * as tool from '../tool/index.js';
 //继承通信类
 import keepObserverReport from '../report/index.js';
 
