@@ -2,7 +2,7 @@
   "name": "keep-observers",
   "version": "1.0.0",
   "description": "web -- watch  is JS-error netWork  console..log  observer",
-  "main": "./dist/keepObserver.mini.js.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node build/build.js"
