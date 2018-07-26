@@ -11,7 +11,7 @@ var _initVue = function(){
 	var CustomConfig = self._config.vueCusom? self._config.vueCusom: {};
 	CustomConfig.vueInstance = self._config.vueInstance;
 	//判断是否存在实例
-	if(!CustomConfig.vueInstance.vue){
+	if(!CustomConfig.vueInstance){
 		return false;
 	}
 	//注册监听

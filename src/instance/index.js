@@ -37,6 +37,8 @@ class KeepObserver extends keepObserverReport {
 		this._version = '0.0.1';
 		//项目
 		this._project = config.project || 'unKnow';
+		//监听内容
+		this.observerKey = {};
 		//初始化系统详情和首屏分析
 		this._initSyStem()
 		//初始化网络拦截分解
@@ -44,7 +46,7 @@ class KeepObserver extends keepObserverReport {
 		//初始化日志拦截
 		this._initLog();
 		//判断是否开启vue监控
-		if(this._config.isVue && !tool.isEmptyObject(this._config.vueInstance)){
+		if(this._config.isVue && this._config.vueInstance){
 			this._initVue();
 		}
 	}
@@ -63,6 +65,7 @@ class KeepObserver extends keepObserverReport {
 	 */
 	_initNetWork(){
 		_initNetWork.call(this);
+		this.observerKey.network = true;
 	}
 	/*
 		开始监控日志
@@ -70,6 +73,7 @@ class KeepObserver extends keepObserverReport {
 	 */
 	_initLog(){
 		_initLog.call(this);
+		this.observerKey.log = true;
 	}
 	/*
 		开始监控vue
@@ -77,13 +81,46 @@ class KeepObserver extends keepObserverReport {
 		performance暂时未做
 	 */
 	_initVue(){
-		_initVue.call(this);		
+		_initVue.call(this);
+		this.observerKey.vue = true;		
 	}
 	/*************** end observer *******************/
 	//设置自定义上报内容
 	setCustomReport(params){
 		if(this.$getCustomeReport){
 			this.$getCustomeReport(params);
+		}
+	}
+	//停止监听
+	stopObserver(key){
+		if(this.observerKey[key] && this['$'+key].stopObserver){
+			this['$'+key].stopObserver();
+			this.observerKey[key] = false;
+		}
+	}
+	//停止全部监听
+	stopAllObserver(){
+		for(var key in this.observerKey){
+			if(this['$'+key].stopObserver){
+				this['$'+key].stopObserver();
+				this.observerKey[key] = false;
+			}
+		}
+	}
+	//打开监听
+	startObserver(key){
+		if(!this.observerKey[key] && this['$'+key].startObserver){
+			this['$'+key].startObserver();
+			this.observerKey[key] = true;
+		}
+	}
+	//打开全部监听
+	startAllObserver(){
+		for(var key in this.observerKey){
+			if(this['$'+key].startObserver){
+				this['$'+key].startObserver();
+				this.observerKey[key] = true;
+			}
 		}
 	}
 }

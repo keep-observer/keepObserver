@@ -347,6 +347,24 @@ class KeepObserverNetwork{
 		}
 		return true;
 	}
+	/*
+		停止监听
+	 */
+	stopObserver(){
+		window.XMLHttpRequest.prototype.open = this._open
+		window.XMLHttpRequest.prototype.send = this._send
+		window.XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader
+		this._open = null;
+		this._send = null
+		this.__setRequestHeader = null;
+	}
+	/*
+		开始监听
+	 */
+	startObserver(){
+		//开启网络拦截监控
+		this._init();
+	}
 	/********************  上报相关  ***********************/
 	//注册上报监听
 	addReportListener(callback){

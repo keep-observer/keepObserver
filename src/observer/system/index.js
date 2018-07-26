@@ -23,6 +23,12 @@ class KeepObserverSystem {
 	//获取系统信息
 	getSystemInfo(){
 		var self = this;
+		var oneDayFlag = this.checkIsOneDay()
+		//判断是否每天最多获取上传一次
+		if(this._config.isOneDay && oneDayFlag){
+			return false;
+		}
+		//开始获取系统信息
 		var systemInfo = window.navigator.userAgent
 		if(self._config.isPerformance){
 			self.getWebPerformance(function(Result){
@@ -30,6 +36,8 @@ class KeepObserverSystem {
 				self._systemInfo.systemInfo = systemInfo
 				//上报
 				self.noticeReport(self._systemInfo);
+				//记录
+				self.recordReport();
 			})
 		}
 	}
@@ -110,6 +118,25 @@ class KeepObserverSystem {
 				setTimeout(performance,0)
 			}) 
 		} 
+	}
+	//验证今天是否已经获取上传了一次用户信息了
+	checkIsOneDay(){
+		var reportDate = tool.getStorage('systemRecordReportDate');
+		var date = tool.dateFormat(new Date,'yyyy-MM-dd')
+		//如果没获取上报过
+		if(!reportDate){
+			return false;
+		}else if(reportDate !== date){
+			return false;
+		}
+		return true;
+	}
+	//记录当天已经上报
+	recordReport(){
+		if(this._config.isOneDay){
+			var date = tool.dateFormat(new Date,'yyyy-MM-dd');
+			tool.setStorage('systemRecordReportDate',date)
+		}
 	}
 	/***************  上报相关  ******************/
 	//注册上报监听
