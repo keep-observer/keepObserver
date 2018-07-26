@@ -1,5 +1,6 @@
 
+module.exports = require('./dist/keepObserver.mini.js')
 
-module.exports= require('./dist/keepObserver.mini.js');
+
 
 

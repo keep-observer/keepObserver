@@ -15,6 +15,7 @@ module.exports = merge(baseWebpackConfig, {
     output:{
         //文件命名
         filename:'[name].js',
+        libraryTarget: 'umd',
         //输出目录
         path:path.resolve(__dirname,'../dist'),
     },

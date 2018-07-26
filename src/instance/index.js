@@ -14,7 +14,6 @@ import _initVue from './_vue.js';
 
 
 
-
 class KeepObserver extends keepObserverReport {
 	//构造函数
 	constructor(config){
@@ -128,11 +127,8 @@ class KeepObserver extends keepObserverReport {
 
 
 
+export default KeepObserver
 
-
-
-
-export default KeepObserver;
 
 
 
