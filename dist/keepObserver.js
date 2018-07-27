@@ -395,7 +395,7 @@ var KeepObserver = function (_keepObserverReport) {
 		_classCallCheck(this, KeepObserver);
 
 		//上报配置
-		var CustomConfig = config.reportCusom || {};
+		var CustomConfig = config.reportCustom || {};
 		//是否是开发模式
 		CustomConfig.develop = config.develop ? true : false;
 		//开发环境下获取报文是否打印
@@ -409,7 +409,7 @@ var KeepObserver = function (_keepObserverReport) {
 		_this._config = config;
 
 		//版本号
-		_this._version = '1.0.1';
+		_this._version = '1.0.3';
 		//项目
 		_this._project = config.project || 'unKnow';
 		//监听内容
@@ -1687,7 +1687,7 @@ exports.default = {
 	//是否启动性能分析 
 	isPerformance: true,
 	//是否检查缓存读取内容
-	isPerformanceCancel: true,
+	isPerformanceRequest: true,
 	//获取到system信息是否立即上报
 	immediatelyiReport: true
 };
@@ -1807,7 +1807,7 @@ var KeepObserverSystem = function () {
 					info.webLoadEnd = timing.loadEventEnd - timing.navigationStart + 'ms';
 				}
 				//是否获取加载资源内容
-				if (self._config.isPerformanceCancel) {
+				if (self._config.isPerformanceRequest) {
 					info.requestPerformance = [];
 					if (performance.getEntries) {
 						var requestPerformance = performance.getEntries();
@@ -1918,7 +1918,6 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
   //是否启动性能分析   暂时未做
   isPerformance: true
-
 };
 
 /***/ }),
@@ -2191,10 +2190,6 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _$observer_Type$max_c;
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /*
  
  	report 实例默认配置数据
@@ -2203,7 +2198,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var type = ['unKownType', 'system', 'log', 'network', 'vue'];
 
-exports.default = (_$observer_Type$max_c = {
+exports.default = {
 	/******************** 公共相关配置 *******************/
 	//上报的类型
 	$observer_Type: type,
@@ -2218,8 +2213,35 @@ exports.default = (_$observer_Type$max_c = {
 
 	/******** network相关配置   *********/
 	//默认network数组缓存长度
-	max_network_cache: 5
-}, _defineProperty(_$observer_Type$max_c, 'max_system_fillIsReport', false), _defineProperty(_$observer_Type$max_c, 'max_log_cache', 15), _defineProperty(_$observer_Type$max_c, 'max_log_fillIsReport', false), _defineProperty(_$observer_Type$max_c, 'max_vue_cache', 2), _defineProperty(_$observer_Type$max_c, 'max_vue_fillIsReport', false), _defineProperty(_$observer_Type$max_c, 'reportUrl', false), _defineProperty(_$observer_Type$max_c, 'onReportFail', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeSetUrl', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeSetHead', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeHook', false), _defineProperty(_$observer_Type$max_c, 'onReportResultHook', false), _$observer_Type$max_c);
+	max_network_cache: 5,
+	//缓存数据满了是否上传
+	max_network_fillIsReport: false,
+
+	/******** log相关配置   *********/
+	//默认log数组缓存长度
+	max_log_cache: 15,
+	//缓存数据满了是否上传
+	max_log_fillIsReport: false,
+
+	/******** vue相关配置   *********/
+	//默认vue数组缓存长度
+	max_vue_cache: 1,
+	//缓存数据满了是否上传
+	max_vue_fillIsReport: true,
+	/*********************   上传相关   ********************/
+	//上传服务器的url列表  		array
+	reportUrl: false,
+	//上传失败回调				function (reportInfo,reportUrl(有可能有))
+	onReportFail: false,
+	//上传前自定义设置url   	function (reportUrl)   return new URl
+	onReportBeforeSetUrl: false,
+	//上传前自定义设置请求头， 	function (reportUrl)   return headData object
+	onReportBeforeSetHead: false,
+	//上传服务器前回调钩子  	function (reportInfo,reportUrl,repHead)
+	onReportBeforeHook: false,
+	//上传服务器后返回处理钩子  	function (resultInfo,reportUrl,resHead)
+	onReportResultHook: false
+};
 
 /***/ }),
 /* 18 */

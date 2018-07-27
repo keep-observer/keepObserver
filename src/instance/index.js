@@ -18,7 +18,7 @@ class KeepObserver extends keepObserverReport {
 	//构造函数
 	constructor(config){
 		//上报配置
-		var CustomConfig = config.reportCusom || {};
+		var CustomConfig = config.reportCustom || {};
 		//是否是开发模式
 		CustomConfig.develop = config.develop? true : false;
 		//开发环境下获取报文是否打印
@@ -34,7 +34,7 @@ class KeepObserver extends keepObserverReport {
 		this._config = config
 		
 		//版本号
-		this._version = '1.0.1';
+		this._version = '1.0.4';
 		//项目
 		this._project = config.project || 'unKnow';
 		//监听内容
