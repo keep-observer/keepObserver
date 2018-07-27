@@ -1,6 +1,6 @@
 # Keep-observer
 
-##### 这是一个应用于 javascript 中的监控库.
+##### **这是一个应用于 javascript 中的监控库**
 
 - **关于keep-observer:**    这是一个基于javascript编写的用于线上生产环境监控库，适用于web PC端以及移动端的无感嵌入，全部基于原生js方法编写，采用嵌入式监控，不与其他任何第三方库起冲突。体积仅32KB。
 - **功能:**   
@@ -46,13 +46,17 @@ var keepObserver = new KeepObserver({
 });
 ```
 
-##### 	更多config配置详情 请参考doucmentation
+##### 	更多config配置详情，以及相关api等，请参考doucmentation。
 
 
 
 ## Documentation
 
+#### 	相关文档说明
+
+- **api方法:**   **[api-document](https://github.com/keep-observer/keepObserver/blob/master/document/api.md)**
+- **config配置说明:**   **[config-document](https://github.com/keep-observer/keepObserver/blob/master/document/config.md)**
+- **report上报内容:**   **[report-document](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
+
 ​	
-
-
 
