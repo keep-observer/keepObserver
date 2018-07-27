@@ -2550,7 +2550,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 			}
 			//获得上传数据
 			var reportData = self._createReportData(type, control);
-			//上传到服务器。。 暂时未做	
+			//上传到服务器
 			var _$report_config = this.$report_config,
 			    reportUrl = _$report_config.reportUrl,
 			    onReportFail = _$report_config.onReportFail,

@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "web -- watch  is JS-error netWork  console..log  observer",
   "main": "index.js",
   "scripts": {
@@ -60,7 +60,7 @@
   "author": "wangkai1995",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/wangkai1995/keepObserver/issues"
+    "url": "https://github.com/keep-observer/keepObserver/issues"
   },
-  "homepage": "https://github.com/wangkai1995/keepObserver#readme"
+  "homepage": "https://github.com/keep-observer/keepObserver#readme"
 }

@@ -40,7 +40,7 @@ export default {
 	max_vue_fillIsReport: false,
 	/*********************   上传相关   ********************/
 	//上传服务器的url列表  		array
-	reportUrl:false,
+	reportUrl:false,  		
 	//上传失败回调				function (reportInfo,reportUrl(有可能有))
 	onReportFail:false,
 	//上传前自定义设置url   	function (reportUrl)   return new URl

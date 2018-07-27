@@ -266,7 +266,7 @@ class KeepObserverReport extends KeepObserverDefault {
 		}
 		//获得上传数据
 		var reportData = self._createReportData(type,control)
-		//上传到服务器。。 暂时未做	
+		//上传到服务器
 		var { 
 				reportUrl,
 				onReportFail,
