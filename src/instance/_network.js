@@ -10,7 +10,7 @@ import KeepObserverNetwork from '../observer/network/index.js';
 var _initNetWork  = function(){
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.networkCusom? self._config.networkCusom: {};
+	var CustomConfig = self._config.networkCustom? self._config.networkCustom: {};
 	self.$network = new KeepObserverNetwork(CustomConfig)
 	//注册监听
 	self.$network.addReportListener(function(ajaxInfo){

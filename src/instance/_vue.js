@@ -8,7 +8,7 @@ import KeepObserverVue from '../observer/vue/index.js';
 var _initVue = function(){
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.vueCusom? self._config.vueCusom: {};
+	var CustomConfig = self._config.vueCustom? self._config.vueCustom: {};
 	CustomConfig.vueInstance = self._config.vueInstance;
 	//判断是否存在实例
 	if(!CustomConfig.vueInstance){

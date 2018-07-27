@@ -9,7 +9,7 @@ import KeepObserverLog from '../observer/log/index.js';
 var _initLog = function(){
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.logCusom? self._config.logCusom: {};
+	var CustomConfig = self._config.logCustom? self._config.logCustom: {};
 	//是否是开发模式
 	CustomConfig.develop = self._config.develop? true : false;
 	self.$log = new KeepObserverLog(CustomConfig)
