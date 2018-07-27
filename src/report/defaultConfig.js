@@ -25,7 +25,7 @@ export default {
 	//默认network数组缓存长度
 	max_network_cache: 5,
 	//缓存数据满了是否上传
-	max_system_fillIsReport: false,
+	max_network_fillIsReport: false,
 
 	/******** log相关配置   *********/
 	//默认log数组缓存长度
@@ -35,9 +35,9 @@ export default {
 
 	/******** vue相关配置   *********/
 	//默认vue数组缓存长度
-	max_vue_cache: 2,
+	max_vue_cache: 1,
 	//缓存数据满了是否上传
-	max_vue_fillIsReport: false,
+	max_vue_fillIsReport: true,
 	/*********************   上传相关   ********************/
 	//上传服务器的url列表  		array
 	reportUrl:false,  		

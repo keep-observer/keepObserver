@@ -83,7 +83,7 @@ class KeepObserverSystem {
 				info.webLoadEnd = (timing.loadEventEnd - timing.navigationStart)+'ms';
 			}	
 			//是否获取加载资源内容
-			if(self._config.isPerformanceCancel){
+			if(self._config.isPerformanceRequest){
 				info.requestPerformance = [];
 				if(performance.getEntries){
 					var requestPerformance = performance.getEntries()

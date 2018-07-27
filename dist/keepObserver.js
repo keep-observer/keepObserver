@@ -619,7 +619,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var _initLog = function _initLog() {
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.logCusom ? self._config.logCusom : {};
+	var CustomConfig = self._config.logCustom ? self._config.logCustom : {};
 	//是否是开发模式
 	CustomConfig.develop = self._config.develop ? true : false;
 	self.$log = new _index3.default(CustomConfig);
@@ -676,7 +676,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var _initNetWork = function _initNetWork() {
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.networkCusom ? self._config.networkCusom : {};
+	var CustomConfig = self._config.networkCustom ? self._config.networkCustom : {};
 	self.$network = new _index3.default(CustomConfig);
 	//注册监听
 	self.$network.addReportListener(function (ajaxInfo) {
@@ -725,7 +725,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var _initSystem = function _initSystem() {
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.systemCusom ? self._config.systemCusom : {};
+	var CustomConfig = self._config.systemCustom ? self._config.systemCustom : {};
 	self.$system = new _index3.default(CustomConfig);
 	//注册监听
 	self.$system.addReportListener(function (systemInfo) {
@@ -763,7 +763,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _initVue = function _initVue() {
 	var self = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.vueCusom ? self._config.vueCusom : {};
+	var CustomConfig = self._config.vueCustom ? self._config.vueCustom : {};
 	CustomConfig.vueInstance = self._config.vueInstance;
 	//判断是否存在实例
 	if (!CustomConfig.vueInstance) {

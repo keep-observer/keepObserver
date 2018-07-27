@@ -14,7 +14,7 @@ export default {
 	//是否启动性能分析 
 	isPerformance:true,
 	//是否检查缓存读取内容
-	isPerformanceCancel:true,
+	isPerformanceRequest:true,
 	//获取到system信息是否立即上报
 	immediatelyiReport:true,
 }

@@ -15,6 +15,42 @@
 
 
 
+## Use And reportMonitorData
+
+#### 	关于keepObserver使用:
+
+​			keepObserver 在 new keepObserver()后 : **开始运行监控。首先读取系统信息和性能详情， 在嵌入拦截window.console相关的方法以及window.XMLHttpRequest方法，进行监控log和ajax网络请求**，
+
+​			注意在keepObserver运行期间 **如果不设置develop = true 将默认生产环境**，在生产环境中.window.console相关的接口打印信息，将被keepObserver拦截，**并不显示在控制台console中**
+
+​			同时 window.console相关的方法的打印信息，以及window.XMLHttpRequest方法的每一次请求，也被拦截并记录在localStorage缓存中，在上报的时候按需要打包合并上报。
+
+
+
+#### 	关于上报服务器：
+
+##### 		keepObserver 在遇到以下几种情况下,将进行上报服务器操作
+
+​			 	： 捕获到js错误  script Error
+
+​				：console.error() 被调用输出错误信息
+
+​				：ajax请求响应超时  network timeout
+
+​				：ajax请求出现错误  status !== 200
+
+​				:  如果配置自定义判断ajax请求onHandleJudgeResponse钩子, 在钩子返回不等于false时，判断为ajax请求不正确
+
+​				：如果配置相关拦截数据缓存满时上报：比如 max_network_fillIsReport,，max_system_fillIsReport，max_log_fillIsReport，等
+
+​				：如果需要监控vue，在vue拦截到错误信息后
+
+
+
+**更多配置信息，以及上报参数，请参考doucmentation**
+
+
+
 ## Installation
 
 ​	请使用 npm安装包
