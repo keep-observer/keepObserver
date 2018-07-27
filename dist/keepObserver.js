@@ -409,7 +409,7 @@ var KeepObserver = function (_keepObserverReport) {
 		_this._config = config;
 
 		//版本号
-		_this._version = '1.0.3';
+		_this._version = '1.0.4';
 		//项目
 		_this._project = config.project || 'unKnow';
 		//监听内容
