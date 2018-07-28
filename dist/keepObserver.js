@@ -1442,7 +1442,6 @@ var KeepObserverNetwork = function () {
 				self.networkList[id];
 				return false;
 			}
-			//
 			//如果存在自定义处理 请求data配置
 			if (onHandleRequestData) {
 				try {
@@ -1457,6 +1456,14 @@ var KeepObserverNetwork = function () {
 				ajaxItem.isError = true;
 				ajaxItem.errorContent = 'http请求错误!错误状态码:' + status;
 			}
+			//如果存在自定义处理 响应data配置
+			if (onHandleResponseData && !ajaxItem.isError) {
+				try {
+					ajaxItem.handleResData = onHandleResponseData(ajaxItem);
+				} catch (err) {
+					ajaxItem.handleResData = '自定义handleResponseData出错:' + err;
+				}
+			}
 			//如果存在自定义处理响应数据是否出错
 			if (onHandleJudgeResponse && !ajaxItem.isError) {
 				try {
@@ -1468,14 +1475,6 @@ var KeepObserverNetwork = function () {
 				} catch (err) {
 					ajaxItem.isError = true;
 					ajaxItem.errorContent = '自定义判断handleJudgeResponse出错:' + err;
-				}
-			}
-			//如果存在自定义处理 响应data配置
-			if (onHandleResponseData && !ajaxItem.isError) {
-				try {
-					ajaxItem.handleResData = onHandleResponseData(ajaxItem);
-				} catch (err) {
-					ajaxItem.handleResData = '自定义handleResponseData出错:' + err;
 				}
 			}
 			//通知上传
