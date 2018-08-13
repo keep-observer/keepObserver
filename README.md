@@ -1,98 +1,75 @@
 # Keep-observer
 
-##### **这是一个应用于 javascript 中的监控库**
+ **[中文版本](https://github.com/keep-observer/keepObserver/blob/master/README-ch.md)**
 
-- **关于keep-observer:**    这是一个基于javascript编写的用于线上生产环境监控库，适用于web PC端以及移动端的无感嵌入，全部基于原生js方法编写，采用嵌入式监控，不与其他任何第三方库起冲突。体积仅32KB。
-- **功能:**   
-  - 监控全局 ***console*** 相关日志，
-  - 捕获 ***JSerror*** 错误信息，
-  - 监控全局 ***XMLHttpRequest*** 请求，
-  - 详细捕获分析 ***项目首屏加载等性能分析***，
-  - ***vue项目*** 可配置捕获相关错误 
-  - **捕获相关错误上报** 服务器日志分析
+#####  **This is a monitored library used in javaScript**
 
-- **兼容与支持:**   兼容目前所有主流框架运行版本, **vue angular  react**等框架。**IE 678暂未测试**
+- **About keep-observer:** This is an online production environment monitoring library based on JavaScript, which is suitable for the web PC end and the mobile end of the non sense embedding, all based on the native JS method, using embedded monitoring, and does not conflict with any other third party libraries. The volume is only 32KB. 
 
+- **Features**
+	- Monitoring the related logs from global **console**.
+	- Capture **JS error** message.
+	- Monitoring the global **XMLHttpRequest**.
+	- Capture and analyze the performance analysis of the project, such as **the first screen loading**.
+	- Capturing the related error is configurable in **Vue project**.
+	- **Capturing and reporting the related error**, analysing server log.
 
+- **Compatibility and support:** compatible with all current mainstream framework runtime versions, Vue angular react and other frameworks. **IE 678 is not tested yet**.
 
-## Use And reportMonitorData
+## Use and report MonitorData
 
-#### 	关于keepObserver使用:
+#### usage about keepObserver:
 
-​			keepObserver 在 new keepObserver()后 : **开始运行监控。首先读取系统信息和性能详情， 在嵌入拦截window.console相关的方法以及window.XMLHttpRequest方法，进行监控log和ajax网络请求**，
+​	if you use keepObserver in your project, it starts **monitoring and reads the system information and performance details first, also, embeds the related methods about intercepting `window.console` and `window.XMLHttpRequest` to monitor the log and Ajax network requests.**
 
-​			注意在keepObserver运行期间 **如果不设置develop = true 将默认生产环境**，在生产环境中.window.console相关的接口打印信息，将被keepObserver拦截，**并不显示在控制台console中**
-
-​			同时 window.console相关的方法的打印信息，以及window.XMLHttpRequest方法的每一次请求，也被拦截并记录在localStorage缓存中，在上报的时候按需要打包合并上报。
-
+​	Noticed that if **`develop = true` was not set**, it would consider **production environment by default** during the keepObserver run, the`window.console` related interface print information in the production environment will be intercepted by keepObserver, **not in the console.**
 
 
-#### 	关于上报服务器：
+​	At the same time, the printing information of the `window.console` related methods, as well as each request of the window.XMLHttpRequest method, is also intercepted and recorded in the localStorage cache, which is packaged and consolidated as required.
 
-##### 		keepObserver 在遇到以下几种情况下,将进行上报服务器操作
+#### Reporting server:
+##### KeepObserver will report server in the following situations:
+- Capture JS error, script error.
+- `console.error()`is invoked to output error information.
+- ajax request response timeout, network timeout
+- ajax request error, `status !== 200`
+- If configured to customize the Ajax request onHandleJudgeResponse hook, the Ajax request is incorrect if the hook return is not equal to false.
+- If the parameter, such as `max_network_fillIsReport,，max_system_fillIsReport，max_log_fillIsReport`, are set,it will reporting server while intercepting data cache is fulled  .
+- If you need to monitor the Vue, after Vue intercepts the error message
 
-​			 	： 捕获到js错误  script Error
-
-​				：console.error() 被调用输出错误信息
-
-​				：ajax请求响应超时  network timeout
-
-​				：ajax请求出现错误  status !== 200
-
-​				:  如果配置自定义判断ajax请求onHandleJudgeResponse钩子, 在钩子返回不等于false时，判断为ajax请求不正确
-
-​				：如果配置相关拦截数据缓存满时上报：比如 max_network_fillIsReport,，max_system_fillIsReport，max_log_fillIsReport，等
-
-​				：如果需要监控vue，在vue拦截到错误信息后
-
-
-
-**更多配置信息，以及上报参数，请参考doucmentation**
-
-
+**For more configuration information and report parameters, please refer to doucmentation.**
 
 ## Installation
 
-​	请使用 npm安装包
-
 ```
-	npm install keep-observers
+npm install keep-observers
 ```
-
-
 
 ## Examples
 
-#### 	一个简单的使用例子
-
-```javascript
+```
 import KeepObserver from 'keep-observers';
-//启动
+//start
 var keepObserver = new KeepObserver({
 	project:'netcar',
 	develop:true,
-	//网络监控配置
+	//network Monitor config
 	networkCustom:{
 		timeout:30000,
 	},
-	//数据上传相关配置
+	//Monitor data report confog
 	reportCustom:{
 		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
 	}
 });
 ```
 
-##### 	更多config配置详情，以及相关api等，请参考doucmentation。
-
-
+**For more details on configuration and related API, please refer to doucmentation.**
 
 ## Documentation
 
-#### 	相关文档说明
+#### Relevant document description
 
-- **api方法:**   **[api-document](https://github.com/keep-observer/keepObserver/blob/master/document/api.md)**
-- **config配置说明:**   **[config-document](https://github.com/keep-observer/keepObserver/blob/master/document/config.md)**
-- **report上报内容:**   **[report-document](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
-
-​	
-
+- **API method:**   **[api-document](https://github.com/keep-observer/keepObserver/blob/master/document/api.md)**
+- **Configuration:**   **[config-document](https://github.com/keep-observer/keepObserver/blob/master/document/config.md)**
+- **Report content:**   **[report-document](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
