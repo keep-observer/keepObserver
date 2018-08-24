@@ -21,7 +21,7 @@ class KeepObserverSystem {
 	}
 	//获取系统信息
 	getSystemInfo(){
-		var self = this;
+		var that = this;
 		var oneDayFlag = this.checkIsOneDay()
 		//判断是否每天最多获取上传一次
 		if(this._config.isOneDay && oneDayFlag){
@@ -29,20 +29,20 @@ class KeepObserverSystem {
 		}
 		//开始获取系统信息
 		var systemInfo = window.navigator.userAgent
-		if(self._config.isPerformance){
-			self.getWebPerformance(function(Result){
-				self._systemInfo = Result
-				self._systemInfo.systemInfo = systemInfo
+		if(that._config.isPerformance){
+			that.getWebPerformance(function(Result){
+				that._systemInfo = Result
+				that._systemInfo.systemInfo = systemInfo
 				//上报
-				self.noticeReport(self._systemInfo);
+				that.noticeReport(that._systemInfo);
 				//记录
-				self.recordReport();
+				that.recordReport();
 			})
 		}
 	}
 	//获取首屏性能分析
 	getWebPerformance(onCallback){
-		var self = this;
+		var that = this;
 		//异步实现,等待完全加载完成
 		var performance =   function(){
 			var info = {}
@@ -83,7 +83,7 @@ class KeepObserverSystem {
 				info.webLoadEnd = (timing.loadEventEnd - timing.navigationStart)+'ms';
 			}	
 			//是否获取加载资源内容
-			if(self._config.isPerformanceRequest){
+			if(that._config.isPerformanceRequest){
 				info.requestPerformance = [];
 				if(performance.getEntries){
 					var requestPerformance = performance.getEntries()

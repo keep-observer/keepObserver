@@ -28,7 +28,7 @@ class KeepObserverLog {
 		初始化替换相关信息
 	 */
 	_init(){
-		var self = this;
+		var that = this;
 		//替换window.console变量
 		var baseLogList = ['log','info','warn','debug','error'];
 
@@ -37,20 +37,20 @@ class KeepObserverLog {
 		}
 
 		baseLogList.map(function(method){
-			self.console[method] = window.console[method];
+			that.console[method] = window.console[method];
 		})
-		self.console.time = window.console.time;
-		self.console.timeEnd = window.console.timeEnd;
-		self.console.clear = window.console.clear;
+		that.console.time = window.console.time;
+		that.console.timeEnd = window.console.timeEnd;
+		that.console.clear = window.console.clear;
 
 		baseLogList.map(method =>{
 			window.console[method] = (...args) =>{
 				//是否处于开发模式下
-				if(self._develop && self.console[method] && tool.isFunction(self.console[method])){
-					self.console[method](...args);
+				if(that._develop && that.console[method] && tool.isFunction(that.console[method])){
+					that.console[method](...args);
 				}
 				//交给拦截处理信息
-				self._handleMessage(method,args);
+				that._handleMessage(method,args);
 			}
 		})
 		//处理time timeEnd clear
@@ -63,31 +63,31 @@ class KeepObserverLog {
 			var type = 'timeEnd'
 			if(pre){
 				var content = label+':'+(Date.now() - pre)+'ms';
-				self._handleMessage(type,[content]);
+				that._handleMessage(type,[content]);
 				//开发模式下打印
-				if(self._develop && self.console.log && tool.isFunction(self.console.log)){
-					self.console.log(content);
+				if(that._develop && that.console.log && tool.isFunction(that.console.log)){
+					that.console.log(content);
 				}
 			}else{
 				var content = label+': 0ms';
-				self._handleMessage(type,[content]);
+				that._handleMessage(type,[content]);
 				//开发模式下打印
-				if(self._develop && self.console.log && tool.isFunction(self.console.log)){
-					self.console.log(content);
+				if(that._develop && that.console.log && tool.isFunction(that.console.log)){
+					that.console.log(content);
 				}
 			}
 		}
 		window.console.clear = (...args) =>{
-			self._handleMessage('clear',args);
-			self.console.clear.apply(window.console, args);
+			that._handleMessage('clear',args);
+			that.console.clear.apply(window.console, args);
 		}
 		//是否需要捕获跨域JS错误
-		if(self._config.catchCrossDomain && !self.$createElement){
+		if(that._config.catchCrossDomain && !that.$createElement){
 			//侵入document.createElement  实现跨域JS捕获错误信息
 			if(window.document || window.document.createElement){
-				self.$createElement = window.document.createElement
+				that.$createElement = window.document.createElement
 				window.document.createElement = function(type){
-					var resultDom = self.$createElement.call(window.document,type)
+					var resultDom = that.$createElement.call(window.document,type)
 					if(type === 'script'){
 						resultDom.crossOrigin = 'anonymous';
 					}
@@ -97,9 +97,9 @@ class KeepObserverLog {
 		}
 		//监控window.onerror
 		if (typeof window.addEventListener != 'undefined') { 
-			window.addEventListener('error',(...args) =>{self._handleError(...args)},true); 
+			window.addEventListener('error',(...args) =>{that._handleError(...args)},true); 
 		} else { 
-			window.attachEvent('onerror',(...args) =>{self._handleError(...args)}) 
+			window.attachEvent('onerror',(...args) =>{that._handleError(...args)}) 
 		}
 	}
 	/*
@@ -109,7 +109,7 @@ class KeepObserverLog {
 		@: data string  (JSON格式对象报文)
 	 */
 	_handleMessage(type,agrs){
-		var self = this;
+		var that = this;
 		var reportData = {}
 		//agrs不是数组 或是空数组 则不处理
 		if(!tool.isArray(agrs) || agrs.length === 0){
@@ -119,7 +119,7 @@ class KeepObserverLog {
 		//直接转成JSON
 		reportData.data = JSON.stringify(agrs);
 		//上报
-		self.noticeReport(reportData)
+		that.noticeReport(reportData)
 	}
 	/*
 		监听 window.onerror,并处理错误信息
@@ -133,7 +133,7 @@ class KeepObserverLog {
 		}
 	 */
 	_handleError(errorEvent){
-		var self = this;
+		var that = this;
 		var errorObj = {};
 		var url = errorEvent.filename || errorEvent.url || false
 		//可能是跨域资源JS出现错误 这获取不到详细信息
@@ -143,7 +143,7 @@ class KeepObserverLog {
 			errorObj.line = 0;
 			errorObj.colum = 0;
 			setTimeout(function(){
-				self._handleMessage('jsError',[errorObj])
+				that._handleMessage('jsError',[errorObj])
 			})
 			return false;
 		}
@@ -153,7 +153,7 @@ class KeepObserverLog {
 		errorObj.line = errorEvent.lineno || '未获取到错误行'
 		errorObj.colum = errorEvent.colno || '未获取到错误列'
 		setTimeout(function(){
-			self._handleMessage('jsError',[errorObj])
+			that._handleMessage('jsError',[errorObj])
 		})
     	return true;
 	}

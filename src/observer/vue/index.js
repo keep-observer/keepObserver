@@ -24,16 +24,16 @@ class KeepObserverVue {
 		开始监控vue
 	 */
 	_init(){
-		var self = this;
-		if(self._vue.config){
-			self._vue.config.errorHandler = (...args) => {self._handleVueError(...args)}
+		var that = this;
+		if(that._vue.config){
+			that._vue.config.errorHandler = (...args) => {that._handleVueError(...args)}
 		}
 	}
 	/*
 		处理监控vue错误信息
 	 */
 	_handleVueError(err,vm,info){
-		var self = this;
+		var that = this;
 		var errInfo = {}
 		errInfo.infoMsg =  tool.toString(info);
 		//是否存在堆栈信息
@@ -45,7 +45,7 @@ class KeepObserverVue {
 		}
 		errInfo.isError = true
 		//上报
-		self.noticeReport(errInfo)
+		that.noticeReport(errInfo)
 	}
 	/*
 		停止监听

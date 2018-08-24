@@ -7,14 +7,14 @@ import KeepObserverLog from '../observer/log/index.js';
 
 
 var _initLog = function(){
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.logCustom? self._config.logCustom: {};
+	var CustomConfig = that._config.logCustom? that._config.logCustom: {};
 	//是否是开发模式
-	CustomConfig.develop = self._config.develop? true : false;
-	self.$log = new KeepObserverLog(CustomConfig)
+	CustomConfig.develop = that._config.develop? true : false;
+	that.$log = new KeepObserverLog(CustomConfig)
 	//注册监听
-	self.$log.addReportListener(function(logInfo){
+	that.$log.addReportListener(function(logInfo){
 		var reportParams = {};
 		var control = null;
 		reportParams.typeName = 'log';
@@ -33,7 +33,7 @@ var _initLog = function(){
 			control.baseExtend = true;
 			control.isError = true;
 		}
-		self.$getReportContent(reportParams,control)
+		that.$getReportContent(reportParams,control)
 	})
 }
 

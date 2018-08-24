@@ -8,12 +8,12 @@ import KeepObserverNetwork from '../observer/network/index.js';
 
 
 var _initNetWork  = function(){
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.networkCustom? self._config.networkCustom: {};
-	self.$network = new KeepObserverNetwork(CustomConfig)
+	var CustomConfig = that._config.networkCustom? that._config.networkCustom: {};
+	that.$network = new KeepObserverNetwork(CustomConfig)
 	//注册监听
-	self.$network.addReportListener(function(ajaxInfo){
+	that.$network.addReportListener(function(ajaxInfo){
 		var reportParams = {};
 		var control = null;
 		reportParams.typeName = 'network';
@@ -27,7 +27,7 @@ var _initNetWork  = function(){
 			control.baseExtend = ajaxInfo.isTimeout? false :true;
 			control.isError = ajaxInfo.isTimeout? false :true;
 		}
-		self.$getReportContent(reportParams,control)
+		that.$getReportContent(reportParams,control)
 	})
 }
 

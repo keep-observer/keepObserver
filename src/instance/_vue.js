@@ -6,18 +6,18 @@ import KeepObserverVue from '../observer/vue/index.js';
 
 
 var _initVue = function(){
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.vueCustom? self._config.vueCustom: {};
-	CustomConfig.vueInstance = self._config.vueInstance;
+	var CustomConfig = that._config.vueCustom? that._config.vueCustom: {};
+	CustomConfig.vueInstance = that._config.vueInstance;
 	//判断是否存在实例
 	if(!CustomConfig.vueInstance){
 		return false;
 	}
 	//注册监听
-	self.$vue = new KeepObserverVue(CustomConfig)
+	that.$vue = new KeepObserverVue(CustomConfig)
 	//注册监听
-	self.$vue.addReportListener(function(vueInfo){
+	that.$vue.addReportListener(function(vueInfo){
 		var reportParams = {};
 		reportParams.typeName = 'vue';
 		reportParams.location = window.location.href;
@@ -28,7 +28,7 @@ var _initVue = function(){
 			control.baseExtend = true;
 			control.isError = true;
 		}
-		self.$getReportContent(reportParams,control)
+		that.$getReportContent(reportParams,control)
 	})
 }
 

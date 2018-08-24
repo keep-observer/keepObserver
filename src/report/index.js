@@ -101,14 +101,14 @@ class KeepObserverReport extends KeepObserverDefault {
 		如果是开发模式 替换window.console.log
 	 */
 	_init(){
-		var self = this;
+		var that = this;
 		//初始化this.reportData
-		var handleType = self.$report_config.$observer_Type
+		var handleType = that.$report_config.$observer_Type
 		handleType.forEach( function(type) {
 			var cacheData = tool.getStorage(type)
-			self.reportData[type] = [];
+			that.reportData[type] = [];
 			if(cacheData){
-				self.reportData[type] = cacheData
+				that.reportData[type] = cacheData
 			}
 		});
 	}
@@ -179,37 +179,37 @@ class KeepObserverReport extends KeepObserverDefault {
 			}     					
 	 */
 	_createReportData(type,control){
-		var self = this;
+		var that = this;
 		var reportData = {};
 		//添加基本信息
 		reportData.reportType = type;
-		reportData.project = self._project;
-		reportData.projectVersion = self._version
+		reportData.project = that._project;
+		reportData.projectVersion = that._version
 		reportData.reportTime = new Date().getTime();
 		//处理自定义信息
-		if(self._customeInfo){
-			reportData.customeInfo = tool.extend({},self._customeInfo);
+		if(that._customeInfo){
+			reportData.customeInfo = tool.extend({},that._customeInfo);
 		}
 		//处理上报数据  是否合并上报
 		if(control.baseExtend){
 			reportData.data = {}
-			for(var key in self.reportData){
-				var value = self.reportData[key];
+			for(var key in that.reportData){
+				var value = that.reportData[key];
 				if(tool.isArray(value) && value.length > 0){
 					reportData.data[key] = tool.extend({},value);
 					//删除相关数据
-					self._removeReportData(key)
+					that._removeReportData(key)
 				}
 			}
 		}else{
-			reportData.data = tool.extend({},self.reportData[type]);
-			self._removeReportData(type)
+			reportData.data = tool.extend({},that.reportData[type]);
+			that._removeReportData(type)
 		}
 		//开发模式下打印上报数据
-		if(self.develop){
+		if(that.develop){
 			var log = tool.extend({},reportData)
 			log.title = type+"类型即将上报服务器,上报内容在data中"
-			self.$devLog(log)
+			that.$devLog(log)
 		}
 		return reportData
 	}
@@ -259,13 +259,13 @@ class KeepObserverReport extends KeepObserverDefault {
 			control object 		上报控制
 	 */
 	_handleReport(type,control){
-		var self = this;
+		var that = this;
 		//如果未传入数据类型
 		if(!type || !tool.isString(type)){
 			return false;
 		}
 		//获得上传数据
-		var reportData = self._createReportData(type,control)
+		var reportData = that._createReportData(type,control)
 		//上传到服务器
 		var { 
 				reportUrl,
@@ -277,7 +277,7 @@ class KeepObserverReport extends KeepObserverDefault {
 			} = this.$report_config
 		//如果没有设置上传URL 那么停止上传
 		if(!reportUrl || !tool.isArray(reportUrl)){
-			self._handleReportFail(onReportFail,reportData,null)
+			that._handleReportFail(onReportFail,reportData,null)
 			return false;
 		}
 		//遍历URL上传列表
@@ -286,33 +286,33 @@ class KeepObserverReport extends KeepObserverDefault {
 			var reportConfig = {};
 			//是否有上传前修改URL回调
 			if(onReportBeforeSetUrl){
-				var url = self._handleHook(onReportBeforeSetUrl,item);
+				var url = that._handleHook(onReportBeforeSetUrl,item);
 			}else{
 				url = item;
 			}
 			if(!tool.isString(url)){
-				self._handleReportFail(onReportFail,reportData,null)
+				that._handleReportFail(onReportFail,reportData,null)
 				return false;
 			}
 			reportConfig.url = url;
 			//获取自定义请求头
-			var  customeHead = onReportBeforeSetHead?self._handleHook(onReportBeforeSetHead,item):false;
+			var  customeHead = onReportBeforeSetHead?that._handleHook(onReportBeforeSetHead,item):false;
 			if(customeHead && tool.isObject(customeHead) && !tool.isEmptyObject(customeHead)){
 				reportConfig.customeHead = customeHead
 			}
 			//获取请求
 			reportConfig.data = reportData;
-			self._handleHook(onReportBeforeHook,reportData,reportConfig.url,reportConfig.customeHead)
+			that._handleHook(onReportBeforeHook,reportData,reportConfig.url,reportConfig.customeHead)
 			//上传到服务器
 			try{
 				AjaxServer(reportConfig).then(function(result){
-					self._handleHook(onReportResultHook,result.data,reportConfig.url,result.head);
+					that._handleHook(onReportResultHook,result.data,reportConfig.url,result.head);
 				},function(err){
-					self._handleReportFail(onReportFail,reportData,reportConfig.url);
+					that._handleReportFail(onReportFail,reportData,reportConfig.url);
 				})
 			}catch(err){
 				//上传报错
-				self.$devError('上传数据出现错误:'+err)
+				that.$devError('上传数据出现错误:'+err)
 			}
 			//end
 		})

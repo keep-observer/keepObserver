@@ -16,16 +16,16 @@ class KeepObserverDefault {
 
 
 	_defaultinit(){
-		var self = this;
+		var that = this;
 		//初始化$devLog
-		self.$devLog = window.console.log
+		that.$devLog = window.console.log
 		window.console.log = (...args) => {
-	      	self.$devLog.apply(window.console, args);
+	      	that.$devLog.apply(window.console, args);
 	    };
 	    //初始化$$devError
-	    self.$devError = window.console.error
+	    that.$devError = window.console.error
 		window.console.error = (...args) => {
-	      	self.$devError.apply(window.console, args);
+	      	that.$devError.apply(window.console, args);
 	    };
 	}
 

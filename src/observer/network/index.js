@@ -54,23 +54,23 @@ class KeepObserverNetwork{
 		在这里替换window.XMLHttpRequest变量进行监控
 	 */
 	_init(){
-		var self = this;
+		var that = this;
 		var _XMLHttp = window.XMLHttpRequest;
 		//不支持 ajax 不进行监控
 		if(!_XMLHttp){
 			return false;
 		}
-		self._open =  window.XMLHttpRequest.prototype.open
-		self._send =  window.XMLHttpRequest.prototype.send
-		self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader
+		that._open =  window.XMLHttpRequest.prototype.open
+		that._send =  window.XMLHttpRequest.prototype.send
+		that._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader
 		//处理Ajax
-		self._handleXMLAjax();
+		that._handleXMLAjax();
 	}
 	/*
 		拦截XML AJax信息
 	 */
 	_handleXMLAjax(){
-		var self = this;
+		var that = this;
 		//拦截原生open
 		window.XMLHttpRequest.prototype.open = function(){
 			var XML = this;
@@ -96,7 +96,7 @@ class KeepObserverNetwork{
 			var _onreadystatechange = XML.onreadystatechange || function() {};
 			// start onreadystatechange
 			var onreadystatechange = function(){
-				var item = self.networkList[id]? self.networkList[id]: false;
+				var item = that.networkList[id]? that.networkList[id]: false;
 				//如果不存在 可能略过了send 会导致丢失部分数据
 				if(!item){
 					item = {}
@@ -130,7 +130,7 @@ class KeepObserverNetwork{
 		          	//loading
 		        } else if (XML.readyState == 4) {
 		        	//结束超时捕获
-		        	self._handleTimeout(id);
+		        	that._handleTimeout(id);
 		        	//处理响应头
 		        	item.resHead = {};
 		          	var header = XML.getAllResponseHeaders() || '',
@@ -152,16 +152,16 @@ class KeepObserverNetwork{
 		          	//请求结束完成
 		         	setTimeout(function(){
          				//是否是超时接口 超时的接口不做处理
-						if(!self.timeoutRequest[id]){
-							self._handleDoneXML(id)
+						if(!that.timeoutRequest[id]){
+							that._handleDoneXML(id)
 						}
 		         	})
 		        } else {
 		          clearInterval(timer);
 		        }
 		        //如果这个接口已经超时处理了 那么不记录
-		        if(!self.timeoutRequest[id]){
-		        	self.networkList[id] = item;
+		        if(!that.timeoutRequest[id]){
+		        	that.networkList[id] = item;
 		        }
 		        return _onreadystatechange.apply(XML, arguments);
 			}
@@ -176,7 +176,7 @@ class KeepObserverNetwork{
 		          onreadystatechange.call(XML);
 		        }
 		    }, 10);
-		    return self._open.apply(XML, args);
+		    return that._open.apply(XML, args);
 		}
 		//拦截原始设置请求头
 		window.XMLHttpRequest.prototype.setRequestHeader = function(){
@@ -189,7 +189,7 @@ class KeepObserverNetwork{
 				setHead[key] = value
 				XML._setHead[XML._id] =  setHead
 			}
-			return self._setRequestHeader.apply(XML, args);
+			return that._setRequestHeader.apply(XML, args);
 		}
 		//拦截原生send
 		window.XMLHttpRequest.prototype.send = function(){
@@ -202,18 +202,18 @@ class KeepObserverNetwork{
           		data = args[0],
           		saveData = '';
 			//监听列表中创建一条请求
-			if(!self.networkList[id]){
-				self.networkList[id] = {}
+			if(!that.networkList[id]){
+				that.networkList[id] = {}
 			}
 			//保存请求方法
-			self.networkList[id].method = method;
+			that.networkList[id].method = method;
 			var { url ,params } = networkTool.handleReqUrl(url);
 			//处理请求url和params
-			self.networkList[id].url = url;
-			self.networkList[id].params = params;
+			that.networkList[id].url = url;
+			that.networkList[id].params = params;
 			//保存自定义请求头
 			if(requestHead){
-				self.networkList[id].reqHead = tool.extend({},requestHead);
+				that.networkList[id].reqHead = tool.extend({},requestHead);
 				delete XML._setHead[id];
 			}
 			//如果是post数据保存
@@ -222,21 +222,21 @@ class KeepObserverNetwork{
 		        	saveData = data;
 		      	}
 			}
-			self.networkList[id].data  = saveData;
+			that.networkList[id].data  = saveData;
 			//开启定时器 判断接口是否超时
-			self._handleTimeout(id);
-			return self._send.apply(XML, args);
+			that._handleTimeout(id);
+			return that._send.apply(XML, args);
 		}
 	}
 	/*
 		处理接口请求超时
 	 */
 	_handleTimeout(id){
-		var self = this;
-		var timeout = self._config.timeout
-		var isTimeout = self.timeoutRequest[id] ? self.timeoutRequest[id] :false;
-		var time = self.timeout[id]? self.timeout[id]: false;
-		var item = self.networkList[id];
+		var that = this;
+		var timeout = that._config.timeout
+		var isTimeout = that.timeoutRequest[id] ? that.timeoutRequest[id] :false;
+		var time = that.timeout[id]? that.timeout[id]: false;
+		var item = that.networkList[id];
 		//如果不存在 不做处理
 		if(!item || isTimeout){
 			return false;
@@ -250,8 +250,8 @@ class KeepObserverNetwork{
 				item.isError = true;
 				item.errorContent = '接口响应超时，超时时间:'+timeout+'(ms)';
 				//这里直接完成添加到超时列表 停止后续处理
-				self._handleDoneXML(id)
-				self.timeoutRequest[id] = true
+				that._handleDoneXML(id)
+				that.timeoutRequest[id] = true
 			},timeout)
 		}else{
 			//如果存在 则说明已经回调 取消超时定时器
@@ -263,17 +263,17 @@ class KeepObserverNetwork{
 		@id:拦截请求唯一ID
 	 */
 	_handleDoneXML(id){
-		var self = this;
-		var ajaxItem = tool.extend({},self.networkList[id]);
-		var { onHandleJudgeResponse ,onHandleRequestData ,onHandleResponseData } = self._config;
+		var that = this;
+		var ajaxItem = tool.extend({},that.networkList[id]);
+		var { onHandleJudgeResponse ,onHandleRequestData ,onHandleResponseData } = that._config;
 		//空的对象不做处理
 		if(tool.isEmptyObject(ajaxItem)){
 			return false;
 		}
 		/******   这里开始处理数据  *****/
 		//判断当前请求数据url是否需要屏蔽
-		if(!self._handleJudgeDisbale(ajaxItem)){
-			self.networkList[id];
+		if(!that._handleJudgeDisbale(ajaxItem)){
+			that.networkList[id];
 			return false;
 		}
 		//如果存在自定义处理 请求data配置
@@ -312,9 +312,9 @@ class KeepObserverNetwork{
 			}
 		}
 		//通知上传
-		self.noticeReport(ajaxItem);
+		that.noticeReport(ajaxItem);
 		//上报后删除记录
-		delete self.networkList[id];
+		delete that.networkList[id];
 	}
 	/*
 		判断该请求是否是屏蔽请求

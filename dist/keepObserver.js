@@ -409,7 +409,7 @@ var KeepObserver = function (_keepObserverReport) {
 		_this._config = config;
 
 		//版本号
-		_this._version = '1.0.4';
+		_this._version = '1.0.5';
 		//项目
 		_this._project = config.project || 'unKnow';
 		//监听内容
@@ -566,24 +566,24 @@ var KeepObserverDefault = function () {
 	_createClass(KeepObserverDefault, [{
 		key: "_defaultinit",
 		value: function _defaultinit() {
-			var self = this;
+			var that = this;
 			//初始化$devLog
-			self.$devLog = window.console.log;
+			that.$devLog = window.console.log;
 			window.console.log = function () {
 				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 					args[_key] = arguments[_key];
 				}
 
-				self.$devLog.apply(window.console, args);
+				that.$devLog.apply(window.console, args);
 			};
 			//初始化$$devError
-			self.$devError = window.console.error;
+			that.$devError = window.console.error;
 			window.console.error = function () {
 				for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 					args[_key2] = arguments[_key2];
 				}
 
-				self.$devError.apply(window.console, args);
+				that.$devError.apply(window.console, args);
 			};
 		}
 	}]);
@@ -617,14 +617,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _initLog = function _initLog() {
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.logCustom ? self._config.logCustom : {};
+	var CustomConfig = that._config.logCustom ? that._config.logCustom : {};
 	//是否是开发模式
-	CustomConfig.develop = self._config.develop ? true : false;
-	self.$log = new _index3.default(CustomConfig);
+	CustomConfig.develop = that._config.develop ? true : false;
+	that.$log = new _index3.default(CustomConfig);
 	//注册监听
-	self.$log.addReportListener(function (logInfo) {
+	that.$log.addReportListener(function (logInfo) {
 		var reportParams = {};
 		var control = null;
 		reportParams.typeName = 'log';
@@ -643,7 +643,7 @@ var _initLog = function _initLog() {
 			control.baseExtend = true;
 			control.isError = true;
 		}
-		self.$getReportContent(reportParams, control);
+		that.$getReportContent(reportParams, control);
 	});
 };
 
@@ -674,12 +674,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _initNetWork = function _initNetWork() {
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.networkCustom ? self._config.networkCustom : {};
-	self.$network = new _index3.default(CustomConfig);
+	var CustomConfig = that._config.networkCustom ? that._config.networkCustom : {};
+	that.$network = new _index3.default(CustomConfig);
 	//注册监听
-	self.$network.addReportListener(function (ajaxInfo) {
+	that.$network.addReportListener(function (ajaxInfo) {
 		var reportParams = {};
 		var control = null;
 		reportParams.typeName = 'network';
@@ -693,7 +693,7 @@ var _initNetWork = function _initNetWork() {
 			control.baseExtend = ajaxInfo.isTimeout ? false : true;
 			control.isError = ajaxInfo.isTimeout ? false : true;
 		}
-		self.$getReportContent(reportParams, control);
+		that.$getReportContent(reportParams, control);
 	});
 };
 //网络请求拦截分析
@@ -723,12 +723,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _initSystem = function _initSystem() {
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.systemCustom ? self._config.systemCustom : {};
-	self.$system = new _index3.default(CustomConfig);
+	var CustomConfig = that._config.systemCustom ? that._config.systemCustom : {};
+	that.$system = new _index3.default(CustomConfig);
 	//注册监听
-	self.$system.addReportListener(function (systemInfo) {
+	that.$system.addReportListener(function (systemInfo) {
 		var reportParams = {};
 		reportParams.typeName = 'system';
 		reportParams.location = window.location.href;
@@ -736,7 +736,7 @@ var _initSystem = function _initSystem() {
 		//系统信息和首屏性能立即上报
 		var control = {};
 		control.lazy = false;
-		self.$getReportContent(reportParams, control);
+		that.$getReportContent(reportParams, control);
 	});
 };
 
@@ -761,18 +761,18 @@ var _index2 = _interopRequireDefault(_index);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _initVue = function _initVue() {
-	var self = this;
+	var that = this;
 	//初始化上传相关实例
-	var CustomConfig = self._config.vueCustom ? self._config.vueCustom : {};
-	CustomConfig.vueInstance = self._config.vueInstance;
+	var CustomConfig = that._config.vueCustom ? that._config.vueCustom : {};
+	CustomConfig.vueInstance = that._config.vueInstance;
 	//判断是否存在实例
 	if (!CustomConfig.vueInstance) {
 		return false;
 	}
 	//注册监听
-	self.$vue = new _index2.default(CustomConfig);
+	that.$vue = new _index2.default(CustomConfig);
 	//注册监听
-	self.$vue.addReportListener(function (vueInfo) {
+	that.$vue.addReportListener(function (vueInfo) {
 		var reportParams = {};
 		reportParams.typeName = 'vue';
 		reportParams.location = window.location.href;
@@ -783,7 +783,7 @@ var _initVue = function _initVue() {
 			control.baseExtend = true;
 			control.isError = true;
 		}
-		self.$getReportContent(reportParams, control);
+		that.$getReportContent(reportParams, control);
 	});
 };
 
@@ -868,7 +868,7 @@ var KeepObserverLog = function () {
 	_createClass(KeepObserverLog, [{
 		key: '_init',
 		value: function _init() {
-			var self = this;
+			var that = this;
 			//替换window.console变量
 			var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
 
@@ -877,11 +877,11 @@ var KeepObserverLog = function () {
 			}
 
 			baseLogList.map(function (method) {
-				self.console[method] = window.console[method];
+				that.console[method] = window.console[method];
 			});
-			self.console.time = window.console.time;
-			self.console.timeEnd = window.console.timeEnd;
-			self.console.clear = window.console.clear;
+			that.console.time = window.console.time;
+			that.console.timeEnd = window.console.timeEnd;
+			that.console.clear = window.console.clear;
 
 			baseLogList.map(function (method) {
 				window.console[method] = function () {
@@ -890,13 +890,13 @@ var KeepObserverLog = function () {
 					}
 
 					//是否处于开发模式下
-					if (self._develop && self.console[method] && tool.isFunction(self.console[method])) {
-						var _self$console;
+					if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
+						var _that$console;
 
-						(_self$console = self.console)[method].apply(_self$console, args);
+						(_that$console = that.console)[method].apply(_that$console, args);
 					}
 					//交给拦截处理信息
-					self._handleMessage(method, args);
+					that._handleMessage(method, args);
 				};
 			});
 			//处理time timeEnd clear
@@ -909,17 +909,17 @@ var KeepObserverLog = function () {
 				var type = 'timeEnd';
 				if (pre) {
 					var content = label + ':' + (Date.now() - pre) + 'ms';
-					self._handleMessage(type, [content]);
+					that._handleMessage(type, [content]);
 					//开发模式下打印
-					if (self._develop && self.console.log && tool.isFunction(self.console.log)) {
-						self.console.log(content);
+					if (that._develop && that.console.log && tool.isFunction(that.console.log)) {
+						that.console.log(content);
 					}
 				} else {
 					var content = label + ': 0ms';
-					self._handleMessage(type, [content]);
+					that._handleMessage(type, [content]);
 					//开发模式下打印
-					if (self._develop && self.console.log && tool.isFunction(self.console.log)) {
-						self.console.log(content);
+					if (that._develop && that.console.log && tool.isFunction(that.console.log)) {
+						that.console.log(content);
 					}
 				}
 			};
@@ -928,16 +928,16 @@ var KeepObserverLog = function () {
 					args[_key2] = arguments[_key2];
 				}
 
-				self._handleMessage('clear', args);
-				self.console.clear.apply(window.console, args);
+				that._handleMessage('clear', args);
+				that.console.clear.apply(window.console, args);
 			};
 			//是否需要捕获跨域JS错误
-			if (self._config.catchCrossDomain && !self.$createElement) {
+			if (that._config.catchCrossDomain && !that.$createElement) {
 				//侵入document.createElement  实现跨域JS捕获错误信息
 				if (window.document || window.document.createElement) {
-					self.$createElement = window.document.createElement;
+					that.$createElement = window.document.createElement;
 					window.document.createElement = function (type) {
-						var resultDom = self.$createElement.call(window.document, type);
+						var resultDom = that.$createElement.call(window.document, type);
 						if (type === 'script') {
 							resultDom.crossOrigin = 'anonymous';
 						}
@@ -948,11 +948,11 @@ var KeepObserverLog = function () {
 			//监控window.onerror
 			if (typeof window.addEventListener != 'undefined') {
 				window.addEventListener('error', function () {
-					self._handleError.apply(self, arguments);
+					that._handleError.apply(that, arguments);
 				}, true);
 			} else {
 				window.attachEvent('onerror', function () {
-					self._handleError.apply(self, arguments);
+					that._handleError.apply(that, arguments);
 				});
 			}
 		}
@@ -966,7 +966,7 @@ var KeepObserverLog = function () {
 	}, {
 		key: '_handleMessage',
 		value: function _handleMessage(type, agrs) {
-			var self = this;
+			var that = this;
 			var reportData = {};
 			//agrs不是数组 或是空数组 则不处理
 			if (!tool.isArray(agrs) || agrs.length === 0) {
@@ -976,7 +976,7 @@ var KeepObserverLog = function () {
 			//直接转成JSON
 			reportData.data = JSON.stringify(agrs);
 			//上报
-			self.noticeReport(reportData);
+			that.noticeReport(reportData);
 		}
 		/*
   	监听 window.onerror,并处理错误信息
@@ -993,7 +993,7 @@ var KeepObserverLog = function () {
 	}, {
 		key: '_handleError',
 		value: function _handleError(errorEvent) {
-			var self = this;
+			var that = this;
 			var errorObj = {};
 			var url = errorEvent.filename || errorEvent.url || false;
 			//可能是跨域资源JS出现错误 这获取不到详细信息
@@ -1003,7 +1003,7 @@ var KeepObserverLog = function () {
 				errorObj.line = 0;
 				errorObj.colum = 0;
 				setTimeout(function () {
-					self._handleMessage('jsError', [errorObj]);
+					that._handleMessage('jsError', [errorObj]);
 				});
 				return false;
 			}
@@ -1013,7 +1013,7 @@ var KeepObserverLog = function () {
 			errorObj.line = errorEvent.lineno || '未获取到错误行';
 			errorObj.colum = errorEvent.colno || '未获取到错误列';
 			setTimeout(function () {
-				self._handleMessage('jsError', [errorObj]);
+				that._handleMessage('jsError', [errorObj]);
 			});
 			return true;
 		}
@@ -1196,17 +1196,17 @@ var KeepObserverNetwork = function () {
 	_createClass(KeepObserverNetwork, [{
 		key: '_init',
 		value: function _init() {
-			var self = this;
+			var that = this;
 			var _XMLHttp = window.XMLHttpRequest;
 			//不支持 ajax 不进行监控
 			if (!_XMLHttp) {
 				return false;
 			}
-			self._open = window.XMLHttpRequest.prototype.open;
-			self._send = window.XMLHttpRequest.prototype.send;
-			self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader;
+			that._open = window.XMLHttpRequest.prototype.open;
+			that._send = window.XMLHttpRequest.prototype.send;
+			that._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader;
 			//处理Ajax
-			self._handleXMLAjax();
+			that._handleXMLAjax();
 		}
 		/*
   	拦截XML AJax信息
@@ -1215,7 +1215,7 @@ var KeepObserverNetwork = function () {
 	}, {
 		key: '_handleXMLAjax',
 		value: function _handleXMLAjax() {
-			var self = this;
+			var that = this;
 			//拦截原生open
 			window.XMLHttpRequest.prototype.open = function () {
 				var XML = this;
@@ -1241,7 +1241,7 @@ var KeepObserverNetwork = function () {
 				var _onreadystatechange = XML.onreadystatechange || function () {};
 				// start onreadystatechange
 				var onreadystatechange = function onreadystatechange() {
-					var item = self.networkList[id] ? self.networkList[id] : false;
+					var item = that.networkList[id] ? that.networkList[id] : false;
 					//如果不存在 可能略过了send 会导致丢失部分数据
 					if (!item) {
 						item = {};
@@ -1280,7 +1280,7 @@ var KeepObserverNetwork = function () {
 						//loading
 					} else if (XML.readyState == 4) {
 						//结束超时捕获
-						self._handleTimeout(id);
+						that._handleTimeout(id);
 						//处理响应头
 						item.resHead = {};
 						var header = XML.getAllResponseHeaders() || '',
@@ -1303,16 +1303,16 @@ var KeepObserverNetwork = function () {
 						//请求结束完成
 						setTimeout(function () {
 							//是否是超时接口 超时的接口不做处理
-							if (!self.timeoutRequest[id]) {
-								self._handleDoneXML(id);
+							if (!that.timeoutRequest[id]) {
+								that._handleDoneXML(id);
 							}
 						});
 					} else {
 						clearInterval(timer);
 					}
 					//如果这个接口已经超时处理了 那么不记录
-					if (!self.timeoutRequest[id]) {
-						self.networkList[id] = item;
+					if (!that.timeoutRequest[id]) {
+						that.networkList[id] = item;
 					}
 					return _onreadystatechange.apply(XML, arguments);
 				};
@@ -1327,7 +1327,7 @@ var KeepObserverNetwork = function () {
 						onreadystatechange.call(XML);
 					}
 				}, 10);
-				return self._open.apply(XML, args);
+				return that._open.apply(XML, args);
 			};
 			//拦截原始设置请求头
 			window.XMLHttpRequest.prototype.setRequestHeader = function () {
@@ -1340,7 +1340,7 @@ var KeepObserverNetwork = function () {
 					setHead[key] = value;
 					XML._setHead[XML._id] = setHead;
 				}
-				return self._setRequestHeader.apply(XML, args);
+				return that._setRequestHeader.apply(XML, args);
 			};
 			//拦截原生send
 			window.XMLHttpRequest.prototype.send = function () {
@@ -1353,11 +1353,11 @@ var KeepObserverNetwork = function () {
 				    data = args[0],
 				    saveData = '';
 				//监听列表中创建一条请求
-				if (!self.networkList[id]) {
-					self.networkList[id] = {};
+				if (!that.networkList[id]) {
+					that.networkList[id] = {};
 				}
 				//保存请求方法
-				self.networkList[id].method = method;
+				that.networkList[id].method = method;
 
 				var _networkTool$handleRe2 = networkTool.handleReqUrl(url),
 				    url = _networkTool$handleRe2.url,
@@ -1365,11 +1365,11 @@ var KeepObserverNetwork = function () {
 				//处理请求url和params
 
 
-				self.networkList[id].url = url;
-				self.networkList[id].params = params;
+				that.networkList[id].url = url;
+				that.networkList[id].params = params;
 				//保存自定义请求头
 				if (requestHead) {
-					self.networkList[id].reqHead = tool.extend({}, requestHead);
+					that.networkList[id].reqHead = tool.extend({}, requestHead);
 					delete XML._setHead[id];
 				}
 				//如果是post数据保存
@@ -1378,10 +1378,10 @@ var KeepObserverNetwork = function () {
 						saveData = data;
 					}
 				}
-				self.networkList[id].data = saveData;
+				that.networkList[id].data = saveData;
 				//开启定时器 判断接口是否超时
-				self._handleTimeout(id);
-				return self._send.apply(XML, args);
+				that._handleTimeout(id);
+				return that._send.apply(XML, args);
 			};
 		}
 		/*
@@ -1391,11 +1391,11 @@ var KeepObserverNetwork = function () {
 	}, {
 		key: '_handleTimeout',
 		value: function _handleTimeout(id) {
-			var self = this;
-			var timeout = self._config.timeout;
-			var isTimeout = self.timeoutRequest[id] ? self.timeoutRequest[id] : false;
-			var time = self.timeout[id] ? self.timeout[id] : false;
-			var item = self.networkList[id];
+			var that = this;
+			var timeout = that._config.timeout;
+			var isTimeout = that.timeoutRequest[id] ? that.timeoutRequest[id] : false;
+			var time = that.timeout[id] ? that.timeout[id] : false;
+			var item = that.networkList[id];
 			//如果不存在 不做处理
 			if (!item || isTimeout) {
 				return false;
@@ -1409,8 +1409,8 @@ var KeepObserverNetwork = function () {
 					item.isError = true;
 					item.errorContent = '接口响应超时，超时时间:' + timeout + '(ms)';
 					//这里直接完成添加到超时列表 停止后续处理
-					self._handleDoneXML(id);
-					self.timeoutRequest[id] = true;
+					that._handleDoneXML(id);
+					that.timeoutRequest[id] = true;
 				}, timeout);
 			} else {
 				//如果存在 则说明已经回调 取消超时定时器
@@ -1425,12 +1425,12 @@ var KeepObserverNetwork = function () {
 	}, {
 		key: '_handleDoneXML',
 		value: function _handleDoneXML(id) {
-			var self = this;
-			var ajaxItem = tool.extend({}, self.networkList[id]);
-			var _self$_config = self._config,
-			    onHandleJudgeResponse = _self$_config.onHandleJudgeResponse,
-			    onHandleRequestData = _self$_config.onHandleRequestData,
-			    onHandleResponseData = _self$_config.onHandleResponseData;
+			var that = this;
+			var ajaxItem = tool.extend({}, that.networkList[id]);
+			var _that$_config = that._config,
+			    onHandleJudgeResponse = _that$_config.onHandleJudgeResponse,
+			    onHandleRequestData = _that$_config.onHandleRequestData,
+			    onHandleResponseData = _that$_config.onHandleResponseData;
 			//空的对象不做处理
 
 			if (tool.isEmptyObject(ajaxItem)) {
@@ -1438,8 +1438,8 @@ var KeepObserverNetwork = function () {
 			}
 			/******   这里开始处理数据  *****/
 			//判断当前请求数据url是否需要屏蔽
-			if (!self._handleJudgeDisbale(ajaxItem)) {
-				self.networkList[id];
+			if (!that._handleJudgeDisbale(ajaxItem)) {
+				that.networkList[id];
 				return false;
 			}
 			//如果存在自定义处理 请求data配置
@@ -1478,9 +1478,9 @@ var KeepObserverNetwork = function () {
 				}
 			}
 			//通知上传
-			self.noticeReport(ajaxItem);
+			that.noticeReport(ajaxItem);
 			//上报后删除记录
-			delete self.networkList[id];
+			delete that.networkList[id];
 		}
 		/*
   	判断该请求是否是屏蔽请求
@@ -1741,7 +1741,7 @@ var KeepObserverSystem = function () {
 	_createClass(KeepObserverSystem, [{
 		key: 'getSystemInfo',
 		value: function getSystemInfo() {
-			var self = this;
+			var that = this;
 			var oneDayFlag = this.checkIsOneDay();
 			//判断是否每天最多获取上传一次
 			if (this._config.isOneDay && oneDayFlag) {
@@ -1749,14 +1749,14 @@ var KeepObserverSystem = function () {
 			}
 			//开始获取系统信息
 			var systemInfo = window.navigator.userAgent;
-			if (self._config.isPerformance) {
-				self.getWebPerformance(function (Result) {
-					self._systemInfo = Result;
-					self._systemInfo.systemInfo = systemInfo;
+			if (that._config.isPerformance) {
+				that.getWebPerformance(function (Result) {
+					that._systemInfo = Result;
+					that._systemInfo.systemInfo = systemInfo;
 					//上报
-					self.noticeReport(self._systemInfo);
+					that.noticeReport(that._systemInfo);
 					//记录
-					self.recordReport();
+					that.recordReport();
 				});
 			}
 		}
@@ -1765,7 +1765,7 @@ var KeepObserverSystem = function () {
 	}, {
 		key: 'getWebPerformance',
 		value: function getWebPerformance(onCallback) {
-			var self = this;
+			var that = this;
 			//异步实现,等待完全加载完成
 			var performance = function performance() {
 				var info = {};
@@ -1806,7 +1806,7 @@ var KeepObserverSystem = function () {
 					info.webLoadEnd = timing.loadEventEnd - timing.navigationStart + 'ms';
 				}
 				//是否获取加载资源内容
-				if (self._config.isPerformanceRequest) {
+				if (that._config.isPerformanceRequest) {
 					info.requestPerformance = [];
 					if (performance.getEntries) {
 						var requestPerformance = performance.getEntries();
@@ -1971,10 +1971,10 @@ var KeepObserverVue = function () {
 	_createClass(KeepObserverVue, [{
 		key: '_init',
 		value: function _init() {
-			var self = this;
-			if (self._vue.config) {
-				self._vue.config.errorHandler = function () {
-					self._handleVueError.apply(self, arguments);
+			var that = this;
+			if (that._vue.config) {
+				that._vue.config.errorHandler = function () {
+					that._handleVueError.apply(that, arguments);
 				};
 			}
 		}
@@ -1985,7 +1985,7 @@ var KeepObserverVue = function () {
 	}, {
 		key: '_handleVueError',
 		value: function _handleVueError(err, vm, info) {
-			var self = this;
+			var that = this;
 			var errInfo = {};
 			errInfo.infoMsg = tool.toString(info);
 			//是否存在堆栈信息
@@ -1997,7 +1997,7 @@ var KeepObserverVue = function () {
 			}
 			errInfo.isError = true;
 			//上报
-			self.noticeReport(errInfo);
+			that.noticeReport(errInfo);
 		}
 		/*
   	停止监听
@@ -2388,14 +2388,14 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 	}, {
 		key: '_init',
 		value: function _init() {
-			var self = this;
+			var that = this;
 			//初始化this.reportData
-			var handleType = self.$report_config.$observer_Type;
+			var handleType = that.$report_config.$observer_Type;
 			handleType.forEach(function (type) {
 				var cacheData = tool.getStorage(type);
-				self.reportData[type] = [];
+				that.reportData[type] = [];
 				if (cacheData) {
-					self.reportData[type] = cacheData;
+					that.reportData[type] = cacheData;
 				}
 			});
 		}
@@ -2475,37 +2475,37 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 	}, {
 		key: '_createReportData',
 		value: function _createReportData(type, control) {
-			var self = this;
+			var that = this;
 			var reportData = {};
 			//添加基本信息
 			reportData.reportType = type;
-			reportData.project = self._project;
-			reportData.projectVersion = self._version;
+			reportData.project = that._project;
+			reportData.projectVersion = that._version;
 			reportData.reportTime = new Date().getTime();
 			//处理自定义信息
-			if (self._customeInfo) {
-				reportData.customeInfo = tool.extend({}, self._customeInfo);
+			if (that._customeInfo) {
+				reportData.customeInfo = tool.extend({}, that._customeInfo);
 			}
 			//处理上报数据  是否合并上报
 			if (control.baseExtend) {
 				reportData.data = {};
-				for (var key in self.reportData) {
-					var value = self.reportData[key];
+				for (var key in that.reportData) {
+					var value = that.reportData[key];
 					if (tool.isArray(value) && value.length > 0) {
 						reportData.data[key] = tool.extend({}, value);
 						//删除相关数据
-						self._removeReportData(key);
+						that._removeReportData(key);
 					}
 				}
 			} else {
-				reportData.data = tool.extend({}, self.reportData[type]);
-				self._removeReportData(type);
+				reportData.data = tool.extend({}, that.reportData[type]);
+				that._removeReportData(type);
 			}
 			//开发模式下打印上报数据
-			if (self.develop) {
+			if (that.develop) {
 				var log = tool.extend({}, reportData);
 				log.title = type + "类型即将上报服务器,上报内容在data中";
-				self.$devLog(log);
+				that.$devLog(log);
 			}
 			return reportData;
 		}
@@ -2564,13 +2564,13 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 	}, {
 		key: '_handleReport',
 		value: function _handleReport(type, control) {
-			var self = this;
+			var that = this;
 			//如果未传入数据类型
 			if (!type || !tool.isString(type)) {
 				return false;
 			}
 			//获得上传数据
-			var reportData = self._createReportData(type, control);
+			var reportData = that._createReportData(type, control);
 			//上传到服务器
 			var _$report_config = this.$report_config,
 			    reportUrl = _$report_config.reportUrl,
@@ -2582,7 +2582,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 			//如果没有设置上传URL 那么停止上传
 
 			if (!reportUrl || !tool.isArray(reportUrl)) {
-				self._handleReportFail(onReportFail, reportData, null);
+				that._handleReportFail(onReportFail, reportData, null);
 				return false;
 			}
 			//遍历URL上传列表
@@ -2591,33 +2591,33 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 				var reportConfig = {};
 				//是否有上传前修改URL回调
 				if (onReportBeforeSetUrl) {
-					var url = self._handleHook(onReportBeforeSetUrl, item);
+					var url = that._handleHook(onReportBeforeSetUrl, item);
 				} else {
 					url = item;
 				}
 				if (!tool.isString(url)) {
-					self._handleReportFail(onReportFail, reportData, null);
+					that._handleReportFail(onReportFail, reportData, null);
 					return false;
 				}
 				reportConfig.url = url;
 				//获取自定义请求头
-				var customeHead = onReportBeforeSetHead ? self._handleHook(onReportBeforeSetHead, item) : false;
+				var customeHead = onReportBeforeSetHead ? that._handleHook(onReportBeforeSetHead, item) : false;
 				if (customeHead && tool.isObject(customeHead) && !tool.isEmptyObject(customeHead)) {
 					reportConfig.customeHead = customeHead;
 				}
 				//获取请求
 				reportConfig.data = reportData;
-				self._handleHook(onReportBeforeHook, reportData, reportConfig.url, reportConfig.customeHead);
+				that._handleHook(onReportBeforeHook, reportData, reportConfig.url, reportConfig.customeHead);
 				//上传到服务器
 				try {
 					(0, _ajax2.default)(reportConfig).then(function (result) {
-						self._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
+						that._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
 					}, function (err) {
-						self._handleReportFail(onReportFail, reportData, reportConfig.url);
+						that._handleReportFail(onReportFail, reportData, reportConfig.url);
 					});
 				} catch (err) {
 					//上传报错
-					self.$devError('上传数据出现错误:' + err);
+					that.$devError('上传数据出现错误:' + err);
 				}
 				//end
 			});
