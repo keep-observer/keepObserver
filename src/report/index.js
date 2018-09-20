@@ -6,7 +6,6 @@ import * as tool from '../tool/index.js';
 import AjaxServer from './ajax.js';
 
 
-
 // report Server 
 class KeepObserverReport extends KeepObserverDefault {
     //constructor

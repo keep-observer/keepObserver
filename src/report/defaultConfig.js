@@ -1,10 +1,14 @@
+import {
+    reportType
+} from '../constants/index.js'
+
 /*
  
  	report 实例默认配置数据
 	config params:
  */
 
-const type = ['unKownType', 'system', 'log', 'network', 'vue'];
+const type = reportType;
 
 
 export default {
