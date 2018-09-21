@@ -1,3 +1,5 @@
+import * as tool from '../tool/index.js'
+
 //公共默认类
 //提供一些全局公共方法
 class KeepObserverDefault {
@@ -8,24 +10,42 @@ class KeepObserverDefault {
         //开发模式写error log 替换window.console.error
         this.$devError = false;
 
-        this._defaultinit();
+        this._keeepObserverDetaultInit();
     }
 
 
-    _defaultinit() {
+    _keeepObserverDetaultInit() {
         var that = this;
         //初始化$devLog
         that.$devLog = window.console.log
         window.console.log = (...args) => {
             that.$devLog.apply(window.console, args);
         };
-        //初始化$$devError
+        //初始化$devError
         that.$devError = window.console.error
         window.console.error = (...args) => {
             that.$devError.apply(window.console, args);
         };
+        //初始化$devWarn
+        that.$devWarn = window.console.warn
+        window.console.warn = (...args) => {
+            that.$devWarn.apply(window.console, args);
+        };
     }
 
+
+
+    $mixin(provider) {
+        if (!provider || !tool.isObject(provider) || tool.isEmptyObject(provider)) {
+            this.$error('keepObserver $mixin receive params not right')
+        }
+        for (var key in provider) {
+            if (this[key]) {
+                continue
+            }
+            this[key] = provider[key]
+        }
+    }
 
 }
 

@@ -1,17 +1,15 @@
 import * as tool from '../tool/index.js';
 
-
-
-//相关监控初始化 和一些处理
-import _initNetWork from './_network.js';
-import _initLog from './_log.js';
-import _initVue from './_vue.js';
+import KeepObserverDetault from '../default/index.js';
+import mixinPipe from './pipe/index.js';
 
 
 
-class KeepObserver {
+
+class KeepObserver extends KeepObserverDetault {
     //构造函数
     constructor(config) {
+        super()
         /*******  开始本实例配置  *******/
         //获取实例配置
         this._config = config;
@@ -21,10 +19,15 @@ class KeepObserver {
         this._project = config.project || 'unKnow';
         //项目版本
         this._projectVersion = config.projectVersion || 'kp_' + this._version;
-        //监听内容
-        this.observerKey = {};
+
+        mixinPipe(this, config)
     }
 }
+
+
+
+
+
 
 
 
