@@ -15,14 +15,20 @@ export var addReportListener = function(callback) {
 //处理整理数据
 export var handleReportData = function(content) {
     var reportParams = {};
+    var control = {};
+    reportParams.type = "observer"
     reportParams.typeName = 'vue';
     reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
-    var control = {};
+    reportParams.reportTime = new Date().getTime();
+    //option
+    control.lazy = true;
     if (content.isError) {
         control.lazy = false;
         control.baseExtend = true;
         control.isError = true;
+        control.isReport = true;
     }
     return {
         reportParams: reportParams,

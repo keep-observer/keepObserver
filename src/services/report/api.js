@@ -8,7 +8,7 @@ import * as tool from '../../tool/index.js';
     			will extend preData  arguments[...]=extend data
     	合并到this._customeInfo中
      */
-export var $getCustomeReport = function(params) {
+export var $setCustomeReportData = function(params) {
     var that = this;
     //判断数据正确性
     var args = tool.toArray(arguments);
@@ -19,7 +19,7 @@ export var $getCustomeReport = function(params) {
         that._customeInfo = {};
     }
     var params = args[0]
-    //如果是普通添加
+        //如果是普通添加
     if (tool.isObject(params) && !tool.isEmptyObject(params)) {
         //设置用户自定义上报内容
         that._customeInfo = tool.extend(that._customeInfo, params);

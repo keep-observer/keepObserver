@@ -15,16 +15,22 @@ export var addReportListener = function(callback) {
 //处理整理数据
 export var handleReportData = function(content) {
     var reportParams = {};
-    var control = null;
+    var control = {};
+    reportParams.type = "observer"
     reportParams.typeName = 'network';
     reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
+    reportParams.reportTime = new Date().getTime();
+    //option
+    control.lazy = true;
     //是否请求出错
     if (content.isError) {
         control = {};
         control.lazy = false;
+        control.isReport = true;
         //是否是超时请求,超时请求不合并上报
-        control.baseExtend = content.isTimeout ? false : true;
+        control.trackExtend = content.isTimeout ? false : true;
         control.isError = content.isTimeout ? false : true;
     }
     return {

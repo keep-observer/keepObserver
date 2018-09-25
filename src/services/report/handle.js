@@ -4,24 +4,33 @@ import * as tool from '../../tool/index.js';
     receive the report data
     params  
     @object  = {
-        @ .typeName string        (no null)       上报类型名
-        @ .data  array or object  (no null)       上报内容
+        type:  string                   //类型,observer or performance    
+        typeName:  string               //类型名,vue  or log or network
+        location:string                 //捕获位置
+        environment:string              //运行环境信息
+        data:object                     //捕获数据
+        reportTime: int //捕获时间搓
     }
     @ .control null and object = {
-        @ .lazy       Boolean                     是延时上报(由手动上传合并上报或者又下一次该上报合并上报) 不传立即上报
-        @ .isError    Boolean                     是否是出错信息 (保留未启用)
-        @ .baseExtend Boolean                     是否合并基础监控信息包括log以及network信息一起上报
-        @ .preDelete  Boolean                     是否删除之前保存typeName的缓存数据
-        @ .ignore     Boolean                     是否忽略本条数据
+        @ .isReport:boolean                 //是否需要上报 内部reportServer需要使用
+        @ .lazy:boolean                     //是否懒上报, （手动trackExtend合并上报,或者trackExtend合并上报）,不立即上报
+        @ .trackExtend:boolean              //是否合并之前保存的lazy信息一起上报
+        @ .isError:boolean                  //是否是错误信息
+        @ .isPerformance:boolean            //是否是性能捕获分析
+        @ .preDelete:boolean                //是否删除之前的信息
+        @ .ignore:boolean                   //本条数据是否忽略
     }
- */
+*/
 export var _getReportContent = function(params, control) {
     //判断数据合法性
     if (!params || !params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))) {
+        this.$devLog('keepObserver reportServer receive reportData is not right')
         return false;
     }
-    //添加上传时间搓
-    params.reportTime = new Date().getTime();
+    if (!control) {
+        this.$deveWarn('keepObserver reportServer receive pipeDate control options is  undefined')
+        return false;
+    }
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params)
@@ -29,11 +38,11 @@ export var _getReportContent = function(params, control) {
         this.$devLog(log)
     }
     //是否删除之前保存的数据
-    if (control && control.preDelete) {
+    if (control.preDelete) {
         this._removeReportData(params.typeName)
     }
     //是否忽略本条数据
-    if (control && control.ignore) {
+    if (control.ignore) {
         return false;
     }
     //保存到上报数据中
@@ -50,6 +59,7 @@ export var _getReportContent = function(params, control) {
 
 
 
+
 /* 
 	保存处理上报数据
 	params type object
@@ -61,7 +71,7 @@ export var _getReportContent = function(params, control) {
  */
 export var _saveReportData = function(params) {
     var type = params.typeName
-    //如果没有该上报类型,那么属于未知内容
+        //如果没有该上报类型,那么属于未知内容
     if (!this.reportData[type]) {
         type = 'unKownType'
     }
@@ -71,7 +81,7 @@ export var _saveReportData = function(params) {
     maxCache = maxCache ? maxCache : this.$report_config['max_cache'];
     //如果当前存储超过长度 那么弹出最早的数据
     if (reportData.length + 1 > maxCache) {
-        var discard = reportData.shift()
+        var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
             discard.title = type + 'type monitor data overstep cache limit will discard';
@@ -90,12 +100,12 @@ export var _saveReportData = function(params) {
 /*
 	删除保存的上报数据
 	@params type string    上报类型
- */
+*/
 export var _removeReportData = function(type) {
     if (this.reportData[type]) {
         this.reportData[type] = [];
         tool.removeStorage(type)
-        //开发模式下打印
+            //开发模式下打印
         if (this.develop && this.develogDeleteLog) {
             this._$devLog(type + 'type Of monitor data is clean up')
         }

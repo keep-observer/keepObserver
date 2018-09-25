@@ -15,22 +15,26 @@ export var addReportListener = function(callback) {
 //处理整理数据
 export var handleReportData = function(content) {
     var reportParams = {};
-    var control = null;
+    var control = {};
+    reportParams.type = "observer"
     reportParams.typeName = 'log';
     reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
+    reportParams.reportTime = new Date().getTime();
+    //option
+    control.lazy = true;
     //如果是clear,清除之前的console.log相关信息
     if (content.type === 'clear') {
-        control = {};
         control.preDelete = true;
         control.ignore = true
     }
     //如果是JS运行报错,或者打印错误error合并上报所有内容
     if (content.type === 'jsError' || content.type === 'error') {
-        control = {};
         control.lazy = false;
-        control.baseExtend = true;
+        control.trackExtend = true;
         control.isError = true;
+        control.isReport = true;
     }
     return {
         reportParams: reportParams,
