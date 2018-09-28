@@ -23,39 +23,37 @@ import * as tool from '../../tool/index.js';
 */
 export var _getReportContent = function(params, control) {
     //判断数据合法性
-    if (!params || !params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))) {
-        this.$devLog('keepObserver reportServer receive reportData is not right')
+    if (!params || !params.type || !params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))) {
+        this.$devLog('[keepObserver] reportServer receive reportData is not right')
         return false;
     }
     if (!control) {
-        this.$deveWarn('keepObserver reportServer receive pipeDate control options is  undefined')
+        this.$deveWarn('[keepObserver] reportServer receive pipeDate control options is  undefined')
         return false;
     }
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params)
-        log.title = 'get' + log.typeName + "type of monitor data";
+        log.title = '[keepObserver] get' + log.typeName + "type of monitor data";
         this.$devLog(log)
     }
     //是否删除之前保存的数据
-    if (control.preDelete) {
+    if (control.type === 'observer' && control.preDelete) {
         this._removeReportData(params.typeName)
     }
     //是否忽略本条数据
     if (control.ignore) {
         return false;
     }
-    //保存到上报数据中
-    var cacheLen = this._saveReportData(params);
-    var maxCache = this.$report_config['max_' + params.typeName + '_cache'];
-    var isReport = this.$report_config['max_' + params.typeName + '_fillIsReport'];
-
-    //是否立即上报 或者缓存已满上报
-    if ((control && !control.lazy) || (isReport && cacheLen === maxCache)) {
-        //上报
-        this._handleReport(params.typeName, control);
+    //是否懒上报
+    if (control.type === 'observer' && control.lazy) {
+        this._saveReportData(params);
+        return false;
     }
+    //上报
+    this._handleReport(params.typeName, control);
 }
+
 
 
 
@@ -72,10 +70,10 @@ export var _getReportContent = function(params, control) {
 export var _saveReportData = function(params) {
     var type = params.typeName
         //如果没有该上报类型,那么属于未知内容
-    if (!this.reportData[type]) {
+    if (!this.reportData[typeName]) {
         type = 'unKownType'
     }
-    var reportData = this.reportData[type];
+    var reportData = this.reportData[typeName];
     //是否延时上报,如果没有添加到上报数据中
     var maxCache = this.$report_config['max_' + type + '_cache'];
     maxCache = maxCache ? maxCache : this.$report_config['max_cache'];
@@ -84,7 +82,7 @@ export var _saveReportData = function(params) {
         var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
-            discard.title = type + 'type monitor data overstep cache limit will discard';
+            discard.title = '[keepObserver]' + type + 'type monitor data overstep cache limit will discard';
             this.$devLog(discard)
         }
     }
@@ -92,8 +90,9 @@ export var _saveReportData = function(params) {
     this.reportData[type] = reportData;
     //保存到locationStorage中
     tool.setStorage(type, reportData)
-    return reportData.length;
 }
+
+
 
 
 
@@ -107,7 +106,7 @@ export var _removeReportData = function(type) {
         tool.removeStorage(type)
             //开发模式下打印
         if (this.develop && this.develogDeleteLog) {
-            this._$devLog(type + 'type Of monitor data is clean up')
+            this._$devLog('[keepObserver]' + type + 'type Of monitor data is clean up')
         }
     }
 }
