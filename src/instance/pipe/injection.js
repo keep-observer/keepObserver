@@ -5,7 +5,7 @@ import * as tool from '../../tool/index.js';
 //接收插件服务
 export var use = function(Provider) {
     if (!Provider || !tool.isFunction(Provider)) {
-        this.$devError('keepObserver use method receive provider is not right')
+        this.$devError('[keepObserver] use method receive provider is not right')
         return false;
     }
     //初始化注入服务
@@ -19,7 +19,7 @@ export var use = function(Provider) {
     if (apply && tool.isFunction(apply)) {
         this.injection(providerInstalcen, apply)
     } else {
-        this.$devError('keepObserver use method receive provider is not apply method')
+        this.$devError('[keepObserver] use method receive provider is not apply method')
         return false;
     }
 }
@@ -34,7 +34,7 @@ export var injection = function(scope, applyFn) {
     var pipeIndex = that.pipeUserListener.length;
     //验证数据
     if (!applyFn || !tool.isFunction(applyFn)) {
-        that.$devError('keepObserver injection receive ApplyFn is undefined or no function')
+        that.$devError('[keepObserver] injection receive ApplyFn is undefined or no function')
         return false;
     }
     try {
@@ -50,7 +50,7 @@ export var injection = function(scope, applyFn) {
         //mounte method
         that.mixinKoInstance(scope, userRenderMethod);
     } catch (e) {
-        that.$devError('keepObserver injection receive ApplyFn is runing find error:' + e)
+        that.$devError('[keepObserver] injection receive ApplyFn is runing find error:' + e)
     }
 }
 
@@ -65,7 +65,7 @@ export var injection = function(scope, applyFn) {
 export var mixinKoInstance = function(scope, renders) {
     var that = this;
     if (!renders || tool.isEmptyObject(renders)) {
-        that.$devWarn('keepObserver injection ApplyFn return Object is undefined')
+        that.$devWarn('[keepObserver] injection ApplyFn return Object is undefined')
         return false;
     }
     var keepObserver = that.$keepObserver
@@ -73,12 +73,12 @@ export var mixinKoInstance = function(scope, renders) {
         //验证挂载方法
         var fn = renders[key]
         if (!fn || !tool.isFunction(fn)) {
-            that.$devError('keepObserver injection ApplyFn return Object attr' + key + 'is not right')
+            that.$devError('[keepObserver] injection ApplyFn return Object attr' + key + 'is not right')
             continue;
         }
         //是否存在同名方法
         if (keepObserver[key]) {
-            that.$devError('keepObserver injection Discover namesake methods')
+            that.$devError('[keepObserver] injection Discover namesake methods')
             continue;
         }
         //挂载到keepObserver 实例
@@ -87,7 +87,7 @@ export var mixinKoInstance = function(scope, renders) {
             try {
                 fn.apply(scope, ...agrs)
             } catch (e) {
-                that.$devError('keepObserver injection  methods ' + key + ' runing find error' + e)
+                that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e)
             }
         }
     }

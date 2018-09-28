@@ -1,6 +1,9 @@
 import * as tool from '../tool/index.js';
 
+
+
 import KeepObserverDetault from '../default/index.js';
+import defaultConfig from './defaultConfig.js';
 import mixinPipe from './pipe/index.js';
 
 
@@ -9,10 +12,10 @@ import mixinPipe from './pipe/index.js';
 class KeepObserver extends KeepObserverDetault {
     //构造函数
     constructor(config) {
-        super()
+        super();
         /*******  开始本实例配置  *******/
         //获取实例配置
-        this._config = config;
+        this._config = tool.extend(defaultConfig, config);
         //版本号
         this._version = '1.0.5';
         //项目

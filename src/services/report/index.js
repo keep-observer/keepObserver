@@ -14,20 +14,20 @@ import * as reportServer from './report.js'
 class KeepObserverReport extends KeepObserverDefault {
     //constructor
     constructor(config) {
-            super(config)
-                //存混合配置
+            super(config);
+            //存混合配置
             var reportConfig = config.reportCustom || {};
             //是否是开发模式
             reportConfig.develop = config.develop ? true : false;
             //开发环境下获取报文是否打印
-            reportConfig.developGetMsgLog = config.developGetMsgLog ? true : false
-                //开发环境下丢弃数据 是否打印出来
-            reportConfig.develogDiscardLog = config.develogDiscardLog ? true : false
-                //开发环境下删除出数据 是否打印出来
-            reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false
-                //混合默认配置
-            this.$report_config = tool.extend(defaultConfig, reportConfig)
-                //上传数据保存
+            reportConfig.developGetMsgLog = config.developGetMsgLog ? true : false;
+            //开发环境下丢弃数据 是否打印出来
+            reportConfig.develogDiscardLog = config.develogDiscardLog ? true : false;
+            //开发环境下删除出数据 是否打印出来
+            reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
+            //混合默认配置
+            this.$report_config = tool.extend(defaultConfig, reportConfig);
+            //上传数据保存
             this.reportData = {};
             //用户自定义上传参数
             this._customeInfo = false;
@@ -36,13 +36,13 @@ class KeepObserverReport extends KeepObserverDefault {
             this.develop = this.$report_config.develop;
             this.developGetMsgLog = this.$report_config.developGetMsgLog;
             this.develogDeleteLog = this.$report_config.develogDeleteLog;
-            this.develogDiscardLog = this.$report_config.develogDiscardLog
+            this.develogDiscardLog = this.$report_config.develogDiscardLog;
 
             //混入自身方法
-            this.$mixin(apiServer)
-            this.$mixin(handleServer)
-            this.$mixin(reportServer)
-                //初始化
+            this.$mixin(apiServer);
+            this.$mixin(handleServer);
+            this.$mixin(reportServer);
+            //初始化
             this._init();
         }
         /*
@@ -65,7 +65,10 @@ class KeepObserverReport extends KeepObserverDefault {
 
     //测试
     testReceive(msg, options) {
-        this.$devLog('test', msg, options)
+        console.log('test', msg, options);
+        // setTimeout(function() {
+        //     throw new Error('aaaaaaaaaaaaaaaa')
+        // }, 2000)
     }
 
 
