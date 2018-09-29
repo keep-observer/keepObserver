@@ -1,5 +1,8 @@
 import KeepObserverDefault from '../../default/index.js';
 
+import {
+    version
+} from '../../constants/index'
 
 import defaultConfig from './defaultConfig.js';
 import * as tool from '../../tool/index.js';
@@ -31,6 +34,10 @@ class KeepObserverReport extends KeepObserverDefault {
             this.reportData = {};
             //用户自定义上传参数
             this._customeInfo = false;
+            //项目
+            this._project = config.project || 'unKnow';
+            //项目版本
+            this._projectVersion = config.projectVersion || 'unknow-version'
 
             //当前是否处于开发模式
             this.develop = this.$report_config.develop;
@@ -50,37 +57,25 @@ class KeepObserverReport extends KeepObserverDefault {
             复制this.reportData并从strong里面复原数据
          */
     _init() {
+            var that = this;
+            //初始化this.reportData
+            var handleType = that.$report_config.$observer_Type
+            handleType.forEach(function(type) {
+                var cacheData = tool.getStorage(type)
+                that.reportData[type] = [];
+                if (cacheData) {
+                    that.reportData[type] = cacheData
+                }
+            });
+        }
+        /*
+            提供一个挂载方法在注入中使用
+            return 
+                $getCustomeReport
+         */
+    apply(pipe, dev) {
         var that = this;
-        //初始化this.reportData
-        var handleType = that.$report_config.$observer_Type
-        handleType.forEach(function(type) {
-            var cacheData = tool.getStorage(type)
-            that.reportData[type] = [];
-            if (cacheData) {
-                that.reportData[type] = cacheData
-            }
-        });
-    }
-
-
-    //测试
-    testReceive(msg, options) {
-        console.log('test', msg, options);
-        // setTimeout(function() {
-        //     throw new Error('aaaaaaaaaaaaaaaa')
-        // }, 2000)
-    }
-
-
-
-    /*
-        提供一个挂载方法在注入中使用
-        return 
-            $getCustomeReport
-     */
-    apply(pipe) {
-        var that = this;
-        pipe.registerRecivePipeMessage(that.testReceive, that)
+        pipe.registerRecivePipeMessage(that._getReportContent, that)
         return {
             $setCustomeReportData: this.$setCustomeReportData
         }

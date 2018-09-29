@@ -60,7 +60,7 @@ var AjaxServer = function(config) {
         }
 
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true)
+        xhr.open('POST', url, true);
         //handle request header flag
         var xhrHead = {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -110,9 +110,9 @@ var AjaxServer = function(config) {
             }
         };
         xhr.onerror = function(e) {
-            rej('Ajax request process find error!' + e)
-        }
-        //send data
+                rej('Ajax request process find error!' + e);
+            }
+            //send data
         var data = JSON.stringify(data);
         xhr.send(data);
     })

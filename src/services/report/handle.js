@@ -23,7 +23,7 @@ import * as tool from '../../tool/index.js';
 */
 export var _getReportContent = function(params, control) {
     //判断数据合法性
-    if (!params || !params.type || !params.typeName || !params.data || (!tool.isArray(params.data) && !tool.isObject(params.data))) {
+    if (!params || !params.type || !params.typeName || !params.data || !tool.isObject(params.data)) {
         this.$devLog('[keepObserver] reportServer receive reportData is not right')
         return false;
     }
@@ -34,11 +34,11 @@ export var _getReportContent = function(params, control) {
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params)
-        log.title = '[keepObserver] get' + log.typeName + "type of monitor data";
+        log.title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
         this.$devLog(log)
     }
     //是否删除之前保存的数据
-    if (control.type === 'observer' && control.preDelete) {
+    if (params.type === 'observer' && control.preDelete) {
         this._removeReportData(params.typeName)
     }
     //是否忽略本条数据
@@ -46,12 +46,14 @@ export var _getReportContent = function(params, control) {
         return false;
     }
     //是否懒上报
-    if (control.type === 'observer' && control.lazy) {
+    if (params.type === 'observer' && control.lazy) {
         this._saveReportData(params);
         return false;
     }
-    //上报
-    this._handleReport(params.typeName, control);
+    if (control.isReport) {
+        //上报
+        this._handleReport(params, control);
+    }
 }
 
 
@@ -70,10 +72,10 @@ export var _getReportContent = function(params, control) {
 export var _saveReportData = function(params) {
     var type = params.typeName
         //如果没有该上报类型,那么属于未知内容
-    if (!this.reportData[typeName]) {
+    if (!this.reportData[type]) {
         type = 'unKownType'
     }
-    var reportData = this.reportData[typeName];
+    var reportData = this.reportData[type];
     //是否延时上报,如果没有添加到上报数据中
     var maxCache = this.$report_config['max_' + type + '_cache'];
     maxCache = maxCache ? maxCache : this.$report_config['max_cache'];
@@ -82,7 +84,7 @@ export var _saveReportData = function(params) {
         var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
-            discard.title = '[keepObserver]' + type + 'type monitor data overstep cache limit will discard';
+            discard.title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
             this.$devLog(discard)
         }
     }
@@ -106,7 +108,7 @@ export var _removeReportData = function(type) {
         tool.removeStorage(type)
             //开发模式下打印
         if (this.develop && this.develogDeleteLog) {
-            this._$devLog('[keepObserver]' + type + 'type Of monitor data is clean up')
+            this._$devLog('[keepObserver] observer ' + type + 'type Of monitor data is clean up')
         }
     }
 }
