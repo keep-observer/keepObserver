@@ -5,13 +5,11 @@ var baseWebpackConfig = require('./webpack.config.base.js')
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var merge = require('webpack-merge')
 
+var separate = require('./separate.json');
+
 
 module.exports = merge(baseWebpackConfig, {
-    entry: {
-        'keepObserver.all': [
-            './src/instance/index.all',
-        ],
-    },
+    entry: separate,
     //输出文件
     output: {
         //文件命名

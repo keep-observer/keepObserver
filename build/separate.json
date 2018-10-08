@@ -1,0 +1,8 @@
+{
+    "keepObserver": "./src/instance/index.js",
+    "keepObserverReport": "./src/services/report/index.js",
+    "KeepObserverLog": "./src/services/observer/log/index.js",
+    "KeepObserverNetwork": "./src/services/observer/network/index.js",
+    "KeepObserverVue": "./src/services/observer/vue/index.js",
+    "KeepObserverSystem": "./src/services/performance/system/index.js"
+}
