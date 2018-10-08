@@ -19,7 +19,7 @@ module.exports = merge(baseWebpackConfig, {
         //输出目录
         path: path.resolve(__dirname, '../dist'),
     },
-    devtool: 'cheap-module-source-map',
+    devtool: false,
     plugins: [
         new ProgressBarPlugin(),
     ]

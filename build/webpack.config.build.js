@@ -35,7 +35,7 @@ module.exports = merge(baseWebpackConfig, {
             output: {
                 comments: false
             },
-            sourceMap: true
+            sourceMap: false
         }),
         new webpack.LoaderOptionsPlugin({
             minimize: true
