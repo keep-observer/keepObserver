@@ -77,12 +77,15 @@ export var injection = function(scope, applyFn) {
     params
     null
     ***********************
-    return 
+    return pipeMethod {
+        registerRecivePipeMessage
+        sendPipeMessage
+    }
  */
 export var registerPipeListenerUser = function() {
     var that = this;
     //pipe index
-    var pipeIndex = that.pipeUserListener.length;
+    var pipeIndex = that.pipeUser.length;
     //pipe user obj
     var pipeUser = {
         //index
@@ -95,21 +98,22 @@ export var registerPipeListenerUser = function() {
         },
     };
     //add listener
-    that.pipeUserListener[pipeIndex] = pipeUser;
+    that.pipeUser[pipeIndex] = pipeUser;
     //register receive message listener
     pipeUser.registerRecivePipeMessage = that.registerRecivePipeMessage(pipeIndex);
     //render pipe method
     var renderMethod = {
         registerRecivePipeMessage: function() {
+            if (!that.pipeUser[pipeIndex]) return false;
             return pipeUser.registerRecivePipeMessage(...arguments)
         },
         sendPipeMessage: function() {
+            if (!that.pipeUser[pipeIndex]) return false;
             return pipeUser.sendPipeMessage(...arguments)
         }
     };
     return renderMethod
 }
-
 
 
 

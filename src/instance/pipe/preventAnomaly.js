@@ -11,7 +11,7 @@ export var preventStackError = function(msgItem) {
         return true;
     }
     //是否该消息已经进入屏蔽阶段
-    if (this.ignoreBuff[pipeIndex]) {
+    if (!this.pipeUser[pipeIndex]) {
         //是否是开发环境
         if (this._config.develop) {
             this.$devError('[keepObserver] send pipe Message Maybe happend Endless loop , will ignore in the message')
@@ -44,15 +44,14 @@ export var judgeAnomaly = function(count, msgItem) {
         msg,
         pipeIndex
     } = msgItem
-    if (count > 15 && count < 30) {
-        this.$devWarn('[keepObserver] send  pipe Message during 1000ms in Over 15 times. maybe Anomaly ')
+    if (count > 10 && count < 20) {
+        this.$devWarn('[keepObserver] send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ')
         return false
     }
-    if (count > 30) {
-        //进入屏蔽
-        this.ignoreBuff[pipeIndex] = true
-        this.pipeUserListener[pipeIndex] = true
-        this.$devError('[keepObserver] send pipe Message during 1000ms in Over 30 times,maybe happend Endless loop');
+    if (count > 20) {
+        //从管道中卸载
+        this.pipeUser[pipeIndex] = null
+        this.$devError('[keepObserver] send pipe Message during 1000ms in Over 20 times,maybe happend Endless loop');
         return true
     }
     return false;

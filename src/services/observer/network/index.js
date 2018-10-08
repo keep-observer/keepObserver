@@ -16,17 +16,17 @@ class KeepObserverNetwork extends KeepObserverDetault {
         var networkConfig = config.networkCustom || {};
         //存混合配置
         this._config = tool.extend(defaultConfig, networkConfig)
-        //上报名
+            //上报名
         this._typeName = 'network'
-        //监听列表
+            //监听列表
         this.eventListener = [];
         //监控的数据列表
         //key 为 请求ID
         //value :{
         //	method:   			请求方法
         //	url:      			请求baseUrl
-        //	reqHead:     		请求头
-        //	resHead:        	请求响应头
+        //	requestHead:     	请求头
+        //  responseHead:       请求响应头
         //	params:   			请求URL上携带的参数
         //	data:       		请求postData
         //	status:         	请求状态码
@@ -42,7 +42,7 @@ class KeepObserverNetwork extends KeepObserverDetault {
         //	isError:            这个请求是否出现错误
         //	errorContent:       错误信息
         //}
-        this.networkList = {}
+        this.networkList = {};
         //替换window.XMLHttpRequest变量
         this._open = false;
         this._send = false;
@@ -54,7 +54,7 @@ class KeepObserverNetwork extends KeepObserverDetault {
         this.$mixin(handleServer)
         this.$mixin(apiServer)
         this.$mixin(reportServer)
-        // 开启网络拦截监控
+            // 开启网络拦截监控
         this.startObserver();
     }
 

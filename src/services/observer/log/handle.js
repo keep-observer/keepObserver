@@ -20,16 +20,16 @@ export var _handleInit = function() {
     that.console.clear = window.console.clear;
 
     baseLogList.map(method => {
-        window.console[method] = (...args) => {
-            //是否处于开发模式下
-            if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
-                that.console[method](...args);
+            window.console[method] = (...args) => {
+                //是否处于开发模式下
+                if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
+                    that.console[method](...args);
+                }
+                //交给拦截处理信息
+                that._handleMessage(method, args);
             }
-            //交给拦截处理信息
-            that._handleMessage(method, args);
-        }
-    })
-    //处理time timeEnd clear
+        })
+        //处理time timeEnd clear
     var timeLog = {};
     window.console.time = function(label) {
         timeLog[label] = Date.now();
@@ -54,10 +54,10 @@ export var _handleInit = function() {
         }
     }
     window.console.clear = (...args) => {
-        that._handleMessage('clear', args);
-        that.console.clear.apply(window.console, args);
-    }
-    //是否需要捕获跨域JS错误
+            that._handleMessage('clear', args);
+            that.console.clear.apply(window.console, args);
+        }
+        //是否需要捕获跨域JS错误
     if (that._config.catchCrossDomain && !that.$createElement) {
         //侵入document.createElement  实现跨域JS捕获错误信息
         if (window.document || window.document.createElement) {
@@ -97,7 +97,7 @@ export var _handleInit = function() {
 export var _handleMessage = function(type, agrs) {
     var that = this;
     var reportData = {}
-    //agrs不是数组 或是空数组 则不处理
+        //agrs不是数组 或是空数组 则不处理
     if (!tool.isArray(agrs) || agrs.length === 0) {
         return false;
     }
@@ -128,8 +128,10 @@ export var _handleError = function(errorEvent) {
     var that = this;
     var errorObj = {};
     var url = errorEvent.filename || errorEvent.url || false
-    //可能是跨域资源JS出现错误 这获取不到详细信息
+        //可能是跨域资源JS出现错误 这获取不到详细信息
     if (errorEvent.message === 'Script error.' && !url) {
+        //未知错误是否捕获
+        if (!that._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;

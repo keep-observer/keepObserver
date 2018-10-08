@@ -569,18 +569,18 @@ var startObserver = exports.startObserver = function startObserver() {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-
 /*
  
  	observer log 实例默认配置数据
  */
 
 exports.default = {
-  //是否捕获跨域JS错误
-  catchCrossDomain: true
+    //是否捕获跨域JS错误
+    catchCrossDomain: true,
+    //未知错误是否捕获
+    unknowErrorCatch: true
 };
 
 /***/ }),
@@ -732,6 +732,8 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     var url = errorEvent.filename || errorEvent.url || false;
     //可能是跨域资源JS出现错误 这获取不到详细信息
     if (errorEvent.message === 'Script error.' && !url) {
+        //未知错误是否捕获
+        if (!that._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;

@@ -31,6 +31,7 @@ export var _getReportContent = function(params, control) {
         this.$deveWarn('[keepObserver] reportServer receive pipeDate control options is  undefined')
         return false;
     }
+
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params)

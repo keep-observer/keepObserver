@@ -576,6 +576,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
         this.$deveWarn('[keepObserver] reportServer receive pipeDate control options is  undefined');
         return false;
     }
+
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params);
@@ -1128,7 +1129,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 
     }, {
         key: 'apply',
-        value: function apply(pipe, dev) {
+        value: function apply(pipe) {
             var that = this;
             pipe.registerRecivePipeMessage(that._getReportContent, that);
             return {

@@ -73,7 +73,7 @@ class KeepObserverReport extends KeepObserverDefault {
             return 
                 $getCustomeReport
          */
-    apply(pipe, dev) {
+    apply(pipe) {
         var that = this;
         pipe.registerRecivePipeMessage(that._getReportContent, that)
         return {

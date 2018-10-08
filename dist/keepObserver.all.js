@@ -615,13 +615,10 @@ var keepObserverPipe = function (_KeepObserverDetault) {
         _this.stackCountBuff = {};
         //堆栈运行定时器
         _this.stackTimeFlag = false;
-        //忽略对象
-        _this.ignoreBuff = {};
-
         //消息队列
         _this.messageQueue = [];
-        //管道用户监听队列
-        _this.pipeUserListener = [];
+        //管道用户
+        _this.pipeUser = [];
 
         //混入自身方法
         _this.$mixin(injectionServer);
@@ -755,12 +752,15 @@ var injection = exports.injection = function injection(scope, applyFn) {
     params
     null
     ***********************
-    return 
+    return pipeMethod {
+        registerRecivePipeMessage
+        sendPipeMessage
+    }
  */
 var registerPipeListenerUser = exports.registerPipeListenerUser = function registerPipeListenerUser() {
     var that = this;
     //pipe index
-    var pipeIndex = that.pipeUserListener.length;
+    var pipeIndex = that.pipeUser.length;
     //pipe user obj
     var pipeUser = {
         //index
@@ -773,15 +773,17 @@ var registerPipeListenerUser = exports.registerPipeListenerUser = function regis
         }
     };
     //add listener
-    that.pipeUserListener[pipeIndex] = pipeUser;
+    that.pipeUser[pipeIndex] = pipeUser;
     //register receive message listener
     pipeUser.registerRecivePipeMessage = that.registerRecivePipeMessage(pipeIndex);
     //render pipe method
     var renderMethod = {
         registerRecivePipeMessage: function registerRecivePipeMessage() {
+            if (!that.pipeUser[pipeIndex]) return false;
             return pipeUser.registerRecivePipeMessage.apply(pipeUser, arguments);
         },
         sendPipeMessage: function sendPipeMessage() {
+            if (!that.pipeUser[pipeIndex]) return false;
             return pipeUser.sendPipeMessage.apply(pipeUser, arguments);
         }
     };
@@ -860,7 +862,7 @@ var preventStackError = exports.preventStackError = function preventStackError(m
         return true;
     }
     //是否该消息已经进入屏蔽阶段
-    if (this.ignoreBuff[pipeIndex]) {
+    if (!this.pipeUser[pipeIndex]) {
         //是否是开发环境
         if (this._config.develop) {
             this.$devError('[keepObserver] send pipe Message Maybe happend Endless loop , will ignore in the message');
@@ -890,15 +892,14 @@ var judgeAnomaly = exports.judgeAnomaly = function judgeAnomaly(count, msgItem) 
     var msg = msgItem.msg,
         pipeIndex = msgItem.pipeIndex;
 
-    if (count > 15 && count < 30) {
-        this.$devWarn('[keepObserver] send  pipe Message during 1000ms in Over 15 times. maybe Anomaly ');
+    if (count > 10 && count < 20) {
+        this.$devWarn('[keepObserver] send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ');
         return false;
     }
-    if (count > 30) {
-        //进入屏蔽
-        this.ignoreBuff[pipeIndex] = true;
-        this.pipeUserListener[pipeIndex] = true;
-        this.$devError('[keepObserver] send pipe Message during 1000ms in Over 30 times,maybe happend Endless loop');
+    if (count > 20) {
+        //从管道中卸载
+        this.pipeUser[pipeIndex] = null;
+        this.$devError('[keepObserver] send pipe Message during 1000ms in Over 20 times,maybe happend Endless loop');
         return true;
     }
     return false;
@@ -1031,7 +1032,7 @@ var noticeListener = exports.noticeListener = function noticeListener(queue) {
             options = _queue$i.options;
         //消息分发
 
-        that.pipeUserListener.map(function (item, index) {
+        that.pipeUser.map(function (item, index) {
             //判断是否是正确注册接收函数
             if (!item || !item.receiveCallback || !tool.isFunction(item.receiveCallback)) {
                 return false;
@@ -1088,7 +1089,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 var registerRecivePipeMessage = exports.registerRecivePipeMessage = function registerRecivePipeMessage(pipeIndex) {
     var that = this;
     //修正索引
-    if (that.pipeUserListener[pipeIndex].receiveCallback) {
+    if (that.pipeUser[pipeIndex].receiveCallback) {
         that.$devError('[keepObsever] register recive pipe index is Occupy');
         return false;
     }
@@ -1100,7 +1101,7 @@ var registerRecivePipeMessage = exports.registerRecivePipeMessage = function reg
             return false;
         }
         //内部修改作用域调用
-        that.pipeUserListener[pipeIndex].receiveCallback = function () {
+        that.pipeUser[pipeIndex].receiveCallback = function () {
             var agrs = tool.toArray(arguments);
             //向注册进来的接收函数发送数据
             if (scope) {
@@ -1156,18 +1157,18 @@ var startObserver = exports.startObserver = function startObserver() {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
-
-
 /*
  
  	observer log 实例默认配置数据
  */
 
 exports.default = {
-  //是否捕获跨域JS错误
-  catchCrossDomain: true
+    //是否捕获跨域JS错误
+    catchCrossDomain: true,
+    //未知错误是否捕获
+    unknowErrorCatch: true
 };
 
 /***/ }),
@@ -1318,6 +1319,8 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     var url = errorEvent.filename || errorEvent.url || false;
     //可能是跨域资源JS出现错误 这获取不到详细信息
     if (errorEvent.message === 'Script error.' && !url) {
+        //未知错误是否捕获
+        if (!that._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;
@@ -3039,6 +3042,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
         this.$deveWarn('[keepObserver] reportServer receive pipeDate control options is  undefined');
         return false;
     }
+
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params);
@@ -3235,7 +3239,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 
     }, {
         key: 'apply',
-        value: function apply(pipe, dev) {
+        value: function apply(pipe) {
             var that = this;
             pipe.registerRecivePipeMessage(that._getReportContent, that);
             return {

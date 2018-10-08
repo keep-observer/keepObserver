@@ -1,29 +1,86 @@
 import * as tool from '../../tool/index.js';
 
 
-//注册管道接收数据函数
-export var registerRecivePipeMessage = function(pipeIndex) {
+
+//发送消息在管道内流通
+export var sendPipeMessage = function(pipeIndex, msg, options) {
     var that = this;
-    //修正索引
-    if (that.pipeUserListener[pipeIndex].receiveCallback) {
-        that.$devError('[keepObsever] register recive pipe index is Occupy')
+    var msgItem = {
+        pipeIndex: pipeIndex,
+        msg: msg,
+        options: options,
+    };
+    //是否消息队列加锁,并且防止异常消息
+    if (that.isLock() || that.preventStackError(msgItem)) {
         return false;
     }
-    //返回一个闭包函数用来接收注册函数
-    return function(fn, scope) {
-        //接收函数
-        if (!fn || !tool.isFunction(fn)) {
-            that.$devError('[keepObsever] registerRecivePipeMessage method receive function is not right')
-            return false;
-        }
-        //内部修改作用域调用
-        that.pipeUserListener[pipeIndex].receiveCallback = function() {
-            var agrs = tool.toArray(arguments);
-            //向注册进来的接收函数发送数据
-            if (scope) {
-                return fn.apply(scope, agrs)
-            }
-            return fn(...agrs)
-        };
+    //进入消息队列
+    that.messageQueue.push(msgItem);
+    //如果正在执行
+    if (that.waiting) {
+        return false;
     }
+    //异步执行消息队列分发
+    setTimeout(function() {
+        //获取消息队列数组快照
+        var queue = tool.extend([], that.messageQueue);
+        //清空队列
+        that.messageQueue = [];
+        //通知监听
+        noticeListener.call(that, queue)
+    })
+}
+
+
+
+//通知监听
+export var noticeListener = function(queue) {
+    var that = this;
+    if (!tool.isArray(queue) || queue.length === 0) {
+        return false;
+    }
+    //接收消息进入等待状态
+    that.waiting = true;
+    //分发处理消息
+    for (var i = 0; i < queue.length; i++) {
+        var {
+            pipeIndex,
+            msg,
+            options
+        } = queue[i];
+        //消息分发
+        that.pipeUser.map(function(item, index) {
+            //判断是否是正确注册接收函数
+            if (!item || !item.receiveCallback || !tool.isFunction(item.receiveCallback)) {
+                return false;
+            }
+            //不允许自发自收
+            if (pipeIndex === index) {
+                return false;
+            }
+            var receiveCallback = item.receiveCallback;
+            //分发
+            try {
+                //消息队列加锁
+                that.openLock();
+                //执行分发
+                var result = receiveCallback(msg, options);
+                //消息队列解锁
+                //如果返回值是promise或者存在then将解锁放入回调
+                if (result &&
+                    tool.isObject(result) &&
+                    (result instanceof Promise ||
+                        (result.then && tool.isFunction(result.then)))) {
+                    result.then(that.closeLock, that.closeLock)
+                } else {
+                    that.closeLock()
+                }
+            } catch (e) {
+                that.closeLock()
+                that.$devError('[keepObserver] use pipe message notice is runing error:' + e)
+            }
+        });
+    }
+    //等待状态结束
+    that.waiting = false;
 }

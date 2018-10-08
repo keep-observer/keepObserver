@@ -30,13 +30,10 @@ class keepObserverPipe extends KeepObserverDetault {
         this.stackCountBuff = {};
         //堆栈运行定时器
         this.stackTimeFlag = false;
-        //忽略对象
-        this.ignoreBuff = {};
-
         //消息队列
         this.messageQueue = [];
-        //管道用户监听队列
-        this.pipeUserListener = [];
+        //管道用户
+        this.pipeUser = [];
 
 
         //混入自身方法
