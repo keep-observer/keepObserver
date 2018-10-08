@@ -15,9 +15,9 @@ export var use = function(Provider) {
     }
     //初始化注入服务
     var config = this._config
-    var providerInstalcen = new Provider(config)
-        //检查注入方法是否存在存在apply,存在则加入到管道流中
-        //并检查是否存在返回方法，挂载在自身中,用于对外提供
+    var providerInstalcen = new Provider(config);
+    //检查注入方法是否存在存在apply,存在则加入到管道流中
+    //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var {
         apply
     } = providerInstalcen
@@ -42,35 +42,26 @@ export var use = function(Provider) {
  */
 export var injection = function(scope, applyFn) {
     var that = this;
-    //当前用户索引
-    var pipeIndex = that.pipeUserListener.length;
-    //验证数据
+    //check data
     if (!applyFn || !tool.isFunction(applyFn)) {
         that.$devError('[keepObserver] injection receive ApplyFn is undefined or no function')
         return false;
     }
+    //cerate pipe listener
+    var pipeMethod = that.registerPipeListenerUser();
+    //dev method
+    var devMethod = {
+        $devLog: function() {
+            return that.$devLog(...arguments)
+        },
+        $devWarn: function() {
+            return that.$devWarn(...arguments)
+        },
+        $devError: function() {
+            return that.$devError(...arguments)
+        }
+    }
     try {
-        //提供管道方法
-        var pipeMethod = {
-            //添加到pipeUserListener,并返回一个接受消息的回调
-            registerRecivePipeMessage: that.registerRecivePipeMessage(pipeIndex),
-            //用于发送消息
-            sendPipeMessage: function() {
-                return that.sendPipeMessage(pipeIndex, ...arguments)
-            }
-        };
-        //提供开发方法
-        var devMethod = {
-            $devLog: function() {
-                return that.$devLog(...arguments)
-            },
-            $devWarn: function() {
-                return that.$devWarn(...arguments)
-            },
-            $devError: function() {
-                return that.$devError(...arguments)
-            }
-        };
         // runing apply
         var userRenderMethod = applyFn.call(scope, pipeMethod, devMethod);
         //mounte method
@@ -80,6 +71,44 @@ export var injection = function(scope, applyFn) {
     }
 }
 
+
+/*
+    注册管道用户方法
+    params
+    null
+    ***********************
+    return 
+ */
+export var registerPipeListenerUser = function() {
+    var that = this;
+    //pipe index
+    var pipeIndex = that.pipeUserListener.length;
+    //pipe user obj
+    var pipeUser = {
+        //index
+        pipeIndex: pipeIndex,
+        //receiveCallBack
+        receiveCallback: null,
+        //send message
+        sendPipeMessage: function() {
+            return that.sendPipeMessage(pipeIndex, ...arguments)
+        },
+    };
+    //add listener
+    that.pipeUserListener[pipeIndex] = pipeUser;
+    //register receive message listener
+    pipeUser.registerRecivePipeMessage = that.registerRecivePipeMessage(pipeIndex);
+    //render pipe method
+    var renderMethod = {
+        registerRecivePipeMessage: function() {
+            return pipeUser.registerRecivePipeMessage(...arguments)
+        },
+        sendPipeMessage: function() {
+            return pipeUser.sendPipeMessage(...arguments)
+        }
+    };
+    return renderMethod
+}
 
 
 

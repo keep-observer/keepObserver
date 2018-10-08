@@ -10,7 +10,6 @@ import mixinPipe from './pipe/index.js';
 
 
 
-
 class KeepObserver extends KeepObserverDetault {
     //构造函数
     constructor(config) {
@@ -30,7 +29,5 @@ class KeepObserver extends KeepObserverDetault {
 
 
 
-
-
-
-export default KeepObserver
+module.exports = KeepObserver
+module.exports.default = KeepObserver

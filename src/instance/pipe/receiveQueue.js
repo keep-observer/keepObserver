@@ -33,6 +33,7 @@ export var sendPipeMessage = function(pipeIndex, msg, options) {
 }
 
 
+
 //通知监听
 export var noticeListener = function(queue) {
     var that = this;
@@ -49,21 +50,22 @@ export var noticeListener = function(queue) {
             options
         } = queue[i];
         //消息分发
-        that.pipeUserListener.map(function(itemFn, index) {
+        that.pipeUserListener.map(function(item, index) {
             //判断是否是正确注册接收函数
-            if (!itemFn || !tool.isFunction(itemFn)) {
+            if (!item || !item.receiveCallback || !tool.isFunction(item.receiveCallback)) {
                 return false;
             }
             //不允许自发自收
             if (pipeIndex === index) {
                 return false;
             }
+            var receiveCallback = item.receiveCallback;
             //分发
             try {
                 //消息队列加锁
                 that.openLock();
                 //执行分发
-                var result = itemFn(msg, options);
+                var result = receiveCallback(msg, options);
                 //消息队列解锁
                 //如果返回值是promise或者存在then将解锁放入回调
                 if (result &&

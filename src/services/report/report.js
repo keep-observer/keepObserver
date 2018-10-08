@@ -117,7 +117,8 @@ export var _handleReport = function(params, control) {
         @.project string                    上报项目名
         @.projectVersion string             上报项目版本
         @.reportTime number                 上报时间时间搓
-        @.data                              上报内容
+        @.data  object                      上报内容
+        @.environment string                上报项目运行环境
         //一下参数可能存在
         @.customeInfo all                   用户自定义设置上传参数
         @.preTrackData object               合并之前保存的监控数据对象
