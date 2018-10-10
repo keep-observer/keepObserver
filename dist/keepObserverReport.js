@@ -789,6 +789,7 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
         @.reportTime number                 上报时间时间搓
         @.data  object                      上报内容
         @.environment string                上报项目运行环境
+        @.location string                   上报的位置
         //一下参数可能存在
         @.customeInfo all                   用户自定义设置上传参数
         @.preTrackData object               合并之前保存的监控数据对象
@@ -806,6 +807,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion;
     reportData.reportTime = params.reportTime;
+    reportData.location = params.location;
     reportData.environment = params.environment;
     reportData.data = params.data;
     //处理自定义信息
