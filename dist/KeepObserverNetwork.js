@@ -824,6 +824,7 @@ var handleReportData = exports.handleReportData = function handleReportData(cont
     reportParams.type = "monitor";
     reportParams.typeName = 'network';
     reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
     reportParams.reportTime = new Date().getTime();
     //option
