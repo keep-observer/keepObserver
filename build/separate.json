@@ -4,5 +4,5 @@
     "KeepObserverLog": "./src/services/observer/log/index.js",
     "KeepObserverNetwork": "./src/services/observer/network/index.js",
     "KeepObserverVue": "./src/services/observer/vue/index.js",
-    "KeepObserverSystem": "./src/services/performance/system/index.js"
+    "KeepObserverLoad": "./src/services/performance/load/index.js"
 }

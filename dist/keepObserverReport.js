@@ -782,6 +782,7 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
     return
     reportData {
         //以下参数必定存在
+        type:string                         上报的大的类型
         @.reportType string                 上报的具体类型名
         @.project string                    上报项目名
         @.projectVersion string             上报项目版本
@@ -797,8 +798,9 @@ var _createReportData = exports._createReportData = function _createReportData(p
     var that = this;
     var reportData = {};
     //添加类型
+    reportData.type = params.type;
     reportData.reportType = params.typeName;
-    reportData.isMonitorError = params.type === 'observer' ? true : false;
+    reportData.isMonitorError = params.type === 'monitor' ? true : false;
     reportData.isPerformance = params.type === 'performance' ? true : false;
     //基本信息
     reportData.project = that._project;

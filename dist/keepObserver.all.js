@@ -979,6 +979,53 @@ var closeLock = exports.closeLock = function closeLock() {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.registerRecivePipeMessage = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+//注册管道接收数据函数
+var registerRecivePipeMessage = exports.registerRecivePipeMessage = function registerRecivePipeMessage(pipeIndex) {
+    var that = this;
+    //修正索引
+    if (that.pipeUser[pipeIndex].receiveCallback) {
+        that.$devError('[keepObsever] register recive pipe index is Occupy');
+        return false;
+    }
+    //返回一个闭包函数用来接收注册函数
+    return function (fn, scope) {
+        //接收函数
+        if (!fn || !tool.isFunction(fn)) {
+            that.$devError('[keepObsever] registerRecivePipeMessage method receive function is not right');
+            return false;
+        }
+        //内部修改作用域调用
+        that.pipeUser[pipeIndex].receiveCallback = function () {
+            var agrs = tool.toArray(arguments);
+            //向注册进来的接收函数发送数据
+            if (scope) {
+                return fn.apply(scope, agrs);
+            }
+            return fn.apply(undefined, _toConsumableArray(agrs));
+        };
+    };
+};
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 exports.noticeListener = exports.sendPipeMessage = undefined;
 
 var _index = __webpack_require__(0);
@@ -1066,53 +1113,6 @@ var noticeListener = exports.noticeListener = function noticeListener(queue) {
 };
 
 /***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.registerRecivePipeMessage = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-//注册管道接收数据函数
-var registerRecivePipeMessage = exports.registerRecivePipeMessage = function registerRecivePipeMessage(pipeIndex) {
-    var that = this;
-    //修正索引
-    if (that.pipeUser[pipeIndex].receiveCallback) {
-        that.$devError('[keepObsever] register recive pipe index is Occupy');
-        return false;
-    }
-    //返回一个闭包函数用来接收注册函数
-    return function (fn, scope) {
-        //接收函数
-        if (!fn || !tool.isFunction(fn)) {
-            that.$devError('[keepObsever] registerRecivePipeMessage method receive function is not right');
-            return false;
-        }
-        //内部修改作用域调用
-        that.pipeUser[pipeIndex].receiveCallback = function () {
-            var agrs = tool.toArray(arguments);
-            //向注册进来的接收函数发送数据
-            if (scope) {
-                return fn.apply(scope, agrs);
-            }
-            return fn.apply(undefined, _toConsumableArray(agrs));
-        };
-    };
-};
-
-/***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1168,7 +1168,7 @@ exports.default = {
     //是否捕获跨域JS错误
     catchCrossDomain: true,
     //未知错误是否捕获
-    unknowErrorCatch: true
+    unknowErrorCatch: false
 };
 
 /***/ }),
@@ -1321,7 +1321,7 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     if (errorEvent.message === 'Script error.' && !url) {
         //未知错误是否捕获
         if (!that._config.unknowErrorCatch) return false;
-        errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
+        errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;
         errorObj.colum = 0;
@@ -1331,10 +1331,10 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
         return false;
     }
     //处理错误信息
-    errorObj.errMsg = errorEvent.message || '未获取到错误信息';
+    errorObj.errMsg = errorEvent.message || 'Error detail info not obtained';
     errorObj.url = url;
-    errorObj.line = errorEvent.lineno || '未获取到错误行';
-    errorObj.colum = errorEvent.colno || '未获取到错误列';
+    errorObj.line = errorEvent.lineno || 'Error row not obtained';
+    errorObj.colum = errorEvent.colno || 'Error column not obtained';
     setTimeout(function () {
         that._handleMessage('jsError', [errorObj]);
     });
@@ -1471,7 +1471,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'log';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
@@ -1685,7 +1685,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
                 //结束超时捕获
                 that._handleTimeout(id);
                 //处理响应头
-                item.resHead = {};
+                item.responseHead = {};
                 var header = XML.getAllResponseHeaders() || '',
                     headerArr = header.split("\n");
                 //提取数据
@@ -1697,7 +1697,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
                     var arr = line.split(': ');
                     var key = arr[0],
                         value = arr.slice(1).join(': ');
-                    item.resHead[key] = value;
+                    item.responseHead[key] = value;
                 }
                 //完成
                 clearInterval(timer);
@@ -1772,7 +1772,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
         that.networkList[id].params = params;
         //保存自定义请求头
         if (requestHead) {
-            that.networkList[id].reqHead = tool.extend({}, requestHead);
+            that.networkList[id].requestHead = tool.extend({}, requestHead);
             delete XML._setHead[id];
         }
         //如果是post数据保存
@@ -1808,7 +1808,7 @@ var _handleTimeout = exports._handleTimeout = function _handleTimeout(id) {
             item.isTimeout = true;
             item.timeout = timeout;
             item.isError = true;
-            item.errorContent = '接口响应超时，超时时间:' + timeout + '(ms)';
+            item.errorContent = 'ajax request timeout，time:' + timeout + '(ms)';
             //这里直接完成添加到超时列表 停止后续处理
             that._handleDoneXML(id);
             that.timeoutRequest[id] = true;
@@ -1846,21 +1846,21 @@ var _handleDoneXML = exports._handleDoneXML = function _handleDoneXML(id) {
         try {
             ajaxItem.handleReqData = onHandleRequestData(ajaxItem);
         } catch (err) {
-            ajaxItem.handleReqData = '自定义handleRequestData出错:' + err;
+            ajaxItem.handleReqData = 'Custom handleRequestData find error:' + err;
         }
     }
     //判断状态码是否出错
     var status = ajaxItem.status;
     if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
         ajaxItem.isError = true;
-        ajaxItem.errorContent = 'http请求错误!错误状态码:' + status;
+        ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
     }
     //如果存在自定义处理 响应data配置
     if (onHandleResponseData && !ajaxItem.isError) {
         try {
             ajaxItem.handleResData = onHandleResponseData(ajaxItem);
         } catch (err) {
-            ajaxItem.handleResData = '自定义handleResponseData出错:' + err;
+            ajaxItem.handleResData = 'Custom handleResponseData find error:' + err;
         }
     }
     //如果存在自定义处理响应数据是否出错
@@ -1873,7 +1873,7 @@ var _handleDoneXML = exports._handleDoneXML = function _handleDoneXML(id) {
             }
         } catch (err) {
             ajaxItem.isError = true;
-            ajaxItem.errorContent = '自定义判断handleJudgeResponse出错:' + err;
+            ajaxItem.errorContent = 'Custom handleJudgeResponse find error:' + err;
         }
     }
     //通知上传
@@ -1908,7 +1908,7 @@ var _handleJudgeDisbale = exports._handleJudgeDisbale = function _handleJudgeDis
         }
     }
     //判断是否是keepObserver的上报请求
-    if (ajaxInfo.reqHead && ajaxInfo.reqHead['keepObserver-reportAjax']) {
+    if (ajaxInfo.requestHead && ajaxInfo.requestHead['keepObserver-reportAjax']) {
         return false;
     }
     return true;
@@ -1983,8 +1983,8 @@ var KeepObserverNetwork = function (_KeepObserverDetault) {
         //value :{
         //	method:   			请求方法
         //	url:      			请求baseUrl
-        //	reqHead:     		请求头
-        //	resHead:        	请求响应头
+        //	requestHead:     	请求头
+        //  responseHead:       请求响应头
         //	params:   			请求URL上携带的参数
         //	data:       		请求postData
         //	status:         	请求状态码
@@ -2065,7 +2065,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'network';
     reportParams.location = window.location.href;
     reportParams.data = content;
@@ -2423,7 +2423,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'vue';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
@@ -2469,24 +2469,22 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+    value: true
 });
-
-
 /*
  
  	observer System 实例默认配置数据
  */
 
 exports.default = {
-	//是否每天只记录一次
-	isOneDay: true,
-	//是否启动性能分析 
-	isPerformance: true,
-	//是否检查缓存读取内容
-	isPerformanceRequest: true,
-	//获取到system信息是否立即上报
-	immediatelyiReport: true
+    //是否每天只记录一次
+    isOneDay: true,
+    //是否启动性能分析 
+    isPerformance: true,
+    //是否检查缓存读取内容
+    isPerformanceRequest: true,
+    //获取到load信息是否立即上报
+    immediatelyiReport: true
 };
 
 /***/ }),
@@ -2608,7 +2606,7 @@ var getWebPerformance = exports.getWebPerformance = function getWebPerformance(o
 
 //验证今天是否已经获取上传了一次用户信息了
 var checkIsOneDay = exports.checkIsOneDay = function checkIsOneDay() {
-    var reportDate = tool.getStorage('systemRecordReportDate');
+    var reportDate = tool.getStorage('loadRecordReportDate');
     var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
     //如果没获取上报过
     if (!reportDate) {
@@ -2623,7 +2621,7 @@ var checkIsOneDay = exports.checkIsOneDay = function checkIsOneDay() {
 var recordReport = exports.recordReport = function recordReport() {
     if (this._config.isOneDay) {
         var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
-        tool.setStorage('systemRecordReportDate', date);
+        tool.setStorage('loadRecordReportDate', date);
     }
 };
 
@@ -2671,22 +2669,22 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 // 获取系统信息
-var KeepObserverSystem = function (_KeepObserverDetault) {
-    _inherits(KeepObserverSystem, _KeepObserverDetault);
+var KeepObserverLoad = function (_KeepObserverDetault) {
+    _inherits(KeepObserverLoad, _KeepObserverDetault);
 
     //构造函数
-    function KeepObserverSystem(config) {
-        _classCallCheck(this, KeepObserverSystem);
+    function KeepObserverLoad(config) {
+        _classCallCheck(this, KeepObserverLoad);
 
-        var _this = _possibleConstructorReturn(this, (KeepObserverSystem.__proto__ || Object.getPrototypeOf(KeepObserverSystem)).call(this));
+        var _this = _possibleConstructorReturn(this, (KeepObserverLoad.__proto__ || Object.getPrototypeOf(KeepObserverLoad)).call(this));
 
-        var systemConfig = config.systemCustom || {};
+        var LoadCustom = config.LoadCustom || {};
         //存混合配置
-        _this._config = tool.extend(_defaultConfig2.default, systemConfig);
+        _this._config = tool.extend(_defaultConfig2.default, LoadCustom);
         //系统信息
         _this._systemInfo = false;
         //上报名
-        _this._typeName = 'system';
+        _this._typeName = 'Load';
         //监听列表
         _this.eventListener = [];
         //混入自身方法
@@ -2700,17 +2698,17 @@ var KeepObserverSystem = function (_KeepObserverDetault) {
     //提供一个挂载入口
 
 
-    _createClass(KeepObserverSystem, [{
+    _createClass(KeepObserverLoad, [{
         key: 'apply',
         value: function apply(pipe) {
             this.addReportListener(pipe.sendPipeMessage);
         }
     }]);
 
-    return KeepObserverSystem;
+    return KeepObserverLoad;
 }(_index3.default);
 
-exports.default = KeepObserverSystem;
+exports.default = KeepObserverLoad;
 
 /***/ }),
 /* 30 */
@@ -2741,7 +2739,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     reportParams.type = "performance";
-    reportParams.typeName = 'system';
+    reportParams.typeName = 'load';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
@@ -3383,6 +3381,7 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
     return
     reportData {
         //以下参数必定存在
+        type:string                         上报的大的类型
         @.reportType string                 上报的具体类型名
         @.project string                    上报项目名
         @.projectVersion string             上报项目版本
@@ -3398,8 +3397,9 @@ var _createReportData = exports._createReportData = function _createReportData(p
     var that = this;
     var reportData = {};
     //添加类型
+    reportData.type = params.type;
     reportData.reportType = params.typeName;
-    reportData.isMonitorError = params.type === 'observer' ? true : false;
+    reportData.isMonitorError = params.type === 'monitor' ? true : false;
     reportData.isPerformance = params.type === 'performance' ? true : false;
     //基本信息
     reportData.project = that._project;

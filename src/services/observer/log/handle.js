@@ -20,16 +20,16 @@ export var _handleInit = function() {
     that.console.clear = window.console.clear;
 
     baseLogList.map(method => {
-            window.console[method] = (...args) => {
-                //是否处于开发模式下
-                if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
-                    that.console[method](...args);
-                }
-                //交给拦截处理信息
-                that._handleMessage(method, args);
+        window.console[method] = (...args) => {
+            //是否处于开发模式下
+            if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
+                that.console[method](...args);
             }
-        })
-        //处理time timeEnd clear
+            //交给拦截处理信息
+            that._handleMessage(method, args);
+        }
+    });
+    //处理time timeEnd clear
     var timeLog = {};
     window.console.time = function(label) {
         timeLog[label] = Date.now();
@@ -54,10 +54,10 @@ export var _handleInit = function() {
         }
     }
     window.console.clear = (...args) => {
-            that._handleMessage('clear', args);
-            that.console.clear.apply(window.console, args);
-        }
-        //是否需要捕获跨域JS错误
+        that._handleMessage('clear', args);
+        that.console.clear.apply(window.console, args);
+    };
+    //是否需要捕获跨域JS错误
     if (that._config.catchCrossDomain && !that.$createElement) {
         //侵入document.createElement  实现跨域JS捕获错误信息
         if (window.document || window.document.createElement) {
@@ -132,7 +132,7 @@ export var _handleError = function(errorEvent) {
     if (errorEvent.message === 'Script error.' && !url) {
         //未知错误是否捕获
         if (!that._config.unknowErrorCatch) return false;
-        errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
+        errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;
         errorObj.colum = 0;
@@ -142,10 +142,10 @@ export var _handleError = function(errorEvent) {
         return false;
     }
     //处理错误信息
-    errorObj.errMsg = errorEvent.message || '未获取到错误信息'
+    errorObj.errMsg = errorEvent.message || 'Error detail info not obtained'
     errorObj.url = url;
-    errorObj.line = errorEvent.lineno || '未获取到错误行'
-    errorObj.colum = errorEvent.colno || '未获取到错误列'
+    errorObj.line = errorEvent.lineno || 'Error row not obtained'
+    errorObj.colum = errorEvent.colno || 'Error column not obtained'
     setTimeout(function() {
         that._handleMessage('jsError', [errorObj])
     })

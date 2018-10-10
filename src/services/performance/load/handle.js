@@ -106,7 +106,7 @@ export var getWebPerformance = function(onCallback) {
 
 //验证今天是否已经获取上传了一次用户信息了
 export var checkIsOneDay = function() {
-    var reportDate = tool.getStorage('systemRecordReportDate');
+    var reportDate = tool.getStorage('loadRecordReportDate');
     var date = tool.dateFormat(new Date, 'yyyy-MM-dd')
         //如果没获取上报过
     if (!reportDate) {
@@ -123,6 +123,6 @@ export var checkIsOneDay = function() {
 export var recordReport = function() {
     if (this._config.isOneDay) {
         var date = tool.dateFormat(new Date, 'yyyy-MM-dd');
-        tool.setStorage('systemRecordReportDate', date)
+        tool.setStorage('loadRecordReportDate', date)
     }
 }

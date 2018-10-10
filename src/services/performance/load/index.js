@@ -9,23 +9,23 @@ import KeepObserverDetault from '../../../default/index.js';
 
 
 // 获取系统信息
-class KeepObserverSystem extends KeepObserverDetault {
+class KeepObserverLoad extends KeepObserverDetault {
     //构造函数
     constructor(config) {
         super()
-        var systemConfig = config.systemCustom || {};
+        var LoadCustom = config.LoadCustom || {};
         //存混合配置
-        this._config = tool.extend(defaultConfig, systemConfig)
-        //系统信息
+        this._config = tool.extend(defaultConfig, LoadCustom)
+            //系统信息
         this._systemInfo = false;
         //上报名
-        this._typeName = 'system'
-        //监听列表
+        this._typeName = 'Load'
+            //监听列表
         this.eventListener = [];
         //混入自身方法
         this.$mixin(handleServer)
         this.$mixin(reportServer)
-        //开始获取系统信息
+            //开始获取系统信息
         this.getSystemInfo();
     }
 
@@ -38,4 +38,4 @@ class KeepObserverSystem extends KeepObserverDetault {
 
 
 
-export default KeepObserverSystem
+export default KeepObserverLoad

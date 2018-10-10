@@ -562,7 +562,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
                 //结束超时捕获
                 that._handleTimeout(id);
                 //处理响应头
-                item.resHead = {};
+                item.responseHead = {};
                 var header = XML.getAllResponseHeaders() || '',
                     headerArr = header.split("\n");
                 //提取数据
@@ -574,7 +574,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
                     var arr = line.split(': ');
                     var key = arr[0],
                         value = arr.slice(1).join(': ');
-                    item.resHead[key] = value;
+                    item.responseHead[key] = value;
                 }
                 //完成
                 clearInterval(timer);
@@ -649,7 +649,7 @@ var _handleXMLAjax = exports._handleXMLAjax = function _handleXMLAjax() {
         that.networkList[id].params = params;
         //保存自定义请求头
         if (requestHead) {
-            that.networkList[id].reqHead = tool.extend({}, requestHead);
+            that.networkList[id].requestHead = tool.extend({}, requestHead);
             delete XML._setHead[id];
         }
         //如果是post数据保存
@@ -685,7 +685,7 @@ var _handleTimeout = exports._handleTimeout = function _handleTimeout(id) {
             item.isTimeout = true;
             item.timeout = timeout;
             item.isError = true;
-            item.errorContent = '接口响应超时，超时时间:' + timeout + '(ms)';
+            item.errorContent = 'ajax request timeout，time:' + timeout + '(ms)';
             //这里直接完成添加到超时列表 停止后续处理
             that._handleDoneXML(id);
             that.timeoutRequest[id] = true;
@@ -723,21 +723,21 @@ var _handleDoneXML = exports._handleDoneXML = function _handleDoneXML(id) {
         try {
             ajaxItem.handleReqData = onHandleRequestData(ajaxItem);
         } catch (err) {
-            ajaxItem.handleReqData = '自定义handleRequestData出错:' + err;
+            ajaxItem.handleReqData = 'Custom handleRequestData find error:' + err;
         }
     }
     //判断状态码是否出错
     var status = ajaxItem.status;
     if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
         ajaxItem.isError = true;
-        ajaxItem.errorContent = 'http请求错误!错误状态码:' + status;
+        ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
     }
     //如果存在自定义处理 响应data配置
     if (onHandleResponseData && !ajaxItem.isError) {
         try {
             ajaxItem.handleResData = onHandleResponseData(ajaxItem);
         } catch (err) {
-            ajaxItem.handleResData = '自定义handleResponseData出错:' + err;
+            ajaxItem.handleResData = 'Custom handleResponseData find error:' + err;
         }
     }
     //如果存在自定义处理响应数据是否出错
@@ -750,7 +750,7 @@ var _handleDoneXML = exports._handleDoneXML = function _handleDoneXML(id) {
             }
         } catch (err) {
             ajaxItem.isError = true;
-            ajaxItem.errorContent = '自定义判断handleJudgeResponse出错:' + err;
+            ajaxItem.errorContent = 'Custom handleJudgeResponse find error:' + err;
         }
     }
     //通知上传
@@ -785,7 +785,7 @@ var _handleJudgeDisbale = exports._handleJudgeDisbale = function _handleJudgeDis
         }
     }
     //判断是否是keepObserver的上报请求
-    if (ajaxInfo.reqHead && ajaxInfo.reqHead['keepObserver-reportAjax']) {
+    if (ajaxInfo.requestHead && ajaxInfo.requestHead['keepObserver-reportAjax']) {
         return false;
     }
     return true;
@@ -821,7 +821,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'network';
     reportParams.location = window.location.href;
     reportParams.data = content;
@@ -931,8 +931,8 @@ var KeepObserverNetwork = function (_KeepObserverDetault) {
         //value :{
         //	method:   			请求方法
         //	url:      			请求baseUrl
-        //	reqHead:     		请求头
-        //	resHead:        	请求响应头
+        //	requestHead:     	请求头
+        //  responseHead:       请求响应头
         //	params:   			请求URL上携带的参数
         //	data:       		请求postData
         //	status:         	请求状态码

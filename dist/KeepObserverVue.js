@@ -550,7 +550,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'vue';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;

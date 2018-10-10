@@ -601,6 +601,10 @@ exports.default = mixinPipe;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
@@ -652,8 +656,7 @@ var KeepObserver = function (_KeepObserverDetault) {
     return KeepObserver;
 }(_index4.default);
 
-module.exports = KeepObserver;
-module.exports.default = module.exports;
+exports.default = KeepObserver;
 
 /***/ }),
 /* 25 */
@@ -972,6 +975,53 @@ var closeLock = exports.closeLock = function closeLock() {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.registerRecivePipeMessage = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+//注册管道接收数据函数
+var registerRecivePipeMessage = exports.registerRecivePipeMessage = function registerRecivePipeMessage(pipeIndex) {
+    var that = this;
+    //修正索引
+    if (that.pipeUser[pipeIndex].receiveCallback) {
+        that.$devError('[keepObsever] register recive pipe index is Occupy');
+        return false;
+    }
+    //返回一个闭包函数用来接收注册函数
+    return function (fn, scope) {
+        //接收函数
+        if (!fn || !tool.isFunction(fn)) {
+            that.$devError('[keepObsever] registerRecivePipeMessage method receive function is not right');
+            return false;
+        }
+        //内部修改作用域调用
+        that.pipeUser[pipeIndex].receiveCallback = function () {
+            var agrs = tool.toArray(arguments);
+            //向注册进来的接收函数发送数据
+            if (scope) {
+                return fn.apply(scope, agrs);
+            }
+            return fn.apply(undefined, _toConsumableArray(agrs));
+        };
+    };
+};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 exports.noticeListener = exports.sendPipeMessage = undefined;
 
 var _index = __webpack_require__(0);
@@ -1056,53 +1106,6 @@ var noticeListener = exports.noticeListener = function noticeListener(queue) {
     }
     //等待状态结束
     that.waiting = false;
-};
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.registerRecivePipeMessage = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-//注册管道接收数据函数
-var registerRecivePipeMessage = exports.registerRecivePipeMessage = function registerRecivePipeMessage(pipeIndex) {
-    var that = this;
-    //修正索引
-    if (that.pipeUser[pipeIndex].receiveCallback) {
-        that.$devError('[keepObsever] register recive pipe index is Occupy');
-        return false;
-    }
-    //返回一个闭包函数用来接收注册函数
-    return function (fn, scope) {
-        //接收函数
-        if (!fn || !tool.isFunction(fn)) {
-            that.$devError('[keepObsever] registerRecivePipeMessage method receive function is not right');
-            return false;
-        }
-        //内部修改作用域调用
-        that.pipeUser[pipeIndex].receiveCallback = function () {
-            var agrs = tool.toArray(arguments);
-            //向注册进来的接收函数发送数据
-            if (scope) {
-                return fn.apply(scope, agrs);
-            }
-            return fn.apply(undefined, _toConsumableArray(agrs));
-        };
-    };
 };
 
 /***/ }),

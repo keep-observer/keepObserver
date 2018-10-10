@@ -429,24 +429,22 @@ exports.default = KeepObserverDefault;
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+    value: true
 });
-
-
 /*
  
  	observer System 实例默认配置数据
  */
 
 exports.default = {
-	//是否每天只记录一次
-	isOneDay: true,
-	//是否启动性能分析 
-	isPerformance: true,
-	//是否检查缓存读取内容
-	isPerformanceRequest: true,
-	//获取到system信息是否立即上报
-	immediatelyiReport: true
+    //是否每天只记录一次
+    isOneDay: true,
+    //是否启动性能分析 
+    isPerformance: true,
+    //是否检查缓存读取内容
+    isPerformanceRequest: true,
+    //获取到load信息是否立即上报
+    immediatelyiReport: true
 };
 
 /***/ }),
@@ -569,7 +567,7 @@ var getWebPerformance = exports.getWebPerformance = function getWebPerformance(o
 
 //验证今天是否已经获取上传了一次用户信息了
 var checkIsOneDay = exports.checkIsOneDay = function checkIsOneDay() {
-    var reportDate = tool.getStorage('systemRecordReportDate');
+    var reportDate = tool.getStorage('loadRecordReportDate');
     var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
     //如果没获取上报过
     if (!reportDate) {
@@ -584,7 +582,7 @@ var checkIsOneDay = exports.checkIsOneDay = function checkIsOneDay() {
 var recordReport = exports.recordReport = function recordReport() {
     if (this._config.isOneDay) {
         var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
-        tool.setStorage('systemRecordReportDate', date);
+        tool.setStorage('loadRecordReportDate', date);
     }
 };
 
@@ -618,7 +616,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     reportParams.type = "performance";
-    reportParams.typeName = 'system';
+    reportParams.typeName = 'load';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
@@ -696,22 +694,22 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 // 获取系统信息
-var KeepObserverSystem = function (_KeepObserverDetault) {
-    _inherits(KeepObserverSystem, _KeepObserverDetault);
+var KeepObserverLoad = function (_KeepObserverDetault) {
+    _inherits(KeepObserverLoad, _KeepObserverDetault);
 
     //构造函数
-    function KeepObserverSystem(config) {
-        _classCallCheck(this, KeepObserverSystem);
+    function KeepObserverLoad(config) {
+        _classCallCheck(this, KeepObserverLoad);
 
-        var _this = _possibleConstructorReturn(this, (KeepObserverSystem.__proto__ || Object.getPrototypeOf(KeepObserverSystem)).call(this));
+        var _this = _possibleConstructorReturn(this, (KeepObserverLoad.__proto__ || Object.getPrototypeOf(KeepObserverLoad)).call(this));
 
-        var systemConfig = config.systemCustom || {};
+        var LoadCustom = config.LoadCustom || {};
         //存混合配置
-        _this._config = tool.extend(_defaultConfig2.default, systemConfig);
+        _this._config = tool.extend(_defaultConfig2.default, LoadCustom);
         //系统信息
         _this._systemInfo = false;
         //上报名
-        _this._typeName = 'system';
+        _this._typeName = 'Load';
         //监听列表
         _this.eventListener = [];
         //混入自身方法
@@ -725,17 +723,17 @@ var KeepObserverSystem = function (_KeepObserverDetault) {
     //提供一个挂载入口
 
 
-    _createClass(KeepObserverSystem, [{
+    _createClass(KeepObserverLoad, [{
         key: 'apply',
         value: function apply(pipe) {
             this.addReportListener(pipe.sendPipeMessage);
         }
     }]);
 
-    return KeepObserverSystem;
+    return KeepObserverLoad;
 }(_index3.default);
 
-exports.default = KeepObserverSystem;
+exports.default = KeepObserverLoad;
 
 /***/ })
 

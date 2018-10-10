@@ -580,7 +580,7 @@ exports.default = {
     //是否捕获跨域JS错误
     catchCrossDomain: true,
     //未知错误是否捕获
-    unknowErrorCatch: true
+    unknowErrorCatch: false
 };
 
 /***/ }),
@@ -734,7 +734,7 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     if (errorEvent.message === 'Script error.' && !url) {
         //未知错误是否捕获
         if (!that._config.unknowErrorCatch) return false;
-        errorObj.errMsg = 'jsError!可能是跨域资源的JS出现错误,无法获取到错误URL定位,错误信息为:' + errorEvent.message;
+        errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;
         errorObj.colum = 0;
@@ -744,10 +744,10 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
         return false;
     }
     //处理错误信息
-    errorObj.errMsg = errorEvent.message || '未获取到错误信息';
+    errorObj.errMsg = errorEvent.message || 'Error detail info not obtained';
     errorObj.url = url;
-    errorObj.line = errorEvent.lineno || '未获取到错误行';
-    errorObj.colum = errorEvent.colno || '未获取到错误列';
+    errorObj.line = errorEvent.lineno || 'Error row not obtained';
+    errorObj.colum = errorEvent.colno || 'Error column not obtained';
     setTimeout(function () {
         that._handleMessage('jsError', [errorObj]);
     });
@@ -784,7 +784,7 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 var handleReportData = exports.handleReportData = function handleReportData(content) {
     var reportParams = {};
     var control = {};
-    reportParams.type = "observer";
+    reportParams.type = "monitor";
     reportParams.typeName = 'log';
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
