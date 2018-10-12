@@ -1,156 +1,177 @@
-# Keep-observer-doucment
+# KeepObserverReport
 
+### Function
 
+	内置上传服务，用于在管道消息中接收消息,根据控制参数进行上报服务器操作，关于管道控制参数请参考keepObserver document
 
-### reportContent-explan
+	管道参数如下：
+    		params  
+    			@object  = {
+       				 type:  string                  	 //类型,observer or performance    
+        			 typeName:  string               //类型名,vue  or log or network
+      				 location:string                 	//捕获位置
+        			environment:string              //运行环境信息
+       				 data:object                    	 //捕获数据
+        			reportTime: int 			//捕获时间搓
+  			  }
+    			@ .control null and object = {
+        			@ .isReport:boolean                	 //是否需要上报 内部reportServer需要使用
+        			@ .lazy:boolean                     	 //是否懒上报, （手动trackExtend合并上报,或者trackExtend合并上报）,不立即上报
+        			@ .trackExtend:boolean              //是否合并之前保存的lazy信息一起上报
+        			@ .isError:boolean                  	//是否是错误信息
+        			@ .isPerformance:boolean         //是否是性能捕获分析
+        			@ .preDelete:boolean                	//是否删除之前的信息
+       				 @ .ignore:boolean                   	//本条数据是否忽略
+
+			}
+
+### Config	
 
 ```javascript
-/*
-	keepObserver 上报服务器内容
-*/
-var reportData = {
+reportCustom :{	
+	/*
+		如果取不到缓存长度的默认长度
+		default: 3
+		explain: 用于向前追踪错误的，缓存正常数据长度
+	*/
+    max_cache: int,
     /*
-    	上报类型 network log vue system 等
-    	例如 
-    		networl  表示window.XMLHttpRequest错误
-    		log 	 表示 jsError 或则console.error() 错误 
-    		vue 	 表示拦截的vue错误
-    		system   系统信息
-    	type: string
+    	默认log数组缓存长度 
+    	default: 5,
+    	explain: 用于向前追踪错误的，缓存正常的console相关数据
     */
-    reportType,
+    max_log_cache: int，
+     /*
+    	默认network数组缓存长度 
+    	default: 3,
+    	explain: 用于向前追踪错误的，缓存正常的ajaxRequest相关数据
+    */
+    max_network_cache: int，
     /*
-    	项目名
-    	type: string
+    	上报服务器的地址 
+    	default: false,
+    	explain: 
+            上报服务器的地址，数组方式传递如：
+            reportUrl: [
+                'http://localhost:3000/api/v1/keepObserver/report',
+            ],
     */
-    project,
+    reportUrl: Boolean or Array，
     /*
-    	keepObserver版本
-    	type: string
+    	上传失败回调钩子
+    	default: false,
+    	explain: 
+    		function(reportInfo，reportUrl)
+            params:
+            	.reportInfo object 	//上报内容
+            	.reportUrl string	//上报url 
+            return: null
     */
-    projectVersion
+	onReportFail: Boolean or Function,
     /*
-    	上报时间搓
-    	type number
+    	上传前自定义设置url
+    	default: false,
+    	explain: 
+    		function(reportUrl)
+            params:
+            	.reportUrl string	//上报url 
+            return: new reportUrl
     */
-    reportTime
+	onReportBeforeSetUrl: Boolean or Function,
     /*
-    	用户自定义上报数据
-    	在keepObserver.setCustomReport(params)中获取 = params
+    	上传前自定义设置请求头，
+    	default: false,
+    	explain: 
+    		function(reportUrl)
+            params:
+            	.reportUrl string	//上报url 
+            return: requestHeadData object
     */
-    customeInfo,
+	onReportBeforeSetHead: Boolean or Function,
     /*
-    	上报的数据 存在两种格式
-    	type: object or array
-    	***************************
-    	当类型为数组时,表示是合并上报
-        {
-    		log 		//表示为window.console中拦截的数据 array格式
-    		network   	//表示拦截的window.XMLHttpRequest数据 array格式
-    		vue         //表示拦截的vue错误 array格式   
-        }
-        当类型为数组时,表示内容为reportType的上报数据
-        *******************  各类型数据详细子数据格式在下方描述  ******************
-        子数据格式通用{
-        	typeName    //类型 例如network log vue system 等
-        	location    //当前记录的URL地址 来源window.location.href
-        	reportTime  //记录上报的时间搓
-        	data:		// array 该类型详细数据  各类型详细数据请看下方
-        }
+    	上传服务器前回调钩子，
+    	default: false,
+    	explain: 
+    		function(reportInfo,reportUrl,repHead)
+            params:
+            	.reportInfo	object	//上报内容
+            	.reportUrl string	//上报url 
+            	.repHead object 	//上报请求头
+            return: null
     */
-    data
+	onReportBeforeSetHead: Boolean or Function,
+    /*
+    	上传服务器后返回处理钩子，
+    	default: false,
+    	explain: 
+    		function(reportInfo,reportUrl,repHead)
+            params:
+            	.reportInfo	object	//上报内容
+            	.reportUrl string	//上报url 
+            	.resHead object 	//上报结束响应头
+            return: null
+    */
+	onReportResultHook: Boolean or Function,
 }
-
+/*
+	是否是开发模式
+	default: false
+	explain: 
+*/
+develop: Boolean
+/*
+	开发环境下获取报文是否打印
+	default: false
+	explain: 
+*/
+developGetMsgLog: Boolean
+/*
+	开发环境下丢弃数据 是否打印出来
+	default: false
+	explain: 
+*/
+develogDiscardLog: Boolean
+/*
+	开发环境下删除出数据 是否打印出来
+	default: false
+	explain: 
+*/
+develogDeleteLog: Boolean
 ```
 
-### System：
+### Api 
 
 ```javascript
-
-//重定向次数：单位(ms)
-redirectCount
-//跳转耗时：单位(ms)
-redirectTime 
-//APP CACHE 耗时：单位(ms)
-appcacheTime
-//DNS 解析耗时：单位(ms)
-dns
-//TCP 链接耗时：单位(ms)
-tcp
-//等待服务器响应耗时（注意是否存在cache）：单位(ms)
-request
-//内容加载耗时（注意是否存在cache）:单位(ms)
-response
-//总体网络交互耗时，即开始跳转到服务器资源下载完成：单位(ms)
-network 
-//渲染处理：单位(ms)
-DOMrender 
-//抛出 load 事件：单位(ms)
-onloadTime 
-//总耗时：单位(ms)
-total
-//可交互：单位(ms
-DOMactive 
-//请求响应耗时，即 T0，注意cache：单位(ms
-webResponse 
-//首次出现内容，即 T1：单位(ms
-webLoad 
-//内容加载完毕，即 T3：单位(ms
-webLoadEnd 
-//系统平台信息 来源window.navigator.userAgent
-systemInfo
-//首屏加载的信息详情 array
-requestPerformance = [
-    //类型 例如:script link 等  
-    type
-    //文件名 例如 http://localhost:8080/app.js
-    name
-    //加载耗时 ms
-    time
-    //文件大小 kb
-    size
-]
+	/*
+		接受自定义上报内容	
+		params: 
+			model1: arguments[0]  type object  
+    		model2: arguments[0]  type boolean  
+    			will extend preData arguments[...]=extend data
+    			合并到this._customeInfo中
+		return: null
+		explain: 用于接收自定义上报信息
+	*/
+    $setCustomeReportData
 ```
 
-### Network:
+### ReportData
 
-```javascript
-	method:   			//请求方法
-    url:      			//请求baseUrl
-    reqHead:     		//请求头
-    resHead:        	//请求响应头
-    params:   			//请求URL上携带的参数
-    data:       		//请求postData
-    status:         	//请求状态码
-    startTime:      	//请求开始时间
-    endTime:        	//请求结束时间
-    costTime:       	//请求耗时
-    response: 			//请求原始响应数据
-    responseType    	//请求响应类型
-    handleResData:     	//如果配置中传入 自定义处理响应数据 那么这里将保持处理后的响应数据
-    handleReqData:      //如果配置中传入 自定义处理发送数据 那么这里将保持处理后的发送数据
-    isTimeout:          //是否超时 如果存在这个字段 则说明已经上报,忽略处理
-    timeout:            //如果超时 这里是设置的超时时间
-    isError:            //这个请求是否出现错误
-    errorContent:       //错误信息
+```
+{
+     //以下参数必定存在
+     @.type string                       上报的大的类型
+     @.reportType string                 上报的具体类型名
+     @.project string                    上报项目名
+     @.projectVersion string             上报项目版本
+     @.reportTime number                 上报时间时间搓
+     @.data  object                      上报内容
+     @.environment string                上报项目运行环境
+     @.location string                   上报的位置
+     //以下参数可能存在
+     @.customeInfo all                   用户自定义设置上传参数
+     @.preTrackData object               合并之前保存的监控数据对象，用于向前追踪错误
+}
 ```
 
-### log
-
-```javascript
-// 类型 例如 warn log error info debug    特殊类型 jsError 表示JS运行中报错
-type
-// 输出的打印信息	
-// jsError类型特殊错误格式：errMsg:错误信息 url:错误地址 line:错误行 colum:错误列
-data
-```
-
-### vue
-
-```javascript
-infoMsg   	//信息详情
-errMsg    	//错误信息
-stackMsg  	//错误堆栈信息
-isError   	//vue出错
-```
-
+	

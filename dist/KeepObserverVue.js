@@ -459,15 +459,13 @@ var startObserver = exports.startObserver = function startObserver() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-
 /*
  
  	observer vue 实例默认配置数据
  */
 exports.default = {
   //是否启动性能分析   暂时未做
-  isPerformance: true
+  // 	isPerformance:true,
 };
 
 /***/ }),

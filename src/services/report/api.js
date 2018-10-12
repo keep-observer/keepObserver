@@ -4,9 +4,9 @@ import * as tool from '../../tool/index.js';
 /*
     	接受自定义上报内容
     	model1: arguments[0]  type object  
-    	model2: arguments[0]  type boolean  
-    			will extend preData  arguments[...]=extend data
-    	合并到this._customeInfo中
+        model2: arguments[0]  type boolean  
+                will extend preData  arguments[...]=extend data
+        合并到this._customeInfo中
      */
 export var $setCustomeReportData = function(params) {
     var that = this;

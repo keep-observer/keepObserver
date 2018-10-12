@@ -9,7 +9,7 @@ import * as tool from '../../tool/index.js';
         location:string                 //捕获位置
         environment:string              //运行环境信息
         data:object                     //捕获数据
-        reportTime: int //捕获时间搓
+        reportTime: int                 //捕获时间搓
     }
     @ .control null and object = {
         @ .isReport:boolean                 //是否需要上报 内部reportServer需要使用

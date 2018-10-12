@@ -2233,15 +2233,13 @@ var startObserver = exports.startObserver = function startObserver() {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-
 /*
  
  	observer vue 实例默认配置数据
  */
 exports.default = {
   //是否启动性能分析   暂时未做
-  isPerformance: true
+  // 	isPerformance:true,
 };
 
 /***/ }),
@@ -2925,9 +2923,9 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 /*
     	接受自定义上报内容
     	model1: arguments[0]  type object  
-    	model2: arguments[0]  type boolean  
-    			will extend preData  arguments[...]=extend data
-    	合并到this._customeInfo中
+        model2: arguments[0]  type boolean  
+                will extend preData  arguments[...]=extend data
+        合并到this._customeInfo中
      */
 var $setCustomeReportData = exports.$setCustomeReportData = function $setCustomeReportData(params) {
     var that = this;
@@ -2968,29 +2966,36 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _$observer_Type$max_c;
-
 var _index = __webpack_require__(2);
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-exports.default = (_$observer_Type$max_c = {
+exports.default = {
     /******************** 公共相关配置 *******************/
     //上报的类型
     $observer_Type: _index.reportType,
     //如果取不到缓存长度的默认长度
     max_cache: 3,
 
-    /******** observer-network相关配置   *********/
-    //默认network数组缓存长度
-    max_network_cache: 3,
-
-    /******** observer-log相关配置   *********/
     //默认log数组缓存长度
     max_log_cache: 5,
     //默认vue数组缓存长度
-    max_vue_cache: 1
-}, _defineProperty(_$observer_Type$max_c, 'max_network_cache', 3), _defineProperty(_$observer_Type$max_c, 'reportUrl', false), _defineProperty(_$observer_Type$max_c, 'onReportFail', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeSetUrl', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeSetHead', false), _defineProperty(_$observer_Type$max_c, 'onReportBeforeHook', false), _defineProperty(_$observer_Type$max_c, 'onReportResultHook', false), _$observer_Type$max_c);
+    max_vue_cache: 1,
+    //默认network数组缓存长度
+    max_network_cache: 3,
+
+    /*********************   上传相关   ********************/
+    //上传服务器的url列表  		array
+    reportUrl: false,
+    //上传失败回调				function (reportInfo,reportUrl(有可能有))
+    onReportFail: false,
+    //上传前自定义设置url   	function (reportUrl)   return new URl
+    onReportBeforeSetUrl: false,
+    //上传前自定义设置请求头， 	function (reportUrl)   return headData object
+    onReportBeforeSetHead: false,
+    //上传服务器前回调钩子  	function (reportInfo,reportUrl,repHead)
+    onReportBeforeHook: false,
+    //上传服务器后返回处理钩子      function (resultInfo,reportUrl,resHead)
+    onReportResultHook: false
+};
 
 /***/ }),
 /* 34 */
@@ -3019,7 +3024,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
         location:string                 //捕获位置
         environment:string              //运行环境信息
         data:object                     //捕获数据
-        reportTime: int //捕获时间搓
+        reportTime: int                 //捕获时间搓
     }
     @ .control null and object = {
         @ .isReport:boolean                 //是否需要上报 内部reportServer需要使用
@@ -3382,7 +3387,7 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
     return
     reportData {
         //以下参数必定存在
-        type:string                         上报的大的类型
+        @.type string                       上报的大的类型
         @.reportType string                 上报的具体类型名
         @.project string                    上报项目名
         @.projectVersion string             上报项目版本

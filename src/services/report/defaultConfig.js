@@ -12,11 +12,6 @@ export default {
     max_cache: 3,
 
 
-    /******** observer-network相关配置   *********/
-    //默认network数组缓存长度
-    max_network_cache: 3,
-
-    /******** observer-log相关配置   *********/
     //默认log数组缓存长度
     max_log_cache: 5,
     //默认vue数组缓存长度
@@ -39,6 +34,6 @@ export default {
     onReportBeforeSetHead: false,
     //上传服务器前回调钩子  	function (reportInfo,reportUrl,repHead)
     onReportBeforeHook: false,
-    //上传服务器后返回处理钩子  	function (resultInfo,reportUrl,resHead)
+    //上传服务器后返回处理钩子      function (resultInfo,reportUrl,resHead)
     onReportResultHook: false,
 }
