@@ -141,4 +141,4 @@ keepObserver.use(KeepObserverLoad)
 - **XMLHttpRequest相关监控服务**   **[KeepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document/network.md)**
 - **vue错误相关拦截服务:**   **[KeepObserverVue](https://github.com/keep-observer/keepObserver/blob/master/document/vue.md)**
 
-- **首屏加载分析onload服务:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document/kiad.md)**
+- **首屏加载分析onload服务:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document/load.md)**
