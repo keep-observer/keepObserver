@@ -100,7 +100,7 @@ var keepObserver = new KeepObserver({
 ```javascript
 import keepObserver from 'keep-observers/dist/keepObserver.js'
 import keepObserverReport from 'keep-observers/dist/keepObserverReport.js'
-import KeepObserverLog from 'keep-observers/dist/KeepObserverLog.js
+import KeepObserverLog from 'keep-observers/dist/KeepObserverLog.js'
 import KeepObserverNetwork from 'keep-observers/dist/KeepObserverNetwork.js
 //import KeepObserverVue from 'keep-observers/dist/KeepObserverVue.js'
 import KeepObserverLoad from 'keep-observers/dist/KeepObserverLoad.js'
