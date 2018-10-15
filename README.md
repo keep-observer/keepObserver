@@ -1,5 +1,7 @@
 # Keep-observer
 
+[中文说明](https://github.com/keep-observer/keepObserver/blob/master/README-cn.md)
+
 ##### **This is a monitor service using for javascript web application** 
 
 - **about keep-observer:**    
