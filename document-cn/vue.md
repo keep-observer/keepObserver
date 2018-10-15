@@ -2,7 +2,7 @@
 
 ### Function
 
-	the vue instance must be passed when initializing keepObserver, for example vueInstance:Vue, otherwise it's invalid! The service for listening vue error information
+​	keepObserver初始化时必须传入vue实例配置，如vueInstance：Vue,不然无效！服务监听vue错误信息
 
 ### Config	
 
@@ -15,14 +15,14 @@ vueInstance ： instanceof  (import Vue from 'vue')
 
 ```javascript
 	/*
-		stop monitor	
+		停止监听	
 		params: null,
 		return: null
 		explain: 
 	*/
     $vueStop
     /*
-    	start monitor 
+    	开始监听 
     	params: null,
 		return: null
 		explain: 
@@ -34,9 +34,9 @@ vueInstance ： instanceof  (import Vue from 'vue')
 
 ```
 {
-	infoMsg				//the detailed information
-	errMsg				//the error information
-	stackMsg			//it's existent if there is stack information
+	infoMsg				//详细信息
+	errMsg				//错误信息
+	stackMsg			//如果存在堆栈信息则存在
 }
 ```
 

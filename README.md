@@ -1,72 +1,74 @@
 # Keep-observer
 
-##### **这是一个应用于 javascript web端中的监控服务** 
+##### **This is a monitor service using for javascript web application** 
 
-- **关于keep-observer:**    
-  - 这是一个基于javascript编写的用于线上生产环境监控，适用于web:PC端以及移动端的无感嵌入捕获，
-  - 采用插槽服务组合方式，各捕获相关服务上报数据在消息管道中流通，由上报服务在管道消息中接收捕获信息选择性上报服务端后台
-  - 支持可自由组合监控内容，并且允许自定义监扩充控捕获服务，自定义上报服务等。
-- **功能:**  
-  - keepObserverLog相关服务
-    - 拦截捕获全局 ***console*** 相关日志,包括(error,log,warn,time,timeEnd,clear,info,debug)等
-    - 捕获javascript 允行期间全局错误: ***JSerror***等错误信息
-  - keepObserverNetwork相关服务
-    - 捕获全局 ***XMLHttpRequest*** 请求
-  - keepObserverVue相关服务
-    - ***vue项目*** 捕获相关错误 
-  - keepObserverLoad相关服务
-    - 性能捕获分析 ***项目首屏加载等性能分析***
-  - keepObserverReport相关服务
-    - 应用于将拦截数据包上报相关后台服务器
-    - 详细信息见下方：**关于上报服务**
-- **兼容与支持:**   兼容目前所有主流框架运行版本, **vue angular  react**等框架。**IE 678暂未测试**
-
-
-
-## Use And reportMonitorData
-
-#### 	关于keepObserver使用:
-
-- 	keepObserver支持自定义配置监控服务,在不自定义配置服务的情况,默认加载全部服务，包括(keepObserverLog，keepObserverNetwork， keepObserverVue，keepObserverLoad，keepObserverReport）等
--        keepObserver 在 new keepObserver()后 : **开始运行监控。首先尝试读取系统首屏加载信息， 在嵌入拦截window.console相关的方法以及window.XMLHttpRequest方法，进行监控log和ajax网络请求**，
-- 	注意在keepObserver运行期间 **如果不设置develop = true 将默认生产环境**，在生产环境中.window.console相关的接口打印信息，将被keepObserver拦截，**并不显示在控制台console中**
--         同时 window.console相关的方法的打印信息，以及window.XMLHttpRequest方法的每一次请求，也被拦截并记录在localStorage缓存中，在上报的时候按需要打包合并上报。	
+- **about keep-observer:**    
+  - this is a monitor service based on javascript, using for monitoring product envoriment application, which applies to web, pc and mobile application with imperceptible inset and capture.
+  - use combination way of slot service, to capture report data of corresponding service that circulates in message pipe and reported by report service which receives captured message and report to server optionally
+  - in favor of combining monitored content freely and extending monitor capture service, custom report service etc.
+- **function:**  
+  - keepObserverLog related service
+    - intercept and capture global ***console*** related log, including(error,log,warn,time,timeEnd,clear,info,debug) etc.
+    - capture javascript global error during the application is running: ***JSerror*** and other error message
+  - keepObserverNetwork related service
+    - capture global ***XMLHttpRequest*** request
+  - keepObserverVue related service
+    - capture ***vue project*** related error
+  - keepObserverLoad related service
+    - capture performance analysis ***first loading performance analysis and other performance analyses*** 
+  - keepObserverReport related service
+    - apply to intercept data packet and report to the corresponding background server
+    - read the following for more detailed information: **about reporting service**
+- **compatibility and support:**   compatible with all main current frames of running version, **vue angular react** and other frames. **IE 678 have not been tested yet**
 
 
 
-#### 	关于上报服务器：
+## Use and report MonitorData
 
-##### 		keepObserverReport 在遇到以下几种情况下,将进行上报服务器操作
+#### About using keepObserver:
 
-##### 		Monitor类型：（并且合并发生错误时，前几条正常的request和window.console相关信息，用于提供向前追踪错误）
+- keepObserver supports custom configuration monitoring services and loads all services by default without custom configuration services,contains keep(keepObserverLog，keepObserverNetwork， keepObserverVue，keepObserverLoad，keepObserverReport）etc.
+- after keepObserver create an instance new keepObserver() : **start running monitoring。trying to read system screen load information, embed the methods related to intercepting window.console and window.XMLHttpRequest to monitor log and ajax network request **
+- Noted that during the keepObserver run, **if you do not set develop = true,it defaults in production environment **, the interface printing message related to window.console will be intercepted by keepObserver, **and will not display in  the console**
+- in the meanwhile, the interface printing message related to window.console and each request of the window.XMLHttpRequest method, will be intercepted and recorded in the localStorage, which is packaged and reported as needed when it is reported.
 
-```javascript
-			： 捕获到js错误  script Error
-            
-        	： console.error() 被调用输出错误信息	
-            
-			： ajax请求响应超时  network timeout
 
-			： ajax请求出现错误  status !== 200
 
-			:  如果配置自定义判断ajax请求onHandleJudgeResponse钩子, 在钩子返回不等于false时，判断为ajax请求不正确
+#### About Reporting Server：
 
-			： 如果需要监控vue，在vue拦截到错误信息后
-```
+##### keepObserverReport  will report to server in the following situations:
 
-**Performance类型：以下内容将会直接上传并且无合并追踪信息**
+##### Monitor Type：(while merging errors, it will merging the few normal related request and window.console information ahead, which is used to provide forward tracking errors)
 
 ```javascript
-			: 首屏load相关信息,每天首次打开将上报
+			： intercept js error:  script Error
+            
+        	： console.error(): called and print out error message	
+            
+			： ajax request timeout:  network timeout
+
+			： ajax request occur error:  status !== 200
+			
+			: if you configure the custom judgment Ajax request onHandleJudgeResponse Hook,it is judged that the Ajax request is incorrect when the hook return does not equal false
+
+			： if you need to monitor vue, after vue intercepts the error message
 ```
 
-**更多配置信息，以及上报参数，请参考Documentation**
+**Performance Type： the following contents will be uploaded directly without merging trace information**
 
+```javascript
+			: related information about first screen load performance, will be reported daily for the first time
+```
 
+------
+
+**For more configuration information and report parameters, please refer to Documentation.**
 
 ## Installation
 
-	请使用 npm安装包
+```
+install related package
+```
 
 ```
 	npm install keep-observers
@@ -76,26 +78,26 @@
 
 ## Examples
 
-#### 	一个简单的使用例子
+#### a simple example 
 
 ```javascript
 import KeepObserver from 'keep-observers';
-//启动
+//start
 var keepObserver = new KeepObserver({
 	project:'netcar',
 	develop:true,
-	//网络监控配置
+	//network monitor configuration
 	networkCustom:{
 		timeout:30000,
 	},
-	//数据上传相关配置
+	//data upload configuration
 	reportCustom:{
 		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
 	}
 });
 ```
 
-#### 自定义服务例子
+#### example of custom service
 
 ```javascript
 import keepObserver from 'keep-observers/dist/keepObserver.js'
@@ -108,11 +110,11 @@ import KeepObserverLoad from 'keep-observers/dist/KeepObserverLoad.js'
 var keepObserver = new KeepObserver({
 	project:'netcar',
 	develop:true,
-	//网络监控配置
+	//network monitor configuration
 	networkCustom:{
 		timeout:30000,
 	},
-	//数据上传相关配置
+	//data upload configuration
 	reportCustom:{
 		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
 	}
@@ -125,20 +127,17 @@ keepObserver.use(KeepObserverNetwork)
 keepObserver.use(KeepObserverLoad)
 ```
 
-##### 	更多config配置详情，以及相关api等，请参考Documentation。
+##### For more details on config configuration and related API, please refer to Documentation.
 
 
 
 ## Documentation
 
-#### 	相关文档说明
+#### instruction of related documents
 
-- **keepObserver实例和自定义插件服务**   **[keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserver.md)**
-
-- **上报服务:**   **[keepObserverReport](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
-- **window.console以及jsError相关监控服务:**   **[KeepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document/log.md)**
-
-- **XMLHttpRequest相关监控服务**   **[KeepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document/network.md)**
-- **vue错误相关拦截服务:**   **[KeepObserverVue](https://github.com/keep-observer/keepObserver/blob/master/document/vue.md)**
-
-- **首屏加载分析onload服务:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document/load.md)**
+- **related custom plug-in service and keepObserver instance**   **[keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserver.md)**
+- **reporting service:**   **[keepObserverReport](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
+- **related monitoring service about window.console and jsError:**   **[KeepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document/log.md)**
+- **related monitoring service about XMLHttpRequest**   **[KeepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document/network.md)**
+- **related intercepting service about vue error:**   **[KeepObserverVue](https://github.com/keep-observer/keepObserver/blob/master/document/vue.md)**
+- **related onload service about first screen loading analysis:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document/load.md)**

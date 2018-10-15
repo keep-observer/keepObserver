@@ -2,26 +2,26 @@
 
 ### Function
 
-	内置上传服务，用于在管道消息中接收消息,根据控制参数进行上报服务器操作，关于管道控制参数请参考keepObserver document
+	the built-in upload service, using for receiving message in pipe message, processes the operation of reporting to server according to the control parameters. As for the parameters explanation of controling pipe, read the keepObserver document
 
-	管道参数如下：
+	the pipe parameters as follow:
     		params  
     			@object  = {
-       				 type:  string                  	 //类型,observer or performance    
-        			 typeName:  string               //类型名,vue  or log or network
-      				 location:string                 	//捕获位置
-        			environment:string              //运行环境信息
-       				 data:object                    	 //捕获数据
-        			reportTime: int 			//捕获时间搓
+       				 type:  string                  	 //the type, observer or performance    
+        			 typeName:  string               //the type name, vue  or log or network
+      				 location:string                 	//the captured position
+        			environment:string              //the information of runtime envoriment
+       				 data:object                    	 //the captured data
+        			reportTime: int 			//the captured timestamp
   			  }
     			@ .control null and object = {
-        			@ .isReport:boolean                	 //是否需要上报 内部reportServer需要使用
-        			@ .lazy:boolean                     	 //是否懒上报, （手动trackExtend合并上报,或者trackExtend合并上报）,不立即上报
-        			@ .trackExtend:boolean              //是否合并之前保存的lazy信息一起上报
-        			@ .isError:boolean                  	//是否是错误信息
-        			@ .isPerformance:boolean         //是否是性能捕获分析
-        			@ .preDelete:boolean                	//是否删除之前的信息
-       				 @ .ignore:boolean                   	//本条数据是否忽略
+        			@ .isReport:boolean                	 //whether need to report, it's required to the internal reportServer
+        			@ .lazy:boolean                     //whether lazying report(merge and roport according to the flag trackExtend), not immediately report
+        			@ .trackExtend:boolean              //whether merge the stored lazy information and roport together
+        			@ .isError:boolean                  	//whether it's error message
+        			@ .isPerformance:boolean         //whether it's performance capturing analysis
+        			@ .preDelete:boolean                	//whether delete the previous information
+       				 @ .ignore:boolean                   	//whether ignore this data
 
 			}
 
@@ -30,109 +30,109 @@
 ```javascript
 reportCustom :{	
 	/*
-		如果取不到缓存长度的默认长度
+		the default length if the cached length can't be obtained
 		default: 3
-		explain: 用于向前追踪错误的，缓存正常数据长度
+		explain: use for forward tracking error, caching the length of the normal data
 	*/
     max_cache: int,
-    /*
-    	默认log数组缓存长度 
+	/*
+		the default cached length of log array 
     	default: 5,
-    	explain: 用于向前追踪错误的，缓存正常的console相关数据
+    	explain: use for forward tracking error, caching the normal related data of console
     */
     max_log_cache: int，
      /*
-    	默认network数组缓存长度 
+		the default cached length of network array 
     	default: 3,
-    	explain: 用于向前追踪错误的，缓存正常的ajaxRequest相关数据
+    	explain: use for forward tracking error, caching the normal related data of ajaxRequest
     */
     max_network_cache: int，
     /*
-    	上报服务器的地址 
+		the address of reporting to server
     	default: false,
     	explain: 
-            上报服务器的地址，数组方式传递如：
+            the example of passing params by array if ignore the address of reporting to server
             reportUrl: [
                 'http://localhost:3000/api/v1/keepObserver/report',
             ],
     */
     reportUrl: Boolean or Array，
     /*
-    	上传失败回调钩子
+		the callback hook of uploading fail
     	default: false,
     	explain: 
     		function(reportInfo，reportUrl)
             params:
-            	.reportInfo object 	//上报内容
-            	.reportUrl string	//上报url 
+            	.reportInfo object 	//the report content
+            	.reportUrl string	//the report url 
             return: null
     */
 	onReportFail: Boolean or Function,
     /*
-    	上传前自定义设置url
+		configure the custom request's url before uploading
     	default: false,
     	explain: 
     		function(reportUrl)
             params:
-            	.reportUrl string	//上报url 
+            	.reportUrl string	//the report url 
             return: new reportUrl
     */
 	onReportBeforeSetUrl: Boolean or Function,
     /*
-    	上传前自定义设置请求头，
+		configure the custom request's head before uploading
     	default: false,
     	explain: 
     		function(reportUrl)
             params:
-            	.reportUrl string	//上报url 
+            	.reportUrl string	//the report url 
             return: requestHeadData object
     */
 	onReportBeforeSetHead: Boolean or Function,
     /*
-    	上传服务器前回调钩子，
+		the callback hook before reporting
     	default: false,
     	explain: 
     		function(reportInfo,reportUrl,repHead)
             params:
-            	.reportInfo	object	//上报内容
-            	.reportUrl string	//上报url 
-            	.repHead object 	//上报请求头
+            	.reportInfo	object	//the report content
+            	.reportUrl string	//the report url 
+            	.repHead object 	//the request's head for reporting
             return: null
     */
 	onReportBeforeSetHead: Boolean or Function,
     /*
-    	上传服务器后返回处理钩子，
+		the callback hook after reporting
     	default: false,
     	explain: 
     		function(reportInfo,reportUrl,repHead)
             params:
-            	.reportInfo	object	//上报内容
-            	.reportUrl string	//上报url 
-            	.resHead object 	//上报结束响应头
+            	.reportInfo	object	//the report content
+            	.reportUrl string	//the report url 
+            	.resHead object 	//the response's head after reporting
             return: null
     */
 	onReportResultHook: Boolean or Function,
 }
 /*
-	是否是开发模式
+	whether it's developement mode
 	default: false
 	explain: 
 */
 develop: Boolean
 /*
-	开发环境下获取报文是否打印
+	whether print the message which obtained in dev envoriment
 	default: false
 	explain: 
 */
 developGetMsgLog: Boolean
 /*
-	开发环境下丢弃数据 是否打印出来
+	whether print the message which discarded in dev envoriment
 	default: false
 	explain: 
 */
 develogDiscardLog: Boolean
 /*
-	开发环境下删除出数据 是否打印出来
+	whether print the message which deleted in dev envoriment
 	default: false
 	explain: 
 */
@@ -143,14 +143,14 @@ develogDeleteLog: Boolean
 
 ```javascript
 	/*
-		接受自定义上报内容	
+		accept the custom report content
 		params: 
 			model1: arguments[0]  type object  
     		model2: arguments[0]  type boolean  
     			will extend preData arguments[...]=extend data
-    			合并到this._customeInfo中
+    			merge into this._customeInfo
 		return: null
-		explain: 用于接收自定义上报信息
+		explain: using for accepting the custom report information
 	*/
     $setCustomeReportData
 ```
@@ -159,18 +159,18 @@ develogDeleteLog: Boolean
 
 ```
 {
-     //以下参数必定存在
-     @.type string                       上报的大的类型
-     @.reportType string                 上报的具体类型名
-     @.project string                    上报项目名
-     @.projectVersion string             上报项目版本
-     @.reportTime number                 上报时间时间搓
-     @.data  object                      上报内容
-     @.environment string                上报项目运行环境
-     @.location string                   上报的位置
-     //以下参数可能存在
-     @.customeInfo all                   用户自定义设置上传参数
-     @.preTrackData object               合并之前保存的监控数据对象，用于向前追踪错误
+     //the following parameters must be existent
+     @.type string                       the outer reported type name
+     @.reportType string                 the concrete reported type name
+     @.project string                    the reported project name 
+     @.projectVersion string             the reported version of the project
+     @.reportTime number                 the reported timestamp
+     @.data  object                      the reported content
+     @.environment string                the runtime envoriment of the report project
+     @.location string                   the reported position
+     //the following parameters are optional
+     @.customeInfo all                   user's custom parameters that can be configured and upload
+     @.preTrackData object               the object of monitoring data before being merged, used for forward tracking error 
 }
 ```
 
