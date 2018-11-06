@@ -1,0 +1,24 @@
+activeWxApi('scanCode',{onlyFromCamera:false})
+
+
+
+
+activeWxApi(method,config){
+	var defaultfConfig = {
+		success:function(result){
+			res(result)
+		},
+		fail:function(err){
+			rej(err)
+		}
+	}
+	var defer = new Promise(function(res,rej){
+		if wx[method]
+
+		var option = extend({},config,defaultfConfig)
+
+		wx[method](option)
+	})
+
+	return defer
+}

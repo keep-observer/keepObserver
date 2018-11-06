@@ -3054,7 +3054,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
         this.$devLog(log);
     }
     //是否删除之前保存的数据
-    if (params.type === 'observer' && control.preDelete) {
+    if (params.type === 'monitor' && control.preDelete) {
         this._removeReportData(params.typeName);
     }
     //是否忽略本条数据
@@ -3062,7 +3062,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
         return false;
     }
     //是否懒上报
-    if (params.type === 'observer' && control.lazy) {
+    if (params.type === 'monitor' && control.lazy) {
         this._saveReportData(params);
         return false;
     }
