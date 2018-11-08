@@ -148,7 +148,7 @@ export var mixinKoInstance = function(scope, renders) {
         keepObserver[key] = function() {
             var agrs = tool.toArray(arguments)
             try {
-                fn.apply(scope, ...agrs)
+                fn.apply(scope,agrs)
             } catch (e) {
                 that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e)
             }

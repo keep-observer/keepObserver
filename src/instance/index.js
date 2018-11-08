@@ -27,5 +27,5 @@ class KeepObserver extends KeepObserverDetault {
 
 
 
-
-export default KeepObserver
+module.exports = KeepObserver
+module.exports.default = module.exports;
