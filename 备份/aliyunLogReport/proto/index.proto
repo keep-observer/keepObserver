@@ -1,0 +1,41 @@
+package aliyun;
+syntax = "proto3";
+
+
+
+message Log
+{
+    required uint32 time = 1;// UNIX Time Format
+    message Content
+    {
+        required string key = 1;
+        required string value = 2;
+    }  
+    repeated Content contents = 2;
+}
+
+
+message LogTag
+{
+    required string key = 1;
+    required string value = 2;
+}
+
+
+message LogGroup
+{
+    repeated Log logs= 1;
+    optional string reserved = 2; // reserved fields
+    optional string topic = 3;
+    optional string source = 4;
+    repeated LogTag logTags = 6;
+}
+
+
+message LogGroupList
+{
+    repeated LogGroup logGroupList = 1;
+}
+
+
+

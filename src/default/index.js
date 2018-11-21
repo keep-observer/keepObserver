@@ -37,7 +37,7 @@ class KeepObserverDefault {
 
     $mixin(provider) {
         if (!provider || !tool.isObject(provider) || tool.isEmptyObject(provider)) {
-            this.$error('keepObserver $mixin receive params not right')
+            this.$devError('keepObserver $mixin receive params not right')
         }
         for (var key in provider) {
             if (this[key]) {
