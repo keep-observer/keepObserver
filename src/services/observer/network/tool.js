@@ -1,18 +1,3 @@
-/*
-   参考Vconsole 生产唯一ID
-   * generate an unique id string (32)
-   * @private
-   * @return string
-*/
-export function getUniqueID() {
-    var id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0,
-            v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-    return id;
-}
-
 
 /*
 	处理URL

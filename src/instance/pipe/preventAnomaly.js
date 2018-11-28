@@ -1,5 +1,5 @@
 import * as tool from '../../tool/index.js';
-import md5 from '../../tool/md5.js'
+
 
 //防止堆栈错误
 export var preventStackError = function(msgItem) {
@@ -7,7 +7,7 @@ export var preventStackError = function(msgItem) {
         msg,
         pipeIndex
     } = msgItem
-    if (!msg || !pipeIndex || !msg.data) {
+    if (!msg || !tool.isExist(pipeIndex) || !tool.isExist(msg.data)){
         return true;
     }
     //是否该消息已经进入屏蔽阶段

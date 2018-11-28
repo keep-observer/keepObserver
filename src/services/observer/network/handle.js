@@ -31,7 +31,7 @@ export var _handleXMLAjax = function() {
             //定时器
             var timer = null;
             //获取请求唯一ID
-            var id = networkTool.getUniqueID();
+            var id = tool.getUniqueID();
             //获取方法
             var method = args[0];
             //获取url

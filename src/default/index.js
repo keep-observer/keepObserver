@@ -41,6 +41,7 @@ class KeepObserverDefault {
         }
         for (var key in provider) {
             if (this[key]) {
+                this.$devError('keepObserver $mixin method key: '+key+' is exist')
                 continue
             }
             this[key] = provider[key]

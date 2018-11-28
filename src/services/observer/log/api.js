@@ -24,5 +24,8 @@ export var stopObserver = function() {
  */
 export var startObserver = function() {
     //启动监听
-    this._handleInit();
+    var that = this;
+    setTimeout(function(){
+        that._handleInit();
+    })
 }

@@ -16,9 +16,9 @@ class KeepObserverNetwork extends KeepObserverDetault {
         var networkConfig = config.networkCustom || {};
         //存混合配置
         this._config = tool.extend(defaultConfig, networkConfig)
-            //上报名
+        //上报名
         this._typeName = 'network'
-            //监听列表
+        //监听列表
         this.eventListener = [];
         //监控的数据列表
         //key 为 请求ID

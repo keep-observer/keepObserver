@@ -51,6 +51,9 @@ export function isUndefined(value) {
 export function isNull(value) {
     return value === null;
 }
+export function isExist(value){
+    return !isUndefined(value) && !isNull(value)
+}
 export function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
 }
@@ -121,6 +124,7 @@ export function isPlainObject(obj) {
 }
 
 
+
 /*
   转换工具
  */
@@ -139,10 +143,35 @@ export function toString(content) {
 
 
 
+
 /*
     辅助存储保存监控数据
-    localStorage
 */
+//sessionStorage
+export function setSessionStorage(key, value) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    value = JSON.stringify(value)
+    sessionStorage.setItem(key, value);
+}
+export function getSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    var value = sessionStorage.getItem(key)
+    return value ? JSON.parse(value) : '';
+}
+export function removeSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    sessionStorage.removeItem(key);
+}
+//localStorage
 export function setStorage(key, value) {
     if (!window.localStorage) {
         return;
@@ -167,6 +196,22 @@ export function removeStorage(key) {
     localStorage.removeItem(key);
 }
 
+
+
+
+
+/*
+    参考Vconsole 生产唯一ID
+ */
+export function getUniqueID() {
+    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            t = new Date().getTime(),
+            v = c == 'x' ? r : (c == 't' ? t :(r & 0x3 | 0x8));
+        return c == 't'? v: v.toString(16);
+    });
+    return id;
+}
 
 
 

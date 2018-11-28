@@ -50,40 +50,40 @@ export var _handleReport = function(params, control) {
     //遍历URL上传列表
     //开始依次上传
     reportUrl.map(function(item) {
-            var reportConfig = {};
-            //是否有上传前修改URL回调
-            if (onReportBeforeSetUrl) {
-                var url = that._handleHook(onReportBeforeSetUrl, item);
-            } else {
-                url = item;
-            }
-            if (!tool.isString(url)) {
-                that._handleReportFail(onReportFail, reportData, null)
-                return false;
-            }
-            reportConfig.url = url;
-            //获取自定义请求头
-            var customeHead = onReportBeforeSetHead ? that._handleHook(onReportBeforeSetHead, item) : false;
-            if (customeHead && tool.isObject(customeHead) && !tool.isEmptyObject(customeHead)) {
-                reportConfig.customeHead = customeHead
-            }
-            //获取请求
-            reportConfig.data = reportData;
-            that._handleHook(onReportBeforeHook, reportData, reportConfig.url, reportConfig.customeHead);
-            //上传到服务器
-            try {
-                AjaxServer(reportConfig).then(function(result) {
-                    that._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
-                }, function(err) {
-                    that._handleReportFail(onReportFail, reportData, reportConfig.url);
-                })
-            } catch (err) {
-                //上传报错
-                that.$devError('report Server Process find error:' + err)
-            }
-            //end
-        })
-        // map url end
+        var reportConfig = {};
+        //是否有上传前修改URL回调
+        if (onReportBeforeSetUrl) {
+            var url = that._handleHook(onReportBeforeSetUrl, item);
+        } else {
+            url = item;
+        }
+        if (!tool.isString(url)) {
+            that._handleReportFail(onReportFail, reportData, null)
+            return false;
+        }
+        reportConfig.url = url;
+        //获取自定义请求头
+        var customeHead = onReportBeforeSetHead ? that._handleHook(onReportBeforeSetHead, item) : false;
+        if (customeHead && tool.isObject(customeHead) && !tool.isEmptyObject(customeHead)) {
+            reportConfig.customeHead = customeHead
+        }
+        //获取请求
+        reportConfig.data = reportData;
+        that._handleHook(onReportBeforeHook, reportData, reportConfig.url, reportConfig.customeHead);
+        //上传到服务器
+        try {
+            AjaxServer(reportConfig).then(function(result) {
+                that._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
+            }, function(err) {
+                that._handleReportFail(onReportFail, reportData, reportConfig.url);
+            })
+        } catch (err) {
+            //上传报错
+            that.$devError('report Server Process find error:' + err)
+        }
+        //end
+    })
+    // map url end
 }
 
 
