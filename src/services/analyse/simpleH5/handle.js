@@ -4,32 +4,24 @@ import { RecordKey,exitBackstageFlag } from './constant.js'
 
 
 
-var windowRegisterEventDestroy = false;
-
 
 
 //开始
 export var begine = function(config){
+    var that = this;
     var { analyseDomList } = config
-    //receive start Time
-    this.startTime  = new Date().getTime();
     //handle dom list
     if(analyseDomList || tool.isArray(analyseDomList)){
-        this.analyseDomList = this.handleAnalyseDomList(analyseDomList)
+        that.analyseDomList = that.handleAnalyseDomList(analyseDomList,function(event){
+            that.triggerAcitveReport(event);
+        })
     }else{
-        this.$devWarn('[keepObserver] analyseServer simpleH5 is analyse dom list is no exist or is no arrayType')
-    }
-    // register window exit or backState event
-    var that = this;
-    windowRegisterEventDestroy = this.registerBrowserEndEvent(function(){
-        //restReportData
-        that.resetReportData();
-        //handle report data
-        that.reportData = that.createReportData()
-        that.noticeReport(that.reportData)
-        that.destroy();
-    })   
+        that.$devWarn('[keepObserver] analyseServer simpleH5 is analyse dom list is no exist or is no arrayType')
+    } 
+    //reset report data and init report
+    that.triggerInitReport();
 }
+
 
 
 
@@ -45,12 +37,48 @@ export var destroy = function(){
             }
         }
     }
-    if(windowRegisterEventDestroy && tool.isFunction(windowRegisterEventDestroy)){
-        windowRegisterEventDestroy()
-        windowRegisterEventDestroy = false;
-    }
     this.analyseDomList = {};
-    this.startTime = false;
+}
+
+
+
+
+
+//监控dom激活触发
+export var triggerAcitveReport = function(event){
+    var event = event || window.event;
+    var el = event.target;
+    var nodeName = el.nodeName.toLowerCase();
+    //如果是a标签类型,并且携带href，那么不跳转,延时跳转
+    if(nodeName === 'a' && el.href){
+        var url = el.href
+        event.preventDefault()
+        setTimeout(function(){
+            window.location.href = url
+        },100)
+    }
+    //上报
+    this.reportData = this.createReportData();
+    this.noticeReport(this.reportData);
+}
+
+
+
+
+//初始化上报
+export var triggerInitReport = function(){
+    //尝试读取缓存数据
+    var saveRecord = tool.getStorage(RecordKey)
+    var backStageFlag = tool.getSessionStorage(exitBackstageFlag)
+    if(saveRecord){
+        this.reportData  = tool.extend(this.reportData,saveRecord)
+    }
+    if(!backStageFlag){
+        this.reportData.repeatCount += 1;
+        this.reportData = this.createReportData();
+        this.noticeReport(this.reportData);
+        tool.setSessionStorage(exitBackstageFlag,true);
+    }
 }
 
 
@@ -61,20 +89,7 @@ export var destroy = function(){
 //创建上报数据
 export var createReportData = function(){
     var that = this;
-    var endTime = new Date().getTime();
     var reportData = this.reportData
-    //handle report date
-    if(!reportData['id']){
-        reportData.id = this.uniqueId
-    }
-    reportData.startTime = this.startTime;
-    reportData.useTime = endTime - this.startTime;
-    if(!reportData['repeatCount']){
-        reportData.repeatCount = 1;
-    }
-    if(!tool.isObject(reportData['useActives'])){
-        reportData['useActives'] = {}
-    }
     // handle dom observer info
     if(!tool.isEmptyObject(this.analyseDomList)){
         for(var key in this.analyseDomList){
@@ -102,21 +117,6 @@ export var createReportData = function(){
 
 
 
-
-
-
-//修正上报对象
-export var resetReportData = function(){
-    //尝试读取缓存数据
-    var saveRecord = tool.getStorage(RecordKey)
-    var backStageFlag = tool.getSessionStorage(exitBackstageFlag)
-    if(saveRecord){
-        this.reportData  = tool.extend(this.reportData,saveRecord)
-        if(!backStageFlag){
-            this.reportData.repeatCount += 1;
-        }
-    }
-}
 
 
 

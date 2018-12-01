@@ -30,21 +30,12 @@ class KeepObserverSimpleH5Analyse extends KeepObserverDetault {
         */
         this.analyseDomList  = {};
         this.uniqueId = tool.getUniqueID();
-        this.startTime = false;
-        /*
-            reportData = {
-                id:             //唯一浏览器标识
-                startTime:      //访问时间
-                useTime:        //浏览时长
-                repeatCount:    //访问次数
-                useActives:      /   
-                                    行为事件
-                                    activeCount: int 
-                                    title: string
-                                /
-            }
-         */
-        this.reportData = {}
+        /*上报内容*/
+        this.reportData = {
+            id: tool.getUniqueID(),     //唯一浏览器标识
+            repeatCount: 0,             //访问次数
+            useActives:{}               //行为事件
+        }
         //混合自身方法
         this.$mixin(handleServer)
         this.$mixin(apiServer)

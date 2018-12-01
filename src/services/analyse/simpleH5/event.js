@@ -29,51 +29,6 @@ export var registerAnalyseDomEvent = function(el,fn){
 
 
 
-//注册浏览器切换后台或者退出上报事件
-export  var registerBrowserEndEvent = function(fn){
-    var timeOUT = false
-    //浏览器退出处理
-    var browserEndHandle = function(){
-        timeOUT = setTimeout(function(){
-            if(fn && tool.isFunction(fn)){
-                fn();
-            }
-        },20)
-    }
-    //浏览器隐藏处理
-    var browserHideHandle = function(){
-        if(timeOUT && !assist.isHidden()){
-            cleartTimeout(timeOUT)
-            timeOUT = false;
-        }
-        if(assist.isHidden() && fn && tool.isFunction(fn)){
-            tool.setSessionStorage(exitBackstageFlag,true)
-            fn();
-        }
-    }
-    //浏览器退出
-    window.addEventListener('beforeunload',browserEndHandle)
-    //浏览器可能切换到后台
-    if(document){
-        document.addEventListener('visibilitychange',browserHideHandle)
-    }else{
-        window.addEventListene('load',function(){
-            document.addEventListener('visibilitychange',browserHideHandle)
-        })
-    }
-    //返回一个注销事件
-    return function(){
-        window.removeEventListener('beforeunload',browserEndHandle);
-        document.removeEventListener('visibilitychange',browserHideHandle);
-        browserEndHandle = null;
-        browserHideHandle = null;
-    }
-}
-
-
-
-
-
 
 
 

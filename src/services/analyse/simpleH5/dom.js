@@ -10,48 +10,51 @@ var domIndex = 1;
 var repeatIndex = 1;
 
 
+
+
+
 //处理监听DOM事件
-export var handleAnalyseDomList = function(analyseDomList){
+export var handleAnalyseDomList = function(analyseDomList,activeFn){
     var that = this;
     var newAnalyseDomList = {};
+    var statusBuff = {};
     //for start
-    for(var i=0 ,len = analyseDomList.length; i<len ;i++){
-        var item = analyseDomList[i]
+    analyseDomList.forEach(function(item){
         //check type
         if(!tool.isString(item) && !tool.isElement(item)){
-            this.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not string or not domElement')
-            continue;
+            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not string or not domElement')
+            return false;
         }
         var el = tool.isElement(item)? item : document.querySelector(item);
         if(!el || !tool.isElement(el)){
-            this.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not find domElement')
-            continue;
+            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not find domElement')
+            return false;
         }
         //handle el
-        var title = this.getDomTitle(el)
-        var activeStatus = false;
+        var title = that.getDomTitle(el)
+        if(newAnalyseDomList[title]){
+            title += '-'+repeatIndex; 
+            repeatIndex++;
+        }
+        statusBuff[title] = false;
         //register actice use event
-        var destroyEvent = this.registerAnalyseDomEvent(el,function(){
-        	activeStatus = true;
+        var destroyEvent = that.registerAnalyseDomEvent(el,function(event){
+            statusBuff[title] = true;
+            if(activeFn && tool.isFunction(activeFn)){
+                activeFn(event);
+            }
         })
-        var getActiveStauts = function(){
-        	return activeStatus
+        var getActiveStauts = function(title){
+            return function(){
+                return statusBuff[title]
+            }
         }
         //return dom
-        if(!newAnalyseDomList[title]){
-        	newAnalyseDomList[title] = {
-        		destroyEvent:destroyEvent,
-        		getActiveStauts:getActiveStauts
-        	}
-        }else{
-        	title += '-'+repeatIndex
-        	repeatIndex++;
-        	newAnalyseDomList[title] = {
-        		destroyEvent:destroyEvent,
-        		getActiveStauts:getActiveStauts
-        	}
-        }
-    }
+        newAnalyseDomList[title] = {
+             destroyEvent:destroyEvent,
+             getActiveStauts:getActiveStauts(title)
+         }
+    })
     //end
     return newAnalyseDomList
 }

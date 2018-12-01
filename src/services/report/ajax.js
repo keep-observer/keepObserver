@@ -25,7 +25,6 @@ var handleUrlParams = function(url, params) {
 
 
 /*
-
  	report data Ajax request
 	上报ajax请求  
 	params
@@ -46,9 +45,10 @@ var AjaxServer = function(config) {
             url,
             data,
             params,
-            customeHead
+            customeHead,
         } = config;
         var resHead = {};
+        var synchroTime = false;
         //judge data
         if (!url || !data) {
             rej('report data fail, report url and report data is exist undefined!')
@@ -58,7 +58,6 @@ var AjaxServer = function(config) {
         if (params && tool.isObject(params)) {
             url = handleUrlParams(url, params);
         }
-
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
         //handle request header flag
@@ -110,9 +109,9 @@ var AjaxServer = function(config) {
             }
         };
         xhr.onerror = function(e) {
-                rej('Ajax request process find error!' + e);
-            }
-            //send data
+            rej('Ajax request process find error!' + e);
+        }
+        //send data
         var data = JSON.stringify(data);
         xhr.send(data);
     })
@@ -122,3 +121,6 @@ var AjaxServer = function(config) {
 
 
 export default AjaxServer
+
+
+

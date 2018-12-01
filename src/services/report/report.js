@@ -42,7 +42,7 @@ export var _handleReport = function(params, control) {
         onReportBeforeHook,
         onReportResultHook,
     } = this.$report_config
-        //如果没有设置上传URL 那么停止上传
+    //如果没有设置上传URL 那么停止上传
     if (!reportUrl || !tool.isArray(reportUrl)) {
         that._handleReportFail(onReportFail, reportData, null)
         return false;
@@ -134,6 +134,7 @@ export var _createReportData = function(params, control) {
     reportData.reportType = params.typeName;
     reportData.isMonitorError = params.type === 'monitor' ? true : false;
     reportData.isPerformance = params.type === 'performance' ? true : false;
+    reportData.isAnalyse = params.type === 'analyse' ? true : false;
     //基本信息
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion

@@ -2,12 +2,14 @@ import * as tool from '../../../tool/index.js';
 
 
 
+
 //注册上报监听
 export var addReportListener = function(callback) {
     if (callback) {
         this.eventListener.push(callback)
     }
 }
+
 
 
 
@@ -53,6 +55,18 @@ export var noticeReport = function(content) {
         }
     })
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -33,8 +33,10 @@ export var sendPipeMessage = function(pipeIndex, msg, options) {
 
 
 
+
+
 //通知监听
-export var noticeListener = function(queue) {
+var noticeListener = function(queue) {
     var that = this;
     if (!tool.isArray(queue) || queue.length === 0) {
         return false;
@@ -84,3 +86,6 @@ export var noticeListener = function(queue) {
     //等待状态结束
     that.waiting = false;
 }
+
+
+
