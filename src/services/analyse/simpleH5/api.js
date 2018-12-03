@@ -2,6 +2,7 @@ import * as tool from '../../../tool/index.js';
 import { RecordKey,exitBackstageFlag } from './constant.js'
 
 
+
 /*
     	停止监听
 */
@@ -29,5 +30,9 @@ export var startAnalyse = function(config) {
 export var clearSaveRecive = function(){
 	tool.removeStorage(RecordKey)
 }
+
+
+
+
 
 

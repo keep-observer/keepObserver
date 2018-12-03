@@ -10,4 +10,6 @@ export default {
     timeOutUnlock: true,
     //接收消息队列默认解锁时间
     forceUnlockTime: 1000,
+    //更新版本是否清除缓存
+    updateVersionClearCache: false,
 }

@@ -7,6 +7,8 @@ import {
 import KeepObserverDetault from '../default/index.js';
 import defaultConfig from './defaultConfig.js';
 import mixinPipe from './pipe/index.js';
+import mixinMethod from './method/index.js';
+import initServer from './init.js'
 
 import keepObserverReport from '../services/report/index.js';
 import KeepObserverLog from '../services/observer/log/index.js';
@@ -23,10 +25,13 @@ class KeepObserver extends KeepObserverDetault {
         this._config = tool.extend(defaultConfig, config);
         //版本号
         this._version = version;
-
         //混合管道
         mixinPipe(this, config);
-        //注册相关服务
+        //混合方法
+        mixinMethod(this, config);
+        //init
+        initServer.call(this)
+        /***********    注册相关服务     **********/
         this.use(keepObserverReport)
         this.use(KeepObserverLog)
         this.use(KeepObserverNetwork)
@@ -36,5 +41,8 @@ class KeepObserver extends KeepObserverDetault {
 }
 
 
+
+
 module.exports = KeepObserver
 module.exports.default = module.exports;
+
