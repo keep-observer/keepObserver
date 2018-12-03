@@ -33,6 +33,7 @@ class KeepObserverSimpleH5Analyse extends KeepObserverDetault {
         /*上报内容*/
         this.reportData = {
             id: tool.getUniqueID(),     //唯一浏览器标识
+            repeatCountAll: 0,               //总的统计次数
             repeatCount: 0,             //访问次数
             useActives:{}               //行为事件
         }

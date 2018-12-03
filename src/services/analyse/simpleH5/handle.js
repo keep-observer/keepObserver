@@ -1,8 +1,10 @@
 import * as tool from '../../../tool/index.js';
 import * as assist from './tool.js'
-import { RecordKey,exitBackstageFlag } from './constant.js'
+import { RecordKey,exitBackstageFlag,RecordDataKey } from './constant.js'
 
 
+
+var  nowDate = assist.createDataRecord()
 
 
 
@@ -65,21 +67,37 @@ export var triggerAcitveReport = function(event){
 
 
 
+
 //初始化上报
 export var triggerInitReport = function(){
     //尝试读取缓存数据
     var saveRecord = tool.getStorage(RecordKey)
     var backStageFlag = tool.getSessionStorage(exitBackstageFlag)
+    var dateRecord = tool.getStorage(RecordDataKey)
     if(saveRecord){
         this.reportData  = tool.extend(this.reportData,saveRecord)
     }
     if(!backStageFlag){
         this.reportData.repeatCount += 1;
+        this.reportData.repeatCountAll += 1;
         this.reportData = this.createReportData();
         this.noticeReport(this.reportData);
         tool.setSessionStorage(exitBackstageFlag,true);
     }
+    // update now day data
+    if(!dateRecord){
+        tool.setStorage(RecordDataKey,nowDate)
+    }else if(parseInt(dateRecord) < nowDate){
+        this.reportData.repeatCount = 0;
+        if( !tool.isEmptyObject(this.reportData.useActives) ){
+            for(var key in this.reportData.useActives){
+                this.reportData.useActives[key].activeCount = 0;
+            }
+        }
+        tool.setStorage(RecordDataKey,nowDate)
+    }
 }
+
 
 
 
@@ -95,16 +113,19 @@ export var createReportData = function(){
         for(var key in this.analyseDomList){
             var item = this.analyseDomList[key]
             // no exist
-            if(!reportData['useActives'][key]){
-                reportData['useActives'][key] = {
+            if(!reportData.useActives[key]){
+                reportData.useActives[key] = {
                     activeCount: item.getActiveStauts()? 1: 0,
+                    activeCountAll: item.getActiveStauts()? 1: 0,
                 }
-            }else if( tool.isExist( reportData['useActives'][key].activeCount) ){
+            }else if( tool.isExist( reportData.useActives[key].activeCount) ){
                 if(item.getActiveStauts()){
-                    reportData['useActives'][key].activeCount += 1;
+                    reportData.useActives[key].activeCount += 1;
+                    reportData.useActives[key].activeCountAll += 1;
                 }
             }else{
-                reportData['useActives'][key].activeCount = 0
+                reportData.useActives[key].activeCount = 0
+                reportData.useActives[key].activeCountAll = 0;
             }
         }
     }
@@ -112,9 +133,6 @@ export var createReportData = function(){
     tool.setStorage(RecordKey,reportData)
     return reportData;
 }
-
-
-
 
 
 
