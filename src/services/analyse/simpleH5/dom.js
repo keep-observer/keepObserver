@@ -65,6 +65,7 @@ export var handleAnalyseDomList = function(analyseDomList,activeFn){
 
 
 
+
 //获取dom-title标记
 export var getDomTitle = function(el){
 	var type = el.tagName.toLowerCase();
