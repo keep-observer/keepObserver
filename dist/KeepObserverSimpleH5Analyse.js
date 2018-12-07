@@ -856,8 +856,8 @@ Object.defineProperty(exports, "__esModule", {
 
 
 //storge-key
-var RecordKey = exports.RecordKey = 'simpleH5Analyse';
-var RecordDataKey = exports.RecordDataKey = 'simpleH5AnalyseDate';
+var RecordKey = exports.RecordKey = 'simpleH5Analyse-' + window.location.href;
+var RecordDataKey = exports.RecordDataKey = 'simpleH5AnalyseDate-' + window.location.href;
 //切换后台标志
 var exitBackstageFlag = exports.exitBackstageFlag = 'backstageFlag';
 
