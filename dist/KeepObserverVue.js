@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 45);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -97,6 +97,7 @@ exports.isArray = isArray;
 exports.isBoolean = isBoolean;
 exports.isUndefined = isUndefined;
 exports.isNull = isNull;
+exports.isExist = isExist;
 exports.isSymbol = isSymbol;
 exports.isObject = isObject;
 exports.isEmptyObject = isEmptyObject;
@@ -107,9 +108,13 @@ exports.isWindow = isWindow;
 exports.isPlainObject = isPlainObject;
 exports.toArray = toArray;
 exports.toString = toString;
+exports.setSessionStorage = setSessionStorage;
+exports.getSessionStorage = getSessionStorage;
+exports.removeSessionStorage = removeSessionStorage;
 exports.setStorage = setStorage;
 exports.getStorage = getStorage;
 exports.removeStorage = removeStorage;
+exports.getUniqueID = getUniqueID;
 exports.extend = extend;
 /**
  * 根据时间搓 返回时间
@@ -162,6 +167,9 @@ function isUndefined(value) {
 }
 function isNull(value) {
     return value === null;
+}
+function isExist(value) {
+    return !isUndefined(value) && !isNull(value);
 }
 function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
@@ -238,8 +246,32 @@ function toString(content) {
 
 /*
     辅助存储保存监控数据
-    localStorage
 */
+//sessionStorage
+function setSessionStorage(key, value) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    value = JSON.stringify(value);
+    sessionStorage.setItem(key, value);
+}
+function getSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    var value = sessionStorage.getItem(key);
+    return value ? JSON.parse(value) : '';
+}
+function removeSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    sessionStorage.removeItem(key);
+}
+//localStorage
 function setStorage(key, value) {
     if (!window.localStorage) {
         return;
@@ -262,6 +294,19 @@ function removeStorage(key) {
     }
     key = 'keepObserverData_' + key;
     localStorage.removeItem(key);
+}
+
+/*
+    参考Vconsole 生产唯一ID
+ */
+function getUniqueID() {
+    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            t = new Date().getTime(),
+            v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
+        return c == 't' ? v : v.toString(16);
+    });
+    return id;
 }
 
 /*
@@ -404,10 +449,11 @@ var KeepObserverDefault = function () {
         key: '$mixin',
         value: function $mixin(provider) {
             if (!provider || !tool.isObject(provider) || tool.isEmptyObject(provider)) {
-                this.$error('keepObserver $mixin receive params not right');
+                this.$devError('keepObserver $mixin receive params not right');
             }
             for (var key in provider) {
                 if (this[key]) {
+                    this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
                 this[key] = provider[key];
@@ -422,7 +468,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 13:
+/***/ 23:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -450,7 +496,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 14:
+/***/ 24:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -470,7 +516,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 15:
+/***/ 25:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -520,7 +566,7 @@ var _handleVueError = exports._handleVueError = function _handleVueError(err, vm
 
 /***/ }),
 
-/***/ 16:
+/***/ 26:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -588,7 +634,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 33:
+/***/ 45:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -600,7 +646,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(14);
+var _defaultConfig = __webpack_require__(24);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -608,15 +654,15 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(15);
+var _handle = __webpack_require__(25);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(13);
+var _api = __webpack_require__(23);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(16);
+var _report = __webpack_require__(26);
 
 var reportServer = _interopRequireWildcard(_report);
 

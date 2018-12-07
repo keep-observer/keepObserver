@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 36);
+/******/ 	return __webpack_require__(__webpack_require__.s = 48);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -97,6 +97,7 @@ exports.isArray = isArray;
 exports.isBoolean = isBoolean;
 exports.isUndefined = isUndefined;
 exports.isNull = isNull;
+exports.isExist = isExist;
 exports.isSymbol = isSymbol;
 exports.isObject = isObject;
 exports.isEmptyObject = isEmptyObject;
@@ -107,9 +108,13 @@ exports.isWindow = isWindow;
 exports.isPlainObject = isPlainObject;
 exports.toArray = toArray;
 exports.toString = toString;
+exports.setSessionStorage = setSessionStorage;
+exports.getSessionStorage = getSessionStorage;
+exports.removeSessionStorage = removeSessionStorage;
 exports.setStorage = setStorage;
 exports.getStorage = getStorage;
 exports.removeStorage = removeStorage;
+exports.getUniqueID = getUniqueID;
 exports.extend = extend;
 /**
  * 根据时间搓 返回时间
@@ -162,6 +167,9 @@ function isUndefined(value) {
 }
 function isNull(value) {
     return value === null;
+}
+function isExist(value) {
+    return !isUndefined(value) && !isNull(value);
 }
 function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
@@ -238,8 +246,32 @@ function toString(content) {
 
 /*
     辅助存储保存监控数据
-    localStorage
 */
+//sessionStorage
+function setSessionStorage(key, value) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    value = JSON.stringify(value);
+    sessionStorage.setItem(key, value);
+}
+function getSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    var value = sessionStorage.getItem(key);
+    return value ? JSON.parse(value) : '';
+}
+function removeSessionStorage(key) {
+    if (!window.sessionStorage) {
+        return;
+    }
+    key = 'keepObserverData_' + key;
+    sessionStorage.removeItem(key);
+}
+//localStorage
 function setStorage(key, value) {
     if (!window.localStorage) {
         return;
@@ -262,6 +294,19 @@ function removeStorage(key) {
     }
     key = 'keepObserverData_' + key;
     localStorage.removeItem(key);
+}
+
+/*
+    参考Vconsole 生产唯一ID
+ */
+function getUniqueID() {
+    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+        var r = Math.random() * 16 | 0,
+            t = new Date().getTime(),
+            v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
+        return c == 't' ? v : v.toString(16);
+    });
+    return id;
 }
 
 /*
@@ -404,10 +449,11 @@ var KeepObserverDefault = function () {
         key: '$mixin',
         value: function $mixin(provider) {
             if (!provider || !tool.isObject(provider) || tool.isEmptyObject(provider)) {
-                this.$error('keepObserver $mixin receive params not right');
+                this.$devError('keepObserver $mixin receive params not right');
             }
             for (var key in provider) {
                 if (this[key]) {
+                    this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
                 this[key] = provider[key];
@@ -438,7 +484,7 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 20:
+/***/ 30:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -492,7 +538,7 @@ var $setCustomeReportData = exports.$setCustomeReportData = function $setCustome
 
 /***/ }),
 
-/***/ 21:
+/***/ 31:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -535,7 +581,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 22:
+/***/ 32:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -660,7 +706,7 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 
 /***/ }),
 
-/***/ 23:
+/***/ 33:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -675,7 +721,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _ajax = __webpack_require__(35);
+var _ajax = __webpack_require__(47);
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
@@ -810,6 +856,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     reportData.reportType = params.typeName;
     reportData.isMonitorError = params.type === 'monitor' ? true : false;
     reportData.isPerformance = params.type === 'performance' ? true : false;
+    reportData.isAnalyse = params.type === 'analyse' ? true : false;
     //基本信息
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion;
@@ -887,7 +934,7 @@ var _handleReportFail = exports._handleReportFail = function _handleReportFail(o
 
 /***/ }),
 
-/***/ 35:
+/***/ 47:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -922,7 +969,6 @@ var handleUrlParams = function handleUrlParams(url, params) {
 };
 
 /*
-
  	report data Ajax request
 	上报ajax请求  
 	params
@@ -945,6 +991,7 @@ var AjaxServer = function AjaxServer(config) {
             customeHead = config.customeHead;
 
         var resHead = {};
+        var synchroTime = false;
         //judge data
         if (!url || !data) {
             rej('report data fail, report url and report data is exist undefined!');
@@ -954,7 +1001,6 @@ var AjaxServer = function AjaxServer(config) {
         if (params && tool.isObject(params)) {
             url = handleUrlParams(url, params);
         }
-
         var xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
         //handle request header flag
@@ -1019,7 +1065,7 @@ exports.default = AjaxServer;
 
 /***/ }),
 
-/***/ 36:
+/***/ 48:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1037,7 +1083,7 @@ var _index2 = _interopRequireDefault(_index);
 
 var _index3 = __webpack_require__(2);
 
-var _defaultConfig = __webpack_require__(21);
+var _defaultConfig = __webpack_require__(31);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1045,15 +1091,15 @@ var _index4 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index4);
 
-var _api = __webpack_require__(20);
+var _api = __webpack_require__(30);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _handle = __webpack_require__(22);
+var _handle = __webpack_require__(32);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _report = __webpack_require__(23);
+var _report = __webpack_require__(33);
 
 var reportServer = _interopRequireWildcard(_report);
 
