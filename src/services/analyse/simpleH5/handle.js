@@ -51,13 +51,14 @@ export var triggerAcitveReport = function(event){
     var event = event || window.event;
     var el = event.target;
     var nodeName = el.nodeName.toLowerCase();
+    var timeoutDispatchEvent = this._config.timeoutDispatchEvent
     //如果是a标签类型,并且携带href，那么不跳转,延时跳转
     if(nodeName === 'a' && el.href){
         var url = el.href
         event.preventDefault()
         setTimeout(function(){
             window.location.href = url
-        },100)
+        },timeoutDispatchEvent)
     }
     //上报
     this.reportData = this.createReportData();

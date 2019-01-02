@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "1.1.5",
+  "version": "1.2.0-beta.1",
   "description": "web -- watch  is JS-error netWork  console..log  observer",
   "main": "index.js",
   "scripts": {
@@ -58,6 +58,11 @@
     "vue",
     "console",
     "log",
+    "js-monitor",
+    "web-monitor",
+    "web-anaylse",
+    "monitor",
+    "anaylse",
     "ajax"
   ],
   "author": "wangkai1995",

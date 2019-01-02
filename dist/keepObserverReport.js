@@ -1052,6 +1052,7 @@ var AjaxServer = function AjaxServer(config) {
             }
         };
         xhr.onerror = function (e) {
+            console.log(arguments);
             rej('Ajax request process find error!' + e);
         };
         //send data

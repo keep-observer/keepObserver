@@ -835,6 +835,8 @@ var KeepObserver = function (_KeepObserverDetault) {
 module.exports = KeepObserver;
 module.exports.default = module.exports;
 
+// export default KeepObserver
+
 /***/ }),
 /* 35 */
 /***/ (function(module, exports, __webpack_require__) {

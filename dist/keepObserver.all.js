@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 40);
+/******/ 	return __webpack_require__(__webpack_require__.s = 31);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -512,7 +512,7 @@ var _init = __webpack_require__(5);
 
 var _init2 = _interopRequireDefault(_init);
 
-var _index9 = __webpack_require__(38);
+var _index9 = __webpack_require__(29);
 
 var _index10 = _interopRequireDefault(_index9);
 
@@ -523,14 +523,6 @@ var _index12 = _interopRequireDefault(_index11);
 var _index13 = __webpack_require__(22);
 
 var _index14 = _interopRequireDefault(_index13);
-
-var _index15 = __webpack_require__(28);
-
-var _index16 = _interopRequireDefault(_index15);
-
-var _index17 = __webpack_require__(32);
-
-var _index18 = _interopRequireDefault(_index17);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -566,8 +558,6 @@ var KeepObserver = function (_KeepObserverDetault) {
         _this.use(_index10.default);
         _this.use(_index12.default);
         _this.use(_index14.default);
-        _this.use(_index16.default);
-        _this.use(_index18.default);
         return _this;
     }
 
@@ -1523,7 +1513,17 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     var errorObj = {};
     var url = errorEvent.filename || errorEvent.url || false;
     //可能是跨域资源JS出现错误 这获取不到详细信息
-    if (errorEvent.message === 'Script error.' && !url) {
+    if ((!errorEvent.message || errorEvent.message === 'Script error.') && !url) {
+        //有可能是资源加载错误被捕获
+        if (errorEvent.target && !tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src) {
+            errorObj.errMsg = 'loadError! web request Resource loading error';
+            errorObj.nodeName = errorEvent.target.nodeName;
+            errorObj.url = errorEvent.target.src;
+            setTimeout(function () {
+                that._handleMessage('loadError', [errorObj]);
+            });
+            return false;
+        }
         //未知错误是否捕获
         if (!that._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
@@ -2396,581 +2396,6 @@ function validateStatus(status) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-/*
-    	停止监听
-*/
-var stopObserver = exports.stopObserver = function stopObserver() {
-    if (this._vue.config) {
-        this._vue.config.errorHandler = null;
-    }
-};
-
-/*
-	开始监听
- */
-var startObserver = exports.startObserver = function startObserver() {
-    //开启vue错误监听
-    this._handleInit();
-};
-
-/***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-/*
- 
- 	observer vue 实例默认配置数据
- */
-exports.default = {
-  //是否启动性能分析   暂时未做
-  // 	isPerformance:true,
-};
-
-/***/ }),
-/* 27 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports._handleVueError = exports._handleInit = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-/*
-    	开始监控vue
- */
-var _handleInit = exports._handleInit = function _handleInit() {
-    var that = this;
-    if (that._vue.config) {
-        that._vue.config.errorHandler = function () {
-            that._handleVueError.apply(that, arguments);
-        };
-    }
-};
-
-/*
-	处理监控vue错误信息
- */
-var _handleVueError = exports._handleVueError = function _handleVueError(err, vm, info) {
-    var that = this;
-    var errInfo = {};
-    errInfo.infoMsg = tool.toString(info);
-    //是否存在堆栈信息
-    if (tool.isObject(err) && err.stack && err.message) {
-        errInfo.errMsg = tool.toString(err.message);
-        errInfo.stackMsg = tool.toString(err.stack);
-    } else {
-        errInfo.errMsg = tool.toString(err);
-    }
-    errInfo.isError = true;
-    //上报
-    that.noticeReport(errInfo);
-};
-
-/***/ }),
-/* 28 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _defaultConfig = __webpack_require__(26);
-
-var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _handle = __webpack_require__(27);
-
-var handleServer = _interopRequireWildcard(_handle);
-
-var _api = __webpack_require__(25);
-
-var apiServer = _interopRequireWildcard(_api);
-
-var _report = __webpack_require__(29);
-
-var reportServer = _interopRequireWildcard(_report);
-
-var _index2 = __webpack_require__(1);
-
-var _index3 = _interopRequireDefault(_index2);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-// 获取系统信息
-var KeepObserverVue = function (_KeepObserverDetault) {
-    _inherits(KeepObserverVue, _KeepObserverDetault);
-
-    //构造函数
-    function KeepObserverVue(config) {
-        _classCallCheck(this, KeepObserverVue);
-
-        //初始化上传相关实例
-        var _this = _possibleConstructorReturn(this, (KeepObserverVue.__proto__ || Object.getPrototypeOf(KeepObserverVue)).call(this));
-
-        var vueConfig = config.vueCustom || {};
-        vueConfig.vueInstance = config.vueInstance;
-        //判断是否存在实例
-        if (!vueConfig.vueInstance) {
-            var _ret;
-
-            return _ret = false, _possibleConstructorReturn(_this, _ret);
-        }
-        //存混合配置
-        _this._config = tool.extend(_defaultConfig2.default, vueConfig);
-        //上报名
-        _this._typeName = 'vue';
-        //vue实例
-        _this._vue = _this._config.vueInstance;
-        //监听列表
-        _this.eventListener = [];
-        //混入自身方法
-        _this.$mixin(handleServer);
-        _this.$mixin(apiServer);
-        _this.$mixin(reportServer);
-        // 开启vue拦截
-        _this.startObserver();
-        return _this;
-    }
-
-    //提供一个挂载入口
-
-
-    _createClass(KeepObserverVue, [{
-        key: 'apply',
-        value: function apply(pipe) {
-            this.addReportListener(pipe.sendPipeMessage);
-            return {
-                $vueStop: this.stopObserver,
-                $vueStart: this.startObserver
-            };
-        }
-    }]);
-
-    return KeepObserverVue;
-}(_index3.default);
-
-exports.default = KeepObserverVue;
-
-/***/ }),
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//注册上报监听
-var addReportListener = exports.addReportListener = function addReportListener(callback) {
-    if (callback) {
-        this.eventListener.push(callback);
-    }
-};
-
-//处理整理数据
-var handleReportData = exports.handleReportData = function handleReportData(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "monitor";
-    reportParams.typeName = 'vue';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //option
-    control.lazy = true;
-    if (content.isError) {
-        control.lazy = false;
-        control.baseExtend = true;
-        control.isError = true;
-        control.isReport = true;
-    }
-    return {
-        reportParams: reportParams,
-        control: control
-    };
-};
-
-//通知上报
-var noticeReport = exports.noticeReport = function noticeReport(content) {
-    var that = this;
-    if (that.eventListener.length === 0) {
-        return false;
-    }
-    //通知上报
-    that.eventListener.map(function (item) {
-        if (tool.isFunction(item)) {
-            var _that$handleReportDat = that.handleReportData(content),
-                reportParams = _that$handleReportDat.reportParams,
-                control = _that$handleReportDat.control;
-
-            item(reportParams, control);
-        }
-    });
-};
-
-/***/ }),
-/* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-/*
- 
- 	observer System 实例默认配置数据
- */
-
-exports.default = {
-    //是否每天只记录一次
-    isOneDay: true,
-    //是否启动性能分析 
-    isPerformance: true,
-    //是否检查缓存读取内容
-    isPerformanceRequest: true,
-    //获取到load信息是否立即上报
-    immediatelyiReport: true
-};
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.recordReport = exports.checkIsOneDay = exports.getWebPerformance = exports.getSystemInfo = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//获取系统信息
-var getSystemInfo = exports.getSystemInfo = function getSystemInfo() {
-    var that = this;
-    var oneDayFlag = this.checkIsOneDay();
-    //判断是否每天最多获取上传一次
-    if (this._config.isOneDay && oneDayFlag) {
-        return false;
-    }
-    //开始获取系统信息
-    if (that._config.isPerformance) {
-        that.getWebPerformance(function (Result) {
-            that._systemInfo = Result;
-            //上报
-            that.noticeReport(that._systemInfo);
-            //记录
-            that.recordReport();
-        });
-    }
-};
-
-//获取首屏性能分析
-var getWebPerformance = exports.getWebPerformance = function getWebPerformance(onCallback) {
-    var that = this;
-    //异步实现,等待完全加载完成
-    var performance = function performance() {
-        var info = {};
-        var performance = window.performance || window.msPerformance || window.webkitPerformance;
-        var timing = window.performance && window.performance.timing;
-        var navigation = window.performance && window.performance.navigation;
-        //获取性能分析
-        if (performance && timing) {
-            //重定向次数：
-            info.redirectCount = navigation ? navigation.redirectCount + '次' : '未知';
-            //跳转耗时：
-            info.redirectTime = timing.redirectEnd - timing.redirectStart + 'ms';
-            //APP CACHE 耗时：
-            info.appcacheTime = Math.max(timing.domainLookupStart - timing.fetchStart, 0) + 'ms';
-            //DNS 解析耗时：
-            info.dns = timing.domainLookupEnd - timing.domainLookupStart + 'ms';
-            //TCP 链接耗时：
-            info.tcp = timing.connectEnd - timing.connectStart + 'ms';
-            //等待服务器响应耗时（注意是否存在cache）：
-            info.request = timing.responseStart - timing.requestStart + 'ms';
-            //内容加载耗时（注意是否存在cache）:
-            info.response = timing.responseEnd - timing.responseStart + 'ms';
-            //总体网络交互耗时，即开始跳转到服务器资源下载完成：
-            info.network = timing.responseEnd - timing.navigationStart + 'ms';
-            //渲染处理：
-            info.DOMrender = (timing.domComplete || timing.domLoading) - timing.domLoading + 'ms';
-            //抛出 load 事件：
-            info.onloadTime = timing.loadEventEnd - timing.loadEventStart + 'ms';
-            //总耗时：
-            info.total = (timing.loadEventEnd || timing.loadEventStart || timing.domComplete || timing.domLoading) - timing.navigationStart + 'ms';
-            //可交互：
-            info.DOMactive = timing.domInteractive - timing.navigationStart + 'ms';
-            //请求响应耗时，即 T0，注意cache：
-            info.webResponse = timing.responseStart - timing.navigationStart + 'ms';
-            //首次出现内容，即 T1：
-            info.webLoad = timing.domLoading - timing.navigationStart + 'ms';
-            //内容加载完毕，即 T3：
-            info.webLoadEnd = timing.loadEventEnd - timing.navigationStart + 'ms';
-        }
-        //是否获取加载资源内容
-        if (that._config.isPerformanceRequest) {
-            info.requestPerformance = [];
-            if (performance.getEntries) {
-                var requestPerformance = performance.getEntries();
-                //只检查initiatorType  script css xmlhttprequest
-                if (tool.isArray(requestPerformance)) {
-                    requestPerformance.map(function (item) {
-                        if (item.initiatorType) {
-                            var perInfo = {
-                                type: item.initiatorType,
-                                name: item.name,
-                                time: item.duration.toFixed(2) + 'ms',
-                                size: (item.encodedBodySize / 1000).toFixed(2) + 'kb'
-                            };
-                            info.requestPerformance.push(perInfo);
-                        }
-                    });
-                }
-                if (onCallback) {
-                    onCallback(info);
-                }
-            }
-        }
-    };
-    //挂载在 window.onload 中
-    if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('load', function () {
-            setTimeout(performance, 0);
-        }, false);
-    } else {
-        window.attachEvent('onload', function () {
-            setTimeout(performance, 0);
-        });
-    }
-};
-
-//验证今天是否已经获取上传了一次用户信息了
-var checkIsOneDay = exports.checkIsOneDay = function checkIsOneDay() {
-    var reportDate = tool.getStorage('loadRecordReportDate');
-    var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
-    //如果没获取上报过
-    if (!reportDate) {
-        return false;
-    } else if (reportDate !== date) {
-        return false;
-    }
-    return true;
-};
-
-//记录当天已经上报
-var recordReport = exports.recordReport = function recordReport() {
-    if (this._config.isOneDay) {
-        var date = tool.dateFormat(new Date(), 'yyyy-MM-dd');
-        tool.setStorage('loadRecordReportDate', date);
-    }
-};
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _defaultConfig = __webpack_require__(30);
-
-var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _handle = __webpack_require__(31);
-
-var handleServer = _interopRequireWildcard(_handle);
-
-var _report = __webpack_require__(33);
-
-var reportServer = _interopRequireWildcard(_report);
-
-var _index2 = __webpack_require__(1);
-
-var _index3 = _interopRequireDefault(_index2);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-// 获取系统信息
-var KeepObserverLoad = function (_KeepObserverDetault) {
-    _inherits(KeepObserverLoad, _KeepObserverDetault);
-
-    //构造函数
-    function KeepObserverLoad(config) {
-        _classCallCheck(this, KeepObserverLoad);
-
-        var _this = _possibleConstructorReturn(this, (KeepObserverLoad.__proto__ || Object.getPrototypeOf(KeepObserverLoad)).call(this));
-
-        var LoadCustom = config.LoadCustom || {};
-        //存混合配置
-        _this._config = tool.extend(_defaultConfig2.default, LoadCustom);
-        //系统信息
-        _this._systemInfo = false;
-        //上报名
-        _this._typeName = 'Load';
-        //监听列表
-        _this.eventListener = [];
-        //混入自身方法
-        _this.$mixin(handleServer);
-        _this.$mixin(reportServer);
-        //开始获取系统信息
-        _this.getSystemInfo();
-        return _this;
-    }
-
-    //提供一个挂载入口
-
-
-    _createClass(KeepObserverLoad, [{
-        key: 'apply',
-        value: function apply(pipe) {
-            this.addReportListener(pipe.sendPipeMessage);
-        }
-    }]);
-
-    return KeepObserverLoad;
-}(_index3.default);
-
-exports.default = KeepObserverLoad;
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//注册上报监听
-var addReportListener = exports.addReportListener = function addReportListener(callback) {
-    if (callback) {
-        this.eventListener.push(callback);
-    }
-};
-
-//处理整理数据
-var handleReportData = exports.handleReportData = function handleReportData(content) {
-    var reportParams = {};
-    reportParams.type = "performance";
-    reportParams.typeName = 'load';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //系统信息和首屏性能立即上报
-    var control = {};
-    control.lazy = false;
-    control.isReport = true;
-    return {
-        reportParams: reportParams,
-        control: control
-    };
-};
-
-//通知上报
-var noticeReport = exports.noticeReport = function noticeReport(content) {
-    var that = this;
-    if (that.eventListener.length === 0) {
-        return false;
-    }
-    //通知上报
-    that.eventListener.map(function (item) {
-        if (tool.isFunction(item)) {
-            var _that$handleReportDat = that.handleReportData(content),
-                reportParams = _that$handleReportDat.reportParams,
-                control = _that$handleReportDat.control;
-
-            item(reportParams, control);
-        }
-    });
-};
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
 
 var _index = __webpack_require__(0);
 
@@ -3080,6 +2505,7 @@ var AjaxServer = function AjaxServer(config) {
             }
         };
         xhr.onerror = function (e) {
+            console.log(arguments);
             rej('Ajax request process find error!' + e);
         };
         //send data
@@ -3092,7 +2518,7 @@ var AjaxServer = function AjaxServer(config) {
 exports.default = AjaxServer;
 
 /***/ }),
-/* 35 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3145,7 +2571,7 @@ var $setCustomeReportData = exports.$setCustomeReportData = function $setCustome
 };
 
 /***/ }),
-/* 36 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3187,7 +2613,7 @@ exports.default = {
 };
 
 /***/ }),
-/* 37 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3311,7 +2737,7 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 };
 
 /***/ }),
-/* 38 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3329,7 +2755,7 @@ var _index2 = _interopRequireDefault(_index);
 
 var _index3 = __webpack_require__(2);
 
-var _defaultConfig = __webpack_require__(36);
+var _defaultConfig = __webpack_require__(27);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -3337,15 +2763,15 @@ var _index4 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index4);
 
-var _api = __webpack_require__(35);
+var _api = __webpack_require__(26);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _handle = __webpack_require__(37);
+var _handle = __webpack_require__(28);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _report = __webpack_require__(39);
+var _report = __webpack_require__(30);
 
 var reportServer = _interopRequireWildcard(_report);
 
@@ -3447,7 +2873,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
 exports.default = KeepObserverReport;
 
 /***/ }),
-/* 39 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3462,7 +2888,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _ajax = __webpack_require__(34);
+var _ajax = __webpack_require__(25);
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
@@ -3674,7 +3100,7 @@ var _handleReportFail = exports._handleReportFail = function _handleReportFail(o
 };
 
 /***/ }),
-/* 40 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(3);

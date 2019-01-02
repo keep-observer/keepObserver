@@ -65,7 +65,7 @@ export var getWebPerformance = function(onCallback) {
                 info.webLoadEnd = (timing.loadEventEnd - timing.navigationStart) + 'ms';
             }
             //是否获取加载资源内容
-            if (that._config.isPerformanceRequest) {
+            if (performanc  &&  that._config.isPerformanceRequest) {
                 info.requestPerformance = [];
                 if (performance.getEntries) {
                     var requestPerformance = performance.getEntries()
@@ -73,11 +73,15 @@ export var getWebPerformance = function(onCallback) {
                     if (tool.isArray(requestPerformance)) {
                         requestPerformance.map(function(item) {
                             if (item.initiatorType) {
+                                var time = item.duration
+                                var size = item.encodedBodySize
+                                time = isNaN(time.toFixed(2))? time :time.toFixed(2)
+                                size = isNaN(size.toFixed(2))? size :(size / 1000).toFixed(2)
                                 var perInfo = {
                                     type: item.initiatorType,
                                     name: item.name,
-                                    time: item.duration.toFixed(2) + 'ms',
-                                    size: (item.encodedBodySize / 1000).toFixed(2) + 'kb'
+                                    time: time + 'ms',
+                                    size: size + 'kb'
                                 }
                                 info.requestPerformance.push(perInfo)
                             }

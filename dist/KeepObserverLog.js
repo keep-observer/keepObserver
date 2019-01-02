@@ -678,7 +678,17 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
     var errorObj = {};
     var url = errorEvent.filename || errorEvent.url || false;
     //可能是跨域资源JS出现错误 这获取不到详细信息
-    if (errorEvent.message === 'Script error.' && !url) {
+    if ((!errorEvent.message || errorEvent.message === 'Script error.') && !url) {
+        //有可能是资源加载错误被捕获
+        if (errorEvent.target && !tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src) {
+            errorObj.errMsg = 'loadError! web request Resource loading error';
+            errorObj.nodeName = errorEvent.target.nodeName;
+            errorObj.url = errorEvent.target.src;
+            setTimeout(function () {
+                that._handleMessage('loadError', [errorObj]);
+            });
+            return false;
+        }
         //未知错误是否捕获
         if (!that._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;

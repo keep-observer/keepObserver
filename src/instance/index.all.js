@@ -13,8 +13,7 @@ import initServer from './init.js'
 import keepObserverReport from '../services/report/index.js';
 import KeepObserverLog from '../services/observer/log/index.js';
 import KeepObserverNetwork from '../services/observer/network/index.js';
-import KeepObserverVue from '../services/observer/vue/index.js';
-import KeepObserverLoad from '../services/performance/load/index.js'
+
 
 class KeepObserver extends KeepObserverDetault {
     //构造函数
@@ -35,8 +34,6 @@ class KeepObserver extends KeepObserverDetault {
         this.use(keepObserverReport)
         this.use(KeepObserverLog)
         this.use(KeepObserverNetwork)
-        this.use(KeepObserverVue)
-        this.use(KeepObserverLoad)
     }
 }
 

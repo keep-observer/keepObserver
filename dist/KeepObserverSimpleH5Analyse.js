@@ -475,7 +475,7 @@ exports.default = KeepObserverDefault;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 
 
@@ -483,8 +483,10 @@ Object.defineProperty(exports, "__esModule", {
  	实例默认配置数据
  */
 exports.default = {
-  //是否初始化就启动,并且从配置中读取分析参数
-  initBegine: false
+	//是否初始化就启动,并且从配置中读取分析参数
+	initBegine: false,
+	//延时分发时间
+	timeoutDispatchEvent: 200
 };
 
 /***/ }),
@@ -606,6 +608,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var registerAnalyseDomEvent = exports.registerAnalyseDomEvent = function registerAnalyseDomEvent(el, fn) {
 	var that = this;
 	var type = el.tagName.toLowerCase();
+	var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
 	//修正激活元素的事件
 	var event = 'click';
 	if (type === 'input' || type === 'textarea' || type === 'select') {
@@ -618,7 +621,7 @@ var registerAnalyseDomEvent = exports.registerAnalyseDomEvent = function registe
 			if (!dispatchFlag) {
 				setTimeout(function () {
 					el.dispatchEvent(event);
-				}, 100);
+				}, timeoutDispatchEvent);
 				fn();
 				dispatchFlag = true;
 				event.stopImmediatePropagation();
@@ -705,13 +708,14 @@ var triggerAcitveReport = exports.triggerAcitveReport = function triggerAcitveRe
     var event = event || window.event;
     var el = event.target;
     var nodeName = el.nodeName.toLowerCase();
+    var timeoutDispatchEvent = this._config.timeoutDispatchEvent;
     //如果是a标签类型,并且携带href，那么不跳转,延时跳转
     if (nodeName === 'a' && el.href) {
         var url = el.href;
         event.preventDefault();
         setTimeout(function () {
             window.location.href = url;
-        }, 100);
+        }, timeoutDispatchEvent);
     }
     //上报
     this.reportData = this.createReportData();
