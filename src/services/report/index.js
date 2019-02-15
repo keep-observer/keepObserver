@@ -57,22 +57,22 @@ class KeepObserverReport extends KeepObserverDefault {
         复制this.reportData并从strong里面复原数据
      */
     _init() {
-            var that = this;
-            //初始化this.reportData
-            var handleType = that.$report_config.$observer_Type
-            handleType.forEach(function(type) {
-                var cacheData = tool.getStorage(type)
-                that.reportData[type] = [];
-                if (cacheData) {
-                    that.reportData[type] = cacheData
-                }
-            });
-        }
-        /*
-            提供一个挂载方法在注入中使用
-            return 
-                $getCustomeReport
-         */
+        var that = this;
+        //初始化this.reportData
+        var handleType = that.$report_config.$observer_Type
+        handleType.forEach(function(type) {
+            var cacheData = tool.getStorage(type)
+            that.reportData[type] = [];
+            if (cacheData) {
+                that.reportData[type] = cacheData
+            }
+        });
+    }
+    /*
+        提供一个挂载方法在注入中使用
+        return 
+            $getCustomeReport
+     */
     apply(pipe) {
         var that = this;
         pipe.registerRecivePipeMessage(that._getReportContent, that)

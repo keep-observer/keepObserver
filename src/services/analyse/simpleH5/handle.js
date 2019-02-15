@@ -39,8 +39,12 @@ export var destroy = function(){
             }
         }
     }
+    this._recoverEventTarget()
     this.analyseDomList = {};
+    // 这里清除停止监听在恢复的时候会可能导致触发两次
+    this._domListener = {};
 }
+
 
 
 

@@ -20,6 +20,15 @@ class KeepObserverSimpleH5Analyse extends KeepObserverDetault {
         //初始化上传相关实例
         var simpleH5AnalyseCustom = config.simpleH5AnalyseCustom || {};
         this._config = tool.extend(defaultConfig, simpleH5AnalyseCustom)
+        //原生方法
+        this._addEventListener = false;
+        this._removeEventListener = false;
+        //拦截DOM列表
+        /*
+            eventList: object
+            target: element
+         */
+        this._domListener = {};
         //监听列表
         this.eventListener = [];
         //需要监听的dom列表
@@ -32,10 +41,10 @@ class KeepObserverSimpleH5Analyse extends KeepObserverDetault {
         this.uniqueId = tool.getUniqueID();
         /*上报内容*/
         this.reportData = {
-            id: tool.getUniqueID(),     //唯一浏览器标识
-            repeatCountAll: 0,               //总的统计次数
-            repeatCount: 0,             //访问次数
-            useActives:{}               //行为事件
+            id: tool.getUniqueID(),         //唯一浏览器标识
+            repeatCountAll: 0,              //总的统计次数
+            repeatCount: 0,                 //访问次数
+            useActives:{}                   //行为事件
         }
         //混合自身方法
         this.$mixin(handleServer)
@@ -44,7 +53,8 @@ class KeepObserverSimpleH5Analyse extends KeepObserverDetault {
         this.$mixin(eventServer)
         this.$mixin(domServer)
         //启动
-        if(this._config.initBegine && this._config.begineConfig){
+        var begin = this._handleEventTarget()
+        if(begin && this._config.initBegine && this._config.begineConfig){
             this.startAnalyse(this._config.begineConfig);
         }
     }

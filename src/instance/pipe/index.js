@@ -65,11 +65,17 @@ var mixinPipe = function(keepObserver, config) {
     var applyInjection = Pipe.apply()
         //循环挂载到keepobserver上
     for (var key in applyInjection) {
-        keepObserver[key] = function() {
-            var agrs = tool.toArray(arguments)
-            var fn = applyInjection[key]
-            return fn.apply(Pipe, agrs)
-        }
+        Object.defineProperty(keepObserver,key,{
+            configurable: false,
+            enumerable: true,
+            value:(function(key){
+                return function(){
+                    var agrs = tool.toArray(arguments)
+                    var fn = applyInjection[key]
+                    return fn.apply(Pipe, agrs)
+                }
+            })(key)
+        })
     }
 }
 export default mixinPipe

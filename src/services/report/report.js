@@ -163,7 +163,7 @@ export var _createReportData = function(params, control) {
     //开发模式下打印上报数据
     if (that.develop) {
         var log = tool.extend({}, reportData)
-        log.title = params.type + " type " + params.typeName + " will report Server,report Data in the data "
+        log.develop_title = params.type + " type " + params.typeName + " will report Server,report Data in the data "
         that.$devLog(log)
     }
     return reportData

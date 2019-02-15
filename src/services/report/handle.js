@@ -35,7 +35,7 @@ export var _getReportContent = function(params, control) {
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params)
-        log.title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
+        log.develop_title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
         this.$devLog(log)
     }
     //是否删除之前保存的数据
@@ -85,7 +85,7 @@ export var _saveReportData = function(params) {
         var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
-            discard.title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
+            discard.develop_title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
             this.$devLog(discard)
         }
     }

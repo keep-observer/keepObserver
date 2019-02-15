@@ -454,7 +454,12 @@ var KeepObserverDefault = function () {
                     this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
-                this[key] = provider[key];
+                //不允许重写
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    value: provider[key]
+                });
             }
         }
     }]);
@@ -853,11 +858,17 @@ var mixinPipe = function mixinPipe(keepObserver, config) {
     var applyInjection = Pipe.apply();
     //循环挂载到keepobserver上
     for (var key in applyInjection) {
-        keepObserver[key] = function () {
-            var agrs = tool.toArray(arguments);
-            var fn = applyInjection[key];
-            return fn.apply(Pipe, agrs);
-        };
+        Object.defineProperty(keepObserver, key, {
+            configurable: false,
+            enumerable: true,
+            value: function (key) {
+                return function () {
+                    var agrs = tool.toArray(arguments);
+                    var fn = applyInjection[key];
+                    return fn.apply(Pipe, agrs);
+                };
+            }(key)
+        });
     }
 };
 exports.default = mixinPipe;
@@ -1004,11 +1015,10 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
     }
     var keepObserver = that.$keepObserver;
     for (var key in renders) {
-        //验证挂载方法
+        //检查方法
         var fn = renders[key];
         if (!fn || !tool.isFunction(fn)) {
             that.$devError('[keepObserver] injection ApplyFn return Object attr' + key + 'is not right');
-            continue;
         }
         //是否存在同名方法
         if (keepObserver[key]) {
@@ -1016,14 +1026,20 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
             continue;
         }
         //挂载到keepObserver 实例
-        keepObserver[key] = function () {
-            var agrs = tool.toArray(arguments);
-            try {
-                fn.apply(scope, agrs);
-            } catch (e) {
-                that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e);
-            }
-        };
+        Object.defineProperty(keepObserver, key, {
+            configurable: false,
+            enumerable: true,
+            value: function (fn) {
+                return function () {
+                    var agrs = tool.toArray(arguments);
+                    try {
+                        fn.apply(scope, agrs);
+                    } catch (e) {
+                        that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e);
+                    }
+                };
+            }(fn)
+        });
     }
 };
 
@@ -2505,7 +2521,6 @@ var AjaxServer = function AjaxServer(config) {
             }
         };
         xhr.onerror = function (e) {
-            console.log(arguments);
             rej('Ajax request process find error!' + e);
         };
         //send data
@@ -2665,7 +2680,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params);
-        log.title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
+        log.develop_title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
         this.$devLog(log);
     }
     //是否删除之前保存的数据
@@ -2711,7 +2726,7 @@ var _saveReportData = exports._saveReportData = function _saveReportData(params)
         var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
-            discard.title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
+            discard.develop_title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
             this.$devLog(discard);
         }
     }
@@ -3052,7 +3067,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     //开发模式下打印上报数据
     if (that.develop) {
         var log = tool.extend({}, reportData);
-        log.title = params.type + " type " + params.typeName + " will report Server,report Data in the data ";
+        log.develop_title = params.type + " type " + params.typeName + " will report Server,report Data in the data ";
         that.$devLog(log);
     }
     return reportData;

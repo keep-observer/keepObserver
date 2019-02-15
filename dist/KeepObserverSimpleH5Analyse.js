@@ -456,7 +456,12 @@ var KeepObserverDefault = function () {
                     this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
-                this[key] = provider[key];
+                //不允许重写
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    value: provider[key]
+                });
             }
         }
     }]);
@@ -588,9 +593,9 @@ var getDomTitle = exports.getDomTitle = function getDomTitle(el) {
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
-exports.registerAnalyseDomEvent = undefined;
+exports._recoverEventTarget = exports._handleEventTarget = exports.triggerEventListener = exports.resetEventListener = exports.registerAnalyseDomEvent = undefined;
 
 var _index = __webpack_require__(0);
 
@@ -604,46 +609,179 @@ var _constant = __webpack_require__(3);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var attributeKey = 'keepObserverUniqueID';
+
 //注册相关DOM埋点检测事件服务
 var registerAnalyseDomEvent = exports.registerAnalyseDomEvent = function registerAnalyseDomEvent(el, fn) {
-	var that = this;
-	var type = el.tagName.toLowerCase();
-	var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
-	//修正激活元素的事件
-	var event = 'click';
-	if (type === 'input' || type === 'textarea' || type === 'select') {
-		event = 'change';
-	}
-	var dispatchFlag = false;
-	//handle other event
-	var handleEvent = function handleEvent(event) {
-		if (event.stopImmediatePropagation && el.dispatchEvent) {
-			if (!dispatchFlag) {
-				setTimeout(function () {
-					el.dispatchEvent(event);
-				}, timeoutDispatchEvent);
-				fn();
-				dispatchFlag = true;
-				event.stopImmediatePropagation();
-			} else {
-				setTimeout(function () {
-					dispatchFlag = false;
-				});
-			}
-		} else {
-			fn();
-		}
-	};
-	//set event observer
-	el.addEventListener(event, handleEvent);
-	//return destroyEvent
-	return function () {
-		if (el && tool.isElement(el)) {
-			el.removeEventListener(event, handleEvent);
-		}
-		event = null;
-		type = null;
-	};
+  var that = this;
+  var type = el.tagName.toLowerCase();
+  var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
+  //修正激活元素的事件
+  var event = 'click';
+  if (type === 'input' || type === 'textarea' || type === 'select') {
+    event = 'change';
+  }
+  //handle other event
+  var handleEvent = function handleEvent(eventInstance) {
+    eventInstance = eventInstance || window.event;
+    if (eventInstance.stopImmediatePropagation) {
+      //延时手动触发
+      setTimeout(function () {
+        that.triggerEventListener(eventInstance, event);
+      }, timeoutDispatchEvent);
+      //埋点激活
+      fn();
+      eventInstance.stopImmediatePropagation();
+    } else {
+      fn();
+    }
+  };
+  //重新挂载事件,埋点事件排列到首位
+  that.resetEventListener(el, event, handleEvent);
+  //return destroyEvent
+  return function () {
+    if (el && tool.isElement(el)) {
+      that._removeEventListener.apply(el, [event, handleEvent]);
+    }
+    event = null;
+    type = null;
+  };
+};
+
+//重排DOM事件监听队列,埋点事件排列到首位,set event observer
+var resetEventListener = exports.resetEventListener = function resetEventListener(el, eventName, handleEvent) {
+  var that = this;
+  var id = el.getAttribute(attributeKey);
+  if (!id || !that._domListener[id]) {
+    that._addEventListener.apply(el, [eventName, handleEvent]);
+    return false;
+  }
+  var eventListener = that._domListener[id];
+  var eventList = eventListener.eventList[eventName];
+  if (tool.isEmptyArray(eventList)) {
+    //set event observer
+    that._addEventListener.apply(el, [eventName, handleEvent]);
+    return false;
+  }
+  //remove
+  eventList.forEach(function (item) {
+    that._removeEventListener.apply(el, [eventName, item]);
+  });
+  //set event observer queue frist
+  that._addEventListener.apply(el, [eventName, handleEvent]);
+  //reset
+  eventList.forEach(function (item) {
+    that._addEventListener.apply(el, [eventName, item]);
+  });
+};
+
+//手动激活当前事件队列
+var triggerEventListener = exports.triggerEventListener = function triggerEventListener(event, eventName) {
+  var that = this;
+  var el = event.target;
+  var id = el.getAttribute(attributeKey);
+  if (!id || !that._domListener[id]) {
+    return false;
+  }
+  var eventListener = that._domListener[id];
+  var eventList = eventListener.eventList[eventName];
+  if (tool.isEmptyArray(eventList)) {
+    return false;
+  }
+  //trigger
+  eventList.forEach(function (item) {
+    try {
+      item.call(el, event);
+    } catch (e) {
+      that.$devError('[keepObserver] analyseServer simpleH5: triggerEventListener  error: ' + e);
+    }
+  });
+};
+
+//拦截原生方法EventTarget
+var _handleEventTarget = exports._handleEventTarget = function _handleEventTarget() {
+  var that = this;
+  if (window.Node && Node.prototype.addEventListener) {
+    //替换
+    that._addEventListener = Node.prototype.addEventListener;
+    that._removeEventListener = Node.prototype.removeEventListener;
+    //拦截
+    Node.prototype.addEventListener = function () {
+      var target = this;
+      var args = tool.toArray(arguments);
+      /*
+          validata params
+          [0] = string eventName
+          [1] = function eventHandleFunction
+      */
+      if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
+        that.$devError('element addEventListener params error');
+        return false;
+      }
+      //判断是否是DOM
+      if (tool.isElement(target)) {
+        var id = target.getAttribute(attributeKey);
+        if (id) {
+          var domListenerInstance = that._domListener[id];
+        } else {
+          id = tool.getUniqueID();
+          var domListenerInstance = {
+            eventList: {},
+            target: target
+          };
+          target.setAttribute(attributeKey, id);
+        }
+        //添加事件拦截名称缓存
+        if (!domListenerInstance.eventList[args[0]]) {
+          domListenerInstance.eventList[args[0]] = [];
+        }
+        domListenerInstance.eventList[args[0]].push(args[1]);
+        that._domListener[id] = domListenerInstance;
+      }
+      //挂载原生方法上
+      return that._addEventListener.apply(target, args);
+    };
+    Node.prototype.removeEventListener = function () {
+      var target = this;
+      var args = tool.toArray(arguments);
+      /*
+          validata params
+          [0] = string eventName
+          [1] = function eventHandleFunction
+      */
+      if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
+        that.$devError('element addEventListener params error');
+        return false;
+      }
+      //判断是否是DOM
+      if (tool.isElement(target)) {
+        var id = target.getAttribute(attributeKey);
+        if (id) {
+          target.removeAttribute(attributeKey);
+          //这里可能存在绑定多个事件的情况,直接删除可能会导致问题.需要优化
+          delete that._domListener[id];
+        }
+      }
+      return that._removeEventListener.apply(target, args);
+    };
+  } else {
+    that.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
+    return false;
+  }
+  return true;
+};
+
+//恢复原生方法
+var _recoverEventTarget = exports._recoverEventTarget = function _recoverEventTarget() {
+  if (window.Node && Node.prototype.addEventListener) {
+    Node.prototype.addEventListener = this._addEventListener;
+    Node.prototype.removeEventListener = this._removeEventListener;
+  } else {
+    that.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
+    return false;
+  }
+  this._removeEventListener = false;
+  this._addEventListener = false;
 };
 
 /***/ }),
@@ -700,7 +838,10 @@ var destroy = exports.destroy = function destroy() {
             }
         }
     }
+    this._recoverEventTarget();
     this.analyseDomList = {};
+    // 这里清除停止监听在恢复的时候会可能导致触发两次
+    this._domListener = {};
 };
 
 //监控dom激活触发
@@ -972,6 +1113,15 @@ var KeepObserverSimpleH5Analyse = function (_KeepObserverDetault) {
 
         var simpleH5AnalyseCustom = config.simpleH5AnalyseCustom || {};
         _this._config = tool.extend(_defaultConfig2.default, simpleH5AnalyseCustom);
+        //原生方法
+        _this._addEventListener = false;
+        _this._removeEventListener = false;
+        //拦截DOM列表
+        /*
+            eventList: object
+            target: element
+         */
+        _this._domListener = {};
         //监听列表
         _this.eventListener = [];
         //需要监听的dom列表
@@ -996,7 +1146,8 @@ var KeepObserverSimpleH5Analyse = function (_KeepObserverDetault) {
         _this.$mixin(eventServer);
         _this.$mixin(domServer);
         //启动
-        if (_this._config.initBegine && _this._config.begineConfig) {
+        var begin = _this._handleEventTarget();
+        if (begin && _this._config.initBegine && _this._config.begineConfig) {
             _this.startAnalyse(_this._config.begineConfig);
         }
         return _this;
@@ -1030,7 +1181,7 @@ exports.default = KeepObserverSimpleH5Analyse;
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 exports.clearSaveRecive = exports.startAnalyse = exports.stopAnalyse = undefined;
 
@@ -1046,21 +1197,29 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
     	停止监听
 */
 var stopAnalyse = exports.stopAnalyse = function stopAnalyse() {
-  this.destroy();
+    this.destroy();
 };
 
 /*
 	开始监听
  */
 var startAnalyse = exports.startAnalyse = function startAnalyse(config) {
-  this.begine(config);
+    var begin = true;
+    //拦截事件监听
+    if (!this._addEventListener) {
+        begin = this._handleEventTarget();
+    }
+    //start
+    if (begin) {
+        this.begine(config);
+    }
 };
 
 /*
 	清除缓存
  */
 var clearSaveRecive = exports.clearSaveRecive = function clearSaveRecive() {
-  tool.removeStorage(_constant.RecordKey);
+    tool.removeStorage(_constant.RecordKey);
 };
 
 /***/ })

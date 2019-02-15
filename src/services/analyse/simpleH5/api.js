@@ -18,7 +18,15 @@ export var stopAnalyse = function() {
 	开始监听
  */
 export var startAnalyse = function(config) {
-    this.begine(config)
+    var begin = true
+    //拦截事件监听
+    if(!this._addEventListener){
+        begin = this._handleEventTarget()
+    }
+    //start
+    if(begin){
+        this.begine(config)
+    }
 }
 
 

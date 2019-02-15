@@ -454,7 +454,12 @@ var KeepObserverDefault = function () {
                     this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
-                this[key] = provider[key];
+                //不允许重写
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    value: provider[key]
+                });
             }
         }
     }]);
@@ -729,11 +734,17 @@ var mixinPipe = function mixinPipe(keepObserver, config) {
     var applyInjection = Pipe.apply();
     //循环挂载到keepobserver上
     for (var key in applyInjection) {
-        keepObserver[key] = function () {
-            var agrs = tool.toArray(arguments);
-            var fn = applyInjection[key];
-            return fn.apply(Pipe, agrs);
-        };
+        Object.defineProperty(keepObserver, key, {
+            configurable: false,
+            enumerable: true,
+            value: function (key) {
+                return function () {
+                    var agrs = tool.toArray(arguments);
+                    var fn = applyInjection[key];
+                    return fn.apply(Pipe, agrs);
+                };
+            }(key)
+        });
     }
 };
 exports.default = mixinPipe;
@@ -1017,11 +1028,10 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
     }
     var keepObserver = that.$keepObserver;
     for (var key in renders) {
-        //验证挂载方法
+        //检查方法
         var fn = renders[key];
         if (!fn || !tool.isFunction(fn)) {
             that.$devError('[keepObserver] injection ApplyFn return Object attr' + key + 'is not right');
-            continue;
         }
         //是否存在同名方法
         if (keepObserver[key]) {
@@ -1029,14 +1039,20 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
             continue;
         }
         //挂载到keepObserver 实例
-        keepObserver[key] = function () {
-            var agrs = tool.toArray(arguments);
-            try {
-                fn.apply(scope, agrs);
-            } catch (e) {
-                that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e);
-            }
-        };
+        Object.defineProperty(keepObserver, key, {
+            configurable: false,
+            enumerable: true,
+            value: function (fn) {
+                return function () {
+                    var agrs = tool.toArray(arguments);
+                    try {
+                        fn.apply(scope, agrs);
+                    } catch (e) {
+                        that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e);
+                    }
+                };
+            }(fn)
+        });
     }
 };
 

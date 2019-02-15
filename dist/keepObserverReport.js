@@ -456,7 +456,12 @@ var KeepObserverDefault = function () {
                     this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
-                this[key] = provider[key];
+                //不允许重写
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    value: provider[key]
+                });
             }
         }
     }]);
@@ -633,7 +638,7 @@ var _getReportContent = exports._getReportContent = function _getReportContent(p
     //是否是开发模式需要打印
     if (this.develop && this.developGetMsgLog) {
         var log = tool.extend({}, params);
-        log.title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
+        log.develop_title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
         this.$devLog(log);
     }
     //是否删除之前保存的数据
@@ -679,7 +684,7 @@ var _saveReportData = exports._saveReportData = function _saveReportData(params)
         var discard = reportData.shift();
         //开发模式打印
         if (this.develop && this.develogDiscardLog) {
-            discard.title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
+            discard.develop_title = '[keepObserver] observer ' + type + 'type monitor data overstep cache limit will discard';
             this.$devLog(discard);
         }
     }
@@ -885,7 +890,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     //开发模式下打印上报数据
     if (that.develop) {
         var log = tool.extend({}, reportData);
-        log.title = params.type + " type " + params.typeName + " will report Server,report Data in the data ";
+        log.develop_title = params.type + " type " + params.typeName + " will report Server,report Data in the data ";
         that.$devLog(log);
     }
     return reportData;
@@ -1052,7 +1057,6 @@ var AjaxServer = function AjaxServer(config) {
             }
         };
         xhr.onerror = function (e) {
-            console.log(arguments);
             rej('Ajax request process find error!' + e);
         };
         //send data

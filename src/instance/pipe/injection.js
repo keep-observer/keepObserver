@@ -117,6 +117,7 @@ export var registerPipeListenerUser = function() {
 
 
 
+
 /*
     注入对象方法挂载到keepObserver中
     params
@@ -133,11 +134,10 @@ export var mixinKoInstance = function(scope, renders) {
     }
     var keepObserver = that.$keepObserver
     for (var key in renders) {
-        //验证挂载方法
+        //检查方法
         var fn = renders[key]
         if (!fn || !tool.isFunction(fn)) {
             that.$devError('[keepObserver] injection ApplyFn return Object attr' + key + 'is not right')
-            continue;
         }
         //是否存在同名方法
         if (keepObserver[key]) {
@@ -145,13 +145,19 @@ export var mixinKoInstance = function(scope, renders) {
             continue;
         }
         //挂载到keepObserver 实例
-        keepObserver[key] = function() {
-            var agrs = tool.toArray(arguments)
-            try {
-                fn.apply(scope,agrs)
-            } catch (e) {
-                that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e)
-            }
-        }
+        Object.defineProperty(keepObserver,key,{
+            configurable: false,
+            enumerable: true,
+            value:(function(fn) {
+                return function(){
+                    var agrs = tool.toArray(arguments)
+                    try {
+                        fn.apply(scope,agrs)
+                    } catch (e) {
+                        that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e)
+                    } 
+                }  
+            })(fn)
+        })
     }
 }

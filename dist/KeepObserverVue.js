@@ -456,7 +456,12 @@ var KeepObserverDefault = function () {
                     this.$devError('keepObserver $mixin method key: ' + key + ' is exist');
                     continue;
                 }
-                this[key] = provider[key];
+                //不允许重写
+                Object.defineProperty(this, key, {
+                    configurable: false,
+                    enumerable: true,
+                    value: provider[key]
+                });
             }
         }
     }]);
