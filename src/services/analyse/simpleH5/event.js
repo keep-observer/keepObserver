@@ -83,11 +83,23 @@ export var triggerEventListener = function(event,eventName){
 	var that = this;
 	var el = event.target
 	var id = el.getAttribute(attributeKey)
-	if(!id || !that._domListener[id]){
-		return false;
-	}
-	var eventListener = that._domListener[id]
-	var eventList = eventListener.eventList[eventName]
+    var step = 1;
+    var maxError = 5000;
+    var eventList = []
+    var eventListener = false;
+    //向上冒泡
+    do{
+        if(id && that._domListener[id]){
+            eventListener = that._domListener[id]
+            eventList = eventList.concat(eventListener.eventList[eventName])
+        }
+        if(el.parentNode && tool.isElement(el.parentNode)){
+            el = el.parentNode
+            id = el.getAttribute(attributeKey) 
+        }
+    }
+    while(el.parentNode && tool.isElement(el.parentNode) && step < maxError);
+    //check
 	if(tool.isEmptyArray(eventList)){
 		return false;
 	}
