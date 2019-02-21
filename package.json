@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "1.2.0-beta.4",
+  "version": "1.2.0-beta.5",
   "description": "web -- watch  is JS-error netWork  console..log  observer  web-monitor",
   "main": "index.js",
   "scripts": {
