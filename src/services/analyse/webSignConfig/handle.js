@@ -18,6 +18,14 @@ export var confirmConcatRequestSginData = function(){
 
 
 
+// set element event
+export var handleElementEventPreventDefault = function(payload){
+    if(tool.isBoolean(payload)){
+        this.preventDefault = payload
+        this.sendMessage({type:'confirmConfig', payload:this.preventDefault})
+    }
+}
+
 
 
 //receive sign config data

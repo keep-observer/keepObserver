@@ -70,5 +70,11 @@
   "bugs": {
     "url": "https://github.com/keep-observer/keepObserver/issues"
   },
-  "homepage": "https://github.com/keep-observer/keepObserver#readme"
+  "homepage": "https://github.com/keep-observer/keepObserver#readme",
+  "dependencies": {
+    "css-loader": "^2.1.0",
+    "md5": "^2.2.1",
+    "sass-loader": "^7.1.0",
+    "to-string-loader": "^1.1.5"
+  }
 }

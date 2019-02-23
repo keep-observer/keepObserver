@@ -62,6 +62,9 @@ export var handleMessage = function(event){
         case 'confirmNodeSgin':
             that.confirmNodeSelect(data.payload)
             break;
+        case 'preventDefault':
+            that.handleElementEventPreventDefault(data.payload)
+            break;
         default:
             that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error : data.type is error type')
             that.removeMessage()

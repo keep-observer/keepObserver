@@ -9,6 +9,9 @@ module.exports = {
             test: /\.js$/,
             include:[path.resolve(__dirname,'../src')],
             loaders:['babel-loader'],
+        },{
+            test: /\.(scss|css)$/,
+            use: ['to-string-loader', 'css-loader','sass-loader'],
         }],
     },
     resolve:{

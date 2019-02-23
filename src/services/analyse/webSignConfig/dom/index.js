@@ -4,7 +4,9 @@ import * as eventServer from './event.js'
 
 
 var domServer = {}
-domServer = tool.extend({},eventServer);
+domServer = tool.extend(domServer,eventServer);
+
+
 
 
 export default domServer

@@ -30,6 +30,10 @@ class KeepObserverWebSignConfig extends KeepObserverDetault {
         this.sourceOrigin  = false;
         //meeage event 
         this.proxyMessageHandleEvent = false;
+        //dom
+        this.preventDefault = true;
+        this.activeDomList = []
+        this.selectDom = false;
         //mixin
         this.$mixin(apiServer)
         this.$mixin(handleServer)
