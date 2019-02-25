@@ -33,6 +33,7 @@ class KeepObserverWebSignConfig extends KeepObserverDetault {
         //dom
         this.preventDefault = true;
         this.activeDomList = []
+        this.nodeInfoCaches = {}
         this.selectDom = false;
         //mixin
         this.$mixin(apiServer)

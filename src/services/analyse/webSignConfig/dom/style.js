@@ -12,7 +12,7 @@ var styleContent = `
     }
     .${activeClassName}{
         box-sizing: border-box !important;
-        border: 1px dashed #ff3300 !important;
+        border: 1px dashed #ffa500 !important;
         background-color: rgba(255,51,0,0.8) !important;
     }
 `
@@ -38,7 +38,7 @@ var removeClass = function(el,className){
     if(!hasClass(el,className)){
         return false;
     }
-    el.className = el.className.replace(new RegExp('(\\s|^)'+className+'(\\s|$)'),'')
+    el.className = el.className.replace(new RegExp('(\\s|^)'+className),'')
 }
 
 
@@ -62,3 +62,10 @@ export var removeSelelctNodeClass = function(el){
     return removeClass(el,selectClassName)
 }
 
+export var addActiveNodeClass = function(el){
+    return addClass(el,activeClassName)
+}
+
+export var removeActiveNodeClass = function(el){
+    return removeClass(el,activeClassName)
+}

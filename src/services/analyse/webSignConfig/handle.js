@@ -3,9 +3,6 @@ import * as tool from '../../../tool/index.js';
 
 
 
-
-
-
 //confirmConfig and requestSignData
 export var confirmConcatRequestSginData = function(){
     var that = this;
@@ -29,7 +26,24 @@ export var handleElementEventPreventDefault = function(payload){
 
 
 //receive sign config data
-export var receiveSignConfigData = function(){
+export var receiveSignConfigData = function(payload){
+    var that = this;
+    if(tool.isEmptyArray(payload)){
+        return false;
+    }
+    //active dom
+    that.activeDomList = payload
+    //foreach el
+    var nodeIdList = []
+    that.activeDomList.forEach(function(item){
+        if(!item.nodeId || !item.xPath){
+            return false;
+        }
+        nodeIdList.push(item.nodeId)
+        that.activeElement(item)
+    })
+    //confirm
+    that.sendMessage({type:'confirmConfig', payload:nodeIdList})
 }
 
 
@@ -42,10 +56,18 @@ export var reportNodeSelect = function(nodeInfo){
 
 
 
-
-
-export var confirmNodeSelect = function(){
-    
+//save active element sgin
+export var confirmNodeSelect = function(nodeId){
+    if(!nodeId || !tool.isString(nodeId)){
+        return false;
+    }
+    var nodeInfo = this.nodeInfoCaches[nodeId]
+    if(!nodeInfo){
+        return false;
+    }
+    this.activeElement(nodeInfo)
+    this.activeDomList.push(nodeInfo)
+    this.sendMessage({type:'confirmConfig', payload:nodeId})
 }
 
 
