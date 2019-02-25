@@ -99,6 +99,7 @@ exports.isUndefined = isUndefined;
 exports.isNull = isNull;
 exports.isExist = isExist;
 exports.isSymbol = isSymbol;
+exports.isSVGElement = isSVGElement;
 exports.isObject = isObject;
 exports.isEmptyObject = isEmptyObject;
 exports.isEmptyArray = isEmptyArray;
@@ -173,6 +174,9 @@ function isExist(value) {
 }
 function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
+}
+function isSVGElement(value) {
+    return isElement(value) && (value instanceof SVGElement || value.ownerSVGElement);
 }
 function isObject(value) {
     return Object.prototype.toString.call(value) == '[object Object]' ||

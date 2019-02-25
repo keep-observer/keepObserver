@@ -98,6 +98,7 @@ exports.isUndefined = isUndefined;
 exports.isNull = isNull;
 exports.isExist = isExist;
 exports.isSymbol = isSymbol;
+exports.isSVGElement = isSVGElement;
 exports.isObject = isObject;
 exports.isEmptyObject = isEmptyObject;
 exports.isEmptyArray = isEmptyArray;
@@ -172,6 +173,9 @@ function isExist(value) {
 }
 function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
+}
+function isSVGElement(value) {
+    return isElement(value) && (value instanceof SVGElement || value.ownerSVGElement);
 }
 function isObject(value) {
     return Object.prototype.toString.call(value) == '[object Object]' ||
@@ -758,7 +762,7 @@ var receiveSignConfigData = exports.receiveSignConfigData = function receiveSign
 
 //report iframe container select node
 var reportNodeSelect = exports.reportNodeSelect = function reportNodeSelect(nodeInfo) {
-    console.log(nodeInfo);
+    this.sendMessage({ type: 'selectNodeSgin', payload: nodeInfo });
 };
 
 var confirmNodeSelect = exports.confirmNodeSelect = function confirmNodeSelect() {};
@@ -1016,16 +1020,16 @@ var hasClass = function hasClass(el, Class) {
     return el.className.match(new RegExp('(\\s|^)' + Class + '(\\s|$)'));
 };
 var addClass = function addClass(el, className) {
-    if (!tool.isElement(el) || !tool.isString(className)) {
+    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
         return false;
     }
-    if (hasClass(el, className)) {
+    if (hasClass(el, className) && el.className.match) {
         return false;
     }
     el.className += ' ' + className;
 };
 var removeClass = function removeClass(el, className) {
-    if (!tool.isElement(el) || !tool.isString(className)) {
+    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
         return false;
     }
     if (!hasClass(el, className)) {

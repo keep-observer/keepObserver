@@ -1,7 +1,6 @@
 
 import * as tool from '../../../../tool/index.js';
 
-
 export var selectClassName = 'keepObserver-webSgin-SelectNode'
 export var activeClassName = 'keepObserver-webSgin-ActiveNode'
 
@@ -24,16 +23,16 @@ var hasClass = function(el,Class){
     return el.className.match(new RegExp('(\\s|^)'+Class+'(\\s|$)'));
 };
 var addClass = function(el,className){
-    if(!tool.isElement(el) || !tool.isString(className)){
+    if(!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el) ){
         return false;
     }
-    if(hasClass(el,className)){
+    if(hasClass(el,className) && el.className.match){
         return false;
     }
     el.className += ' '+className;
 }
 var removeClass = function(el,className){
-    if(!tool.isElement(el) || !tool.isString(className)){
+    if(!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el) ){
         return false;
     }
     if(!hasClass(el,className)){
@@ -41,6 +40,8 @@ var removeClass = function(el,className){
     }
     el.className = el.className.replace(new RegExp('(\\s|^)'+className+'(\\s|$)'),'')
 }
+
+
 
 
 export var loadStyle = function(){

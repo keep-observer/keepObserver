@@ -57,6 +57,9 @@ export function isExist(value){
 export function isSymbol(value) {
     return Object.prototype.toString.call(value) == '[object Symbol]';
 }
+export function isSVGElement(value){
+    return isElement(value) && ( value instanceof SVGElement || value.ownerSVGElement)
+}
 export function isObject(value) {
     return (
         Object.prototype.toString.call(value) == '[object Object]' ||
