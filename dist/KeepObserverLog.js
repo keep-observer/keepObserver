@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 55);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -473,7 +473,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 15:
+/***/ 23:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -514,7 +514,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 16:
+/***/ 24:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -537,7 +537,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 17:
+/***/ 25:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -718,7 +718,7 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
 
 /***/ }),
 
-/***/ 18:
+/***/ 26:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -792,7 +792,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 42:
+/***/ 55:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -804,7 +804,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(16);
+var _defaultConfig = __webpack_require__(24);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -816,15 +816,15 @@ var _index2 = __webpack_require__(1);
 
 var _index3 = _interopRequireDefault(_index2);
 
-var _handle = __webpack_require__(17);
+var _handle = __webpack_require__(25);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(15);
+var _api = __webpack_require__(23);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(18);
+var _report = __webpack_require__(26);
 
 var reportServer = _interopRequireWildcard(_report);
 

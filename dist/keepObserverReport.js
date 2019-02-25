@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 48);
+/******/ 	return __webpack_require__(__webpack_require__.s = 61);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -489,7 +489,7 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 30:
+/***/ 38:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -543,7 +543,7 @@ var $setCustomeReportData = exports.$setCustomeReportData = function $setCustome
 
 /***/ }),
 
-/***/ 31:
+/***/ 39:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -586,7 +586,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 32:
+/***/ 40:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -711,7 +711,7 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 
 /***/ }),
 
-/***/ 33:
+/***/ 41:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -726,7 +726,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _ajax = __webpack_require__(47);
+var _ajax = __webpack_require__(60);
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
@@ -939,7 +939,7 @@ var _handleReportFail = exports._handleReportFail = function _handleReportFail(o
 
 /***/ }),
 
-/***/ 47:
+/***/ 60:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1070,7 +1070,7 @@ exports.default = AjaxServer;
 
 /***/ }),
 
-/***/ 48:
+/***/ 61:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1088,7 +1088,7 @@ var _index2 = _interopRequireDefault(_index);
 
 var _index3 = __webpack_require__(2);
 
-var _defaultConfig = __webpack_require__(31);
+var _defaultConfig = __webpack_require__(39);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1096,15 +1096,15 @@ var _index4 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index4);
 
-var _api = __webpack_require__(30);
+var _api = __webpack_require__(38);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _handle = __webpack_require__(32);
+var _handle = __webpack_require__(40);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _report = __webpack_require__(33);
+var _report = __webpack_require__(41);
 
 var reportServer = _interopRequireWildcard(_report);
 

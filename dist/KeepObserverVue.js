@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 45);
+/******/ 	return __webpack_require__(__webpack_require__.s = 58);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -473,7 +473,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 23:
+/***/ 31:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -501,7 +501,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 24:
+/***/ 32:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -521,7 +521,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 25:
+/***/ 33:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -571,7 +571,7 @@ var _handleVueError = exports._handleVueError = function _handleVueError(err, vm
 
 /***/ }),
 
-/***/ 26:
+/***/ 34:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -639,7 +639,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 45:
+/***/ 58:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -651,7 +651,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(24);
+var _defaultConfig = __webpack_require__(32);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -659,15 +659,15 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(25);
+var _handle = __webpack_require__(33);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(23);
+var _api = __webpack_require__(31);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(26);
+var _report = __webpack_require__(34);
 
 var reportServer = _interopRequireWildcard(_report);
 

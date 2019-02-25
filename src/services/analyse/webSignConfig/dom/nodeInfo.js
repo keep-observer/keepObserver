@@ -1,109 +1,35 @@
 import * as tool from '../../../../tool/index.js';
+import { htmlTabMap } from './tab.js'
 import md5 from 'md5'
-import * as styleServer from './style.js'
 
 
-
-var selectClassNameReg = new RegExp('(\\s|^)'+styleServer.selectClassName+'(\\s|$)')
-var activeClassNameReg = new RegExp('(\\s|^)'+styleServer.activeClassName+'(\\s|$)')
 //cache
 var nodeInfoCache = {};
+var attrSelectFlag = 'keepObserverSelecteElementSgin'
+var attrCacheSelect = 'keepObserverCacheSelecteElementSgin'
 
 
-// return #xxx
-var getId = function(el){
-    return el.id? `#${el.id}` :false;
-}
-
-
-
-// return {nodeType}.xxx...
-var getClassName = function(el){
-    var className = el.className.replace(selectClassNameReg,'')
-    className = className.replace(activeClassNameReg,'')
-    className = className.replace(/^|\s(?!$)/g,'.')
-    return `${el.tagName.toLowerCase()}${className}`
-}
-
-
-
-//check el is parentEL UniqueClass
-var checkParentNodeUniqueClassOrFirst = function(parent,el){
-    el.setAttribute('selectNodeId',true)
-    var nodeType = el.tagName.toLowerCase()
-    for(var i=0,len = parent.children.length ; i<len ; i++){
-        var item = parent.children[i]
-        var selectSgin =  item.getAttribute('selectNodeId')
-        //parent first child
-        if(selectSgin && i === 0){
-            el.removeAttribute('selectNodeId')
-            return true
+var createXPath = function(element){
+    //id
+    if(element.id){
+        return `//*[@id="${element.id}"]`
+    }
+    //body
+    if(element.nodeName.toLowerCase() === 'body'){
+        return `/html/${element.nodeName.toLowerCase()}`
+    }
+    var index = 1;
+    var brotherList = element.parentNode.children 
+    element.setAttribute(attrSelectFlag,true)
+    for(var i=0,len=brotherList.length; i<len; i++){
+        var item = brotherList[i]
+        if(item.getAttribute(attrSelectFlag)){
+            element.removeAttribute(attrSelectFlag)
+            return `${createXPath(element.parentNode)}/${element.nodeName.toLowerCase()}${index>1?'['+index+']':''}`
+        }else if(item.nodeName.toLowerCase() === element.nodeName.toLowerCase()){
+            index++
         }
-        //check uniqueClass
-        if(!selectSgin && item.className.indexOf(el.className) > -1){
-            el.removeAttribute('selectNodeId')
-            return false
-        }
-    }      
-    el.removeAttribute('selectNodeId')
-    return true;
-}
-
-
-
-
-//递归查找路径
-var getNodeNthChildIndex =function(parent,el){
-    var saveEl = el;
-    while(!parent.id && !parent.tagName.toLowerCase() === 'body' && !checkParentNodeUniqueClassOrFirst(parent,el)){
-        el = parent
-        parent = el.parentNode
     }
-
-    var conent = getId(parent)?getId(parent): (parent.tagName.toLowerCase() === 'body'? 'body':getClassName(parent))
-    var childList = document.querySelectorAll(`${conent} > ${saveEl.tagName.toLowerCase()}`)
-    console.log(childList,parent,saveEl )   `   `
-
-    debugger
-    return {
-        count: index,
-        parent: parent
-    }
-
-}
-
-
-
-// return 递归获取path
-var getNodePath = function(el){
-    var id = getId(el)
-    var parent = el.parentNode
-    //遇到id结束
-    if(id){
-        return id
-    }
-    //body 到根元素结束
-    if(el.tagName.toLowerCase() === 'body' ){
-        return el.tagName.toLowerCase()
-    }
-    //父节点唯一class或是第一个元素
-    if(checkParentNodeUniqueClassOrFirst(parent,el)){
-        return `${getNodePath(parent)} > ${getClassName(el)}`
-    }
-    //递归查找路径
-    var result = getNodeNthChildIndex(parent,el)
-    return  `${getNodePath(result.parent)} > ${el.tagName.toLowerCase()}:nth-child(${result.count})`;
-}
-
-
-
-
-
-/*
-    优先级: id  > root  body
- */
-var createCSSPath = function(element){
-    return getNodePath(element)
 }
 
 
@@ -112,9 +38,27 @@ var createCSSPath = function(element){
 var createElementNodeInfo = function(element){
     if(!tool.isElement(element)){
         return false;
-    }    
-    var cssPath = createCSSPath(element)
-    console.log(cssPath)
+    }
+    //validate element nodeType
+    if(!htmlTabMap(element.nodeName.toLowerCase())){
+        console.error('element.nodeType:'+element.nodeName.toLowerCase()+' unsupport select sgin')
+        return false;
+    }
+    //get cache
+    if(element.getAttribute(attrCacheSelect)){
+        return nodeInfoCache[element.getAttribute(attrCacheSelect)]
+    }
+    //create
+    var xPath = createXPath(element)
+    var nodeInfo = {
+        nodeType : element.nodeName.toLowerCase(),
+        xPath : xPath,
+        nodeId : md5(xPath)
+    }
+    //save cache
+    element.setAttribute(attrCacheSelect,nodeInfo.nodeId)
+    nodeInfoCache[element.getAttribute(attrCacheSelect)] = nodeInfo 
+    return nodeInfo 
 }
 
 

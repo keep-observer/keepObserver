@@ -7,14 +7,14 @@ export var activeClassName = 'keepObserver-webSgin-ActiveNode'
 
 var styleContent = `
     .${selectClassName}{
-        box-string: border-box;
+        box-sizing: border-box !important;
         border: 1px dashed #ff3300 !important;
         background-color: rgba(255,165,0,0.8) !important;
     }
     .${activeClassName}{
-        box-string: border-box;
+        box-sizing: border-box !important;
         border: 1px dashed #ff3300 !important;
-        background-color: rgba(255,165,0,0.8) !important;
+        background-color: rgba(255,51,0,0.8) !important;
     }
 `
 

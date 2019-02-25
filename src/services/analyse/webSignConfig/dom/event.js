@@ -29,6 +29,8 @@ export var selectElement = function(event){
     that.selectDom = el
     //create node info
     var nodeInfo = createElementNodeInfo(el)
+    //report iframe container select Node
+    that.reportNodeSelect(nodeInfo)
 }
 
 

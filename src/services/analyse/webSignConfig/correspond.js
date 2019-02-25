@@ -41,10 +41,11 @@ export var handleMessage = function(event){
     if(!that.checkOrigin(origin)){
         that.$devError('keepObserver KeepObserverWebSignConfig  iframe message origin is error')
         that.removeMessage()
+        return false;
     }
     if(!tool.isExist(data) || tool.isEmptyObject(data) || !data.type){
         that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error')
-        that.removeMessage()
+        return false;
     }
     if(!that.correspondFlag){   
         that.correspondFlag = true;

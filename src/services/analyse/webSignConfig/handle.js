@@ -35,8 +35,9 @@ export var receiveSignConfigData = function(){
 
 
 
-
-export var reportNodeSelect = function(){
+//report iframe container select node
+export var reportNodeSelect = function(nodeInfo){
+    console.log(nodeInfo)
 }
 
 

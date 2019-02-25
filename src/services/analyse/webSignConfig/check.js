@@ -8,6 +8,7 @@ export var checkOrigin = function(origin){
     if(tool.isEmptyArray(origins) || !origin){
         return false;
     }
+    //check load iframe origin url
     for(var i=0; i<origins.length; i++){
         var item = origins[i]
         if(item.indexOf(origin) > -1){

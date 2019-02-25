@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 41);
+/******/ 	return __webpack_require__(__webpack_require__.s = 49);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -480,6 +480,56 @@ exports.default = KeepObserverDefault;
 
 
 Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.clearSaveRecive = exports.startAnalyse = exports.stopAnalyse = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+var _constant = __webpack_require__(3);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/*
+    	停止监听
+*/
+var stopAnalyse = exports.stopAnalyse = function stopAnalyse() {
+    this.destroy();
+};
+
+/*
+	开始监听
+ */
+var startAnalyse = exports.startAnalyse = function startAnalyse(config) {
+    var begin = true;
+    //拦截事件监听
+    if (!this._addEventListener) {
+        begin = this._handleEventTarget();
+    }
+    //start
+    if (begin) {
+        this.begine(config);
+    }
+};
+
+/*
+	清除缓存
+ */
+var clearSaveRecive = exports.clearSaveRecive = function clearSaveRecive() {
+    tool.removeStorage(_constant.RecordKey);
+};
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
@@ -496,7 +546,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 11:
+/***/ 12:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -586,7 +636,7 @@ var getDomTitle = exports.getDomTitle = function getDomTitle(el) {
 
 /***/ }),
 
-/***/ 12:
+/***/ 13:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -797,7 +847,7 @@ var _recoverEventTarget = exports._recoverEventTarget = function _recoverEventTa
 
 /***/ }),
 
-/***/ 13:
+/***/ 14:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -936,7 +986,7 @@ var createReportData = exports.createReportData = function createReportData() {
 
 /***/ }),
 
-/***/ 14:
+/***/ 15:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1057,7 +1107,7 @@ function createDataRecord() {
 
 /***/ }),
 
-/***/ 41:
+/***/ 49:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1069,7 +1119,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(10);
+var _defaultConfig = __webpack_require__(11);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1077,23 +1127,23 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(13);
+var _handle = __webpack_require__(14);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(9);
+var _api = __webpack_require__(10);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(14);
+var _report = __webpack_require__(15);
 
 var reportServer = _interopRequireWildcard(_report);
 
-var _event = __webpack_require__(12);
+var _event = __webpack_require__(13);
 
 var eventServer = _interopRequireWildcard(_event);
 
-var _dom = __webpack_require__(11);
+var _dom = __webpack_require__(12);
 
 var domServer = _interopRequireWildcard(_dom);
 
@@ -1182,56 +1232,6 @@ var KeepObserverSimpleH5Analyse = function (_KeepObserverDetault) {
 }(_index3.default);
 
 exports.default = KeepObserverSimpleH5Analyse;
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.clearSaveRecive = exports.startAnalyse = exports.stopAnalyse = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _constant = __webpack_require__(3);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-/*
-    	停止监听
-*/
-var stopAnalyse = exports.stopAnalyse = function stopAnalyse() {
-    this.destroy();
-};
-
-/*
-	开始监听
- */
-var startAnalyse = exports.startAnalyse = function startAnalyse(config) {
-    var begin = true;
-    //拦截事件监听
-    if (!this._addEventListener) {
-        begin = this._handleEventTarget();
-    }
-    //start
-    if (begin) {
-        this.begine(config);
-    }
-};
-
-/*
-	清除缓存
- */
-var clearSaveRecive = exports.clearSaveRecive = function clearSaveRecive() {
-    tool.removeStorage(_constant.RecordKey);
-};
 
 /***/ })
 
