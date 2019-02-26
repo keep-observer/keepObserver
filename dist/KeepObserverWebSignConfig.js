@@ -758,14 +758,44 @@ var handleElementEventPreventDefault = exports.handleElementEventPreventDefault 
 };
 
 //receive sign config data
-var receiveSignConfigData = exports.receiveSignConfigData = function receiveSignConfigData() {};
+var receiveSignConfigData = exports.receiveSignConfigData = function receiveSignConfigData(payload) {
+    var that = this;
+    if (tool.isEmptyArray(payload)) {
+        return false;
+    }
+    //active dom
+    that.activeDomList = payload;
+    //foreach el
+    var nodeIdList = [];
+    that.activeDomList.forEach(function (item) {
+        if (!item.nodeId || !item.xPath) {
+            return false;
+        }
+        nodeIdList.push(item.nodeId);
+        that.activeElement(item);
+    });
+    //confirm
+    that.sendMessage({ type: 'confirmConfig', payload: nodeIdList });
+};
 
 //report iframe container select node
 var reportNodeSelect = exports.reportNodeSelect = function reportNodeSelect(nodeInfo) {
     this.sendMessage({ type: 'selectNodeSgin', payload: nodeInfo });
 };
 
-var confirmNodeSelect = exports.confirmNodeSelect = function confirmNodeSelect() {};
+//save active element sgin
+var confirmNodeSelect = exports.confirmNodeSelect = function confirmNodeSelect(nodeId) {
+    if (!nodeId || !tool.isString(nodeId)) {
+        return false;
+    }
+    var nodeInfo = this.nodeInfoCaches[nodeId];
+    if (!nodeInfo) {
+        return false;
+    }
+    this.activeElement(nodeInfo);
+    this.activeDomList.push(nodeInfo);
+    this.sendMessage({ type: 'confirmConfig', payload: nodeId });
+};
 
 /***/ }),
 /* 22 */
@@ -867,23 +897,27 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.selectElement = exports.initDomEvent = undefined;
+exports.activeElement = exports.selectElement = exports.createElementNodeInfo = exports.initDomEvent = undefined;
+
+var _md = __webpack_require__(64);
+
+var _md2 = _interopRequireDefault(_md);
 
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _style = __webpack_require__(52);
+var _style = __webpack_require__(51);
 
 var styleServer = _interopRequireWildcard(_style);
 
-var _nodeInfo = __webpack_require__(51);
+var _tab = __webpack_require__(52);
 
-var _nodeInfo2 = _interopRequireDefault(_nodeInfo);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _xpath = __webpack_require__(53);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initDomEvent = exports.initDomEvent = function initDomEvent() {
     var that = this;
@@ -893,6 +927,32 @@ var initDomEvent = exports.initDomEvent = function initDomEvent() {
     document.addEventListener('click', function (event) {
         that.selectElement(event);
     }, false);
+};
+
+var createElementNodeInfo = exports.createElementNodeInfo = function createElementNodeInfo(element) {
+    var that = this;
+    if (!tool.isElement(element)) {
+        return false;
+    }
+    //validate element nodeType
+    if (!(0, _tab.htmlTabMap)(element.nodeName.toLowerCase())) {
+        console.error('element.nodeType:' + element.nodeName.toLowerCase() + ' unsupport select sgin');
+        return false;
+    }
+    //get cache
+    if (element.getAttribute(_xpath.attrCacheSelect)) {
+        return that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)];
+    }
+    //create
+    var xPath = (0, _xpath.createXPath)(element);
+    var nodeInfo = {
+        nodeType: element.nodeName.toLowerCase(),
+        xPath: xPath,
+        nodeId: (0, _md2.default)(xPath)
+        //save cache
+    };element.setAttribute(_xpath.attrCacheSelect, nodeInfo.nodeId);
+    that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)] = nodeInfo;
+    return nodeInfo;
 };
 
 var selectElement = exports.selectElement = function selectElement(event) {
@@ -908,9 +968,23 @@ var selectElement = exports.selectElement = function selectElement(event) {
     styleServer.addSelelctNodeClass(el);
     that.selectDom = el;
     //create node info
-    var nodeInfo = (0, _nodeInfo2.default)(el);
+    var nodeInfo = that.createElementNodeInfo(el);
     //report iframe container select Node
     that.reportNodeSelect(nodeInfo);
+};
+
+var activeElement = exports.activeElement = function activeElement(nodeInfo) {
+    //parse Xpath get element
+    var xPath = nodeInfo.xPath;
+
+    var el = (0, _xpath.parseXpath)(xPath);
+    if (!el) {
+        this.$devError('xPath no find element: xPath:' + xPath);
+        return false;
+    }
+    //active element
+    styleServer.addActiveNodeClass(el);
+    return el;
 };
 
 /***/ }),
@@ -923,87 +997,7 @@ var selectElement = exports.selectElement = function selectElement(event) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _tab = __webpack_require__(53);
-
-var _md = __webpack_require__(64);
-
-var _md2 = _interopRequireDefault(_md);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//cache
-var nodeInfoCache = {};
-var attrSelectFlag = 'keepObserverSelecteElementSgin';
-var attrCacheSelect = 'keepObserverCacheSelecteElementSgin';
-
-var createXPath = function createXPath(element) {
-    //id
-    if (element.id) {
-        return '//*[@id="' + element.id + '"]';
-    }
-    //body
-    if (element.nodeName.toLowerCase() === 'body') {
-        return '/html/' + element.nodeName.toLowerCase();
-    }
-    var index = 1;
-    var brotherList = element.parentNode.children;
-    element.setAttribute(attrSelectFlag, true);
-    for (var i = 0, len = brotherList.length; i < len; i++) {
-        var item = brotherList[i];
-        if (item.getAttribute(attrSelectFlag)) {
-            element.removeAttribute(attrSelectFlag);
-            return createXPath(element.parentNode) + '/' + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
-        } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
-            index++;
-        }
-    }
-};
-
-var createElementNodeInfo = function createElementNodeInfo(element) {
-    if (!tool.isElement(element)) {
-        return false;
-    }
-    //validate element nodeType
-    if (!(0, _tab.htmlTabMap)(element.nodeName.toLowerCase())) {
-        console.error('element.nodeType:' + element.nodeName.toLowerCase() + ' unsupport select sgin');
-        return false;
-    }
-    //get cache
-    if (element.getAttribute(attrCacheSelect)) {
-        return nodeInfoCache[element.getAttribute(attrCacheSelect)];
-    }
-    //create
-    var xPath = createXPath(element);
-    var nodeInfo = {
-        nodeType: element.nodeName.toLowerCase(),
-        xPath: xPath,
-        nodeId: (0, _md2.default)(xPath)
-        //save cache
-    };element.setAttribute(attrCacheSelect, nodeInfo.nodeId);
-    nodeInfoCache[element.getAttribute(attrCacheSelect)] = nodeInfo;
-    return nodeInfo;
-};
-
-exports.default = createElementNodeInfo;
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.removeSelelctNodeClass = exports.addSelelctNodeClass = exports.loadStyle = exports.activeClassName = exports.selectClassName = undefined;
+exports.removeActiveNodeClass = exports.addActiveNodeClass = exports.removeSelelctNodeClass = exports.addSelelctNodeClass = exports.loadStyle = exports.activeClassName = exports.selectClassName = undefined;
 
 var _index = __webpack_require__(0);
 
@@ -1014,7 +1008,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var selectClassName = exports.selectClassName = 'keepObserver-webSgin-SelectNode';
 var activeClassName = exports.activeClassName = 'keepObserver-webSgin-ActiveNode';
 
-var styleContent = '\n    .' + selectClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ff3300 !important;\n        background-color: rgba(255,165,0,0.8) !important;\n    }\n    .' + activeClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ff3300 !important;\n        background-color: rgba(255,51,0,0.8) !important;\n    }\n';
+var styleContent = '\n    .' + selectClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ff3300 !important;\n        background-color: rgba(255,165,0,0.8) !important;\n    }\n    .' + activeClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ffa500 !important;\n        background-color: rgba(255,51,0,0.8) !important;\n    }\n';
 
 var hasClass = function hasClass(el, Class) {
     return el.className.match(new RegExp('(\\s|^)' + Class + '(\\s|$)'));
@@ -1035,7 +1029,7 @@ var removeClass = function removeClass(el, className) {
     if (!hasClass(el, className)) {
         return false;
     }
-    el.className = el.className.replace(new RegExp('(\\s|^)' + className + '(\\s|$)'), '');
+    el.className = el.className.replace(new RegExp('(\\s|^)' + className), '');
 };
 
 var loadStyle = exports.loadStyle = function loadStyle() {
@@ -1053,8 +1047,16 @@ var removeSelelctNodeClass = exports.removeSelelctNodeClass = function removeSel
     return removeClass(el, selectClassName);
 };
 
+var addActiveNodeClass = exports.addActiveNodeClass = function addActiveNodeClass(el) {
+    return addClass(el, activeClassName);
+};
+
+var removeActiveNodeClass = exports.removeActiveNodeClass = function removeActiveNodeClass(el) {
+    return removeClass(el, activeClassName);
+};
+
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1081,6 +1083,122 @@ var makeMap = function makeMap(key, valueString) {
 
 //html标签
 var htmlTabMap = exports.htmlTabMap = makeMap('tab', 'a,abbr,address,acronym,article,area,aside,audio,' + 'b,bdi,bdo,big,blockquote,button,body,base,' + 'canvas,caption,cite,code,col,colgroup,command,center,' + 'dd,details,dialog,div,dl,dt,datalist,del,dfn,' + 'em,embed,' + 'fieldset,figcaption,figure,footer,form,frame,frameset,' + 'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,' + 'i,iframe,img,input,ins,' + 'kbd,keygen,' + 'label,legend,li,' + 'menuitem,meta,map,mark,menu,menuitem,meter,' + 'nav,noframes,noscript,' + 'object,ol,optgroup,option,output,' + 'p,param,pre,progress,' + 'q,' + 'rp,rt,ruby,' + 'samp,section,select,small,source,span,strong,sub,summary,sup,' + 'title,tr,track,table,tbody,td,textarea,tfoot,th,thead,time,tt,' + 'u,ul,var,video,wbr');
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.parseXpath = exports.createXPath = exports.attrCacheSelect = exports.attrSelectFlag = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var attrSelectFlag = exports.attrSelectFlag = 'keepObserverSelecteElementSgin';
+var attrCacheSelect = exports.attrCacheSelect = 'keepObserverCacheSelecteElementSgin';
+
+var createXPath = exports.createXPath = function createXPath(element) {
+    //id
+    if (element.id) {
+        return '//*[@id="' + element.id + '"]';
+    }
+    //body
+    if (element.nodeName.toLowerCase() === 'body') {
+        return '/html/' + element.nodeName.toLowerCase();
+    }
+    var index = 1;
+    var brotherList = element.parentNode.children;
+    element.setAttribute(attrSelectFlag, true);
+    for (var i = 0, len = brotherList.length; i < len; i++) {
+        var item = brotherList[i];
+        if (item.getAttribute(attrSelectFlag)) {
+            element.removeAttribute(attrSelectFlag);
+            return createXPath(element.parentNode) + '/' + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
+        } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
+            index++;
+        }
+    }
+};
+
+// parse xpath
+// params = xpath (string)
+// return = element
+var parseXpath = exports.parseXpath = function parseXpath(xPath) {
+    var targetNode = false;
+    var contextNode = false;
+    var step = 1;
+    var errorMax = 1000;
+    var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/;
+    var pathStartReg = /^\/html\/body\//;
+    var nodePathReg = /([a-z]+)+(?:\[(\d)+\])?\//;
+    var pathEndReg = /([a-z]+)+(?:\[(\d)+\])?$/;
+    var subStringNext = function subStringNext(str, context) {
+        var len = str.length;
+        return context.substring(len);
+    };
+    //validate
+    if (!xPath || !tool.isString(xPath)) {
+        return false;
+    }
+    //id start
+    if (idReg.test(xPath)) {
+        var content = xPath.match(idReg);
+        var str = content[0];
+        var id = content[1];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.querySelector('#' + id);
+        contextNode = targetNode;
+    }
+    //html start
+    if (pathStartReg.test(xPath)) {
+        var content = xPath.match(pathStartReg);
+        var str = content[0];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.body;
+        contextNode = targetNode;
+    }
+    //get target element
+    while (contextNode && (nodePathReg.test(xPath) || pathEndReg.test(xPath)) && step < errorMax) {
+        step++;
+        targetNode = false;
+        var parseResult = xPath.match(nodePathReg);
+        parseResult = parseResult ? parseResult : xPath.match(pathEndReg);
+        // path info
+        var str = parseResult[0];
+        var nodeType = parseResult[1];
+        var index = parseResult[2] ? parseInt(parseResult[2]) : 1;
+        //query target element
+        var count = 1;
+        var children = tool.toArray(contextNode.children);
+        children.forEach(function (item) {
+            if (targetNode) {
+                return false;
+            }
+            //query
+            var itemType = item.nodeName.toLowerCase();
+            if (itemType === nodeType && index === count) {
+                targetNode = item;
+            } else if (itemType === nodeType) {
+                count++;
+            }
+        });
+        contextNode = targetNode;
+        //next
+        xPath = subStringNext(str, xPath);
+    }
+
+    return targetNode;
+};
 
 /***/ }),
 /* 54 */
@@ -1167,6 +1285,7 @@ var KeepObserverWebSignConfig = function (_KeepObserverDetault) {
         //dom
         _this.preventDefault = true;
         _this.activeDomList = [];
+        _this.nodeInfoCaches = {};
         _this.selectDom = false;
         //mixin
         _this.$mixin(apiServer);
