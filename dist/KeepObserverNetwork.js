@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 56);
+/******/ 	return __webpack_require__(__webpack_require__.s = 68);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -477,7 +477,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 27:
+/***/ 35:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -508,7 +508,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 28:
+/***/ 36:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -538,7 +538,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 29:
+/***/ 37:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -553,7 +553,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _tool = __webpack_require__(57);
+var _tool = __webpack_require__(69);
 
 var networkTool = _interopRequireWildcard(_tool);
 
@@ -879,7 +879,7 @@ var _handleJudgeDisbale = exports._handleJudgeDisbale = function _handleJudgeDis
 
 /***/ }),
 
-/***/ 30:
+/***/ 38:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -950,7 +950,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 56:
+/***/ 68:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -962,7 +962,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(28);
+var _defaultConfig = __webpack_require__(36);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -970,15 +970,15 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(29);
+var _handle = __webpack_require__(37);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(27);
+var _api = __webpack_require__(35);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(30);
+var _report = __webpack_require__(38);
 
 var reportServer = _interopRequireWildcard(_report);
 
@@ -1073,7 +1073,7 @@ exports.default = KeepObserverNetwork;
 
 /***/ }),
 
-/***/ 57:
+/***/ 69:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

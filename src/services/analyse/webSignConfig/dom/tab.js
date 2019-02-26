@@ -7,7 +7,6 @@ var makeMap = function(key, valueString) {
     if (Array.isArray(list) && list.length > 0) {
         map[key] = list
     } else {
-        warnError('set map error: valueString type error or value error')
         return false;
     }
     return function(value) {

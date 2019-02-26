@@ -8,8 +8,8 @@ import AjaxServer from './ajax.js';
     处理上报
     params:
     @params  = {
-        type:  string                   //类型,observer or performance    
-        typeName:  string               //类型名,vue  or log or network
+        type:  string                   //类型, observer | performance| anaylse | response  
+        typeName:  string               //类型名, observer  ->(vue  or log or network)
         location:string                 //捕获位置
         environment:string              //运行环境信息
         data:object                     //捕获数据
@@ -23,6 +23,7 @@ import AjaxServer from './ajax.js';
         @ .isPerformance:boolean            //是否是性能捕获分析
         @ .preDelete:boolean                //是否删除之前的信息
         @ .ignore:boolean                   //本条数据是否忽略
+        @ .isResponse:boolean               //report是否需要响应信息
     }
  */
 export var _handleReport = function(params, control) {
@@ -73,6 +74,9 @@ export var _handleReport = function(params, control) {
         //上传到服务器
         try {
             AjaxServer(reportConfig).then(function(result) {
+                //response data
+                that._handleResponse(params,control,url,result.data)
+                //hook
                 that._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
             }, function(err) {
                 that._handleReportFail(onReportFail, reportData, reportConfig.url);
@@ -86,6 +90,29 @@ export var _handleReport = function(params, control) {
     // map url end
 }
 
+
+
+/*
+    处理响应
+    @params                 //同上
+    @control                //同上
+    @url                    //request url
+    @responseData           //response data
+    -------------------------------------------
+    ps: control.isResponse 才进行处理
+ */
+export var _handleResponse = function(params,control,url,responseData){
+    var that = this;
+    //如果未传入数据类型
+    if (!params || !control || !tool.isObject(params) || !tool.isObject(control)) {
+        return false;
+    }
+    if(!control.isResponse || !params.typeName || !url || !responseData){
+        return false;
+    }
+    //handle push message quenen
+    that.noticeResponse(params.typeName,responseData,url)
+}
 
 
 

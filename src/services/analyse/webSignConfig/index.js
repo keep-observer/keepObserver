@@ -12,7 +12,7 @@ import KeepObserverDetault from '../../../default/index.js';
 
 
 
-//简单H5页面埋点分析
+//可视化配置页面埋点
 class KeepObserverWebSignConfig extends KeepObserverDetault {
     //构造函数
     constructor(config) {

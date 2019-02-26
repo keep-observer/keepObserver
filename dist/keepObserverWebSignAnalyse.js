@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 58);
+/******/ 	return __webpack_require__(__webpack_require__.s = 66);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -477,7 +477,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 13:
+/***/ 26:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -486,55 +486,26 @@ exports.default = KeepObserverDefault;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.clearSaveRecive = exports.startAnalyse = exports.stopAnalyse = undefined;
+exports.beginObserverAnalyse = undefined;
 
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _constant = __webpack_require__(4);
-
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-/*
-    	停止监听
-*/
-var stopAnalyse = exports.stopAnalyse = function stopAnalyse() {
-    this.destroy();
-};
-
-/*
-	开始监听
- */
-var startAnalyse = exports.startAnalyse = function startAnalyse(config) {
-    var begin = true;
-    //拦截事件监听
-    if (!this._addEventListener) {
-        begin = this._handleEventTarget();
-    }
-    //start
-    if (begin) {
-        this.begine(config);
-    }
-};
-
-/*
-	清除缓存
- */
-var clearSaveRecive = exports.clearSaveRecive = function clearSaveRecive() {
-    tool.removeStorage(_constant.RecordKey);
-};
+var beginObserverAnalyse = exports.beginObserverAnalyse = function beginObserverAnalyse() {};
 
 /***/ }),
 
-/***/ 14:
+/***/ 27:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+  value: true
 });
 
 
@@ -542,366 +513,40 @@ Object.defineProperty(exports, "__esModule", {
  	实例默认配置数据
  */
 exports.default = {
-	//是否初始化就启动,并且从配置中读取分析参数
-	initBegine: false,
-	//延时分发时间
-	timeoutDispatchEvent: 200
+  //延时分发时间
+  timeoutDispatchEvent: 200
 };
 
 /***/ }),
 
-/***/ 15:
+/***/ 28:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
-exports.getDomTitle = exports.handleAnalyseDomList = undefined;
 
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+var _event = __webpack_require__(64);
 
-var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
-var Clear_CN_CodeReg = /[^\u4e00-\u9fa5\w]/ig;
-
-var domIndex = 1;
-var repeatIndex = 1;
-
-//处理监听DOM事件
-var handleAnalyseDomList = exports.handleAnalyseDomList = function handleAnalyseDomList(analyseDomList, activeFn) {
-    var that = this;
-    var newAnalyseDomList = {};
-    var statusBuff = {};
-    //for start
-    analyseDomList.forEach(function (item) {
-        //check type
-        if (!tool.isString(item) && !tool.isElement(item)) {
-            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not string or not domElement');
-            return false;
-        }
-        var el = tool.isElement(item) ? item : document.querySelector(item);
-        if (!el || !tool.isElement(el)) {
-            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not find domElement');
-            return false;
-        }
-        //handle el
-        var title = that.getDomTitle(el);
-        if (newAnalyseDomList[title]) {
-            title += '-' + repeatIndex;
-            repeatIndex++;
-        }
-        statusBuff[title] = false;
-        //register actice use event
-        var destroyEvent = that.registerAnalyseDomEvent(el, function (event) {
-            statusBuff[title] = true;
-            if (activeFn && tool.isFunction(activeFn)) {
-                activeFn(event);
-            }
-        });
-        var getActiveStauts = function getActiveStauts(title) {
-            return function () {
-                return statusBuff[title];
-            };
-        };
-        //return dom
-        newAnalyseDomList[title] = {
-            destroyEvent: destroyEvent,
-            getActiveStauts: getActiveStauts(title)
-        };
-    });
-    //end
-    return newAnalyseDomList;
-};
-
-//获取dom-title标记
-var getDomTitle = exports.getDomTitle = function getDomTitle(el) {
-    var type = el.tagName.toLowerCase();
-    var content = '';
-    //获取内容
-    if (el.outerText && CN_CodeReg.test(el.outerText)) {
-        content = el.outerText;
-        content = content.replace(Clear_CN_CodeReg, '');
-    } else if (el.textContent && CN_CodeReg.test(el.textContent)) {
-        content = el.textContent.replace(Clear_CN_CodeReg, '');
-    } else if (el.className !== '') {
-        content = '.' + el.className;
-    } else {
-        content = domIndex;
-        domIndex++;
-    }
-    return type + ':' + content;
-};
-
-/***/ }),
-
-/***/ 16:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports._recoverEventTarget = exports._handleEventTarget = exports.registerAnalyseDomEvent = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _tool = __webpack_require__(8);
-
-var assist = _interopRequireWildcard(_tool);
-
-var _constant = __webpack_require__(4);
+var eventServer = _interopRequireWildcard(_event);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var attributeKey = 'keepObserverUniqueID' + tool.getUniqueID().substring(0, 8);
+var domServer = {};
+domServer = tool.extend(domServer, eventServer);
 
-//注册相关DOM埋点检测事件服务
-var registerAnalyseDomEvent = exports.registerAnalyseDomEvent = function registerAnalyseDomEvent(el, fn) {
-    var that = this;
-    var type = el.tagName.toLowerCase();
-    var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
-    //修正激活元素的事件
-    var event = 'click';
-    if (type === 'input' || type === 'textarea' || type === 'select') {
-        event = 'change';
-    }
-    //重新挂载事件,埋点事件排列到首位
-    that._addEventListener.apply(el, [event, fn]);
-    //set sgin
-    el.setAttribute(attributeKey, true);
-    //return destroyEvent
-    return function () {
-        if (el && tool.isElement(el)) {
-            that._removeEventListener.apply(el, [event, fn]);
-        }
-        event = null;
-        type = null;
-    };
-};
-
-//拦截原生方法EventTarget
-var _handleEventTarget = exports._handleEventTarget = function _handleEventTarget() {
-    var that = this;
-    var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
-    if (window.Node && Node.prototype.addEventListener) {
-        //替换
-        that._addEventListener = Node.prototype.addEventListener;
-        that._removeEventListener = Node.prototype.removeEventListener;
-        //拦截
-        Node.prototype.addEventListener = function () {
-            var target = this;
-            var args = tool.toArray(arguments);
-            /*
-                validata params
-                [0] = string eventName
-                [1] = function eventHandleFunction
-            */
-            if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
-                that.$devError('element addEventListener params error');
-                return false;
-            }
-            //patch = args[1] = eventHandleFunction setTimeout 
-            var handle = args[1];
-            args[1] = function () {
-                var sgin = target.getAttribute(attributeKey);
-                var handleArgs = tool.toArray(arguments);
-                // observer target dom
-                if (sgin) {
-                    return setTimeout(function () {
-                        handle.apply(target, handleArgs);
-                    }, timeoutDispatchEvent);
-                }
-                return handle.apply(target, handleArgs);
-            };
-            //挂载原生方法上
-            return that._addEventListener.apply(target, args);
-        };
-        Node.prototype.removeEventListener = function () {
-            var target = this;
-            var args = tool.toArray(arguments);
-            /*
-                validata params
-                [0] = string eventName
-                [1] = function eventHandleFunction
-            */
-            if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
-                that.$devError('element removeEventListener params error');
-                return false;
-            }
-            return that._removeEventListener.apply(target, args);
-        };
-    } else {
-        that.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
-        return false;
-    }
-    return true;
-};
-
-//恢复原生方法
-var _recoverEventTarget = exports._recoverEventTarget = function _recoverEventTarget() {
-    if (window.Node && Node.prototype.addEventListener) {
-        Node.prototype.addEventListener = this._addEventListener;
-        Node.prototype.removeEventListener = this._removeEventListener;
-    } else {
-        that.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
-        return false;
-    }
-    this._removeEventListener = false;
-    this._addEventListener = false;
-};
+exports.default = domServer;
 
 /***/ }),
 
-/***/ 17:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.createReportData = exports.triggerInitReport = exports.triggerAcitveReport = exports.destroy = exports.begine = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _tool = __webpack_require__(8);
-
-var assist = _interopRequireWildcard(_tool);
-
-var _constant = __webpack_require__(4);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var nowDate = assist.createDataRecord();
-
-//开始
-var begine = exports.begine = function begine(config) {
-    var that = this;
-    var analyseDomList = config.analyseDomList;
-    //handle dom list
-
-    if (analyseDomList || tool.isArray(analyseDomList)) {
-        that.analyseDomList = that.handleAnalyseDomList(analyseDomList, function (event) {
-            that.triggerAcitveReport(event);
-        });
-    } else {
-        that.$devWarn('[keepObserver] analyseServer simpleH5 is analyse dom list is no exist or is no arrayType');
-    }
-    //reset report data and init report
-    that.triggerInitReport();
-};
-
-//销毁
-var destroy = exports.destroy = function destroy() {
-    if (!tool.isEmptyObject(this.analyseDomList)) {
-        for (var key in this.analyseDomList) {
-            var item = this.analyseDomList[key];
-            if (item.destroyEvent && tool.isFunction(item.destroyEvent)) {
-                item.destroyEvent();
-            }
-        }
-    }
-    this._recoverEventTarget();
-    this.analyseDomList = {};
-    // 这里清除停止监听在恢复的时候会可能导致触发两次
-    this._domListener = {};
-};
-
-//监控dom激活触发
-var triggerAcitveReport = exports.triggerAcitveReport = function triggerAcitveReport(event) {
-    var event = event || window.event;
-    var el = event.target;
-    var nodeName = el.nodeName.toLowerCase();
-    var timeoutDispatchEvent = this._config.timeoutDispatchEvent;
-    //如果是a标签类型,并且携带href，那么不跳转,延时跳转
-    if (nodeName === 'a' && el.href) {
-        var url = el.href;
-        event.preventDefault();
-        setTimeout(function () {
-            window.location.href = url;
-        }, timeoutDispatchEvent);
-    }
-    //上报
-    this.reportData = this.createReportData();
-    this.noticeReport(this.reportData);
-};
-
-//初始化上报
-var triggerInitReport = exports.triggerInitReport = function triggerInitReport() {
-    //尝试读取缓存数据
-    var saveRecord = tool.getStorage(_constant.RecordKey);
-    var backStageFlag = tool.getSessionStorage(_constant.exitBackstageFlag);
-    var dateRecord = tool.getStorage(_constant.RecordDataKey);
-    if (saveRecord) {
-        this.reportData = tool.extend(this.reportData, saveRecord);
-    }
-    if (!backStageFlag) {
-        this.reportData.repeatCount += 1;
-        this.reportData.repeatCountAll += 1;
-        this.reportData = this.createReportData();
-        this.noticeReport(this.reportData);
-        tool.setSessionStorage(_constant.exitBackstageFlag, true);
-    }
-    // update now day data
-    if (!dateRecord) {
-        tool.setStorage(_constant.RecordDataKey, nowDate);
-    } else if (parseInt(dateRecord) < nowDate) {
-        this.reportData.repeatCount = 0;
-        if (!tool.isEmptyObject(this.reportData.useActives)) {
-            for (var key in this.reportData.useActives) {
-                this.reportData.useActives[key].activeCount = 0;
-            }
-        }
-        tool.setStorage(_constant.RecordDataKey, nowDate);
-    }
-};
-
-//创建上报数据
-var createReportData = exports.createReportData = function createReportData() {
-    var that = this;
-    var reportData = this.reportData;
-    // handle dom observer info
-    if (!tool.isEmptyObject(this.analyseDomList)) {
-        for (var key in this.analyseDomList) {
-            var item = this.analyseDomList[key];
-            // no exist
-            if (!reportData.useActives[key]) {
-                reportData.useActives[key] = {
-                    activeCount: item.getActiveStauts() ? 1 : 0,
-                    activeCountAll: item.getActiveStauts() ? 1 : 0
-                };
-            } else if (tool.isExist(reportData.useActives[key].activeCount)) {
-                if (item.getActiveStauts()) {
-                    reportData.useActives[key].activeCount += 1;
-                    reportData.useActives[key].activeCountAll += 1;
-                }
-            } else {
-                reportData.useActives[key].activeCount = 0;
-                reportData.useActives[key].activeCountAll = 0;
-            }
-        }
-    }
-    //save storage
-    tool.setStorage(_constant.RecordKey, reportData);
-    return reportData;
-};
-
-/***/ }),
-
-/***/ 18:
+/***/ 29:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -926,11 +571,13 @@ var addReportListener = exports.addReportListener = function addReportListener(c
 };
 
 //处理整理数据
-var handleReportData = exports.handleReportData = function handleReportData(content) {
+var handleReportData = exports.handleReportData = function handleReportData(content, load) {
     var reportParams = {};
     var control = {};
+    var typeName = this.typeName;
+
     reportParams.type = "analyse";
-    reportParams.typeName = 'simpleH5';
+    reportParams.typeName = typeName;
     reportParams.location = window.location.href;
     reportParams.environment = window.navigator.userAgent;
     reportParams.data = content;
@@ -939,6 +586,9 @@ var handleReportData = exports.handleReportData = function handleReportData(cont
     control.lazy = false;
     control.isError = false;
     control.isReport = true;
+    if (load) {
+        control.isResponse = true;
+    }
     return {
         reportParams: reportParams,
         control: control
@@ -965,26 +615,415 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 4:
+/***/ 3:
+/***/ (function(module, exports) {
+
+var charenc = {
+  // UTF-8 encoding
+  utf8: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
+    }
+  },
+
+  // Binary encoding
+  bin: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      for (var bytes = [], i = 0; i < str.length; i++)
+        bytes.push(str.charCodeAt(i) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      for (var str = [], i = 0; i < bytes.length; i++)
+        str.push(String.fromCharCode(bytes[i]));
+      return str.join('');
+    }
+  }
+};
+
+module.exports = charenc;
+
+
+/***/ }),
+
+/***/ 30:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
+exports._getReportContent = undefined;
 
+var _index = __webpack_require__(0);
 
-//storge-key
-var RecordKey = exports.RecordKey = 'simpleH5Analyse-' + window.location.href;
-var RecordDataKey = exports.RecordDataKey = 'simpleH5AnalyseDate-' + window.location.href;
-//切换后台标志
-var exitBackstageFlag = exports.exitBackstageFlag = 'backstageFlag';
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/*
+    receive the report data
+    params  
+    @object  = {
+        type:  string                   //类型,         response   
+        typeName:  string               //类型名,        self type
+        location:string                 //捕获位置       url
+        environment:string              //运行环境信息    null
+        data:object                     //捕获数据       response data
+        reportTime: int                 //捕获时间搓     
+    }
+*/
+var _getReportContent = exports._getReportContent = function _getReportContent(params) {
+    var that = this;
+    //判断数据合法性
+    if (!params || !params.type || !params.typeName || !params.data || !tool.isObject(params.data)) {
+        this.$devLog('[keepObserver] reportServer receive reportData is not right');
+        return false;
+    }
+    if (params.type !== 'response' || parmas.typeName !== that.typeName) {
+        return false;
+    }
+
+    console.log('response', params);
+};
 
 /***/ }),
 
-/***/ 58:
+/***/ 5:
+/***/ (function(module, exports) {
+
+(function() {
+  var base64map
+      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+
+  crypt = {
+    // Bit-wise rotation left
+    rotl: function(n, b) {
+      return (n << b) | (n >>> (32 - b));
+    },
+
+    // Bit-wise rotation right
+    rotr: function(n, b) {
+      return (n << (32 - b)) | (n >>> b);
+    },
+
+    // Swap big-endian to little-endian and vice versa
+    endian: function(n) {
+      // If number given, swap endian
+      if (n.constructor == Number) {
+        return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+      }
+
+      // Else, assume array and swap all items
+      for (var i = 0; i < n.length; i++)
+        n[i] = crypt.endian(n[i]);
+      return n;
+    },
+
+    // Generate an array of any length of random bytes
+    randomBytes: function(n) {
+      for (var bytes = []; n > 0; n--)
+        bytes.push(Math.floor(Math.random() * 256));
+      return bytes;
+    },
+
+    // Convert a byte array to big-endian 32-bit words
+    bytesToWords: function(bytes) {
+      for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+        words[b >>> 5] |= bytes[i] << (24 - b % 32);
+      return words;
+    },
+
+    // Convert big-endian 32-bit words to a byte array
+    wordsToBytes: function(words) {
+      for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a hex string
+    bytesToHex: function(bytes) {
+      for (var hex = [], i = 0; i < bytes.length; i++) {
+        hex.push((bytes[i] >>> 4).toString(16));
+        hex.push((bytes[i] & 0xF).toString(16));
+      }
+      return hex.join('');
+    },
+
+    // Convert a hex string to a byte array
+    hexToBytes: function(hex) {
+      for (var bytes = [], c = 0; c < hex.length; c += 2)
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+      return bytes;
+    },
+
+    // Convert a byte array to a base-64 string
+    bytesToBase64: function(bytes) {
+      for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+        for (var j = 0; j < 4; j++)
+          if (i * 8 + j * 6 <= bytes.length * 8)
+            base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+          else
+            base64.push('=');
+      }
+      return base64.join('');
+    },
+
+    // Convert a base-64 string to a byte array
+    base64ToBytes: function(base64) {
+      // Remove non-base-64 characters
+      base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+      for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
+          imod4 = ++i % 4) {
+        if (imod4 == 0) continue;
+        bytes.push(((base64map.indexOf(base64.charAt(i - 1))
+            & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
+            | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+      }
+      return bytes;
+    }
+  };
+
+  module.exports = crypt;
+})();
+
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports) {
+
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+module.exports = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+}
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
+
+
+/***/ }),
+
+/***/ 64:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.nodeEventPatchHandle = exports.initPatchNodeEvent = undefined;
+
+var _md = __webpack_require__(7);
+
+var _md2 = _interopRequireDefault(_md);
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+var _xpath = __webpack_require__(65);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var attributeKey = 'keepObserverUniqueID' + tool.getUniqueID().substring(0, 8);
+
+//初始化替换node.addEventListener方法
+var initPatchNodeEvent = exports.initPatchNodeEvent = function initPatchNodeEvent() {
+    var that = this;
+    var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
+    if (window.Node && Node.prototype.addEventListener) {
+        //替换
+        that._addEventListener = Node.prototype.addEventListener;
+        that._removeEventListener = Node.prototype.removeEventListener;
+        //拦截
+        Node.prototype.addEventListener = function () {
+            var target = this;
+            var args = tool.toArray(arguments);
+            /*
+                validata params
+                [0] = string eventName
+                [1] = function eventHandleFunction
+            */
+            if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
+                that.$devError('element addEventListener params error');
+                return false;
+            }
+            //patch = args[1] = eventHandleFunction setTimeout 
+            var handle = args[1];
+            args[1] = that.nodeEventPatchHandle(target, handle);
+            //挂载原生方法上
+            return that._addEventListener.apply(target, args);
+        };
+        Node.prototype.removeEventListener = function () {
+            var target = this;
+            var args = tool.toArray(arguments);
+            /*
+                validata params
+                [0] = string eventName
+                [1] = function eventHandleFunction
+            */
+            if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
+                that.$devError('element removeEventListener params error');
+                return false;
+            }
+            //获取保存的handle
+            //暂缺
+
+            //remove
+            return that._removeEventListener.apply(target, args);
+        };
+    } else {
+        that.$devError('[keepObserver] analyseServer webSignObserver: borwser not can EventTarget.prototype.addEventListener');
+        return false;
+    }
+    return true;
+};
+
+//替换函数执行
+var nodeEventPatchHandle = exports.nodeEventPatchHandle = function nodeEventPatchHandle(el, handleFn) {
+    var that = this;
+    var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
+    var id = (0, _md2.default)(el.nodeName.toLowerCase() + handleFn.toString());
+    console.log(id);
+    //
+    return function () {
+        var sgin = el.getAttribute(attributeKey);
+        var handleArgs = tool.toArray(arguments);
+        // observer target dom
+        if (sgin) {
+            return setTimeout(function () {
+                handleFn.apply(el, handleArgs);
+            }, timeoutDispatchEvent);
+        }
+        return handleFn.apply(el, handleArgs);
+    };
+};
+
+/***/ }),
+
+/***/ 65:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.parseXpath = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+// parse xpath
+// params = xpath (string)
+// return = element
+var parseXpath = exports.parseXpath = function parseXpath(xPath) {
+    var targetNode = false;
+    var contextNode = false;
+    var step = 1;
+    var errorMax = 1000;
+    var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/;
+    var pathStartReg = /^\/html\/body\//;
+    var nodePathReg = /([a-z]+)+(?:\[(\d)+\])?\//;
+    var pathEndReg = /([a-z]+)+(?:\[(\d)+\])?$/;
+    var subStringNext = function subStringNext(str, context) {
+        var len = str.length;
+        return context.substring(len);
+    };
+    //validate
+    if (!xPath || !tool.isString(xPath)) {
+        return false;
+    }
+    //id start
+    if (idReg.test(xPath)) {
+        var content = xPath.match(idReg);
+        var str = content[0];
+        var id = content[1];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.querySelector('#' + id);
+        contextNode = targetNode;
+    }
+    //html start
+    if (pathStartReg.test(xPath)) {
+        var content = xPath.match(pathStartReg);
+        var str = content[0];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.body;
+        contextNode = targetNode;
+    }
+    //get target element
+    while (contextNode && (nodePathReg.test(xPath) || pathEndReg.test(xPath)) && step < errorMax) {
+        step++;
+        targetNode = false;
+        var parseResult = xPath.match(nodePathReg);
+        parseResult = parseResult ? parseResult : xPath.match(pathEndReg);
+        // path info
+        var str = parseResult[0];
+        var nodeType = parseResult[1];
+        var index = parseResult[2] ? parseInt(parseResult[2]) : 1;
+        //query target element
+        var count = 1;
+        var children = tool.toArray(contextNode.children);
+        children.forEach(function (item) {
+            if (targetNode) {
+                return false;
+            }
+            //query
+            var itemType = item.nodeName.toLowerCase();
+            if (itemType === nodeType && index === count) {
+                targetNode = item;
+            } else if (itemType === nodeType) {
+                count++;
+            }
+        });
+        contextNode = targetNode;
+        //next
+        xPath = subStringNext(str, xPath);
+    }
+
+    return targetNode;
+};
+
+/***/ }),
+
+/***/ 66:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -996,7 +1035,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(14);
+var _defaultConfig = __webpack_require__(27);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1004,29 +1043,25 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(17);
-
-var handleServer = _interopRequireWildcard(_handle);
-
-var _api = __webpack_require__(13);
+var _api = __webpack_require__(26);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(18);
+var _report = __webpack_require__(29);
 
 var reportServer = _interopRequireWildcard(_report);
 
-var _event = __webpack_require__(16);
+var _response = __webpack_require__(30);
 
-var eventServer = _interopRequireWildcard(_event);
+var responseServer = _interopRequireWildcard(_response);
 
-var _dom = __webpack_require__(15);
-
-var domServer = _interopRequireWildcard(_dom);
-
-var _index2 = __webpack_require__(1);
+var _index2 = __webpack_require__(28);
 
 var _index3 = _interopRequireDefault(_index2);
+
+var _index4 = __webpack_require__(1);
+
+var _index5 = _interopRequireDefault(_index4);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -1038,115 +1073,226 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//简单H5页面埋点分析
-var KeepObserverSimpleH5Analyse = function (_KeepObserverDetault) {
-    _inherits(KeepObserverSimpleH5Analyse, _KeepObserverDetault);
+//页面埋点分析
+var keepObserverWebSignAnalyse = function (_KeepObserverDetault) {
+    _inherits(keepObserverWebSignAnalyse, _KeepObserverDetault);
 
     //构造函数
-    function KeepObserverSimpleH5Analyse(config) {
-        _classCallCheck(this, KeepObserverSimpleH5Analyse);
+    function keepObserverWebSignAnalyse(config) {
+        _classCallCheck(this, keepObserverWebSignAnalyse);
 
         //初始化上传相关实例
-        var _this = _possibleConstructorReturn(this, (KeepObserverSimpleH5Analyse.__proto__ || Object.getPrototypeOf(KeepObserverSimpleH5Analyse)).call(this));
+        var _this = _possibleConstructorReturn(this, (keepObserverWebSignAnalyse.__proto__ || Object.getPrototypeOf(keepObserverWebSignAnalyse)).call(this));
 
-        var simpleH5AnalyseCustom = config.simpleH5AnalyseCustom || {};
-        _this._config = tool.extend(_defaultConfig2.default, simpleH5AnalyseCustom);
+        var WebSignAnalyseCustom = config.WebSignAnalyseCustom || {};
+        _this._config = tool.extend(_defaultConfig2.default, WebSignAnalyseCustom);
+        //type 
+        _this.typeName = 'webSignObserver';
+        //监听列表
+        _this.eventListener = [];
         //原生方法
         _this._addEventListener = false;
         _this._removeEventListener = false;
-        //拦截DOM列表
-        /*
-            eventList: object
-            target: element
-         */
-        _this._domListener = {};
-        //监听列表
-        _this.eventListener = [];
-        //需要监听的dom列表
-        /*
-            destroyEvent: function
-            getActiveStauts: function 
-            title: string
-        */
-        _this.analyseDomList = {};
-        _this.uniqueId = tool.getUniqueID();
-        /*上报内容*/
-        _this.reportData = {
-            id: tool.getUniqueID(), //唯一浏览器标识
-            repeatCountAll: 0, //总的统计次数
-            repeatCount: 0, //访问次数
-            useActives: {} //行为事件
-
-            //混合自身方法
-        };_this.$mixin(handleServer);
+        //拦截到的方法集合
+        _this._patchEventListenerMap = {};
+        //埋点element map
+        _this.sginElementMap = {};
+        //mixin
         _this.$mixin(apiServer);
         _this.$mixin(reportServer);
-        _this.$mixin(eventServer);
-        _this.$mixin(domServer);
-        //启动
-        var begin = _this._handleEventTarget();
-        if (begin && _this._config.initBegine && _this._config.begineConfig) {
-            _this.startAnalyse(_this._config.begineConfig);
-        }
+        _this.$mixin(responseServer);
+        _this.$mixin(_index3.default);
+        //init
+        _this.initPatchNodeEvent();
         return _this;
     }
+
     //提供一个挂载入口
 
 
-    _createClass(KeepObserverSimpleH5Analyse, [{
+    _createClass(keepObserverWebSignAnalyse, [{
         key: 'apply',
         value: function apply(pipe) {
-            this.addReportListener(pipe.sendPipeMessage);
+            var that = this;
+            pipe.registerRecivePipeMessage(that._getReportContent, that);
+            that.addReportListener(pipe.sendPipeMessage);
             return {
-                $simpleH5AnalyseClearSaveRecive: this.clearSaveRecive,
-                $simpleH5AnalyseStop: this.stopAnalyse,
-                $simpleH5AnalyseBegine: this.startAnalyse
+                $beginObserverAnalyse: that.beginObserverAnalyse
             };
         }
     }]);
 
-    return KeepObserverSimpleH5Analyse;
-}(_index3.default);
+    return keepObserverWebSignAnalyse;
+}(_index5.default);
 
-exports.default = KeepObserverSimpleH5Analyse;
+exports.default = keepObserverWebSignAnalyse;
 
 /***/ }),
 
-/***/ 8:
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+(function(){
+  var crypt = __webpack_require__(5),
+      utf8 = __webpack_require__(3).utf8,
+      isBuffer = __webpack_require__(6),
+      bin = __webpack_require__(3).bin,
 
+  // The core
+  md5 = function (message, options) {
+    // Convert to byte array
+    if (message.constructor == String)
+      if (options && options.encoding === 'binary')
+        message = bin.stringToBytes(message);
+      else
+        message = utf8.stringToBytes(message);
+    else if (isBuffer(message))
+      message = Array.prototype.slice.call(message, 0);
+    else if (!Array.isArray(message))
+      message = message.toString();
+    // else, assume byte array already
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.isHidden = isHidden;
-exports.createDataRecord = createDataRecord;
+    var m = crypt.bytesToWords(message),
+        l = message.length * 8,
+        a =  1732584193,
+        b = -271733879,
+        c = -1732584194,
+        d =  271733878;
 
-
-function getHiddenProp() {
-    var prefixes = ['webkit', 'moz', 'ms', 'o'];
-    if ('hidden' in document) return 'hidden';
-    for (var i = 0; i < prefixes.length; i++) {
-        if (prefixes[i] + 'Hidden' in document) return prefixes[i] + 'Hidden';
+    // Swap endian
+    for (var i = 0; i < m.length; i++) {
+      m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+             ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
     }
-    return null;
-}
 
-function isHidden() {
-    var prop = getHiddenProp();
-    if (!prop) return false;
-    return document[prop];
-}
+    // Padding
+    m[l >>> 5] |= 0x80 << (l % 32);
+    m[(((l + 64) >>> 9) << 4) + 14] = l;
 
-function createDataRecord() {
-    var date = new Date();
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
-    return parseInt(year + '' + month + '' + day);
-}
+    // Method shortcuts
+    var FF = md5._ff,
+        GG = md5._gg,
+        HH = md5._hh,
+        II = md5._ii;
+
+    for (var i = 0; i < m.length; i += 16) {
+
+      var aa = a,
+          bb = b,
+          cc = c,
+          dd = d;
+
+      a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
+      d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
+      c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
+      b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
+      a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
+      d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
+      c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
+      b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
+      a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
+      d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
+      c = FF(c, d, a, b, m[i+10], 17, -42063);
+      b = FF(b, c, d, a, m[i+11], 22, -1990404162);
+      a = FF(a, b, c, d, m[i+12],  7,  1804603682);
+      d = FF(d, a, b, c, m[i+13], 12, -40341101);
+      c = FF(c, d, a, b, m[i+14], 17, -1502002290);
+      b = FF(b, c, d, a, m[i+15], 22,  1236535329);
+
+      a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
+      d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
+      c = GG(c, d, a, b, m[i+11], 14,  643717713);
+      b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
+      a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
+      d = GG(d, a, b, c, m[i+10],  9,  38016083);
+      c = GG(c, d, a, b, m[i+15], 14, -660478335);
+      b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
+      a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
+      d = GG(d, a, b, c, m[i+14],  9, -1019803690);
+      c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
+      b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
+      a = GG(a, b, c, d, m[i+13],  5, -1444681467);
+      d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
+      c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
+      b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+
+      a = HH(a, b, c, d, m[i+ 5],  4, -378558);
+      d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
+      c = HH(c, d, a, b, m[i+11], 16,  1839030562);
+      b = HH(b, c, d, a, m[i+14], 23, -35309556);
+      a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
+      d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
+      c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
+      b = HH(b, c, d, a, m[i+10], 23, -1094730640);
+      a = HH(a, b, c, d, m[i+13],  4,  681279174);
+      d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
+      c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
+      b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
+      a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
+      d = HH(d, a, b, c, m[i+12], 11, -421815835);
+      c = HH(c, d, a, b, m[i+15], 16,  530742520);
+      b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+
+      a = II(a, b, c, d, m[i+ 0],  6, -198630844);
+      d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
+      c = II(c, d, a, b, m[i+14], 15, -1416354905);
+      b = II(b, c, d, a, m[i+ 5], 21, -57434055);
+      a = II(a, b, c, d, m[i+12],  6,  1700485571);
+      d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
+      c = II(c, d, a, b, m[i+10], 15, -1051523);
+      b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
+      a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
+      d = II(d, a, b, c, m[i+15], 10, -30611744);
+      c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
+      b = II(b, c, d, a, m[i+13], 21,  1309151649);
+      a = II(a, b, c, d, m[i+ 4],  6, -145523070);
+      d = II(d, a, b, c, m[i+11], 10, -1120210379);
+      c = II(c, d, a, b, m[i+ 2], 15,  718787259);
+      b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+
+      a = (a + aa) >>> 0;
+      b = (b + bb) >>> 0;
+      c = (c + cc) >>> 0;
+      d = (d + dd) >>> 0;
+    }
+
+    return crypt.endian([a, b, c, d]);
+  };
+
+  // Auxiliary functions
+  md5._ff  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._gg  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._hh  = function (a, b, c, d, x, s, t) {
+    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._ii  = function (a, b, c, d, x, s, t) {
+    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+
+  // Package private blocksize
+  md5._blocksize = 16;
+  md5._digestsize = 16;
+
+  module.exports = function (message, options) {
+    if (message === undefined || message === null)
+      throw new Error('Illegal argument ' + message);
+
+    var digestbytes = crypt.wordsToBytes(md5(message, options));
+    return options && options.asBytes ? digestbytes :
+        options && options.asString ? bin.bytesToString(digestbytes) :
+        crypt.bytesToHex(digestbytes);
+  };
+
+})();
+
 
 /***/ })
 

@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 42);
+/******/ 	return __webpack_require__(__webpack_require__.s = 51);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -477,6 +477,247 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//隔离开初始化服务,不对外提供
+function initServer() {
+	//是否需要更新版本清除缓存
+	if (this._config.projectVersion && this._config.updateVersionClearCache) {
+		this.updateVersionClearCache();
+	}
+}
+
+exports.default = initServer;
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = __webpack_require__(1);
+
+var _index2 = _interopRequireDefault(_index);
+
+var _index3 = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index3);
+
+var _update = __webpack_require__(52);
+
+var updateServer = _interopRequireWildcard(_update);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var keepObserverMethod = function (_KeepObserverDetault) {
+    _inherits(keepObserverMethod, _KeepObserverDetault);
+
+    function keepObserverMethod(keepObserver, config) {
+        _classCallCheck(this, keepObserverMethod);
+
+        //获取实例配置
+        var _this = _possibleConstructorReturn(this, (keepObserverMethod.__proto__ || Object.getPrototypeOf(keepObserverMethod)).call(this));
+
+        _this._config = config;
+        //获取kp实例
+        _this.$keepObserver = keepObserver;
+        //混入自身方法
+        _this.$mixin(updateServer);
+        return _this;
+    }
+
+    //提供需要挂载在keepObserver上的方法
+
+
+    _createClass(keepObserverMethod, [{
+        key: 'apply',
+        value: function apply() {
+            return {
+                updateVersionClearCache: this.updateVersionClearCache
+            };
+        }
+    }]);
+
+    return keepObserverMethod;
+}(_index2.default);
+
+//提供混合方法入口
+
+
+var mixinMethod = function mixinMethod(keepObserver, config) {
+    //这里不用做判断,最初的模块挂载到实例
+    var Pipe = new keepObserverMethod(keepObserver, config);
+    var applyInjection = Pipe.apply();
+    //循环挂载到keepobserver上
+    for (var key in applyInjection) {
+        keepObserver[key] = function () {
+            var agrs = tool.toArray(arguments);
+            var fn = applyInjection[key];
+            return fn.apply(Pipe, agrs);
+        };
+    }
+};
+
+exports.default = mixinMethod;
+
+/***/ }),
+
+/***/ 12:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _index = __webpack_require__(1);
+
+var _index2 = _interopRequireDefault(_index);
+
+var _index3 = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index3);
+
+var _injection = __webpack_require__(53);
+
+var injectionServer = _interopRequireWildcard(_injection);
+
+var _receiveQueue = __webpack_require__(56);
+
+var receiveServer = _interopRequireWildcard(_receiveQueue);
+
+var _triggerQueue = __webpack_require__(57);
+
+var triggerServer = _interopRequireWildcard(_triggerQueue);
+
+var _receiveLock = __webpack_require__(55);
+
+var queueLockServer = _interopRequireWildcard(_receiveLock);
+
+var _preventAnomaly = __webpack_require__(54);
+
+var preventAnomaly = _interopRequireWildcard(_preventAnomaly);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var keepObserverPipe = function (_KeepObserverDetault) {
+    _inherits(keepObserverPipe, _KeepObserverDetault);
+
+    function keepObserverPipe(keepObserver, config) {
+        _classCallCheck(this, keepObserverPipe);
+
+        //获取实例配置
+        var _this = _possibleConstructorReturn(this, (keepObserverPipe.__proto__ || Object.getPrototypeOf(keepObserverPipe)).call(this));
+
+        _this._config = config;
+        //获取kp实例
+        _this.$keepObserver = keepObserver;
+        //消息是否在等待
+        _this.waiting = false;
+        //消息接收锁
+        _this.receiveLock = false;
+
+        //堆栈计数对象
+        _this.stackCountBuff = {};
+        //堆栈运行定时器
+        _this.stackTimeFlag = false;
+        //消息队列
+        _this.messageQueue = [];
+        //管道用户
+        _this.pipeUser = [];
+
+        //混入自身方法
+        _this.$mixin(injectionServer);
+        _this.$mixin(receiveServer);
+        _this.$mixin(triggerServer);
+        _this.$mixin(queueLockServer);
+        _this.$mixin(preventAnomaly);
+        return _this;
+    }
+
+    //提供需要挂载在keepObserver上的方法
+
+
+    _createClass(keepObserverPipe, [{
+        key: 'apply',
+        value: function apply() {
+            return {
+                use: this.use
+            };
+        }
+    }]);
+
+    return keepObserverPipe;
+}(_index2.default);
+
+//提供混合管道入口
+
+
+var mixinPipe = function mixinPipe(keepObserver, config) {
+    //这里不用做判断,最初的模块挂载到实例
+    var Pipe = new keepObserverPipe(keepObserver, config);
+    var applyInjection = Pipe.apply();
+    //循环挂载到keepobserver上
+    for (var key in applyInjection) {
+        Object.defineProperty(keepObserver, key, {
+            configurable: false,
+            enumerable: true,
+            value: function (key) {
+                return function () {
+                    var agrs = tool.toArray(arguments);
+                    var fn = applyInjection[key];
+                    return fn.apply(Pipe, agrs);
+                };
+            }(key)
+        });
+    }
+};
+exports.default = mixinPipe;
+
+/***/ }),
+
 /***/ 2:
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -493,7 +734,7 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 42:
+/***/ 51:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -509,19 +750,19 @@ var _index3 = __webpack_require__(1);
 
 var _index4 = _interopRequireDefault(_index3);
 
-var _defaultConfig = __webpack_require__(6);
+var _defaultConfig = __webpack_require__(9);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
-var _index5 = __webpack_require__(9);
+var _index5 = __webpack_require__(12);
 
 var _index6 = _interopRequireDefault(_index5);
 
-var _index7 = __webpack_require__(8);
+var _index7 = __webpack_require__(11);
 
 var _index8 = _interopRequireDefault(_index7);
 
-var _init = __webpack_require__(7);
+var _init = __webpack_require__(10);
 
 var _init2 = _interopRequireDefault(_init);
 
@@ -568,7 +809,7 @@ module.exports.default = module.exports;
 
 /***/ }),
 
-/***/ 43:
+/***/ 52:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -607,7 +848,7 @@ var updateVersionClearCache = exports.updateVersionClearCache = function updateV
 
 /***/ }),
 
-/***/ 44:
+/***/ 53:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -778,7 +1019,7 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
 
 /***/ }),
 
-/***/ 45:
+/***/ 54:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -862,7 +1103,7 @@ var resetStackCount = exports.resetStackCount = function resetStackCount() {
 
 /***/ }),
 
-/***/ 46:
+/***/ 55:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -914,7 +1155,7 @@ var closeLock = exports.closeLock = function closeLock() {
 
 /***/ }),
 
-/***/ 47:
+/***/ 56:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -962,7 +1203,7 @@ var registerRecivePipeMessage = exports.registerRecivePipeMessage = function reg
 
 /***/ }),
 
-/***/ 48:
+/***/ 57:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1059,7 +1300,7 @@ var noticeListener = function noticeListener(queue) {
 
 /***/ }),
 
-/***/ 6:
+/***/ 9:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1082,247 +1323,6 @@ exports.default = {
     //更新版本是否清除缓存
     updateVersionClearCache: false
 };
-
-/***/ }),
-
-/***/ 7:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//隔离开初始化服务,不对外提供
-function initServer() {
-	//是否需要更新版本清除缓存
-	if (this._config.projectVersion && this._config.updateVersionClearCache) {
-		this.updateVersionClearCache();
-	}
-}
-
-exports.default = initServer;
-
-/***/ }),
-
-/***/ 8:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _index = __webpack_require__(1);
-
-var _index2 = _interopRequireDefault(_index);
-
-var _index3 = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index3);
-
-var _update = __webpack_require__(43);
-
-var updateServer = _interopRequireWildcard(_update);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var keepObserverMethod = function (_KeepObserverDetault) {
-    _inherits(keepObserverMethod, _KeepObserverDetault);
-
-    function keepObserverMethod(keepObserver, config) {
-        _classCallCheck(this, keepObserverMethod);
-
-        //获取实例配置
-        var _this = _possibleConstructorReturn(this, (keepObserverMethod.__proto__ || Object.getPrototypeOf(keepObserverMethod)).call(this));
-
-        _this._config = config;
-        //获取kp实例
-        _this.$keepObserver = keepObserver;
-        //混入自身方法
-        _this.$mixin(updateServer);
-        return _this;
-    }
-
-    //提供需要挂载在keepObserver上的方法
-
-
-    _createClass(keepObserverMethod, [{
-        key: 'apply',
-        value: function apply() {
-            return {
-                updateVersionClearCache: this.updateVersionClearCache
-            };
-        }
-    }]);
-
-    return keepObserverMethod;
-}(_index2.default);
-
-//提供混合方法入口
-
-
-var mixinMethod = function mixinMethod(keepObserver, config) {
-    //这里不用做判断,最初的模块挂载到实例
-    var Pipe = new keepObserverMethod(keepObserver, config);
-    var applyInjection = Pipe.apply();
-    //循环挂载到keepobserver上
-    for (var key in applyInjection) {
-        keepObserver[key] = function () {
-            var agrs = tool.toArray(arguments);
-            var fn = applyInjection[key];
-            return fn.apply(Pipe, agrs);
-        };
-    }
-};
-
-exports.default = mixinMethod;
-
-/***/ }),
-
-/***/ 9:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _index = __webpack_require__(1);
-
-var _index2 = _interopRequireDefault(_index);
-
-var _index3 = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index3);
-
-var _injection = __webpack_require__(44);
-
-var injectionServer = _interopRequireWildcard(_injection);
-
-var _receiveQueue = __webpack_require__(47);
-
-var receiveServer = _interopRequireWildcard(_receiveQueue);
-
-var _triggerQueue = __webpack_require__(48);
-
-var triggerServer = _interopRequireWildcard(_triggerQueue);
-
-var _receiveLock = __webpack_require__(46);
-
-var queueLockServer = _interopRequireWildcard(_receiveLock);
-
-var _preventAnomaly = __webpack_require__(45);
-
-var preventAnomaly = _interopRequireWildcard(_preventAnomaly);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var keepObserverPipe = function (_KeepObserverDetault) {
-    _inherits(keepObserverPipe, _KeepObserverDetault);
-
-    function keepObserverPipe(keepObserver, config) {
-        _classCallCheck(this, keepObserverPipe);
-
-        //获取实例配置
-        var _this = _possibleConstructorReturn(this, (keepObserverPipe.__proto__ || Object.getPrototypeOf(keepObserverPipe)).call(this));
-
-        _this._config = config;
-        //获取kp实例
-        _this.$keepObserver = keepObserver;
-        //消息是否在等待
-        _this.waiting = false;
-        //消息接收锁
-        _this.receiveLock = false;
-
-        //堆栈计数对象
-        _this.stackCountBuff = {};
-        //堆栈运行定时器
-        _this.stackTimeFlag = false;
-        //消息队列
-        _this.messageQueue = [];
-        //管道用户
-        _this.pipeUser = [];
-
-        //混入自身方法
-        _this.$mixin(injectionServer);
-        _this.$mixin(receiveServer);
-        _this.$mixin(triggerServer);
-        _this.$mixin(queueLockServer);
-        _this.$mixin(preventAnomaly);
-        return _this;
-    }
-
-    //提供需要挂载在keepObserver上的方法
-
-
-    _createClass(keepObserverPipe, [{
-        key: 'apply',
-        value: function apply() {
-            return {
-                use: this.use
-            };
-        }
-    }]);
-
-    return keepObserverPipe;
-}(_index2.default);
-
-//提供混合管道入口
-
-
-var mixinPipe = function mixinPipe(keepObserver, config) {
-    //这里不用做判断,最初的模块挂载到实例
-    var Pipe = new keepObserverPipe(keepObserver, config);
-    var applyInjection = Pipe.apply();
-    //循环挂载到keepobserver上
-    for (var key in applyInjection) {
-        Object.defineProperty(keepObserver, key, {
-            configurable: false,
-            enumerable: true,
-            value: function (key) {
-                return function () {
-                    var agrs = tool.toArray(arguments);
-                    var fn = applyInjection[key];
-                    return fn.apply(Pipe, agrs);
-                };
-            }(key)
-        });
-    }
-};
-exports.default = mixinPipe;
 
 /***/ })
 

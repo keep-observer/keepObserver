@@ -10,6 +10,7 @@ import * as tool from '../../tool/index.js';
 import * as apiServer from './api.js'
 import * as handleServer from './handle.js'
 import * as reportServer from './report.js'
+import * as responseServer from './response.js'
 
 
 
@@ -30,6 +31,8 @@ class KeepObserverReport extends KeepObserverDefault {
         reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
         //混合默认配置
         this.$report_config = tool.extend(defaultConfig, reportConfig);
+        //监听事件
+        this.eventListener = []
         //上传数据保存
         this.reportData = {};
         //用户自定义上传参数
@@ -49,6 +52,7 @@ class KeepObserverReport extends KeepObserverDefault {
         this.$mixin(apiServer);
         this.$mixin(handleServer);
         this.$mixin(reportServer);
+        this.$mixin(responseServer);
         //初始化
         this._init();
     }
@@ -76,6 +80,7 @@ class KeepObserverReport extends KeepObserverDefault {
     apply(pipe) {
         var that = this;
         pipe.registerRecivePipeMessage(that._getReportContent, that)
+        that.addReportListener(pipe.sendPipeMessage)
         return {
             $setCustomeReportData: this.$setCustomeReportData
         }

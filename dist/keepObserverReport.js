@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 61);
+/******/ 	return __webpack_require__(__webpack_require__.s = 73);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -493,7 +493,7 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 38:
+/***/ 46:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -547,7 +547,7 @@ var $setCustomeReportData = exports.$setCustomeReportData = function $setCustome
 
 /***/ }),
 
-/***/ 39:
+/***/ 47:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -590,7 +590,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 40:
+/***/ 48:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -715,7 +715,7 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 
 /***/ }),
 
-/***/ 41:
+/***/ 49:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -724,13 +724,13 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports._handleReportFail = exports._handleHook = exports._createReportData = exports._handleReport = undefined;
+exports._handleReportFail = exports._handleHook = exports._createReportData = exports._handleResponse = exports._handleReport = undefined;
 
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _ajax = __webpack_require__(60);
+var _ajax = __webpack_require__(72);
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
@@ -742,8 +742,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
     处理上报
     params:
     @params  = {
-        type:  string                   //类型,observer or performance    
-        typeName:  string               //类型名,vue  or log or network
+        type:  string                   //类型, observer | performance| anaylse | response  
+        typeName:  string               //类型名, observer  ->(vue  or log or network)
         location:string                 //捕获位置
         environment:string              //运行环境信息
         data:object                     //捕获数据
@@ -757,6 +757,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
         @ .isPerformance:boolean            //是否是性能捕获分析
         @ .preDelete:boolean                //是否删除之前的信息
         @ .ignore:boolean                   //本条数据是否忽略
+        @ .isResponse:boolean               //report是否需要响应信息
     }
  */
 var _handleReport = exports._handleReport = function _handleReport(params, control) {
@@ -807,6 +808,9 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
         //上传到服务器
         try {
             (0, _ajax2.default)(reportConfig).then(function (result) {
+                //response data
+                that._handleResponse(params, control, url, result.data);
+                //hook
                 that._handleHook(onReportResultHook, result.data, reportConfig.url, result.head);
             }, function (err) {
                 that._handleReportFail(onReportFail, reportData, reportConfig.url);
@@ -818,6 +822,28 @@ var _handleReport = exports._handleReport = function _handleReport(params, contr
         //end
     });
     // map url end
+};
+
+/*
+    处理响应
+    @params                 //同上
+    @control                //同上
+    @url                    //request url
+    @responseData           //response data
+    -------------------------------------------
+    ps: control.isResponse 才进行处理
+ */
+var _handleResponse = exports._handleResponse = function _handleResponse(params, control, url, responseData) {
+    var that = this;
+    //如果未传入数据类型
+    if (!params || !control || !tool.isObject(params) || !tool.isObject(control)) {
+        return false;
+    }
+    if (!control.isResponse || !params.typeName || !url || !responseData) {
+        return false;
+    }
+    //handle push message quenen
+    that.noticeResponse(params.typeName, responseData, url);
 };
 
 /*
@@ -943,7 +969,68 @@ var _handleReportFail = exports._handleReportFail = function _handleReportFail(o
 
 /***/ }),
 
-/***/ 60:
+/***/ 50:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.noticeResponse = exports.handleReportDataResponse = exports.addReportListener = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//注册上报监听
+var addReportListener = exports.addReportListener = function addReportListener(callback) {
+    if (callback) {
+        this.eventListener.push(callback);
+    }
+};
+
+//处理整理数据
+var handleReportDataResponse = exports.handleReportDataResponse = function handleReportDataResponse(type, content, url) {
+    var reportParams = {};
+    var control = {};
+    reportParams.type = "response";
+    reportParams.typeName = type;
+    reportParams.location = url;
+    reportParams.environment = null;
+    reportParams.data = content;
+    reportParams.reportTime = new Date().getTime();
+    //option
+    return {
+        reportParams: reportParams,
+        control: control
+    };
+};
+
+//通知上报
+var noticeResponse = exports.noticeResponse = function noticeResponse(type, content, url) {
+    var that = this;
+    if (that.eventListener.length === 0) {
+        return false;
+    }
+    //通知消息队列
+    that.eventListener.map(function (item) {
+        if (tool.isFunction(item)) {
+            var _that$handleReportDat = that.handleReportDataResponse(type, content, url),
+                reportParams = _that$handleReportDat.reportParams,
+                control = _that$handleReportDat.control;
+
+            item(reportParams, control);
+        }
+    });
+};
+
+/***/ }),
+
+/***/ 72:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1074,7 +1161,7 @@ exports.default = AjaxServer;
 
 /***/ }),
 
-/***/ 61:
+/***/ 73:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1092,7 +1179,7 @@ var _index2 = _interopRequireDefault(_index);
 
 var _index3 = __webpack_require__(2);
 
-var _defaultConfig = __webpack_require__(39);
+var _defaultConfig = __webpack_require__(47);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1100,17 +1187,21 @@ var _index4 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index4);
 
-var _api = __webpack_require__(38);
+var _api = __webpack_require__(46);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _handle = __webpack_require__(40);
+var _handle = __webpack_require__(48);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _report = __webpack_require__(41);
+var _report = __webpack_require__(49);
 
 var reportServer = _interopRequireWildcard(_report);
+
+var _response = __webpack_require__(50);
+
+var responseServer = _interopRequireWildcard(_response);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -1144,6 +1235,8 @@ var KeepObserverReport = function (_KeepObserverDefault) {
         reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
         //混合默认配置
         _this.$report_config = tool.extend(_defaultConfig2.default, reportConfig);
+        //监听事件
+        _this.eventListener = [];
         //上传数据保存
         _this.reportData = {};
         //用户自定义上传参数
@@ -1163,6 +1256,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
         _this.$mixin(apiServer);
         _this.$mixin(handleServer);
         _this.$mixin(reportServer);
+        _this.$mixin(responseServer);
         //初始化
         _this._init();
         return _this;
@@ -1198,6 +1292,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
         value: function apply(pipe) {
             var that = this;
             pipe.registerRecivePipeMessage(that._getReportContent, that);
+            that.addReportListener(pipe.sendPipeMessage);
             return {
                 $setCustomeReportData: this.$setCustomeReportData
             };
