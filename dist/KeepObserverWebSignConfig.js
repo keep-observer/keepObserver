@@ -73,11 +73,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 63);
+/******/ 	return __webpack_require__(__webpack_require__.s = 66);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -303,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -381,7 +382,8 @@ function extend() {
 }
 
 /***/ }),
-/* 1 */
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -474,8 +476,350 @@ var KeepObserverDefault = function () {
 exports.default = KeepObserverDefault;
 
 /***/ }),
-/* 2 */,
-/* 3 */
+
+/***/ 20:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.startCorrespond = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var startCorrespond = exports.startCorrespond = function startCorrespond() {
+    this.registerMessage();
+    this.initDomEvent();
+};
+
+/***/ }),
+
+/***/ 21:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.checkOrigin = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var checkOrigin = exports.checkOrigin = function checkOrigin(origin) {
+    var origins = this._config.origins;
+
+    if (tool.isEmptyArray(origins) || !origin) {
+        return false;
+    }
+    //check load iframe origin url
+    for (var i = 0; i < origins.length; i++) {
+        var item = origins[i];
+        if (item.indexOf(origin) > -1) {
+            return true;
+        }
+    }
+    return false;
+};
+
+/***/ }),
+
+/***/ 22:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.sendMessage = exports.handleMessage = exports.removeMessage = exports.registerMessage = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var registerMessage = exports.registerMessage = function registerMessage() {
+    var that = this;
+    var correspondWaitTimeout = that._config.correspondWaitTimeout;
+    //proxy
+
+    that.proxyMessageHandleEvent = function (event) {
+        that.handleMessage(event);
+    };
+    //start listener
+    window.addEventListener('message', that.proxyMessageHandleEvent, false);
+    //concat timeout
+    setTimeout(function () {
+        if (!that.correspondFlag) {
+            that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond Connection timeout');
+            that.removeMessage();
+        }
+    }, correspondWaitTimeout);
+};
+
+var removeMessage = exports.removeMessage = function removeMessage() {
+    this.correspondFlag = false;
+    this.sourceTarget = false;
+    this.sourceOrigin = false;
+    window.removeEventListener('message', this.proxyMessageHandleEvent);
+};
+
+var handleMessage = exports.handleMessage = function handleMessage(event) {
+    var that = this;
+    var origin = event.origin || event.originalEvent.origin;
+    var data = event.data;
+    var source = event.source;
+    //validate
+    if (!that.checkOrigin(origin)) {
+        that.$devError('keepObserver KeepObserverWebSignConfig  iframe message origin is error');
+        that.removeMessage();
+        return false;
+    }
+    if (!tool.isExist(data) || tool.isEmptyObject(data) || !data.type) {
+        that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error');
+        return false;
+    }
+    if (!that.correspondFlag) {
+        that.correspondFlag = true;
+        that.sourceTarget = source;
+        that.sourceOrigin = origin;
+    }
+    //flow work
+    switch (data.type) {
+        case 'requestConfig':
+            that.confirmConcatRequestSginData();
+            break;
+        case 'sendSignData':
+            that.receiveSignConfigData(data.payload);
+            break;
+        case 'confirmNodeSgin':
+            that.confirmNodeSelect(data.payload);
+            break;
+        case 'preventDefault':
+            that.handleElementEventPreventDefault(data.payload);
+            break;
+        default:
+            that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error : data.type is error type');
+            that.removeMessage();
+    }
+};
+
+var sendMessage = exports.sendMessage = function sendMessage(data) {
+    if (!data || tool.isEmptyObject(data) || !data.type) {
+        return false;
+    }
+    this.sourceTarget.postMessage(data, this.sourceOrigin);
+};
+
+/***/ }),
+
+/***/ 23:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+
+/*
+ 	实例默认配置数据
+ */
+exports.default = {
+  //等待连接超时时间
+  correspondWaitTimeout: 10000,
+  //跨域限制来源表
+  origins: []
+};
+
+/***/ }),
+
+/***/ 24:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+var _event = __webpack_require__(62);
+
+var eventServer = _interopRequireWildcard(_event);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var domServer = {};
+domServer = tool.extend(domServer, eventServer);
+
+exports.default = domServer;
+
+/***/ }),
+
+/***/ 25:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.confirmNodeSelect = exports.reportNodeSelect = exports.receiveSignConfigData = exports.handleElementEventPreventDefault = exports.confirmConcatRequestSginData = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//confirmConfig and requestSignData
+var confirmConcatRequestSginData = exports.confirmConcatRequestSginData = function confirmConcatRequestSginData() {
+    var that = this;
+    that.sendMessage({ type: 'confirmConfig', payload: null });
+    //延时100ms发送请求配置
+    setTimeout(function () {
+        that.sendMessage({ type: 'requestSignData', payload: null });
+    }, 100);
+};
+
+// set element event
+var handleElementEventPreventDefault = exports.handleElementEventPreventDefault = function handleElementEventPreventDefault(payload) {
+    if (tool.isBoolean(payload)) {
+        this.preventDefault = payload;
+        this.sendMessage({ type: 'confirmConfig', payload: this.preventDefault });
+    }
+};
+
+//receive sign config data
+var receiveSignConfigData = exports.receiveSignConfigData = function receiveSignConfigData(payload) {
+    var that = this;
+    if (tool.isEmptyArray(payload)) {
+        return false;
+    }
+    //active dom
+    that.activeDomList = payload;
+    //foreach el
+    var nodeIdList = [];
+    that.activeDomList.forEach(function (item) {
+        if (!item.nodeId || !item.xPath) {
+            return false;
+        }
+        nodeIdList.push(item.nodeId);
+        that.activeElement(item);
+    });
+    //confirm
+    that.sendMessage({ type: 'confirmConfig', payload: nodeIdList });
+};
+
+//report iframe container select node
+var reportNodeSelect = exports.reportNodeSelect = function reportNodeSelect(nodeInfo) {
+    this.sendMessage({ type: 'selectNodeSgin', payload: nodeInfo });
+};
+
+//save active element sgin
+var confirmNodeSelect = exports.confirmNodeSelect = function confirmNodeSelect(nodeId) {
+    if (!nodeId || !tool.isString(nodeId)) {
+        return false;
+    }
+    var nodeInfo = this.nodeInfoCaches[nodeId];
+    if (!nodeInfo) {
+        return false;
+    }
+    this.activeElement(nodeInfo);
+    this.activeDomList.push(nodeInfo);
+    this.sendMessage({ type: 'confirmConfig', payload: nodeId });
+};
+
+/***/ }),
+
+/***/ 26:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//注册上报监听
+var addReportListener = exports.addReportListener = function addReportListener(callback) {
+    if (callback) {
+        this.eventListener.push(callback);
+    }
+};
+
+//处理整理数据
+var handleReportData = exports.handleReportData = function handleReportData(content) {
+    var reportParams = {};
+    var control = {};
+    reportParams.type = "analyse";
+    reportParams.typeName = 'webSignConfig';
+    reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
+    reportParams.data = content;
+    reportParams.reportTime = new Date().getTime();
+    //option
+    control.lazy = false;
+    control.isError = false;
+    control.isReport = true;
+    return {
+        reportParams: reportParams,
+        control: control
+    };
+};
+
+//通知上报
+var noticeReport = exports.noticeReport = function noticeReport(content) {
+    var that = this;
+    if (that.eventListener.length === 0) {
+        return false;
+    }
+    //通知上报
+    that.eventListener.map(function (item) {
+        if (tool.isFunction(item)) {
+            var _that$handleReportDat = that.handleReportData(content),
+                reportParams = _that$handleReportDat.reportParams,
+                control = _that$handleReportDat.control;
+
+            item(reportParams, control);
+        }
+    });
+};
+
+/***/ }),
+
+/***/ 3:
 /***/ (function(module, exports) {
 
 var charenc = {
@@ -514,8 +858,8 @@ module.exports = charenc;
 
 
 /***/ }),
-/* 4 */,
-/* 5 */
+
+/***/ 5:
 /***/ (function(module, exports) {
 
 (function() {
@@ -617,7 +961,8 @@ module.exports = charenc;
 
 
 /***/ }),
-/* 6 */
+
+/***/ 6:
 /***/ (function(module, exports) {
 
 /*!
@@ -644,7 +989,440 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 7 */
+
+/***/ 62:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.activeElement = exports.selectElement = exports.createElementNodeInfo = exports.initDomEvent = undefined;
+
+var _md = __webpack_require__(7);
+
+var _md2 = _interopRequireDefault(_md);
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+var _style = __webpack_require__(63);
+
+var styleServer = _interopRequireWildcard(_style);
+
+var _tab = __webpack_require__(64);
+
+var _xpath = __webpack_require__(65);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var initDomEvent = exports.initDomEvent = function initDomEvent() {
+    var that = this;
+    //load style
+    styleServer.loadStyle();
+    //register click event
+    document.addEventListener('click', function (event) {
+        that.selectElement(event);
+    }, false);
+};
+
+var createElementNodeInfo = exports.createElementNodeInfo = function createElementNodeInfo(element) {
+    var that = this;
+    if (!tool.isElement(element)) {
+        return false;
+    }
+    //validate element nodeType
+    if (!(0, _tab.htmlTabMap)(element.nodeName.toLowerCase())) {
+        console.error('element.nodeType:' + element.nodeName.toLowerCase() + ' unsupport select sgin');
+        return false;
+    }
+    //get cache
+    if (element.getAttribute(_xpath.attrCacheSelect)) {
+        return that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)];
+    }
+    //create
+    var xPath = (0, _xpath.createXPath)(element);
+    var nodeInfo = {
+        nodeType: element.nodeName.toLowerCase(),
+        xPath: xPath,
+        nodeId: (0, _md2.default)(xPath)
+        //save cache
+    };element.setAttribute(_xpath.attrCacheSelect, nodeInfo.nodeId);
+    that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)] = nodeInfo;
+    return nodeInfo;
+};
+
+var selectElement = exports.selectElement = function selectElement(event) {
+    var that = this;
+    var el = event.target;
+    if (that.preventDefault) {
+        event.preventDefault();
+    }
+    //sgin element
+    if (that.selectDom) {
+        styleServer.removeSelelctNodeClass(that.selectDom);
+    }
+    styleServer.addSelelctNodeClass(el);
+    that.selectDom = el;
+    //create node info
+    var nodeInfo = that.createElementNodeInfo(el);
+    //report iframe container select Node
+    that.reportNodeSelect(nodeInfo);
+};
+
+var activeElement = exports.activeElement = function activeElement(nodeInfo) {
+    //parse Xpath get element
+    var xPath = nodeInfo.xPath;
+
+    var el = (0, _xpath.parseXpath)(xPath);
+    if (!el) {
+        this.$devError('xPath no find element: xPath:' + xPath);
+        return false;
+    }
+    //active element
+    styleServer.addActiveNodeClass(el);
+    return el;
+};
+
+/***/ }),
+
+/***/ 63:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.removeActiveNodeClass = exports.addActiveNodeClass = exports.removeSelelctNodeClass = exports.addSelelctNodeClass = exports.loadStyle = exports.activeClassName = exports.selectClassName = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var selectClassName = exports.selectClassName = 'keepObserver-webSgin-SelectNode';
+var activeClassName = exports.activeClassName = 'keepObserver-webSgin-ActiveNode';
+
+var styleContent = '\n    .' + selectClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ff3300 !important;\n        background-color: rgba(255,165,0,0.8) !important;\n    }\n    .' + activeClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ffa500 !important;\n        background-color: rgba(255,51,0,0.8) !important;\n    }\n';
+
+var hasClass = function hasClass(el, Class) {
+    return el.className.match(new RegExp('(\\s|^)' + Class + '(\\s|$)'));
+};
+var addClass = function addClass(el, className) {
+    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
+        return false;
+    }
+    if (hasClass(el, className) && el.className.match) {
+        return false;
+    }
+    el.className += ' ' + className;
+};
+var removeClass = function removeClass(el, className) {
+    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
+        return false;
+    }
+    if (!hasClass(el, className)) {
+        return false;
+    }
+    el.className = el.className.replace(new RegExp('(\\s|^)' + className), '');
+};
+
+var loadStyle = exports.loadStyle = function loadStyle() {
+    var style = document.createElement('style');
+    var head = document.querySelector('head');
+    style.innerHTML = styleContent;
+    head.appendChild(style);
+};
+
+var addSelelctNodeClass = exports.addSelelctNodeClass = function addSelelctNodeClass(el) {
+    return addClass(el, selectClassName);
+};
+
+var removeSelelctNodeClass = exports.removeSelelctNodeClass = function removeSelelctNodeClass(el) {
+    return removeClass(el, selectClassName);
+};
+
+var addActiveNodeClass = exports.addActiveNodeClass = function addActiveNodeClass(el) {
+    return addClass(el, activeClassName);
+};
+
+var removeActiveNodeClass = exports.removeActiveNodeClass = function removeActiveNodeClass(el) {
+    return removeClass(el, activeClassName);
+};
+
+/***/ }),
+
+/***/ 64:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+
+var makeMap = function makeMap(key, valueString) {
+    var map = {};
+    var list = typeof valueString === 'string' ? valueString.split(',') : valueString.toString().split(',');
+    if (Array.isArray(list) && list.length > 0) {
+        map[key] = list;
+    } else {
+        return false;
+    }
+    return function (value) {
+        return map[key].indexOf(value) !== -1 ? true : false;
+    };
+};
+
+//html标签
+var htmlTabMap = exports.htmlTabMap = makeMap('tab', 'a,abbr,address,acronym,article,area,aside,audio,' + 'b,bdi,bdo,big,blockquote,button,body,base,' + 'canvas,caption,cite,code,col,colgroup,command,center,' + 'dd,details,dialog,div,dl,dt,datalist,del,dfn,' + 'em,embed,' + 'fieldset,figcaption,figure,footer,form,frame,frameset,' + 'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,' + 'i,iframe,img,input,ins,' + 'kbd,keygen,' + 'label,legend,li,' + 'menuitem,meta,map,mark,menu,menuitem,meter,' + 'nav,noframes,noscript,' + 'object,ol,optgroup,option,output,' + 'p,param,pre,progress,' + 'q,' + 'rp,rt,ruby,' + 'samp,section,select,small,source,span,strong,sub,summary,sup,' + 'title,tr,track,table,tbody,td,textarea,tfoot,th,thead,time,tt,' + 'u,ul,var,video,wbr');
+
+/***/ }),
+
+/***/ 65:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.parseXpath = exports.createXPath = exports.attrCacheSelect = exports.attrSelectFlag = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var attrSelectFlag = exports.attrSelectFlag = 'keepObserverSelecteElementSgin';
+var attrCacheSelect = exports.attrCacheSelect = 'keepObserverCacheSelecteElementSgin';
+
+var createXPath = exports.createXPath = function createXPath(element) {
+    //id
+    if (element.id) {
+        return '//*[@id="' + element.id + '"]';
+    }
+    //body
+    if (element.nodeName.toLowerCase() === 'body') {
+        return '/html/' + element.nodeName.toLowerCase();
+    }
+    var index = 1;
+    var brotherList = element.parentNode.children;
+    element.setAttribute(attrSelectFlag, true);
+    for (var i = 0, len = brotherList.length; i < len; i++) {
+        var item = brotherList[i];
+        if (item.getAttribute(attrSelectFlag)) {
+            element.removeAttribute(attrSelectFlag);
+            return createXPath(element.parentNode) + '/' + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
+        } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
+            index++;
+        }
+    }
+};
+
+// parse xpath
+// params = xpath (string)
+// return = element
+var parseXpath = exports.parseXpath = function parseXpath(xPath) {
+    var targetNode = false;
+    var contextNode = false;
+    var step = 1;
+    var errorMax = 1000;
+    var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/;
+    var pathStartReg = /^\/html\/body\//;
+    var nodePathReg = /([a-z]+)+(?:\[(\d)+\])?\//;
+    var pathEndReg = /([a-z]+)+(?:\[(\d)+\])?$/;
+    var subStringNext = function subStringNext(str, context) {
+        var len = str.length;
+        return context.substring(len);
+    };
+    //validate
+    if (!xPath || !tool.isString(xPath)) {
+        return false;
+    }
+    //id start
+    if (idReg.test(xPath)) {
+        var content = xPath.match(idReg);
+        var str = content[0];
+        var id = content[1];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.querySelector('#' + id);
+        contextNode = targetNode;
+    }
+    //html start
+    if (pathStartReg.test(xPath)) {
+        var content = xPath.match(pathStartReg);
+        var str = content[0];
+        xPath = subStringNext(str, xPath);
+        //get element
+        targetNode = document.body;
+        contextNode = targetNode;
+    }
+    //get target element
+    while (contextNode && (nodePathReg.test(xPath) || pathEndReg.test(xPath)) && step < errorMax) {
+        step++;
+        targetNode = false;
+        var parseResult = xPath.match(nodePathReg);
+        parseResult = parseResult ? parseResult : xPath.match(pathEndReg);
+        // path info
+        var str = parseResult[0];
+        var nodeType = parseResult[1];
+        var index = parseResult[2] ? parseInt(parseResult[2]) : 1;
+        //query target element
+        var count = 1;
+        var children = tool.toArray(contextNode.children);
+        children.forEach(function (item) {
+            if (targetNode) {
+                return false;
+            }
+            //query
+            var itemType = item.nodeName.toLowerCase();
+            if (itemType === nodeType && index === count) {
+                targetNode = item;
+            } else if (itemType === nodeType) {
+                count++;
+            }
+        });
+        contextNode = targetNode;
+        //next
+        xPath = subStringNext(str, xPath);
+    }
+
+    return targetNode;
+};
+
+/***/ }),
+
+/***/ 66:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _defaultConfig = __webpack_require__(23);
+
+var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+var _api = __webpack_require__(20);
+
+var apiServer = _interopRequireWildcard(_api);
+
+var _handle = __webpack_require__(25);
+
+var handleServer = _interopRequireWildcard(_handle);
+
+var _report = __webpack_require__(26);
+
+var reportServer = _interopRequireWildcard(_report);
+
+var _check = __webpack_require__(21);
+
+var checkServer = _interopRequireWildcard(_check);
+
+var _correspond = __webpack_require__(22);
+
+var correspondServer = _interopRequireWildcard(_correspond);
+
+var _index2 = __webpack_require__(24);
+
+var _index3 = _interopRequireDefault(_index2);
+
+var _index4 = __webpack_require__(1);
+
+var _index5 = _interopRequireDefault(_index4);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+//可视化配置页面埋点
+var KeepObserverWebSignConfig = function (_KeepObserverDetault) {
+    _inherits(KeepObserverWebSignConfig, _KeepObserverDetault);
+
+    //构造函数
+    function KeepObserverWebSignConfig(config) {
+        _classCallCheck(this, KeepObserverWebSignConfig);
+
+        //初始化上传相关实例
+        var _this = _possibleConstructorReturn(this, (KeepObserverWebSignConfig.__proto__ || Object.getPrototypeOf(KeepObserverWebSignConfig)).call(this));
+
+        var webSignConfigCustom = config.webSignConfigCustom || {};
+        _this._config = tool.extend(_defaultConfig2.default, webSignConfigCustom);
+        //监听列表
+        _this.eventListener = [];
+        //flag
+        _this.correspondFlag = false;
+        _this.receiveSginConfigFlag = false;
+        //iframe container target
+        _this.sourceTarget = false;
+        _this.sourceOrigin = false;
+        //meeage event 
+        _this.proxyMessageHandleEvent = false;
+        //dom
+        _this.preventDefault = true;
+        _this.activeDomList = [];
+        _this.nodeInfoCaches = {};
+        _this.selectDom = false;
+        //mixin
+        _this.$mixin(apiServer);
+        _this.$mixin(handleServer);
+        _this.$mixin(reportServer);
+        _this.$mixin(checkServer);
+        _this.$mixin(correspondServer);
+        _this.$mixin(_index3.default);
+        return _this;
+    }
+
+    //提供一个挂载入口
+
+
+    _createClass(KeepObserverWebSignConfig, [{
+        key: 'apply',
+        value: function apply(pipe) {
+            this.addReportListener(pipe.sendPipeMessage);
+            return {
+                $startWebSginConfig: this.startCorrespond
+            };
+        }
+    }]);
+
+    return KeepObserverWebSignConfig;
+}(_index5.default);
+
+exports.default = KeepObserverWebSignConfig;
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 (function(){
@@ -809,812 +1587,7 @@ function isSlowBuffer (obj) {
 })();
 
 
-/***/ }),
-/* 8 */,
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.startCorrespond = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var startCorrespond = exports.startCorrespond = function startCorrespond() {
-    this.registerMessage();
-    this.initDomEvent();
-};
-
-/***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.checkOrigin = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var checkOrigin = exports.checkOrigin = function checkOrigin(origin) {
-    var origins = this._config.origins;
-
-    if (tool.isEmptyArray(origins) || !origin) {
-        return false;
-    }
-    //check load iframe origin url
-    for (var i = 0; i < origins.length; i++) {
-        var item = origins[i];
-        if (item.indexOf(origin) > -1) {
-            return true;
-        }
-    }
-    return false;
-};
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.sendMessage = exports.handleMessage = exports.removeMessage = exports.registerMessage = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var registerMessage = exports.registerMessage = function registerMessage() {
-    var that = this;
-    var correspondWaitTimeout = that._config.correspondWaitTimeout;
-    //proxy
-
-    that.proxyMessageHandleEvent = function (event) {
-        that.handleMessage(event);
-    };
-    //start listener
-    window.addEventListener('message', that.proxyMessageHandleEvent, false);
-    //concat timeout
-    setTimeout(function () {
-        if (!that.correspondFlag) {
-            that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond Connection timeout');
-            that.removeMessage();
-        }
-    }, correspondWaitTimeout);
-};
-
-var removeMessage = exports.removeMessage = function removeMessage() {
-    this.correspondFlag = false;
-    this.sourceTarget = false;
-    this.sourceOrigin = false;
-    window.removeEventListener('message', this.proxyMessageHandleEvent);
-};
-
-var handleMessage = exports.handleMessage = function handleMessage(event) {
-    var that = this;
-    var origin = event.origin || event.originalEvent.origin;
-    var data = event.data;
-    var source = event.source;
-    //validate
-    if (!that.checkOrigin(origin)) {
-        that.$devError('keepObserver KeepObserverWebSignConfig  iframe message origin is error');
-        that.removeMessage();
-        return false;
-    }
-    if (!tool.isExist(data) || tool.isEmptyObject(data) || !data.type) {
-        that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error');
-        return false;
-    }
-    if (!that.correspondFlag) {
-        that.correspondFlag = true;
-        that.sourceTarget = source;
-        that.sourceOrigin = origin;
-    }
-    //flow work
-    switch (data.type) {
-        case 'requestConfig':
-            that.confirmConcatRequestSginData();
-            break;
-        case 'sendSignData':
-            that.receiveSignConfigData(data.payload);
-            break;
-        case 'confirmNodeSgin':
-            that.confirmNodeSelect(data.payload);
-            break;
-        case 'preventDefault':
-            that.handleElementEventPreventDefault(data.payload);
-            break;
-        default:
-            that.$devError('keepObserver KeepObserverWebSignConfig  iframe correspond receive is error : data.type is error type');
-            that.removeMessage();
-    }
-};
-
-var sendMessage = exports.sendMessage = function sendMessage(data) {
-    if (!data || tool.isEmptyObject(data) || !data.type) {
-        return false;
-    }
-    this.sourceTarget.postMessage(data, this.sourceOrigin);
-};
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-
-/*
- 	实例默认配置数据
- */
-exports.default = {
-  //等待连接超时时间
-  correspondWaitTimeout: 10000,
-  //跨域限制来源表
-  origins: []
-};
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _event = __webpack_require__(59);
-
-var eventServer = _interopRequireWildcard(_event);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var domServer = {};
-domServer = tool.extend(domServer, eventServer);
-
-exports.default = domServer;
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.confirmNodeSelect = exports.reportNodeSelect = exports.receiveSignConfigData = exports.handleElementEventPreventDefault = exports.confirmConcatRequestSginData = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//confirmConfig and requestSignData
-var confirmConcatRequestSginData = exports.confirmConcatRequestSginData = function confirmConcatRequestSginData() {
-    var that = this;
-    that.sendMessage({ type: 'confirmConfig', payload: null });
-    //延时100ms发送请求配置
-    setTimeout(function () {
-        that.sendMessage({ type: 'requestSignData', payload: null });
-    }, 100);
-};
-
-// set element event
-var handleElementEventPreventDefault = exports.handleElementEventPreventDefault = function handleElementEventPreventDefault(payload) {
-    if (tool.isBoolean(payload)) {
-        this.preventDefault = payload;
-        this.sendMessage({ type: 'confirmConfig', payload: this.preventDefault });
-    }
-};
-
-//receive sign config data
-var receiveSignConfigData = exports.receiveSignConfigData = function receiveSignConfigData(payload) {
-    var that = this;
-    if (tool.isEmptyArray(payload)) {
-        return false;
-    }
-    //active dom
-    that.activeDomList = payload;
-    //foreach el
-    var nodeIdList = [];
-    that.activeDomList.forEach(function (item) {
-        if (!item.nodeId || !item.xPath) {
-            return false;
-        }
-        nodeIdList.push(item.nodeId);
-        that.activeElement(item);
-    });
-    //confirm
-    that.sendMessage({ type: 'confirmConfig', payload: nodeIdList });
-};
-
-//report iframe container select node
-var reportNodeSelect = exports.reportNodeSelect = function reportNodeSelect(nodeInfo) {
-    this.sendMessage({ type: 'selectNodeSgin', payload: nodeInfo });
-};
-
-//save active element sgin
-var confirmNodeSelect = exports.confirmNodeSelect = function confirmNodeSelect(nodeId) {
-    if (!nodeId || !tool.isString(nodeId)) {
-        return false;
-    }
-    var nodeInfo = this.nodeInfoCaches[nodeId];
-    if (!nodeInfo) {
-        return false;
-    }
-    this.activeElement(nodeInfo);
-    this.activeDomList.push(nodeInfo);
-    this.sendMessage({ type: 'confirmConfig', payload: nodeId });
-};
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//注册上报监听
-var addReportListener = exports.addReportListener = function addReportListener(callback) {
-    if (callback) {
-        this.eventListener.push(callback);
-    }
-};
-
-//处理整理数据
-var handleReportData = exports.handleReportData = function handleReportData(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "analyse";
-    reportParams.typeName = 'webSignConfig';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //option
-    control.lazy = false;
-    control.isError = false;
-    control.isReport = true;
-    return {
-        reportParams: reportParams,
-        control: control
-    };
-};
-
-//通知上报
-var noticeReport = exports.noticeReport = function noticeReport(content) {
-    var that = this;
-    if (that.eventListener.length === 0) {
-        return false;
-    }
-    //通知上报
-    that.eventListener.map(function (item) {
-        if (tool.isFunction(item)) {
-            var _that$handleReportDat = that.handleReportData(content),
-                reportParams = _that$handleReportDat.reportParams,
-                control = _that$handleReportDat.control;
-
-            item(reportParams, control);
-        }
-    });
-};
-
-/***/ }),
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */,
-/* 35 */,
-/* 36 */,
-/* 37 */,
-/* 38 */,
-/* 39 */,
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */,
-/* 57 */,
-/* 58 */,
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.activeElement = exports.selectElement = exports.createElementNodeInfo = exports.initDomEvent = undefined;
-
-var _md = __webpack_require__(7);
-
-var _md2 = _interopRequireDefault(_md);
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _style = __webpack_require__(60);
-
-var styleServer = _interopRequireWildcard(_style);
-
-var _tab = __webpack_require__(61);
-
-var _xpath = __webpack_require__(62);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var initDomEvent = exports.initDomEvent = function initDomEvent() {
-    var that = this;
-    //load style
-    styleServer.loadStyle();
-    //register click event
-    document.addEventListener('click', function (event) {
-        that.selectElement(event);
-    }, false);
-};
-
-var createElementNodeInfo = exports.createElementNodeInfo = function createElementNodeInfo(element) {
-    var that = this;
-    if (!tool.isElement(element)) {
-        return false;
-    }
-    //validate element nodeType
-    if (!(0, _tab.htmlTabMap)(element.nodeName.toLowerCase())) {
-        console.error('element.nodeType:' + element.nodeName.toLowerCase() + ' unsupport select sgin');
-        return false;
-    }
-    //get cache
-    if (element.getAttribute(_xpath.attrCacheSelect)) {
-        return that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)];
-    }
-    //create
-    var xPath = (0, _xpath.createXPath)(element);
-    var nodeInfo = {
-        nodeType: element.nodeName.toLowerCase(),
-        xPath: xPath,
-        nodeId: (0, _md2.default)(xPath)
-        //save cache
-    };element.setAttribute(_xpath.attrCacheSelect, nodeInfo.nodeId);
-    that.nodeInfoCaches[element.getAttribute(_xpath.attrCacheSelect)] = nodeInfo;
-    return nodeInfo;
-};
-
-var selectElement = exports.selectElement = function selectElement(event) {
-    var that = this;
-    var el = event.target;
-    if (that.preventDefault) {
-        event.preventDefault();
-    }
-    //sgin element
-    if (that.selectDom) {
-        styleServer.removeSelelctNodeClass(that.selectDom);
-    }
-    styleServer.addSelelctNodeClass(el);
-    that.selectDom = el;
-    //create node info
-    var nodeInfo = that.createElementNodeInfo(el);
-    //report iframe container select Node
-    that.reportNodeSelect(nodeInfo);
-};
-
-var activeElement = exports.activeElement = function activeElement(nodeInfo) {
-    //parse Xpath get element
-    var xPath = nodeInfo.xPath;
-
-    var el = (0, _xpath.parseXpath)(xPath);
-    if (!el) {
-        this.$devError('xPath no find element: xPath:' + xPath);
-        return false;
-    }
-    //active element
-    styleServer.addActiveNodeClass(el);
-    return el;
-};
-
-/***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.removeActiveNodeClass = exports.addActiveNodeClass = exports.removeSelelctNodeClass = exports.addSelelctNodeClass = exports.loadStyle = exports.activeClassName = exports.selectClassName = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var selectClassName = exports.selectClassName = 'keepObserver-webSgin-SelectNode';
-var activeClassName = exports.activeClassName = 'keepObserver-webSgin-ActiveNode';
-
-var styleContent = '\n    .' + selectClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ff3300 !important;\n        background-color: rgba(255,165,0,0.8) !important;\n    }\n    .' + activeClassName + '{\n        box-sizing: border-box !important;\n        border: 1px dashed #ffa500 !important;\n        background-color: rgba(255,51,0,0.8) !important;\n    }\n';
-
-var hasClass = function hasClass(el, Class) {
-    return el.className.match(new RegExp('(\\s|^)' + Class + '(\\s|$)'));
-};
-var addClass = function addClass(el, className) {
-    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
-        return false;
-    }
-    if (hasClass(el, className) && el.className.match) {
-        return false;
-    }
-    el.className += ' ' + className;
-};
-var removeClass = function removeClass(el, className) {
-    if (!tool.isElement(el) || !tool.isString(className) || tool.isSVGElement(el)) {
-        return false;
-    }
-    if (!hasClass(el, className)) {
-        return false;
-    }
-    el.className = el.className.replace(new RegExp('(\\s|^)' + className), '');
-};
-
-var loadStyle = exports.loadStyle = function loadStyle() {
-    var style = document.createElement('style');
-    var head = document.querySelector('head');
-    style.innerHTML = styleContent;
-    head.appendChild(style);
-};
-
-var addSelelctNodeClass = exports.addSelelctNodeClass = function addSelelctNodeClass(el) {
-    return addClass(el, selectClassName);
-};
-
-var removeSelelctNodeClass = exports.removeSelelctNodeClass = function removeSelelctNodeClass(el) {
-    return removeClass(el, selectClassName);
-};
-
-var addActiveNodeClass = exports.addActiveNodeClass = function addActiveNodeClass(el) {
-    return addClass(el, activeClassName);
-};
-
-var removeActiveNodeClass = exports.removeActiveNodeClass = function removeActiveNodeClass(el) {
-    return removeClass(el, activeClassName);
-};
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-
-var makeMap = function makeMap(key, valueString) {
-    var map = {};
-    var list = typeof valueString === 'string' ? valueString.split(',') : valueString.toString().split(',');
-    if (Array.isArray(list) && list.length > 0) {
-        map[key] = list;
-    } else {
-        return false;
-    }
-    return function (value) {
-        return map[key].indexOf(value) !== -1 ? true : false;
-    };
-};
-
-//html标签
-var htmlTabMap = exports.htmlTabMap = makeMap('tab', 'a,abbr,address,acronym,article,area,aside,audio,' + 'b,bdi,bdo,big,blockquote,button,body,base,' + 'canvas,caption,cite,code,col,colgroup,command,center,' + 'dd,details,dialog,div,dl,dt,datalist,del,dfn,' + 'em,embed,' + 'fieldset,figcaption,figure,footer,form,frame,frameset,' + 'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,' + 'i,iframe,img,input,ins,' + 'kbd,keygen,' + 'label,legend,li,' + 'menuitem,meta,map,mark,menu,menuitem,meter,' + 'nav,noframes,noscript,' + 'object,ol,optgroup,option,output,' + 'p,param,pre,progress,' + 'q,' + 'rp,rt,ruby,' + 'samp,section,select,small,source,span,strong,sub,summary,sup,' + 'title,tr,track,table,tbody,td,textarea,tfoot,th,thead,time,tt,' + 'u,ul,var,video,wbr');
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.parseXpath = exports.createXPath = exports.attrCacheSelect = exports.attrSelectFlag = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var attrSelectFlag = exports.attrSelectFlag = 'keepObserverSelecteElementSgin';
-var attrCacheSelect = exports.attrCacheSelect = 'keepObserverCacheSelecteElementSgin';
-
-var createXPath = exports.createXPath = function createXPath(element) {
-    //id
-    if (element.id) {
-        return '//*[@id="' + element.id + '"]';
-    }
-    //body
-    if (element.nodeName.toLowerCase() === 'body') {
-        return '/html/' + element.nodeName.toLowerCase();
-    }
-    var index = 1;
-    var brotherList = element.parentNode.children;
-    element.setAttribute(attrSelectFlag, true);
-    for (var i = 0, len = brotherList.length; i < len; i++) {
-        var item = brotherList[i];
-        if (item.getAttribute(attrSelectFlag)) {
-            element.removeAttribute(attrSelectFlag);
-            return createXPath(element.parentNode) + '/' + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
-        } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
-            index++;
-        }
-    }
-};
-
-// parse xpath
-// params = xpath (string)
-// return = element
-var parseXpath = exports.parseXpath = function parseXpath(xPath) {
-    var targetNode = false;
-    var contextNode = false;
-    var step = 1;
-    var errorMax = 1000;
-    var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/;
-    var pathStartReg = /^\/html\/body\//;
-    var nodePathReg = /([a-z]+)+(?:\[(\d)+\])?\//;
-    var pathEndReg = /([a-z]+)+(?:\[(\d)+\])?$/;
-    var subStringNext = function subStringNext(str, context) {
-        var len = str.length;
-        return context.substring(len);
-    };
-    //validate
-    if (!xPath || !tool.isString(xPath)) {
-        return false;
-    }
-    //id start
-    if (idReg.test(xPath)) {
-        var content = xPath.match(idReg);
-        var str = content[0];
-        var id = content[1];
-        xPath = subStringNext(str, xPath);
-        //get element
-        targetNode = document.querySelector('#' + id);
-        contextNode = targetNode;
-    }
-    //html start
-    if (pathStartReg.test(xPath)) {
-        var content = xPath.match(pathStartReg);
-        var str = content[0];
-        xPath = subStringNext(str, xPath);
-        //get element
-        targetNode = document.body;
-        contextNode = targetNode;
-    }
-    //get target element
-    while (contextNode && (nodePathReg.test(xPath) || pathEndReg.test(xPath)) && step < errorMax) {
-        step++;
-        targetNode = false;
-        var parseResult = xPath.match(nodePathReg);
-        parseResult = parseResult ? parseResult : xPath.match(pathEndReg);
-        // path info
-        var str = parseResult[0];
-        var nodeType = parseResult[1];
-        var index = parseResult[2] ? parseInt(parseResult[2]) : 1;
-        //query target element
-        var count = 1;
-        var children = tool.toArray(contextNode.children);
-        children.forEach(function (item) {
-            if (targetNode) {
-                return false;
-            }
-            //query
-            var itemType = item.nodeName.toLowerCase();
-            if (itemType === nodeType && index === count) {
-                targetNode = item;
-            } else if (itemType === nodeType) {
-                count++;
-            }
-        });
-        contextNode = targetNode;
-        //next
-        xPath = subStringNext(str, xPath);
-    }
-
-    return targetNode;
-};
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _defaultConfig = __webpack_require__(22);
-
-var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-var _api = __webpack_require__(19);
-
-var apiServer = _interopRequireWildcard(_api);
-
-var _handle = __webpack_require__(24);
-
-var handleServer = _interopRequireWildcard(_handle);
-
-var _report = __webpack_require__(25);
-
-var reportServer = _interopRequireWildcard(_report);
-
-var _check = __webpack_require__(20);
-
-var checkServer = _interopRequireWildcard(_check);
-
-var _correspond = __webpack_require__(21);
-
-var correspondServer = _interopRequireWildcard(_correspond);
-
-var _index2 = __webpack_require__(23);
-
-var _index3 = _interopRequireDefault(_index2);
-
-var _index4 = __webpack_require__(1);
-
-var _index5 = _interopRequireDefault(_index4);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-//可视化配置页面埋点
-var KeepObserverWebSignConfig = function (_KeepObserverDetault) {
-    _inherits(KeepObserverWebSignConfig, _KeepObserverDetault);
-
-    //构造函数
-    function KeepObserverWebSignConfig(config) {
-        _classCallCheck(this, KeepObserverWebSignConfig);
-
-        //初始化上传相关实例
-        var _this = _possibleConstructorReturn(this, (KeepObserverWebSignConfig.__proto__ || Object.getPrototypeOf(KeepObserverWebSignConfig)).call(this));
-
-        var webSignConfigCustom = config.webSignConfigCustom || {};
-        _this._config = tool.extend(_defaultConfig2.default, webSignConfigCustom);
-        //监听列表
-        _this.eventListener = [];
-        //flag
-        _this.correspondFlag = false;
-        _this.receiveSginConfigFlag = false;
-        //iframe container target
-        _this.sourceTarget = false;
-        _this.sourceOrigin = false;
-        //meeage event 
-        _this.proxyMessageHandleEvent = false;
-        //dom
-        _this.preventDefault = true;
-        _this.activeDomList = [];
-        _this.nodeInfoCaches = {};
-        _this.selectDom = false;
-        //mixin
-        _this.$mixin(apiServer);
-        _this.$mixin(handleServer);
-        _this.$mixin(reportServer);
-        _this.$mixin(checkServer);
-        _this.$mixin(correspondServer);
-        _this.$mixin(_index3.default);
-        return _this;
-    }
-
-    //提供一个挂载入口
-
-
-    _createClass(KeepObserverWebSignConfig, [{
-        key: 'apply',
-        value: function apply(pipe) {
-            this.addReportListener(pipe.sendPipeMessage);
-            return {
-                $startWebSginConfig: this.startCorrespond
-            };
-        }
-    }]);
-
-    return KeepObserverWebSignConfig;
-}(_index5.default);
-
-exports.default = KeepObserverWebSignConfig;
-
 /***/ })
-/******/ ]);
+
+/******/ });
 });

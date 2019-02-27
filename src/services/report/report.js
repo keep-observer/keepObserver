@@ -166,6 +166,7 @@ export var _createReportData = function(params, control) {
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion
     reportData.reportTime = params.reportTime;
+    reportData.deviceID = that.$props.deviceID;
     reportData.location = params.location;
     reportData.environment = params.environment;
     reportData.data = params.data;

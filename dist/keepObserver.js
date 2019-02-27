@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 51);
+/******/ 	return __webpack_require__(__webpack_require__.s = 54);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -304,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -484,6 +484,52 @@ exports.default = KeepObserverDefault;
 
 
 Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//storge-key
+var RecordKey = 'deviceId';
+
+var getDeviceId = function getDeviceId() {
+    return storageModel();
+};
+
+//localStorage model
+var storageModel = function storageModel() {
+    if (!window.localStorage) {
+        return false;
+    }
+    var deviceID = tool.getStorage(RecordKey);
+    if (!deviceID) {
+        deviceID = tool.getUniqueID();
+        tool.setStorage(RecordKey, deviceID);
+    }
+    return deviceID;
+};
+
+//iframe model
+//暂未开启 需要先写好iframe页面
+//这里还有个问题 iframe是异步获取deviceID 现在的流程放在instance初始化阶段, 异步获取会影响接下来一些流程
+//暂不启用, 放在第二次重构升级在启用
+var iframeModel = function iframeModel() {};
+
+exports.default = getDeviceId;
+
+/***/ }),
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
@@ -505,7 +551,7 @@ exports.default = initServer;
 
 /***/ }),
 
-/***/ 11:
+/***/ 12:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -525,7 +571,7 @@ var _index3 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index3);
 
-var _update = __webpack_require__(52);
+var _update = __webpack_require__(55);
 
 var updateServer = _interopRequireWildcard(_update);
 
@@ -592,7 +638,7 @@ exports.default = mixinMethod;
 
 /***/ }),
 
-/***/ 12:
+/***/ 13:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -612,23 +658,23 @@ var _index3 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index3);
 
-var _injection = __webpack_require__(53);
+var _injection = __webpack_require__(56);
 
 var injectionServer = _interopRequireWildcard(_injection);
 
-var _receiveQueue = __webpack_require__(56);
+var _receiveQueue = __webpack_require__(59);
 
 var receiveServer = _interopRequireWildcard(_receiveQueue);
 
-var _triggerQueue = __webpack_require__(57);
+var _triggerQueue = __webpack_require__(60);
 
 var triggerServer = _interopRequireWildcard(_triggerQueue);
 
-var _receiveLock = __webpack_require__(55);
+var _receiveLock = __webpack_require__(58);
 
 var queueLockServer = _interopRequireWildcard(_receiveLock);
 
-var _preventAnomaly = __webpack_require__(54);
+var _preventAnomaly = __webpack_require__(57);
 
 var preventAnomaly = _interopRequireWildcard(_preventAnomaly);
 
@@ -645,13 +691,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var keepObserverPipe = function (_KeepObserverDetault) {
     _inherits(keepObserverPipe, _KeepObserverDetault);
 
-    function keepObserverPipe(keepObserver, config) {
+    function keepObserverPipe(keepObserver, config, props) {
         _classCallCheck(this, keepObserverPipe);
 
         //获取实例配置
         var _this = _possibleConstructorReturn(this, (keepObserverPipe.__proto__ || Object.getPrototypeOf(keepObserverPipe)).call(this));
 
         _this._config = config;
+        //获取实例属性
+        _this._props = props;
         //获取kp实例
         _this.$keepObserver = keepObserver;
         //消息是否在等待
@@ -695,9 +743,9 @@ var keepObserverPipe = function (_KeepObserverDetault) {
 //提供混合管道入口
 
 
-var mixinPipe = function mixinPipe(keepObserver, config) {
+var mixinPipe = function mixinPipe(keepObserver, config, props) {
     //这里不用做判断,最初的模块挂载到实例
-    var Pipe = new keepObserverPipe(keepObserver, config);
+    var Pipe = new keepObserverPipe(keepObserver, config, props);
     var applyInjection = Pipe.apply();
     //循环挂载到keepobserver上
     for (var key in applyInjection) {
@@ -734,11 +782,15 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 51:
+/***/ 54:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
 var _index = __webpack_require__(0);
 
@@ -754,17 +806,21 @@ var _defaultConfig = __webpack_require__(9);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
-var _index5 = __webpack_require__(12);
+var _index5 = __webpack_require__(13);
 
 var _index6 = _interopRequireDefault(_index5);
 
-var _index7 = __webpack_require__(11);
+var _index7 = __webpack_require__(12);
 
 var _index8 = _interopRequireDefault(_index7);
 
-var _init = __webpack_require__(10);
+var _init = __webpack_require__(11);
 
 var _init2 = _interopRequireDefault(_init);
+
+var _deviceID = __webpack_require__(10);
+
+var _deviceID2 = _interopRequireDefault(_deviceID);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -788,12 +844,16 @@ var KeepObserver = function (_KeepObserverDetault) {
         var _this = _possibleConstructorReturn(this, (KeepObserver.__proto__ || Object.getPrototypeOf(KeepObserver)).call(this));
 
         _this._config = tool.extend(_defaultConfig2.default, config);
-        //版本号
-        _this._version = _index2.version;
+        //实例共享属性
+        _this._props = {
+            version: _index2.version,
+            deviceID: (0, _deviceID2.default)()
+            //版本号
+        };_this._version = _index2.version;
         //混合管道
-        (0, _index6.default)(_this, config);
+        (0, _index6.default)(_this, _this._config, _this._props);
         //混合方法
-        (0, _index8.default)(_this, config);
+        (0, _index8.default)(_this, _this._config);
         //init
         _init2.default.call(_this);
         return _this;
@@ -802,14 +862,14 @@ var KeepObserver = function (_KeepObserverDetault) {
     return KeepObserver;
 }(_index4.default);
 
-module.exports = KeepObserver;
-module.exports.default = module.exports;
+// module.exports = KeepObserver
+// module.exports.default = module.exports;
 
-// export default KeepObserver
+exports.default = KeepObserver;
 
 /***/ }),
 
-/***/ 52:
+/***/ 55:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -848,7 +908,7 @@ var updateVersionClearCache = exports.updateVersionClearCache = function updateV
 
 /***/ }),
 
-/***/ 53:
+/***/ 56:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -878,7 +938,8 @@ var use = exports.use = function use(Provider) {
     }
     //初始化注入服务
     var config = this._config;
-    var providerInstalcen = new Provider(config);
+    var props = this._props;
+    var providerInstalcen = new Provider(config, props);
     //检查注入方法是否存在存在apply,存在则加入到管道流中
     //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var apply = providerInstalcen.apply;
@@ -1019,7 +1080,7 @@ var mixinKoInstance = exports.mixinKoInstance = function mixinKoInstance(scope, 
 
 /***/ }),
 
-/***/ 54:
+/***/ 57:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1103,7 +1164,7 @@ var resetStackCount = exports.resetStackCount = function resetStackCount() {
 
 /***/ }),
 
-/***/ 55:
+/***/ 58:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1155,7 +1216,7 @@ var closeLock = exports.closeLock = function closeLock() {
 
 /***/ }),
 
-/***/ 56:
+/***/ 59:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1203,7 +1264,7 @@ var registerRecivePipeMessage = exports.registerRecivePipeMessage = function reg
 
 /***/ }),
 
-/***/ 57:
+/***/ 60:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

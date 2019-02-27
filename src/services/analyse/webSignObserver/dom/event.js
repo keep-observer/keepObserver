@@ -7,8 +7,6 @@ var attributeKey = 'keepObserverUniqueID'+tool.getUniqueID().substring(0,8)
 
 
 
-
-
 //初始化替换node.addEventListener方法
 export var initPatchNodeEvent = function(){
     var that = this;
@@ -32,7 +30,7 @@ export var initPatchNodeEvent = function(){
             }
             //patch = args[1] = eventHandleFunction setTimeout 
             var handle = args[1]
-            args[1] = that.nodeEventPatchHandle(target,handle)
+            args[1] = that.addNodeEventPatchHandle(target,handle)
             //挂载原生方法上
             return that._addEventListener.apply(target,args)
         }
@@ -49,8 +47,7 @@ export var initPatchNodeEvent = function(){
                 return false;
             }
             //获取保存的handle remove
-            var id = md5(target.nodeName.toLowerCase() + args[1].toString())
-            var patchHandleFn = that._patchEventListenerMap[id]
+            var patchHandleFn = that.removeNodeEventPatchHandle(target,args[1])
             if(!patchHandleFn || !tool.isFunction(patchHandleFn)){
                 that.$devError('element removeEventListener not find save PatchHandleFn')
                 return false;
@@ -66,11 +63,8 @@ export var initPatchNodeEvent = function(){
     return true
 }
 
-
-
-
 //替换函数执行 并且保存到缓存，为了remove做准备
-export var nodeEventPatchHandle = function(el,handleFn){
+export var addNodeEventPatchHandle = function(el,handleFn){
     var that = this;
     var timeoutDispatchEvent = that._config.timeoutDispatchEvent
     var id = md5(el.nodeName.toLowerCase() + handleFn.toString())
@@ -89,8 +83,37 @@ export var nodeEventPatchHandle = function(el,handleFn){
     return patchHandleFn
 }
 
+//替换函数从缓存中读取 next remove
+export var removeNodeEventPatchHandle = function(el,handleFn){
+    var id = md5(el.nodeName.toLowerCase() + args[1].toString())
+    return this._patchEventListenerMap[id]
+}
 
 
 
+
+//标记元素添加观察
+export var addNodeObserverListener = function(nodeInfo,handleFn){
+    var that = this;
+    var { xPath,signEventName,inputFlag } = nodeInfo
+    var el = parseXpath(xPath)
+    if(!el || !tool.isElement(el) || !signEventName || !tool.isString(signEventName)){
+        return false;
+    }
+    var handleEvent = function(){
+        var event = event || window.event;
+        return handleFn.call(that,event,nodeInfo)
+    }
+    //重新挂载事件
+    that._addEventListener.apply(el,[signEventName,handleEvent])
+    //set sgin
+    el.setAttribute(attributeKey,true)
+    //return destroyEvent
+    return function(){
+        if(el && tool.isElement(el)){
+            that._removeEventListener.apply(el,[signEventName,handleEvent])
+        }
+    }
+}
 
 

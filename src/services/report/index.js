@@ -17,7 +17,7 @@ import * as responseServer from './response.js'
 // report Server 
 class KeepObserverReport extends KeepObserverDefault {
     //constructor
-    constructor(config) {
+    constructor(config,props){
         super(config);
         //存混合配置
         var reportConfig = config.reportCustom || {};
@@ -31,6 +31,8 @@ class KeepObserverReport extends KeepObserverDefault {
         reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
         //混合默认配置
         this.$report_config = tool.extend(defaultConfig, reportConfig);
+        //获取属性
+        this.$props = tool.extend({},props)
         //监听事件
         this.eventListener = []
         //上传数据保存

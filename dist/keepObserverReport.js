@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 73);
+/******/ 	return __webpack_require__(__webpack_require__.s = 76);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -304,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -493,7 +493,7 @@ var version = exports.version = '1.1.0';
 
 /***/ }),
 
-/***/ 46:
+/***/ 49:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -547,7 +547,7 @@ var $setCustomeReportData = exports.$setCustomeReportData = function $setCustome
 
 /***/ }),
 
-/***/ 47:
+/***/ 50:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -590,7 +590,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 48:
+/***/ 51:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -715,7 +715,7 @@ var _removeReportData = exports._removeReportData = function _removeReportData(t
 
 /***/ }),
 
-/***/ 49:
+/***/ 52:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -730,7 +730,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _ajax = __webpack_require__(72);
+var _ajax = __webpack_require__(75);
 
 var _ajax2 = _interopRequireDefault(_ajax);
 
@@ -896,6 +896,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion;
     reportData.reportTime = params.reportTime;
+    reportData.deviceID = that.$props.deviceID;
     reportData.location = params.location;
     reportData.environment = params.environment;
     reportData.data = params.data;
@@ -969,7 +970,7 @@ var _handleReportFail = exports._handleReportFail = function _handleReportFail(o
 
 /***/ }),
 
-/***/ 50:
+/***/ 53:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1030,7 +1031,7 @@ var noticeResponse = exports.noticeResponse = function noticeResponse(type, cont
 
 /***/ }),
 
-/***/ 72:
+/***/ 75:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1161,7 +1162,7 @@ exports.default = AjaxServer;
 
 /***/ }),
 
-/***/ 73:
+/***/ 76:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1179,7 +1180,7 @@ var _index2 = _interopRequireDefault(_index);
 
 var _index3 = __webpack_require__(2);
 
-var _defaultConfig = __webpack_require__(47);
+var _defaultConfig = __webpack_require__(50);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1187,19 +1188,19 @@ var _index4 = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index4);
 
-var _api = __webpack_require__(46);
+var _api = __webpack_require__(49);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _handle = __webpack_require__(48);
+var _handle = __webpack_require__(51);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _report = __webpack_require__(49);
+var _report = __webpack_require__(52);
 
 var reportServer = _interopRequireWildcard(_report);
 
-var _response = __webpack_require__(50);
+var _response = __webpack_require__(53);
 
 var responseServer = _interopRequireWildcard(_response);
 
@@ -1218,7 +1219,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
     _inherits(KeepObserverReport, _KeepObserverDefault);
 
     //constructor
-    function KeepObserverReport(config) {
+    function KeepObserverReport(config, props) {
         _classCallCheck(this, KeepObserverReport);
 
         //存混合配置
@@ -1235,6 +1236,8 @@ var KeepObserverReport = function (_KeepObserverDefault) {
         reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
         //混合默认配置
         _this.$report_config = tool.extend(_defaultConfig2.default, reportConfig);
+        //获取属性
+        _this.$props = tool.extend({}, props);
         //监听事件
         _this.eventListener = [];
         //上传数据保存

@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 68);
+/******/ 	return __webpack_require__(__webpack_require__.s = 71);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -304,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -477,7 +477,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 35:
+/***/ 38:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -508,7 +508,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 36:
+/***/ 39:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -538,7 +538,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 37:
+/***/ 40:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -553,7 +553,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _tool = __webpack_require__(69);
+var _tool = __webpack_require__(72);
 
 var networkTool = _interopRequireWildcard(_tool);
 
@@ -879,7 +879,7 @@ var _handleJudgeDisbale = exports._handleJudgeDisbale = function _handleJudgeDis
 
 /***/ }),
 
-/***/ 38:
+/***/ 41:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -950,7 +950,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 68:
+/***/ 71:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -962,7 +962,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(36);
+var _defaultConfig = __webpack_require__(39);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -970,15 +970,15 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _handle = __webpack_require__(37);
+var _handle = __webpack_require__(40);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(35);
+var _api = __webpack_require__(38);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(38);
+var _report = __webpack_require__(41);
 
 var reportServer = _interopRequireWildcard(_report);
 
@@ -1073,7 +1073,7 @@ exports.default = KeepObserverNetwork;
 
 /***/ }),
 
-/***/ 69:
+/***/ 72:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -14,11 +14,13 @@ import * as preventAnomaly from './preventAnomaly.js'
 
 class keepObserverPipe extends KeepObserverDetault {
 
-    constructor(keepObserver, config) {
+    constructor(keepObserver, config,props) {
         super()
 
         //获取实例配置
         this._config = config;
+        //获取实例属性
+        this._props = props;
         //获取kp实例
         this.$keepObserver = keepObserver;
         //消息是否在等待
@@ -59,9 +61,9 @@ class keepObserverPipe extends KeepObserverDetault {
 
 
 //提供混合管道入口
-var mixinPipe = function(keepObserver, config) {
+var mixinPipe = function(keepObserver, config ,props) {
     //这里不用做判断,最初的模块挂载到实例
-    var Pipe = new keepObserverPipe(keepObserver, config)
+    var Pipe = new keepObserverPipe(keepObserver, config ,props)
     var applyInjection = Pipe.apply()
         //循环挂载到keepobserver上
     for (var key in applyInjection) {

@@ -207,7 +207,7 @@ export function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 export function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function(c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function(c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : (c == 't' ? t :(r & 0x3 | 0x8));

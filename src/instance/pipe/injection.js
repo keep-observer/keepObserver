@@ -15,7 +15,8 @@ export var use = function(Provider) {
     }
     //初始化注入服务
     var config = this._config
-    var providerInstalcen = new Provider(config);
+    var props = this._props
+    var providerInstalcen = new Provider(config,props);
     //检查注入方法是否存在存在apply,存在则加入到管道流中
     //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var {
@@ -28,6 +29,7 @@ export var use = function(Provider) {
         return false;
     }
 }
+
 
 
 

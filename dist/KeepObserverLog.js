@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 67);
+/******/ 	return __webpack_require__(__webpack_require__.s = 70);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -304,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -477,7 +477,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 31:
+/***/ 34:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -518,7 +518,7 @@ var startObserver = exports.startObserver = function startObserver() {
 
 /***/ }),
 
-/***/ 32:
+/***/ 35:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -541,7 +541,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 33:
+/***/ 36:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -722,7 +722,7 @@ var _handleError = exports._handleError = function _handleError(errorEvent) {
 
 /***/ }),
 
-/***/ 34:
+/***/ 37:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -796,7 +796,7 @@ var noticeReport = exports.noticeReport = function noticeReport(content) {
 
 /***/ }),
 
-/***/ 67:
+/***/ 70:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -808,7 +808,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(32);
+var _defaultConfig = __webpack_require__(35);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -820,15 +820,15 @@ var _index2 = __webpack_require__(1);
 
 var _index3 = _interopRequireDefault(_index2);
 
-var _handle = __webpack_require__(33);
+var _handle = __webpack_require__(36);
 
 var handleServer = _interopRequireWildcard(_handle);
 
-var _api = __webpack_require__(31);
+var _api = __webpack_require__(34);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(34);
+var _report = __webpack_require__(37);
 
 var reportServer = _interopRequireWildcard(_report);
 

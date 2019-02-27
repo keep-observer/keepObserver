@@ -1,10 +1,15 @@
 import defaultConfig from './defaultConfig.js';
 import * as tool from '../../../tool/index.js';
 
+
 import * as apiServer from './api.js'
 import * as reportServer from './report.js'
 import * as responseServer from './response.js'
+import * as handleServer from './handle.js'
+import * as hookServer from './hook.js'
 import domServer from './dom/index.js'
+
+
 
 import KeepObserverDetault from '../../../default/index.js';
 
@@ -18,10 +23,10 @@ class keepObserverWebSignAnalyse extends KeepObserverDetault {
     constructor(config) {
         super()
         //初始化上传相关实例
-        var WebSignAnalyseCustom = config.WebSignAnalyseCustom || {};
-        this._config = tool.extend(defaultConfig, WebSignAnalyseCustom)
+        var webSignAnalyseCustom = config.webSignAnalyseCustom || {};
+        this._config = tool.extend(defaultConfig, webSignAnalyseCustom)
         //type 
-        this.typeName = 'webSignObserver'
+        this.typeName = 'webSignAnalyse'
         //监听列表
         this.eventListener = [];
         //原生方法
@@ -30,12 +35,14 @@ class keepObserverWebSignAnalyse extends KeepObserverDetault {
         //拦截到的方法集合
         this._patchEventListenerMap = {}
         //埋点element map
-        this.sginElementMap = {}
+        this.elementSginListenerMap = {}
         //mixin
         this.$mixin(apiServer)
         this.$mixin(reportServer)
         this.$mixin(responseServer)
         this.$mixin(domServer)
+        this.$mixin(handleServer)
+        this.$mixin(hookServer)
         //init
         this.initPatchNodeEvent()
     }
@@ -46,6 +53,10 @@ class keepObserverWebSignAnalyse extends KeepObserverDetault {
         var that = this;
         pipe.registerRecivePipeMessage(that._getReportContent, that)
         that.addReportListener(pipe.sendPipeMessage)
+        //在挂载后进行初始化load
+        setTimeout(function(){
+            that.loadRequestSginData()
+        })
         return {
             $beginObserverAnalyse: that.beginObserverAnalyse  
         }

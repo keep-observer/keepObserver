@@ -16,7 +16,7 @@ export var registerAnalyseDomEvent = function(el,fn){
 	if(type === 'input' || type ==='textarea' || type ==='select'){
 		event = 'change'
 	}
-	//重新挂载事件,埋点事件排列到首位
+	//重新挂载事件
 	that._addEventListener.apply(el,[event,fn])
     //set sgin
     el.setAttribute(attributeKey,true)

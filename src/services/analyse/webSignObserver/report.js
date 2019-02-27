@@ -13,7 +13,6 @@ export var addReportListener = function(callback) {
 
 
 
-
 //处理整理数据
 export var handleReportData = function(content,load) {
     var reportParams = {};
@@ -44,7 +43,7 @@ export var handleReportData = function(content,load) {
 
 
 //通知上报
-export var noticeReport = function(content) {
+export var noticeReport = function(content,load) {
     var that = this;
     if (that.eventListener.length === 0) {
         return false;
@@ -55,7 +54,7 @@ export var noticeReport = function(content) {
             var {
                 reportParams,
                 control
-            } = that.handleReportData(content)
+            } = that.handleReportData(content,load)
             item(reportParams, control);
         }
     })

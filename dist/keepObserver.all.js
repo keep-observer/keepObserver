@@ -303,7 +303,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -806,13 +806,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var keepObserverPipe = function (_KeepObserverDetault) {
     _inherits(keepObserverPipe, _KeepObserverDetault);
 
-    function keepObserverPipe(keepObserver, config) {
+    function keepObserverPipe(keepObserver, config, props) {
         _classCallCheck(this, keepObserverPipe);
 
         //获取实例配置
         var _this = _possibleConstructorReturn(this, (keepObserverPipe.__proto__ || Object.getPrototypeOf(keepObserverPipe)).call(this));
 
         _this._config = config;
+        //获取实例属性
+        _this._props = props;
         //获取kp实例
         _this.$keepObserver = keepObserver;
         //消息是否在等待
@@ -856,9 +858,9 @@ var keepObserverPipe = function (_KeepObserverDetault) {
 //提供混合管道入口
 
 
-var mixinPipe = function mixinPipe(keepObserver, config) {
+var mixinPipe = function mixinPipe(keepObserver, config, props) {
     //这里不用做判断,最初的模块挂载到实例
-    var Pipe = new keepObserverPipe(keepObserver, config);
+    var Pipe = new keepObserverPipe(keepObserver, config, props);
     var applyInjection = Pipe.apply();
     //循环挂载到keepobserver上
     for (var key in applyInjection) {
@@ -908,7 +910,8 @@ var use = exports.use = function use(Provider) {
     }
     //初始化注入服务
     var config = this._config;
-    var providerInstalcen = new Provider(config);
+    var props = this._props;
+    var providerInstalcen = new Provider(config, props);
     //检查注入方法是否存在存在apply,存在则加入到管道流中
     //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var apply = providerInstalcen.apply;
@@ -2813,7 +2816,7 @@ var KeepObserverReport = function (_KeepObserverDefault) {
     _inherits(KeepObserverReport, _KeepObserverDefault);
 
     //constructor
-    function KeepObserverReport(config) {
+    function KeepObserverReport(config, props) {
         _classCallCheck(this, KeepObserverReport);
 
         //存混合配置
@@ -2830,6 +2833,8 @@ var KeepObserverReport = function (_KeepObserverDefault) {
         reportConfig.develogDeleteLog = config.develogDeleteLog ? true : false;
         //混合默认配置
         _this.$report_config = tool.extend(_defaultConfig2.default, reportConfig);
+        //获取属性
+        _this.$props = tool.extend({}, props);
         //监听事件
         _this.eventListener = [];
         //上传数据保存
@@ -3081,6 +3086,7 @@ var _createReportData = exports._createReportData = function _createReportData(p
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion;
     reportData.reportTime = params.reportTime;
+    reportData.deviceID = that.$props.deviceID;
     reportData.location = params.location;
     reportData.environment = params.environment;
     reportData.data = params.data;

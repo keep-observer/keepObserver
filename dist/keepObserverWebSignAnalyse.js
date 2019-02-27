@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 66);
+/******/ 	return __webpack_require__(__webpack_require__.s = 69);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -304,7 +304,7 @@ function removeStorage(key) {
     参考Vconsole 生产唯一ID
  */
 function getUniqueID() {
-    var id = 'xxxxxxxx-xyxx-xxyx-yxxx-xxxy-t-xxxxxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
+    var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
         var r = Math.random() * 16 | 0,
             t = new Date().getTime(),
             v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
@@ -477,7 +477,7 @@ exports.default = KeepObserverDefault;
 
 /***/ }),
 
-/***/ 26:
+/***/ 27:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -498,7 +498,7 @@ var beginObserverAnalyse = exports.beginObserverAnalyse = function beginObserver
 
 /***/ }),
 
-/***/ 27:
+/***/ 28:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -519,7 +519,7 @@ exports.default = {
 
 /***/ }),
 
-/***/ 28:
+/***/ 29:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -533,7 +533,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _event = __webpack_require__(64);
+var _event = __webpack_require__(67);
 
 var eventServer = _interopRequireWildcard(_event);
 
@@ -543,75 +543,6 @@ var domServer = {};
 domServer = tool.extend(domServer, eventServer);
 
 exports.default = domServer;
-
-/***/ }),
-
-/***/ 29:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
-
-var _index = __webpack_require__(0);
-
-var tool = _interopRequireWildcard(_index);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-//注册上报监听
-var addReportListener = exports.addReportListener = function addReportListener(callback) {
-    if (callback) {
-        this.eventListener.push(callback);
-    }
-};
-
-//处理整理数据
-var handleReportData = exports.handleReportData = function handleReportData(content, load) {
-    var reportParams = {};
-    var control = {};
-    var typeName = this.typeName;
-
-    reportParams.type = "analyse";
-    reportParams.typeName = typeName;
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //option
-    control.lazy = false;
-    control.isError = false;
-    control.isReport = true;
-    if (load) {
-        control.isResponse = true;
-    }
-    return {
-        reportParams: reportParams,
-        control: control
-    };
-};
-
-//通知上报
-var noticeReport = exports.noticeReport = function noticeReport(content) {
-    var that = this;
-    if (that.eventListener.length === 0) {
-        return false;
-    }
-    //通知上报
-    that.eventListener.map(function (item) {
-        if (tool.isFunction(item)) {
-            var _that$handleReportDat = that.handleReportData(content),
-                reportParams = _that$handleReportDat.reportParams,
-                control = _that$handleReportDat.control;
-
-            item(reportParams, control);
-        }
-    });
-};
 
 /***/ }),
 
@@ -664,6 +595,198 @@ module.exports = charenc;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.triggerAcitveReport = exports.registerDomAnaylseListener = exports.loadRequestSginData = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//初始化load
+var loadRequestSginData = exports.loadRequestSginData = function loadRequestSginData() {
+    var reportData = {
+        type: 'load'
+    };
+    this.noticeReport(reportData, true /*load*/);
+};
+
+//添加观察
+var registerDomAnaylseListener = exports.registerDomAnaylseListener = function registerDomAnaylseListener(sginList) {
+    var that = this;
+    if (!sginList || tool.isEmptyArray(sginList)) {
+        return false;
+    }
+    //foreach add listener
+    sginList.forEach(function (item) {
+        if (tool.isEmptyObject(item)) {
+            return false;
+        }
+        var nodeId = item.nodeId;
+        //is exits
+
+        if (that.elementSginListenerMap[nodeId]) {
+            return false;
+        }
+        //add observer listener
+        var removeListener = that.addNodeObserverListener(item, that.triggerAcitveReport);
+        //save map
+        that.elementSginListenerMap[nodeId] = tool.extend({}, item, { removeListener: removeListener });
+    });
+};
+
+//监控dom激活触发
+var triggerAcitveReport = exports.triggerAcitveReport = function triggerAcitveReport(event, nodeInfo) {
+    var el = event.target;
+    var nodeName = el.nodeName.toLowerCase();
+    var timeoutDispatchEvent = this._config.timeoutDispatchEvent;
+    var xPath = nodeInfo.xPath,
+        signEventName = nodeInfo.signEventName,
+        nodeId = nodeInfo.nodeId,
+        nodeType = nodeInfo.nodeType;
+    //如果是a标签类型,并且携带href，那么不跳转,延时跳转
+
+    if (nodeName === 'a' && el.href) {
+        var url = el.href;
+        event.preventDefault();
+        setTimeout(function () {
+            window.location.href = url;
+        }, timeoutDispatchEvent);
+    }
+    var eventName = event.type && tool.isString(event.type) ? event.type : signEventName;
+    //上报
+    this.reportData = {
+        type: 'catch',
+        nodeId: nodeId,
+        nodeType: nodeType,
+        eventName: eventName
+    };
+    this.noticeReport(this.reportData);
+};
+
+/***/ }),
+
+/***/ 31:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports._handleHook = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+/*
+    调用钩子
+    @arguments[0] = onHooK
+    @arguments[...] = params
+    return
+        onHook result
+ */
+var _handleHook = exports._handleHook = function _handleHook() {
+    var args = tool.toArray(arguments);
+    if (!args || args.length === 0 || !tool.isFunction(args[0])) {
+        return false;
+    }
+    var onHook = args[0];
+    var params = args.length === 2 ? args[1] : args.slice(1, args.length);
+    try {
+        var result = onHook(params);
+    } catch (err) {
+        //报错
+        this.$devError(onHook.name + 'callback hook is runing error:' + err);
+        return false;
+    }
+    return result;
+};
+
+/***/ }),
+
+/***/ 32:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.noticeReport = exports.handleReportData = exports.addReportListener = undefined;
+
+var _index = __webpack_require__(0);
+
+var tool = _interopRequireWildcard(_index);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+//注册上报监听
+var addReportListener = exports.addReportListener = function addReportListener(callback) {
+    if (callback) {
+        this.eventListener.push(callback);
+    }
+};
+
+//处理整理数据
+var handleReportData = exports.handleReportData = function handleReportData(content, load) {
+    var reportParams = {};
+    var control = {};
+    var typeName = this.typeName;
+
+    reportParams.type = "analyse";
+    reportParams.typeName = typeName;
+    reportParams.location = window.location.href;
+    reportParams.environment = window.navigator.userAgent;
+    reportParams.data = content;
+    reportParams.reportTime = new Date().getTime();
+    //option
+    control.lazy = false;
+    control.isError = false;
+    control.isReport = true;
+    if (load) {
+        control.isResponse = true;
+    }
+    return {
+        reportParams: reportParams,
+        control: control
+    };
+};
+
+//通知上报
+var noticeReport = exports.noticeReport = function noticeReport(content, load) {
+    var that = this;
+    if (that.eventListener.length === 0) {
+        return false;
+    }
+    //通知上报
+    that.eventListener.map(function (item) {
+        if (tool.isFunction(item)) {
+            var _that$handleReportDat = that.handleReportData(content, load),
+                reportParams = _that$handleReportDat.reportParams,
+                control = _that$handleReportDat.control;
+
+            item(reportParams, control);
+        }
+    });
+};
+
+/***/ }),
+
+/***/ 33:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 exports._getReportContent = undefined;
 
 var _index = __webpack_require__(0);
@@ -677,25 +800,37 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
     params  
     @object  = {
         type:  string                   //类型,         response   
-        typeName:  string               //类型名,        self type
-        location:string                 //捕获位置       url
-        environment:string              //运行环境信息    null
-        data:object                     //捕获数据       response data
+        reportType:  string             //类型名,        self type ->webSignAnalyse
+        location: string                //捕获位置       url
+        environment: string             //运行环境信息    null
+        data: object                    //捕获数据       response data
         reportTime: int                 //捕获时间搓     
     }
 */
 var _getReportContent = exports._getReportContent = function _getReportContent(params) {
     var that = this;
     //判断数据合法性
-    if (!params || !params.type || !params.typeName || !params.data || !tool.isObject(params.data)) {
-        this.$devLog('[keepObserver] reportServer receive reportData is not right');
+    if (!params || !params.type || !params.typeName || !params.data) {
+        this.$devLog('[keepObserver] webSignObserver receive response is not right');
         return false;
     }
-    if (params.type !== 'response' || parmas.typeName !== that.typeName) {
+    if (params.type !== 'response' || params.typeName !== that.typeName) {
         return false;
     }
+    if (tool.isString(params.data)) {
+        try {
+            params.data = JSON.parse(params.data);
+        } catch (e) {
+            this.$devLog('[keepObserver] webSignObserver receive response data JSON.parse error:' + e);
+            return false;
+        }
+    }
+    var onHandleSginDataHook = that._config.onHandleSginDataHook;
 
-    console.log('response', params);
+    var sginData = that._handleHook(onHandleSginDataHook, params.data);
+    sginData = sginData ? sginData : params.data;
+    // add anaylse listener
+    that.registerDomAnaylseListener(sginData);
 };
 
 /***/ }),
@@ -831,7 +966,7 @@ function isSlowBuffer (obj) {
 
 /***/ }),
 
-/***/ 64:
+/***/ 67:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -840,7 +975,7 @@ function isSlowBuffer (obj) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.nodeEventPatchHandle = exports.initPatchNodeEvent = undefined;
+exports.addNodeObserverListener = exports.removeNodeEventPatchHandle = exports.addNodeEventPatchHandle = exports.initPatchNodeEvent = undefined;
 
 var _md = __webpack_require__(7);
 
@@ -850,7 +985,7 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _xpath = __webpack_require__(65);
+var _xpath = __webpack_require__(68);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -881,7 +1016,7 @@ var initPatchNodeEvent = exports.initPatchNodeEvent = function initPatchNodeEven
             }
             //patch = args[1] = eventHandleFunction setTimeout 
             var handle = args[1];
-            args[1] = that.nodeEventPatchHandle(target, handle);
+            args[1] = that.addNodeEventPatchHandle(target, handle);
             //挂载原生方法上
             return that._addEventListener.apply(target, args);
         };
@@ -897,9 +1032,13 @@ var initPatchNodeEvent = exports.initPatchNodeEvent = function initPatchNodeEven
                 that.$devError('element removeEventListener params error');
                 return false;
             }
-            //获取保存的handle
-            //暂缺
-
+            //获取保存的handle remove
+            var patchHandleFn = that.removeNodeEventPatchHandle(target, args[1]);
+            if (!patchHandleFn || !tool.isFunction(patchHandleFn)) {
+                that.$devError('element removeEventListener not find save PatchHandleFn');
+                return false;
+            }
+            args[1] = patchHandleFn;
             //remove
             return that._removeEventListener.apply(target, args);
         };
@@ -910,14 +1049,12 @@ var initPatchNodeEvent = exports.initPatchNodeEvent = function initPatchNodeEven
     return true;
 };
 
-//替换函数执行
-var nodeEventPatchHandle = exports.nodeEventPatchHandle = function nodeEventPatchHandle(el, handleFn) {
+//替换函数执行 并且保存到缓存，为了remove做准备
+var addNodeEventPatchHandle = exports.addNodeEventPatchHandle = function addNodeEventPatchHandle(el, handleFn) {
     var that = this;
     var timeoutDispatchEvent = that._config.timeoutDispatchEvent;
     var id = (0, _md2.default)(el.nodeName.toLowerCase() + handleFn.toString());
-    console.log(id);
-    //
-    return function () {
+    var patchHandleFn = function patchHandleFn() {
         var sgin = el.getAttribute(attributeKey);
         var handleArgs = tool.toArray(arguments);
         // observer target dom
@@ -928,11 +1065,46 @@ var nodeEventPatchHandle = exports.nodeEventPatchHandle = function nodeEventPatc
         }
         return handleFn.apply(el, handleArgs);
     };
+    that._patchEventListenerMap[id] = patchHandleFn;
+    return patchHandleFn;
+};
+
+//替换函数从缓存中读取 next remove
+var removeNodeEventPatchHandle = exports.removeNodeEventPatchHandle = function removeNodeEventPatchHandle(el, handleFn) {
+    var id = (0, _md2.default)(el.nodeName.toLowerCase() + args[1].toString());
+    return this._patchEventListenerMap[id];
+};
+
+//标记元素添加观察
+var addNodeObserverListener = exports.addNodeObserverListener = function addNodeObserverListener(nodeInfo, handleFn) {
+    var that = this;
+    var xPath = nodeInfo.xPath,
+        signEventName = nodeInfo.signEventName,
+        inputFlag = nodeInfo.inputFlag;
+
+    var el = (0, _xpath.parseXpath)(xPath);
+    if (!el || !tool.isElement(el) || !signEventName || !tool.isString(signEventName)) {
+        return false;
+    }
+    var handleEvent = function handleEvent() {
+        var event = event || window.event;
+        return handleFn.call(that, event, nodeInfo);
+    };
+    //重新挂载事件
+    that._addEventListener.apply(el, [signEventName, handleEvent]);
+    //set sgin
+    el.setAttribute(attributeKey, true);
+    //return destroyEvent
+    return function () {
+        if (el && tool.isElement(el)) {
+            that._removeEventListener.apply(el, [signEventName, handleEvent]);
+        }
+    };
 };
 
 /***/ }),
 
-/***/ 65:
+/***/ 68:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1023,7 +1195,7 @@ var parseXpath = exports.parseXpath = function parseXpath(xPath) {
 
 /***/ }),
 
-/***/ 66:
+/***/ 69:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1035,7 +1207,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _defaultConfig = __webpack_require__(27);
+var _defaultConfig = __webpack_require__(28);
 
 var _defaultConfig2 = _interopRequireDefault(_defaultConfig);
 
@@ -1043,19 +1215,27 @@ var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
 
-var _api = __webpack_require__(26);
+var _api = __webpack_require__(27);
 
 var apiServer = _interopRequireWildcard(_api);
 
-var _report = __webpack_require__(29);
+var _report = __webpack_require__(32);
 
 var reportServer = _interopRequireWildcard(_report);
 
-var _response = __webpack_require__(30);
+var _response = __webpack_require__(33);
 
 var responseServer = _interopRequireWildcard(_response);
 
-var _index2 = __webpack_require__(28);
+var _handle = __webpack_require__(30);
+
+var handleServer = _interopRequireWildcard(_handle);
+
+var _hook = __webpack_require__(31);
+
+var hookServer = _interopRequireWildcard(_hook);
+
+var _index2 = __webpack_require__(29);
 
 var _index3 = _interopRequireDefault(_index2);
 
@@ -1084,10 +1264,10 @@ var keepObserverWebSignAnalyse = function (_KeepObserverDetault) {
         //初始化上传相关实例
         var _this = _possibleConstructorReturn(this, (keepObserverWebSignAnalyse.__proto__ || Object.getPrototypeOf(keepObserverWebSignAnalyse)).call(this));
 
-        var WebSignAnalyseCustom = config.WebSignAnalyseCustom || {};
-        _this._config = tool.extend(_defaultConfig2.default, WebSignAnalyseCustom);
+        var webSignAnalyseCustom = config.webSignAnalyseCustom || {};
+        _this._config = tool.extend(_defaultConfig2.default, webSignAnalyseCustom);
         //type 
-        _this.typeName = 'webSignObserver';
+        _this.typeName = 'webSignAnalyse';
         //监听列表
         _this.eventListener = [];
         //原生方法
@@ -1096,12 +1276,14 @@ var keepObserverWebSignAnalyse = function (_KeepObserverDetault) {
         //拦截到的方法集合
         _this._patchEventListenerMap = {};
         //埋点element map
-        _this.sginElementMap = {};
+        _this.elementSginListenerMap = {};
         //mixin
         _this.$mixin(apiServer);
         _this.$mixin(reportServer);
         _this.$mixin(responseServer);
         _this.$mixin(_index3.default);
+        _this.$mixin(handleServer);
+        _this.$mixin(hookServer);
         //init
         _this.initPatchNodeEvent();
         return _this;
@@ -1116,6 +1298,10 @@ var keepObserverWebSignAnalyse = function (_KeepObserverDetault) {
             var that = this;
             pipe.registerRecivePipeMessage(that._getReportContent, that);
             that.addReportListener(pipe.sendPipeMessage);
+            //在挂载后进行初始化load
+            setTimeout(function () {
+                that.loadRequestSginData();
+            });
             return {
                 $beginObserverAnalyse: that.beginObserverAnalyse
             };
