@@ -12,8 +12,8 @@ export var parseXpath = function(xPath){
     var errorMax = 1000;
     var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/
     var pathStartReg = /^\/html\/body\//
-    var nodePathReg = /([a-z]+)+(?:\[(\d)+\])?\//
-    var pathEndReg = /([a-z]+)+(?:\[(\d)+\])?$/
+    var nodePathReg = /([a-z\-]+)+(?:\[(\d)+\])?\//
+    var pathEndReg = /([a-z\-]+)+(?:\[(\d)+\])?$/
     var subStringNext = function(str,context){
         var len = str.length
         return context.substring(len)
