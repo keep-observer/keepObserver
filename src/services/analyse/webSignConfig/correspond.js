@@ -56,6 +56,7 @@ export var handleMessage = function(event){
     switch(data.type){
         case 'requestConfig':
             that.confirmConcatRequestSginData();
+            that.initDomEvent()
             break;
         case 'sendSignData':
             that.receiveSignConfigData(data.payload)
@@ -71,6 +72,7 @@ export var handleMessage = function(event){
             that.removeMessage()
     }
 }
+
 
 
 

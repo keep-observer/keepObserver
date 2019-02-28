@@ -496,7 +496,6 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var startCorrespond = exports.startCorrespond = function startCorrespond() {
     this.registerMessage();
-    this.initDomEvent();
 };
 
 /***/ }),
@@ -603,6 +602,7 @@ var handleMessage = exports.handleMessage = function handleMessage(event) {
     switch (data.type) {
         case 'requestConfig':
             that.confirmConcatRequestSginData();
+            that.initDomEvent();
             break;
         case 'sendSignData':
             that.receiveSignConfigData(data.payload);

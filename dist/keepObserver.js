@@ -788,10 +788,6 @@ var version = exports.version = '1.1.0';
 "use strict";
 
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
 var _index = __webpack_require__(0);
 
 var tool = _interopRequireWildcard(_index);
@@ -862,10 +858,10 @@ var KeepObserver = function (_KeepObserverDetault) {
     return KeepObserver;
 }(_index4.default);
 
-// module.exports = KeepObserver
-// module.exports.default = module.exports;
+module.exports = KeepObserver;
+module.exports.default = module.exports;
 
-exports.default = KeepObserver;
+// export default KeepObserver
 
 /***/ }),
 
