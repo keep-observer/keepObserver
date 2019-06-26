@@ -5,7 +5,7 @@ var baseWebpackConfig = require('./webpack.config.base.js')
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var merge = require('webpack-merge')
 
-var separate = require('./separate.json');
+var separate = require('./separate.js');
 
 
 module.exports = merge(baseWebpackConfig, {
