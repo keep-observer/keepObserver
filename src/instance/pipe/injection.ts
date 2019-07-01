@@ -1,6 +1,6 @@
-import * as tool from '../../util/tool.js';
+import * as tool from '../../util/tool';
 
-import { pipeUser } from '../type'
+import { pipeUser } from '../../types/pipe'
 
 /*
     receive Plug-ins Server
@@ -164,3 +164,5 @@ export var mixinKoInstance = function(scope, renders) {
         })
     }
 }
+
+

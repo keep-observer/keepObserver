@@ -1,4 +1,7 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
+
+
+const saveFlag = 'loadRecordReportDate'
 
 //获取系统信息
 export var getSystemInfo = function() {
@@ -12,7 +15,7 @@ export var getSystemInfo = function() {
     if (that._config.isPerformance) {
         that.getWebPerformance(function(Result) {
             that._systemInfo = Result
-                //上报
+            //上报
             that.noticeReport(that._systemInfo);
             //记录
             that.recordReport();
@@ -27,8 +30,8 @@ export var getWebPerformance = function(onCallback) {
     var that = this;
     //异步实现,等待完全加载完成
     var performance = function() {
-            var info = {}
-            let performance = window.performance || window.msPerformance || window.webkitPerformance;
+            var info:any = {}
+            let performance:any = (<any>window).performance || (<any>window).msPerformance || (<any>window).webkitPerformance;
             var timing = window.performance && window.performance.timing;
             var navigation = window.performance && window.performance.navigation;
             //获取性能分析
@@ -65,7 +68,7 @@ export var getWebPerformance = function(onCallback) {
                 info.webLoadEnd = (timing.loadEventEnd - timing.navigationStart) + 'ms';
             }
             //是否获取加载资源内容
-            if (performanc  &&  that._config.isPerformanceRequest) {
+            if (performance  &&  that._config.isPerformanceRequest) {
                 info.requestPerformance = [];
                 if (performance.getEntries) {
                     var requestPerformance = performance.getEntries()
@@ -95,11 +98,11 @@ export var getWebPerformance = function(onCallback) {
         }
         //挂载在 window.onload 中
     if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('load', function() {
+        (<any>window).addEventListener('load', function() {
             setTimeout(performance, 0)
         }, false);
     } else {
-        window.attachEvent('onload', function() {
+        (<any>window).attachEvent('onload', function() {
             setTimeout(performance, 0)
         })
     }
@@ -110,7 +113,7 @@ export var getWebPerformance = function(onCallback) {
 
 //验证今天是否已经获取上传了一次用户信息了
 export var checkIsOneDay = function() {
-    var reportDate = tool.getStorage('loadRecordReportDate');
+    var reportDate = tool.getStorage(saveFlag);
     var date = tool.dateFormat(new Date, 'yyyy-MM-dd')
         //如果没获取上报过
     if (!reportDate) {
@@ -127,6 +130,7 @@ export var checkIsOneDay = function() {
 export var recordReport = function() {
     if (this._config.isOneDay) {
         var date = tool.dateFormat(new Date, 'yyyy-MM-dd');
-        tool.setStorage('loadRecordReportDate', date)
+        tool.setStorage(saveFlag, date)
     }
 }
+

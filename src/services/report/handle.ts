@@ -1,4 +1,4 @@
-import * as tool from '../../tool/index.js';
+import * as tool from '../../util/tool';
 
 /*
     receive the report data
@@ -78,8 +78,8 @@ export var _saveReportData = function(params) {
     }
     var reportData = this.reportData[type];
     //是否延时上报,如果没有添加到上报数据中
-    var maxCache = this.$report_config['max_' + type + '_cache'];
-    maxCache = maxCache ? maxCache : this.$report_config['max_cache'];
+    var maxCache = this._config['max_' + type + '_cache'];
+    maxCache = maxCache ? maxCache : this._config['max_cache'];
     //如果当前存储超过长度 那么弹出最早的数据
     if (reportData.length + 1 > maxCache) {
         var discard = reportData.shift();

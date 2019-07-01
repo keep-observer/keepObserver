@@ -1,4 +1,4 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool'
 
 
 /*
@@ -9,8 +9,8 @@ export var _handleInit = function() {
     //替换window.console变量
     var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
 
-    if (!window.console) {
-        window.console = {};
+    if (!(<any>window).console) {
+        (<any>window).console = {};
     }
 
     baseLogList.map(function(method) {
@@ -78,7 +78,7 @@ export var _handleInit = function() {
             that._handleError(...args)
         }, true);
     } else {
-        window.attachEvent('onerror', (...args) => {
+        (<any>window).attachEvent('onerror', (...args) => {
             that._handleError(...args)
         })
     }
@@ -97,7 +97,7 @@ export var _handleInit = function() {
  */
 export var _handleMessage = function(type, agrs) {
     var that = this;
-    var reportData = {}
+    var reportData:any = {}
         //agrs不是数组 或是空数组 则不处理
     if (!tool.isArray(agrs) || agrs.length === 0) {
         return false;
@@ -129,7 +129,7 @@ export var _handleMessage = function(type, agrs) {
  */
 export var _handleError = function(errorEvent) {
     var that = this;
-    var errorObj = {};
+    var errorObj:any = {};
     var url = errorEvent.filename || errorEvent.url || false
     //可能是跨域资源JS出现错误 这获取不到详细信息
     if ( (!errorEvent.message || errorEvent.message === 'Script error.') && !url) {

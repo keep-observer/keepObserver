@@ -1,5 +1,4 @@
-import * as tool from '../../tool/index.js';
-
+import * as tool from '../../util/tool';
 
 
 
@@ -112,8 +111,8 @@ var AjaxServer = function(config) {
             rej('Ajax request process find error!' + e);
         }
         //send data
-        var data = JSON.stringify(data);
-        xhr.send(data);
+        var sendData = JSON.stringify(data);
+        xhr.send(sendData);
     })
     return defer
 }

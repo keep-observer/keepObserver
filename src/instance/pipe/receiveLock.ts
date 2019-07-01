@@ -1,4 +1,5 @@
-import * as tool from '../../tool/index.js';
+import * as tool from '../../util/tool';
+
 
 
 //默认定时打开消息锁

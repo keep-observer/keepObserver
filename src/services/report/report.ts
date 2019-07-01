@@ -1,4 +1,4 @@
-import * as tool from '../../tool/index.js';
+import * as tool from '../../util/tool';
 import AjaxServer from './ajax.js';
 
 
@@ -42,7 +42,7 @@ export var _handleReport = function(params, control) {
         onReportBeforeSetHead,
         onReportBeforeHook,
         onReportResultHook,
-    } = this.$report_config
+    } = this._config
     //如果没有设置上传URL 那么停止上传
     if (!reportUrl || !tool.isArray(reportUrl)) {
         that._handleReportFail(onReportFail, reportData, null)
@@ -51,7 +51,7 @@ export var _handleReport = function(params, control) {
     //遍历URL上传列表
     //开始依次上传
     reportUrl.map(function(item) {
-        var reportConfig = {};
+        var reportConfig:any = {};
         //是否有上传前修改URL回调
         if (onReportBeforeSetUrl) {
             var url = that._handleHook(onReportBeforeSetUrl, item);
@@ -155,7 +155,7 @@ export var _handleResponse = function(params,control,url,responseData){
 */
 export var _createReportData = function(params, control) {
     var that = this;
-    var reportData = {};
+    var reportData:any = {};
     //添加类型
     reportData.type = params.type
     reportData.reportType = params.typeName;
@@ -166,7 +166,7 @@ export var _createReportData = function(params, control) {
     reportData.project = that._project;
     reportData.projectVersion = that._projectVersion
     reportData.reportTime = params.reportTime;
-    reportData.deviceID = that.$props.deviceID;
+    reportData.deviceID = that._config.deviceID;
     reportData.location = params.location;
     reportData.environment = params.environment;
     reportData.data = params.data;

@@ -1,4 +1,4 @@
-import * as tool from '../../tool/index.js';
+import * as tool from '../../util/tool';
 
 
 //防止堆栈错误
@@ -71,3 +71,5 @@ export var resetStackCount = function() {
         }, 1000)
     }
 }
+
+

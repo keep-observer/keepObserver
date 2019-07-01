@@ -1,9 +1,10 @@
-import * as tool from '../../tool/index.js';
+import * as tool from '../../util/tool';
 
+import { pipeMsg, pipeOptons } from '../../types/pipe'
 
 
 //发送消息在管道内流通
-export var sendPipeMessage = function(pipeIndex, msg, options) {
+export var sendPipeMessage = function(pipeIndex:number, msg:pipeMsg, options:pipeOptons) {
     var that = this;
     var msgItem = {
         pipeIndex: pipeIndex,
@@ -36,7 +37,7 @@ export var sendPipeMessage = function(pipeIndex, msg, options) {
 
 
 //通知监听
-var noticeListener = function(queue) {
+export var noticeListener = function(queue) {
     var that = this;
     if (!tool.isArray(queue) || queue.length === 0) {
         return false;

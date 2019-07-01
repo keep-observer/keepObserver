@@ -1,4 +1,10 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool'
+import {
+    pipeOptons
+} from '../../../types/pipe'
+import {
+    reportType
+} from '../../../types/report'
 
 
 
@@ -14,17 +20,23 @@ export var addReportListener = function(callback) {
 
 //处理整理数据
 export var handleReportData = function(content) {
-    var reportParams = {};
-    reportParams.type = "performance"
-    reportParams.typeName = 'load';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //系统信息和首屏性能立即上报
-    var control = {};
-    control.lazy = false;
-    control.isReport = true;
+    var reportParams:reportType = {
+        type : "monitor",
+        typeName : 'vue',
+        data : content,
+        location : window.location.href,
+        environment : window.navigator.userAgent,
+        reportTime : new Date().getTime(),
+    };
+    var control:pipeOptons = {};
+    //option
+    control.lazy = true;
+    if (content.isError) {
+        control.lazy = false;
+        control.baseExtend = true;
+        control.isError = true;
+        control.isReport = true;
+    }
     return {
         reportParams: reportParams,
         control: control

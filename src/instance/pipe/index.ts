@@ -1,15 +1,33 @@
 
-import * as tool from '../../util/tool.js';
+import * as tool from '../../util/tool';
 
 
-import { pipeUser } from '../type'
+import { pipeUser } from '../../types/pipe'
 
 
-import * as injectionServer from './injection'
-import * as receiveServer from './receiveQueue'
-import * as triggerServer from './triggerQueue'
-import * as queueLockServer from './receiveLock'
-import * as preventAnomaly from './preventAnomaly'
+import {
+    use,
+    injection,
+    registerPipeListenerUser,
+    mixinKoInstance,
+} from './injection'
+import {
+    registerRecivePipeMessage
+} from './receiveQueue'
+import {
+    sendPipeMessage,
+    noticeListener,
+} from './triggerQueue'
+import {
+    isLock,
+    openLock,
+    closeLock,
+} from './receiveLock'
+import {
+    preventStackError,
+    judgeAnomaly,
+    resetStackCount
+} from './preventAnomaly'
 
 
 
@@ -28,11 +46,18 @@ class keepObserverPipe {
     private messageQueue:any[]
     private pipeUser: pipeUser[]
     //method
-    private injection:any
-    private registerPipeListenerUser:any
-    private registerRecivePipeMessage:any
-    private mixinKoInstance: any
-    public use:any
+    private injection = injection.bind(this)
+    private registerPipeListenerUser = registerPipeListenerUser.bind(this)
+    private registerRecivePipeMessage = registerRecivePipeMessage.bind(this)
+    private mixinKoInstance = mixinKoInstance.bind(this)
+    private sendPipeMessage  = sendPipeMessage.bind(this)
+    private noticeListener = noticeListener.bind(this)
+    private isLock = isLock.bind(this)
+    private openLock = openLock.bind(this)
+    private closeLock = closeLock.bind(this)
+    private preventStackError = preventStackError.bind(this)
+    private judgeAnomaly = judgeAnomaly.bind(this)
+    private resetStackCount = resetStackCount.bind(this)
 
     constructor(keepObserver, config) {
         //获取实例配置
@@ -43,7 +68,6 @@ class keepObserverPipe {
         this.waiting = false;
         //消息接收锁
         this.receiveLock = false;
-
         //堆栈计数对象
         this.stackCountBuff = {};
         //堆栈运行定时器
@@ -52,23 +76,10 @@ class keepObserverPipe {
         this.messageQueue = [];
         //管道用户
         this.pipeUser = [];
-
-
-        //混入自身方法
-        tool.mixin(this,injectionServer)
-        tool.mixin(this,receiveServer)
-        tool.mixin(this,triggerServer)
-        tool.mixin(this,queueLockServer)
-        tool.mixin(this,preventAnomaly)
     }
-
-
-    //提供需要挂载在keepObserver上的方法
-    public apply() {
-        return {
-            use: this.use
-        }
-    }
+    
+    // api
+    public use = use.bind(this)
 }
 
 

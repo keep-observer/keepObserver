@@ -1,4 +1,4 @@
-import * as tool from '../util/tool.js';
+import * as tool from './tool';
 
 //storge-key
 var RecordKey = 'deviceId'

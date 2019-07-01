@@ -21,7 +21,7 @@ class KeepObserverAliyunReport extends KeepObserverDefault {
         super(config);
         //存混合配置
         var reportConfig = config.aliyunReportCustom || {};
-        this.$report_config = tool.extend(defaultConfig, reportConfig);
+        this._config = tool.extend(defaultConfig, reportConfig);
         //请求队列
         this.requestQueue = [];
         //初始化

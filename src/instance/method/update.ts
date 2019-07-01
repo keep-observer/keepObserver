@@ -1,4 +1,4 @@
-import * as tool from '../../util/tool.js';
+import * as tool from '../../util/tool';
 
 
 const updateVersionRecordKey = 'versionRecord';

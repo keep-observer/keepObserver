@@ -21,8 +21,6 @@ export default {
 
 
 
-
-
     /*********************   上传相关   ********************/
     //上传服务器的url列表  		array
     reportUrl: false,

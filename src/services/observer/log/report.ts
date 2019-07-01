@@ -1,4 +1,12 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
+
+import {
+    pipeOptons
+} from '../../../types/pipe'
+import {
+    reportType
+} from '../../../types/report'
+
 
 
 
@@ -14,14 +22,15 @@ export var addReportListener = function(callback) {
 
 //处理整理数据
 export var handleReportData = function(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "monitor"
-    reportParams.typeName = 'log';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
+    var reportParams:reportType = {
+        type : "monitor",
+        typeName : 'log',
+        data : content,
+        location : window.location.href,
+        environment : window.navigator.userAgent,
+        reportTime : new Date().getTime(),
+    };
+    var control:pipeOptons = {};
     //option
     control.lazy = true;
     //如果是clear,清除之前的console.log相关信息
@@ -62,3 +71,5 @@ export var noticeReport = function(content) {
         }
     })
 }
+
+

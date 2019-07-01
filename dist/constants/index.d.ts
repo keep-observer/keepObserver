@@ -1,2 +1,2 @@
 export declare const reportType: string[];
-export declare const version = "1.1.0";
+export declare const version = "2.0.0-beta.1";

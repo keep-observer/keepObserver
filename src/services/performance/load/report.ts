@@ -1,4 +1,10 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
+import {
+    pipeOptons
+} from '../../../types/pipe'
+import {
+    reportType
+} from '../../../types/report'
 
 
 
@@ -14,25 +20,18 @@ export var addReportListener = function(callback) {
 
 //处理整理数据
 export var handleReportData = function(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "monitor"
-    reportParams.typeName = 'network';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
-    //option
-    control.lazy = true;
-    //是否请求出错
-    if (content.isError) {
-        control = {};
-        control.lazy = false;
-        control.isReport = true;
-        //是否是超时请求,超时请求不合并上报
-        control.trackExtend = content.isTimeout ? false : true;
-        control.isError = content.isTimeout ? false : true;
-    }
+    var reportParams:reportType = {
+        type : "performance",
+        typeName : 'load',
+        data : content,
+        location : window.location.href,
+        environment : window.navigator.userAgent,
+        reportTime : new Date().getTime(),
+    };
+    var control:pipeOptons = {};
+    //系统信息和首屏性能立即上报
+    control.lazy = false;
+    control.isReport = true;
     return {
         reportParams: reportParams,
         control: control
@@ -59,3 +58,4 @@ export var noticeReport = function(content) {
         }
     })
 }
+

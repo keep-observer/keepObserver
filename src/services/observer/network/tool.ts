@@ -10,8 +10,8 @@
 
 export function handleReqUrl(url) {
     //处理下解码URL
-    url = window.decodeURIComponent(url);
-    var params = '';
+    url = (<any>window).decodeURIComponent(url);
+    var params:any = '';
     var baseUrl = '';
     //判断URL后面是否存在参数
     if (url.indexOf('?') === -1) {
