@@ -1,4 +1,11 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
+
+import {
+    pipeOptons
+} from '../../../types/pipe'
+import {
+    reportType
+} from '../../../types/report'
 
 
 
@@ -13,21 +20,25 @@ export var addReportListener = function(callback) {
 
 
 
-
 //处理整理数据
-export var handleReportData = function(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "analyse"
-    reportParams.typeName = 'webSignConfig';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
+export var handleReportData = function(content,load) {
+    var { typeName } = this
+    var reportParams:reportType = {
+        type : "analyse",
+        typeName : typeName,
+        data : content,
+        location : window.location.href,
+        environment : window.navigator.userAgent,
+        reportTime : new Date().getTime(),
+    };
+    var control:pipeOptons = {};
     //option
     control.lazy = false;
     control.isError = false;
     control.isReport = true;
+    if(load){
+        control.isResponse = true
+    }
     return {
         reportParams: reportParams,
         control: control
@@ -38,8 +49,9 @@ export var handleReportData = function(content) {
 
 
 
+
 //通知上报
-export var noticeReport = function(content) {
+export var noticeReport = function(content,load) {
     var that = this;
     if (that.eventListener.length === 0) {
         return false;
@@ -50,7 +62,7 @@ export var noticeReport = function(content) {
             var {
                 reportParams,
                 control
-            } = that.handleReportData(content)
+            } = that.handleReportData(content,load)
             item(reportParams, control);
         }
     })

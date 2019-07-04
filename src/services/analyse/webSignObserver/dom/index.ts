@@ -1,5 +1,5 @@
 import md5 from 'md5'
-import * as tool from '../../../../tool/index.js';
+import * as tool from '../../../../util/tool';
 import { parseXpath } from './xpath.js'
 
 
@@ -11,7 +11,7 @@ var attributeKey = 'keepObserverUniqueID'+tool.getUniqueID().substring(0,8)
 export var initPatchNodeEvent = function(){
     var that = this;
     var timeoutDispatchEvent = that._config.timeoutDispatchEvent
-    if(window.Node && Node.prototype.addEventListener){
+    if((<any>window).Node && Node.prototype.addEventListener){
         //替换
         that._addEventListener = Node.prototype.addEventListener
         that._removeEventListener = Node.prototype.removeEventListener
@@ -85,7 +85,7 @@ export var addNodeEventPatchHandle = function(el,handleFn){
 
 //替换函数从缓存中读取 next remove
 export var removeNodeEventPatchHandle = function(el,handleFn){
-    var id = md5(el.nodeName.toLowerCase() + args[1].toString())
+    var id = md5(el.nodeName.toLowerCase() + handleFn.toString())
     return this._patchEventListenerMap[id]
 }
 
@@ -96,7 +96,7 @@ export var removeNodeEventPatchHandle = function(el,handleFn){
 export var addNodeObserverListener = function(nodeInfo,handleFn){
     var that = this;
     var { xPath,signEventName,inputFlag } = nodeInfo
-    var el = parseXpath(xPath)
+    var el:any = parseXpath(xPath)
     if(!el || !tool.isElement(el) || !signEventName || !tool.isString(signEventName)){
         return false;
     }

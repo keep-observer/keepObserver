@@ -1,4 +1,4 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
 import * as assist from './tool.js'
 import { RecordKey,exitBackstageFlag,RecordDataKey } from './constant.js'
 

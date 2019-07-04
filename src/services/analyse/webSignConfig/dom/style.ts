@@ -1,5 +1,5 @@
 
-import * as tool from '../../../../tool/index.js';
+import * as tool from '../../../../util/tool';
 
 export var selectClassName = 'keepObserver-webSgin-SelectNode'
 export var activeClassName = 'keepObserver-webSgin-ActiveNode'

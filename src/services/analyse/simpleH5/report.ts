@@ -1,4 +1,11 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
+
+import {
+    pipeOptons
+} from '../../../types/pipe'
+import {
+    reportType
+} from '../../../types/report'
 
 
 
@@ -16,14 +23,15 @@ export var addReportListener = function(callback) {
 
 //处理整理数据
 export var handleReportData = function(content) {
-    var reportParams = {};
-    var control = {};
-    reportParams.type = "analyse"
-    reportParams.typeName = 'simpleH5';
-    reportParams.location = window.location.href;
-    reportParams.environment = window.navigator.userAgent;
-    reportParams.data = content;
-    reportParams.reportTime = new Date().getTime();
+    var reportParams:reportType = {
+        type : "analyse",
+        typeName : 'simpleH5',
+        data : content,
+        location : window.location.href,
+        environment : window.navigator.userAgent,
+        reportTime : new Date().getTime(),
+    };
+    var control:pipeOptons = {};
     //option
     control.lazy = false;
     control.isError = false;

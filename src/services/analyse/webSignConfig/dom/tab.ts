@@ -7,7 +7,9 @@ var makeMap = function(key, valueString) {
     if (Array.isArray(list) && list.length > 0) {
         map[key] = list
     } else {
-        return false;
+        return function(){
+            return false;
+        };
     }
     return function(value) {
         return map[key].indexOf(value) !== -1 ? true : false;

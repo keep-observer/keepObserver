@@ -1,4 +1,4 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
 
 
 
@@ -79,7 +79,7 @@ export var getDomTitle = function(el){
 	}else if(el.className !== ''){
 		content = '.'+el.className
 	}else {
-		content = domIndex;
+		content = ''+domIndex;
 		domIndex++;
 	}
 	return  type+':'+content;

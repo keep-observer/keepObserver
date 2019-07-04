@@ -103,6 +103,7 @@ class KeepObserverReport  {
         //初始化
         this._init();
     }
+    
     /*
         提供一个挂载方法在注入中使用
         return 

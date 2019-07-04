@@ -1,5 +1,5 @@
 import md5 from 'md5'
-import * as tool from '../../../../tool/index.js';
+import * as tool from '../../../../util/tool';
 import * as styleServer from './style.js'
 import { htmlTabMap } from './tab.js'
 import { attrSelectFlag,attrCacheSelect,createXPath,parseXpath } from './xpath.js'

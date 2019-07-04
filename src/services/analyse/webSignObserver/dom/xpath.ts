@@ -1,13 +1,12 @@
-import * as tool from '../../../../tool/index.js';
-
+import * as tool from '../../../../util/tool';
 
 
 // parse xpath
 // params = xpath (string)
 // return = element
 export var parseXpath = function(xPath){
-    var targetNode = false;
-    var contextNode = false; 
+    var targetNode:any = false;
+    var contextNode:any = false; 
     var step = 1;
     var errorMax = 1000;
     var idReg = /^\/\/\*\[@id=(?:'|"){1}(.*)+(?:'|"){1}\]/

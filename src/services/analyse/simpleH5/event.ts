@@ -1,4 +1,4 @@
-import * as tool from '../../../tool/index.js';
+import * as tool from '../../../util/tool';
 import * as assist from './tool.js'
 import { RecordKey,exitBackstageFlag } from './constant.js'
 
@@ -37,7 +37,7 @@ export var registerAnalyseDomEvent = function(el,fn){
 export var _handleEventTarget = function(){
     var that = this;
     var timeoutDispatchEvent = that._config.timeoutDispatchEvent
-    if(window.Node && Node.prototype.addEventListener){
+    if((<any>window).Node && Node.prototype.addEventListener){
         //替换
         that._addEventListener = Node.prototype.addEventListener
         that._removeEventListener = Node.prototype.removeEventListener
@@ -97,11 +97,11 @@ export var _handleEventTarget = function(){
 
 //恢复原生方法
 export var _recoverEventTarget = function(){
-	if(window.Node && Node.prototype.addEventListener){
+	if((<any>window).Node && Node.prototype.addEventListener){
         Node.prototype.addEventListener =  this._addEventListener
         Node.prototype.removeEventListener = this._removeEventListener
     }else{
-        that.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener')
+        this.$devError('[keepObserver] analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener')
         return false
     }
     this._removeEventListener = false;
