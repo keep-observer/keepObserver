@@ -1,6 +1,6 @@
 import {
     reportType
-} from '../../constants/index.js'
+} from '../../constants/index'
 
 
 

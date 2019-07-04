@@ -2,15 +2,15 @@
 
 
 module.exports = {
-    keepObserver: "./src/instance/index.ts"
-    // "keepObserverReport": "./src/services/report/index.js",
-    // "KeepObserverLog": "./src/services/observer/log/index.js",
-    // "KeepObserverNetwork": "./src/services/observer/network/index.js",
-    // "KeepObserverVue": "./src/services/observer/vue/index.js",
-    // "KeepObserverLoad": "./src/services/performance/load/index.js",
-    // "KeepObserverSimpleH5Analyse": "./src/services/analyse/simpleH5/index.js",
-    // "KeepObserverWebSignConfig": "./src/services/analyse/webSignConfig/index.js",
-    // "keepObserverWebSignAnalyse":"./src/services/analyse/webSignObserver/index.js"
+    'instance': "./src/instance/index.ts",
+    'report': "./src/services/report/index.ts",
+    'monitor-log': "./src/services/monitor/log/index.ts",
+    'monitor-network': "./src/services/monitor/network/index.ts",
+    'monitor-vue': "./src/services/monitor/vue/index.ts",
+    'performance-load': "./src/services/performance/load/index.ts",
+    // "analyse-simpleH5": "./src/services/analyse/simpleH5/index.ts",
+    // "analyse-webSignConfig": "./src/services/analyse/webSignConfig/index.ts",
+    // "analyse-webSignObserver":"./src/services/analyse/webSignObserver/index.ts"
 }
 
 

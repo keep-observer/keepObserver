@@ -20,10 +20,7 @@ declare class keepObserverPipe {
     private preventStackError;
     private judgeAnomaly;
     private resetStackCount;
-    use: any;
     constructor(keepObserver: any, config: any);
-    apply(): {
-        use: any;
-    };
+    use: any;
 }
 export default keepObserverPipe;

@@ -1,5 +1,5 @@
 import * as tool from '../../util/tool';
-import AjaxServer from './ajax.js';
+import AjaxServer from './ajax';
 
 
 
@@ -73,7 +73,7 @@ export var _handleReport = function(params, control) {
         that._handleHook(onReportBeforeHook, reportData, reportConfig.url, reportConfig.customeHead);
         //上传到服务器
         try {
-            AjaxServer(reportConfig).then(function(result) {
+            AjaxServer(reportConfig).then(function(result:any) {
                 //response data
                 that._handleResponse(params,control,url,result.data)
                 //hook
@@ -241,7 +241,7 @@ export var _handleReportFail = function(onFail, reportData, reportUrl) {
     }
     try {
         onFail(reportData, reportUrl)
-    } catch (e) {
+    } catch (err) {
         this.$devError('report Server callback hook is runing error:' + err)
     }
 }
