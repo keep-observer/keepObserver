@@ -1,5 +1,5 @@
 import * as tool from '../../util/tool';
-
+import * as consoleTools from '../../util/console'
 
 //防止堆栈错误
 export var preventStackError = function(msgItem) {
@@ -14,7 +14,7 @@ export var preventStackError = function(msgItem) {
     if (!this.pipeUser[pipeIndex]) {
         //是否是开发环境
         if (this._config.develop) {
-            this.$devError('[keepObserver] send pipe Message Maybe happend Endless loop , will ignore in the message')
+            consoleTools.warnError('send pipe Message Maybe happend Endless loop , will ignore in the message')
         }
         return true
     }
@@ -22,7 +22,7 @@ export var preventStackError = function(msgItem) {
     try {
         var key = JSON.stringify(msg.data)
     } catch (e) {
-        this.$devError('[keepObserver] find error : ' + e)
+        consoleTools.warnError('find error : ' + e)
         return true
     }
     //触发计数
@@ -45,13 +45,13 @@ export var judgeAnomaly = function(count, msgItem) {
         pipeIndex
     } = msgItem
     if (count > 10 && count < 20) {
-        this.$devWarn('[keepObserver] send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ')
+        consoleTools.warnError('send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ')
         return false
     }
     if (count > 20) {
         //从管道中卸载
         this.pipeUser[pipeIndex] = null
-        this.$devError('[keepObserver] send pipe Message during 1000ms in Over 20 times,maybe happend Endless loop');
+        consoleTools.warnError('send pipe Message during 1000ms in Over 20 times,maybe happend Endless loop');
         return true
     }
     return false;
@@ -61,13 +61,13 @@ export var judgeAnomaly = function(count, msgItem) {
 
 //恢复计数
 export var resetStackCount = function() {
-    var that = this;
+    var _self = this;
     //启动定时器每秒清理一次计数
-    if (!that.stackTimeFlag) {
-        that.stackTimeFlag = true;
+    if (!_self.stackTimeFlag) {
+        _self.stackTimeFlag = true;
         setTimeout(function() {
-            that.stackCountBuff = {}
-            that.stackTimeFlag = false;
+            _self.stackCountBuff = {}
+            _self.stackTimeFlag = false;
         }, 1000)
     }
 }

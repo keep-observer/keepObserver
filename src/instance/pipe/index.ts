@@ -1,15 +1,17 @@
 
 import * as tool from '../../util/tool';
-
+import KeepObserverPublic from '../../share/public/index'
 
 import { pipeUser } from '../../types/pipe'
 
 
+import { 
+    oldVsersion_Danger_MixinKoInstance,
+} from './oldVsersion'
 import {
     use,
     injection,
     registerPipeListenerUser,
-    mixinKoInstance,
 } from './injection'
 import {
     registerRecivePipeMessage
@@ -35,7 +37,7 @@ import {
 
 
 
-class keepObserverPipe {
+class keepObserverPipe extends KeepObserverPublic {
     private _config:any
     private _props:any
     private $keepObserver:any
@@ -49,7 +51,7 @@ class keepObserverPipe {
     private injection = injection.bind(this)
     private registerPipeListenerUser = registerPipeListenerUser.bind(this)
     private registerRecivePipeMessage = registerRecivePipeMessage.bind(this)
-    private mixinKoInstance = mixinKoInstance.bind(this)
+    private oldVsersion_Danger_MixinKoInstance = oldVsersion_Danger_MixinKoInstance.bind(this)
     private sendPipeMessage  = sendPipeMessage.bind(this)
     private noticeListener = noticeListener.bind(this)
     private isLock = isLock.bind(this)
@@ -60,6 +62,7 @@ class keepObserverPipe {
     private resetStackCount = resetStackCount.bind(this)
 
     constructor(keepObserver, config) {
+        super(config)
         //获取实例配置
         this._config = config;
         //获取kp实例
@@ -88,3 +91,4 @@ class keepObserverPipe {
 
 
 export default keepObserverPipe
+

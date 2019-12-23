@@ -20,6 +20,7 @@ window.console.warn = (...args) => {
 export const log = $log
 export const error = $error
 export const wran = $wran
-export const warnError = function(msg:string){
+export const warnError = function(msg:string,develop = true){
+    if(!develop) return 
     return error(`[keepObserver] find error! message: ${msg}`)
 }

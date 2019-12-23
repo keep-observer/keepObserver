@@ -32,6 +32,7 @@ export declare function isWindow(value: any): boolean;
  * @return boolean
  */
 export declare function isPlainObject(obj: any): any;
+export declare function isClassObject(obj: any): boolean;
 export declare function toArray(array: any): any;
 export declare function toString(content: any): any;
 export declare function setSessionStorage(key: any, value: any): void;
@@ -41,5 +42,19 @@ export declare function setStorage(key: any, value: any): void;
 export declare function getStorage(key: any): any;
 export declare function removeStorage(key: any): void;
 export declare function getUniqueID(): string;
-export declare function extend(...args: any[]): any;
+export declare function extend(...arg: any[]): any;
 export declare function mixin(origin: any, provider: any): void;
+/**
+ * @filter:
+ * @param obj { array and object}
+ * @param call { array.filter(callback)}
+ * @return: new obj
+ */
+export declare function filter(obj: any, callback: any): any;
+/**
+ * @map:
+ * @param obj { array and object}
+ * @param call { array.filter(callback)}
+ * @return: new obj
+ */
+export declare function map(obj: any, callback: any): any;

@@ -15,16 +15,16 @@ export var isLock = function() {
 
 
 export var openLock = function() {
-    var that = this;
-    if (that.receiveLock && that._config.queueLock) {
+    var _self = this;
+    if (_self.receiveLock && _self._config.queueLock) {
         return false;
     }
-    that.receiveLock = true;
+    _self.receiveLock = true;
     //是否定时强制解锁
-    if (that._config.timeOutUnlock) {
+    if (_self._config.timeOutUnlock) {
         setTimeout(function() {
-            that.closeLock()
-        }, that._config.receiveUnlockTime)
+            _self.closeLock()
+        }, _self._config.receiveUnlockTime)
     }
 }
 

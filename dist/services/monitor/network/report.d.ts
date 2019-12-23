@@ -1,8 +1,6 @@
 import { pipeOptons } from '../../../types/pipe';
-import { reportType } from '../../../types/report';
-export declare var addReportListener: (callback: any) => void;
+import { reportParams } from '../../../types/report';
 export declare var handleReportData: (content: any) => {
-    reportParams: reportType;
+    reportParams: reportParams;
     control: pipeOptons;
 };
-export declare var noticeReport: (content: any) => boolean;

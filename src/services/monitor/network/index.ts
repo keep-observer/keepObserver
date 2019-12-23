@@ -1,6 +1,6 @@
 import defaultConfig from './defaultConfig';
 import * as tool from '../../../util/tool';
-
+import KeepObserverPublic from '../../../share/public/index'
 
 import { 
     stopObserver,
@@ -14,15 +14,13 @@ import {
     _handleJudgeDisbale
 } from './handle';
 import {
-    addReportListener,
     handleReportData,
-    noticeReport,
 } from './report';
 
 
 
 // 获取系统信息
-class KeepObserverNetwork{
+class KeepObserverNetwork extends KeepObserverPublic{
     private _config: any;
     private _typeName: string;
     private _open: boolean| any;
@@ -30,7 +28,6 @@ class KeepObserverNetwork{
     private _setRequestHeader: boolean| any;
     private timeout: any;
     private timeoutRequest: any;
-    private eventListener: any[];
     private networkList: any;
     //method
     private stopObserver = stopObserver.bind(this);
@@ -40,20 +37,18 @@ class KeepObserverNetwork{
     private _handleTimeout = _handleTimeout.bind(this);
     private _handleDoneXML = _handleDoneXML.bind(this);
     private _handleJudgeDisbale = _handleJudgeDisbale.bind(this);
-    private addReportListener = addReportListener.bind(this);
     private handleReportData = handleReportData.bind(this);
-    private noticeReport = noticeReport.bind(this);
 
 
     //构造函数
-    constructor(config) {
-        var networkConfig = config.networkCustom || {};
+    constructor(config:any) {
+        super(config)
         //存混合配置
+        const { networkCustom=false } = config
+        var networkConfig = networkCustom || {};
         this._config = tool.extend(defaultConfig, networkConfig)
         //上报名
         this._typeName = 'network'
-        //监听列表
-        this.eventListener = [];
         //监控的数据列表
         this.networkList = {};
         //替换window.XMLHttpRequest变量

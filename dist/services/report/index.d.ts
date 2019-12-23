@@ -22,7 +22,13 @@ declare class KeepObserverReport {
     private handleReportDataResponse;
     private noticeResponse;
     private _init;
-    constructor(config: any);
+    constructor(config?: {
+        reportCustom: boolean;
+        develop: boolean;
+        developGetMsgLog: boolean;
+        develogDiscardLog: boolean;
+        develogDeleteLog: boolean;
+    });
     apply(pipe: any): {
         $setCustomeReportData: any;
     };

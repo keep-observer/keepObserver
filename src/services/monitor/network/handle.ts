@@ -9,17 +9,17 @@ const  reportFlag = 'keepObserver-reportAjax'
     在这里替换window.XMLHttpRequest变量进行监控
 */
 export var _handleInit = function() {
-    var that = this;
+    var _self = this;
     var _XMLHttp = (<any>window).XMLHttpRequest;
     //不支持 ajax 不进行监控
     if (!_XMLHttp) {
         return false;
     }
-    that._open = (<any>window).XMLHttpRequest.prototype.open
-    that._send = (<any>window).XMLHttpRequest.prototype.send
-    that._setRequestHeader = (<any>window).XMLHttpRequest.prototype.setRequestHeader
+    _self._open = (<any>window).XMLHttpRequest.prototype.open
+    _self._send = (<any>window).XMLHttpRequest.prototype.send
+    _self._setRequestHeader = (<any>window).XMLHttpRequest.prototype.setRequestHeader
         //处理Ajax
-    that._handleXMLAjax();
+    _self._handleXMLAjax();
 }
 
 
@@ -27,7 +27,7 @@ export var _handleInit = function() {
 	拦截XML AJax信息
  */
 export var _handleXMLAjax = function() {
-    var that = this;
+    var _self = this;
     //拦截原生open
     (<any>window).XMLHttpRequest.prototype.open = function(method,url) {
         var XML = this;
@@ -53,7 +53,7 @@ export var _handleXMLAjax = function() {
         var _onreadystatechange = XML.onreadystatechange || function() {};
         // start onreadystatechange
         var onreadystatechange = function() {
-            var item = that.networkList[id] ? that.networkList[id] : false;
+            var item = _self.networkList[id] ? _self.networkList[id] : false;
             //如果不存在 可能略过了send 会导致丢失部分数据
             if (!item) {
                 item = {}
@@ -90,7 +90,7 @@ export var _handleXMLAjax = function() {
                 //loading
             } else if (XML.readyState == 4) {
                 //结束超时捕获
-                that._handleTimeout(id);
+                _self._handleTimeout(id);
                 //处理响应头
                 item.responseHead = {};
                 var header = XML.getAllResponseHeaders() || '',
@@ -114,16 +114,16 @@ export var _handleXMLAjax = function() {
                 //请求结束完成
                 setTimeout(function() {
                     //是否是超时接口 超时的接口不做处理
-                    if (!that.timeoutRequest[id]) {
-                        that._handleDoneXML(id)
+                    if (!_self.timeoutRequest[id]) {
+                        _self._handleDoneXML(id)
                     }
                 })
             } else {
                 clearInterval(timer);
             }
             //如果这个接口已经超时处理了 那么不记录
-            if (!that.timeoutRequest[id]) {
-                that.networkList[id] = item;
+            if (!_self.timeoutRequest[id]) {
+                _self.networkList[id] = item;
             }
             return _onreadystatechange.apply(XML, arguments);
         }
@@ -138,7 +138,7 @@ export var _handleXMLAjax = function() {
                 onreadystatechange.call(XML);
             }
         }, 10);
-        return that._open.apply(XML, args);
+        return _self._open.apply(XML, args);
     }
     //拦截原始设置请求头
     (<any>window).XMLHttpRequest.prototype.setRequestHeader = function(header) {
@@ -155,7 +155,7 @@ export var _handleXMLAjax = function() {
                 return ;
             }
         }
-        return that._setRequestHeader.apply(XML, args);
+        return _self._setRequestHeader.apply(XML, args);
     }
     //拦截原生send
     (<any>window).XMLHttpRequest.prototype.send = function() {
@@ -168,21 +168,21 @@ export var _handleXMLAjax = function() {
             data = args[0],
             saveData = '';
         //监听列表中创建一条请求
-        if (!that.networkList[id]) {
-            that.networkList[id] = {}
+        if (!_self.networkList[id]) {
+            _self.networkList[id] = {}
         }
         //保存请求方法
-        that.networkList[id].method = method;
+        _self.networkList[id].method = method;
         var {
             url,
             params
         }:any = networkTool.handleReqUrl(url);
         //处理请求url和params
-        that.networkList[id].url = url;
-        that.networkList[id].params = params;
+        _self.networkList[id].url = url;
+        _self.networkList[id].params = params;
         //保存自定义请求头
         if (requestHead) {
-            that.networkList[id].requestHead = tool.extend({}, requestHead);
+            _self.networkList[id].requestHead = tool.extend({}, requestHead);
             delete XML._setHead[id];
         }
         //如果是post数据保存
@@ -191,10 +191,10 @@ export var _handleXMLAjax = function() {
                 saveData = data;
             }
         }
-        that.networkList[id].data = saveData;
+        _self.networkList[id].data = saveData;
         //开启定时器 判断接口是否超时
-        that._handleTimeout(id);
-        return that._send.apply(XML, args);
+        _self._handleTimeout(id);
+        return _self._send.apply(XML, args);
     }
 }
 
@@ -204,11 +204,11 @@ export var _handleXMLAjax = function() {
 	处理接口请求超时
  */
 export var _handleTimeout = function(id) {
-    var that = this;
-    var timeout = that._config.timeout
-    var isTimeout = that.timeoutRequest[id] ? that.timeoutRequest[id] : false;
-    var time = that.timeout[id] ? that.timeout[id] : false;
-    var item = that.networkList[id];
+    var _self = this;
+    var timeout = _self._config.timeout
+    var isTimeout = _self.timeoutRequest[id] ? _self.timeoutRequest[id] : false;
+    var time = _self.timeout[id] ? _self.timeout[id] : false;
+    var item = _self.networkList[id];
     //如果不存在 不做处理
     if (!item || isTimeout) {
         return false;
@@ -222,8 +222,8 @@ export var _handleTimeout = function(id) {
             item.isError = true;
             item.errorContent = 'ajax request timeout，time:' + timeout + '(ms)';
             //这里直接完成添加到超时列表 停止后续处理
-            that._handleDoneXML(id)
-            that.timeoutRequest[id] = true
+            _self._handleDoneXML(id)
+            _self.timeoutRequest[id] = true
         }, timeout)
     } else {
         //如果存在 则说明已经回调 取消超时定时器
@@ -238,21 +238,21 @@ export var _handleTimeout = function(id) {
 	@id:拦截请求唯一ID
  */
 export var _handleDoneXML = function(id) {
-    var that = this;
-    var ajaxItem = tool.extend({}, that.networkList[id]);
+    var _self = this;
+    var ajaxItem = tool.extend({}, _self.networkList[id]);
     var {
         onHandleJudgeResponse,
         onHandleRequestData,
         onHandleResponseData
-    } = that._config;
+    } = _self._config;
     //空的对象不做处理
     if (tool.isEmptyObject(ajaxItem)) {
         return false;
     }
     /******   这里开始处理数据  *****/
     //判断当前请求数据url是否需要屏蔽
-    if (!that._handleJudgeDisbale(ajaxItem)) {
-        that.networkList[id];
+    if (!_self._handleJudgeDisbale(ajaxItem)) {
+        _self.networkList[id];
         return false;
     }
     //如果存在自定义处理 请求data配置
@@ -291,9 +291,9 @@ export var _handleDoneXML = function(id) {
         }
     }
     //通知上传
-    that.noticeReport(ajaxItem);
+    _self.noticeReport(ajaxItem);
     //上报后删除记录
-    delete that.networkList[id];
+    delete _self.networkList[id];
 }
 
 

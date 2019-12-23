@@ -5,16 +5,16 @@ import * as tool from '../../../util/tool'
     	开始监控vue
  */
 export var _handleInit = function() {
-    var that = this;
-    if (that._vue.config) {
-        if(that._vue.config.errorHandler && tool.isFunction(that._vue.config.errorHandler) ){
-            that._originErrorHandle = that._vue.config.errorHandler
+    var _self = this;
+    if (_self._vue.config) {
+        if(_self._vue.config.errorHandler && tool.isFunction(_self._vue.config.errorHandler) ){
+            _self._originErrorHandle = _self._vue.config.errorHandler
         }
-        that._vue.config.errorHandler = (...args) => {
-            that._handleVueError(...args)
-            if(that._originErrorHandle){
+        _self._vue.config.errorHandler = (...args) => {
+            _self._handleVueError(...args)
+            if(_self._originErrorHandle){
                 try{
-                    that._originErrorHandle(...args);
+                    _self._originErrorHandle(...args);
                 }catch(e){}
             }
         }
@@ -26,7 +26,7 @@ export var _handleInit = function() {
 	处理监控vue错误信息
  */
 export var _handleVueError = function(err, vm, info) {
-    var that = this;
+    var _self = this;
     var errInfo:any = {}
     errInfo.infoMsg = tool.toString(info);
     //是否存在堆栈信息
@@ -38,5 +38,5 @@ export var _handleVueError = function(err, vm, info) {
     }
     errInfo.isError = true
     //上报
-    that.noticeReport(errInfo)
+    _self.noticeReport(errInfo)
 }

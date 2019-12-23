@@ -1,6 +1,6 @@
-import defaultConfig from './defaultConfig.js';
+import defaultConfig from './defaultConfig';
 import * as tool from '../../../util/tool';
-
+import KeepObserverPublic from '../../../share/public/index'
 
 import { 
     handleAnalyseDomList,
@@ -24,9 +24,7 @@ import {
     clearSaveRecive,
 } from './api'
 import {
-    addReportListener,
     handleReportData,
-    noticeReport
 } from './report'
 
 type reportDataType = {
@@ -39,12 +37,11 @@ type reportDataType = {
 
 
 //简单H5页面埋点分析
-class KeepObserverSimpleH5Analyse {
+class KeepObserverSimpleH5Analyse extends KeepObserverPublic{
     private _config:any;
     private _addEventListener:any;
     private _removeEventListener:any;
     private _domListener:any;
-    private eventListener: any[];
     private analyseDomList: any;
     private uniqueId: string;
     private reportData:reportDataType
@@ -54,9 +51,7 @@ class KeepObserverSimpleH5Analyse {
     private stopAnalyse = stopAnalyse.bind(this)
     private startAnalyse = startAnalyse.bind(this)
     private clearSaveRecive = clearSaveRecive.bind(this)
-    private addReportListener = addReportListener.bind(this)
     private handleReportData = handleReportData.bind(this)
-    private noticeReport = noticeReport.bind(this)
     private registerAnalyseDomEvent = registerAnalyseDomEvent.bind(this)
     private  _handleEventTarget = _handleEventTarget.bind(this)
     private _recoverEventTarget = _recoverEventTarget.bind(this)
@@ -67,10 +62,12 @@ class KeepObserverSimpleH5Analyse {
     private createReportData = createReportData.bind(this)
 
     //构造函数
-    constructor(config) {
+    constructor(config:any) {
+        super(config)
         //初始化上传相关实例
-        var simpleH5AnalyseCustom = config.simpleH5AnalyseCustom || {};
-        this._config = tool.extend(defaultConfig, simpleH5AnalyseCustom)
+        const { simpleH5AnalyseCustom=false } = config
+        var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || {};
+        this._config = tool.extend(defaultConfig, simpleH5AnalyseCustomConfig)
         //原生方法
         this._addEventListener = false;
         this._removeEventListener = false;
@@ -80,8 +77,6 @@ class KeepObserverSimpleH5Analyse {
             target: element
          */
         this._domListener = {};
-        //监听列表
-        this.eventListener = [];
         //需要监听的dom列表
         /*
             destroyEvent: function

@@ -1,5 +1,5 @@
 import * as tool from '../../../util/tool';
-
+import * as consoleTools from '../../../util/console'
 
 
 var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
@@ -15,30 +15,30 @@ var repeatIndex = 1;
 
 //处理监听DOM事件
 export var handleAnalyseDomList = function(analyseDomList,activeFn){
-    var that = this;
+    var _self = this;
     var newAnalyseDomList = {};
     var statusBuff = {};
     //for start
     analyseDomList.forEach(function(item){
         //check type
         if(!tool.isString(item) && !tool.isElement(item)){
-            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not string or not domElement')
+            consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not string or not domElement')
             return false;
         }
         var el = tool.isElement(item)? item : document.querySelector(item);
         if(!el || !tool.isElement(el)){
-            that.$devError('[keepObserver] analyseServer simpleH5 config analyseDomList item is not find domElement')
+            consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not find domElement')
             return false;
         }
         //handle el
-        var title = that.getDomTitle(el)
+        var title = _self.getDomTitle(el)
         if(newAnalyseDomList[title]){
             title += '-'+repeatIndex; 
             repeatIndex++;
         }
         statusBuff[title] = false;
         //register actice use event
-        var destroyEvent = that.registerAnalyseDomEvent(el,function(event){
+        var destroyEvent = _self.registerAnalyseDomEvent(el,function(event){
             statusBuff[title] = true;
             if(activeFn && tool.isFunction(activeFn)){
                 activeFn(event);

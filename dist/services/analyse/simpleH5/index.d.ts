@@ -1,9 +1,9 @@
-declare class KeepObserverSimpleH5Analyse {
+import KeepObserverPublic from '../../../share/public/index';
+declare class KeepObserverSimpleH5Analyse extends KeepObserverPublic {
     private _config;
     private _addEventListener;
     private _removeEventListener;
     private _domListener;
-    private eventListener;
     private analyseDomList;
     private uniqueId;
     private reportData;
@@ -12,9 +12,7 @@ declare class KeepObserverSimpleH5Analyse {
     private stopAnalyse;
     private startAnalyse;
     private clearSaveRecive;
-    private addReportListener;
     private handleReportData;
-    private noticeReport;
     private registerAnalyseDomEvent;
     private _handleEventTarget;
     private _recoverEventTarget;

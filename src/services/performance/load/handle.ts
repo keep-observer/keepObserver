@@ -5,20 +5,20 @@ const saveFlag = 'loadRecordReportDate'
 
 //获取系统信息
 export var getSystemInfo = function() {
-    var that = this;
+    var _self = this;
     var oneDayFlag = this.checkIsOneDay()
         //判断是否每天最多获取上传一次
     if (this._config.isOneDay && oneDayFlag) {
         return false;
     }
     //开始获取系统信息
-    if (that._config.isPerformance) {
-        that.getWebPerformance(function(Result) {
-            that._systemInfo = Result
+    if (_self._config.isPerformance) {
+        _self.getWebPerformance(function(Result) {
+            _self._systemInfo = Result
             //上报
-            that.noticeReport(that._systemInfo);
+            _self.noticeReport(_self._systemInfo);
             //记录
-            that.recordReport();
+            _self.recordReport();
         })
     }
 }
@@ -27,7 +27,7 @@ export var getSystemInfo = function() {
 
 //获取首屏性能分析
 export var getWebPerformance = function(onCallback) {
-    var that = this;
+    var _self = this;
     //异步实现,等待完全加载完成
     var performance = function() {
             var info:any = {}
@@ -68,7 +68,7 @@ export var getWebPerformance = function(onCallback) {
                 info.webLoadEnd = (timing.loadEventEnd - timing.navigationStart) + 'ms';
             }
             //是否获取加载资源内容
-            if (performance  &&  that._config.isPerformanceRequest) {
+            if (performance  &&  _self._config.isPerformanceRequest) {
                 info.requestPerformance = [];
                 if (performance.getEntries) {
                     var requestPerformance = performance.getEntries()

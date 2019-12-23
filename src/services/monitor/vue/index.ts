@@ -1,6 +1,6 @@
 
 import * as tool from '../../../util/tool'
-
+import KeepObserverPublic from '../../../share/public/index'
 
 import {
     stopObserver,
@@ -11,35 +11,33 @@ import {
     _handleVueError,
 } from './handle'
 import {
-    addReportListener,
     handleReportData,
-    noticeReport,
 } from './report';
 
 
 
 
 // 获取系统信息
-class KeepObserverVue {
+class KeepObserverVue  extends KeepObserverPublic{
     private  _config: any;
     private _typeName: string;
     private  _vue: any;
     private _originErrorHandle: any;
-    private eventListener: any[];
     //method
     private stopObserver = stopObserver.bind(this);
     private startObserver = startObserver.bind(this);
     private _handleInit = _handleInit.bind(this);
     private _handleVueError = _handleVueError.bind(this);
-    private addReportListener = addReportListener.bind(this);
     private handleReportData = handleReportData.bind(this);
-    private noticeReport = noticeReport.bind(this);
+    
 
     //构造函数
-    constructor(config) {
+    constructor(config:any) {
+        super(config)
         //初始化上传相关实例
-        var vueConfig = config.vueCustom || {};
-        vueConfig.vueInstance = config.vueInstance;
+        const { vueCustom=false ,vueInstance=false } = config
+        var vueConfig:any = vueCustom || {};
+        vueConfig.vueInstance = vueInstance;
         //判断是否存在实例
         if (vueConfig.vueInstance) {
             return this;
@@ -50,8 +48,6 @@ class KeepObserverVue {
         this._typeName = 'vue'
         //vue实例
         this._vue = this._config.vueInstance;
-        //监听列表
-        this.eventListener = [];
         // 开启vue拦截
         this.startObserver();
     }
@@ -64,6 +60,7 @@ class KeepObserverVue {
             $vueStart: this.startObserver
         }
     }
+
 }
 
 
@@ -71,5 +68,7 @@ class KeepObserverVue {
 
 
 export default KeepObserverVue
+
+
 
 

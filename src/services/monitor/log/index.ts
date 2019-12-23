@@ -1,6 +1,7 @@
 import defaultConfig from './defaultConfig';
 import * as tool from '../../../util/tool';
 
+import KeepObserverPublic from '../../../share/public/index'
 
 import {
     stopObserver,
@@ -12,19 +13,15 @@ import {
     _handleError,
 } from './handle'
 import {
-    addReportListener,
     handleReportData,
-    noticeReport
 } from './report'
 
 
 
 // 获取系统信息
-class KeepObserverLog{
+class KeepObserverLog extends KeepObserverPublic{
     private _config: any;
     private _typeName :string;
-    private _develop :boolean;
-    private eventListener : any[];
     private console: any;
     private $createElement : any|boolean;
     //method
@@ -33,25 +30,22 @@ class KeepObserverLog{
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)
     private _handleError = _handleError.bind(this)
-    private addReportListener = addReportListener.bind(this)
     private handleReportData = handleReportData.bind(this)
-    private noticeReport = noticeReport.bind(this)
+
 
 
     //构造函数
-    constructor(config) {
+    constructor(config:any) {
+        super(config)
         //初始化上传相关实例
-        var logConfig = config.logCustom || {};
+        const { logCustom=false,develop=false } = config
+        var logConfig:any = logCustom || {};
         //是否是开发模式
-        logConfig.develop = config.develop ? true : false;
+        logConfig.develop = develop ? true : false;
         //存混合配置
         this._config = tool.extend(defaultConfig, logConfig)
-        //当前是否处于开发模式
-        this._develop = this._config.develop;
         //上报名
         this._typeName = 'log'
-        //监听列表
-        this.eventListener = [];
         //替换window.console
         this.console = {};
         //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';

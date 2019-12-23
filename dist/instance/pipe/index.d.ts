@@ -1,4 +1,5 @@
-declare class keepObserverPipe {
+import KeepObserverPublic from '../../share/public/index';
+declare class keepObserverPipe extends KeepObserverPublic {
     private _config;
     private _props;
     private $keepObserver;
@@ -11,7 +12,7 @@ declare class keepObserverPipe {
     private injection;
     private registerPipeListenerUser;
     private registerRecivePipeMessage;
-    private mixinKoInstance;
+    private oldVsersion_Danger_MixinKoInstance;
     private sendPipeMessage;
     private noticeListener;
     private isLock;

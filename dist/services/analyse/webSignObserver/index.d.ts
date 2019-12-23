@@ -19,7 +19,9 @@ declare class keepObserverWebSignAnalyse {
     private addReportListener;
     private handleReportData;
     private noticeReport;
-    constructor(config: any);
+    constructor(config?: {
+        webSignAnalyseCustom: boolean;
+    });
     apply(pipe: any): {
         $beginObserverAnalyse: any;
     };

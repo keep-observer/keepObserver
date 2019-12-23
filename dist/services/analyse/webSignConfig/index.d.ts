@@ -28,7 +28,9 @@ declare class KeepObserverWebSignConfig {
     private addReportListener;
     private handleReportData;
     private noticeReport;
-    constructor(config: any);
+    constructor(config?: {
+        webSignConfigCustom: boolean;
+    });
     apply(pipe: any): {
         $startWebSginConfig: any;
     };

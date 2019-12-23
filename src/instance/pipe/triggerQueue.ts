@@ -1,34 +1,35 @@
 import * as tool from '../../util/tool';
+import * as consoleTools from '../../util/console'
 
 import { pipeMsg, pipeOptons } from '../../types/pipe'
 
 
 //发送消息在管道内流通
 export var sendPipeMessage = function(pipeIndex:number, msg:pipeMsg, options:pipeOptons) {
-    var that = this;
+    var _self = this;
     var msgItem = {
         pipeIndex: pipeIndex,
         msg: msg,
         options: options,
     };
     //是否消息队列加锁,并且防止异常消息
-    if (that.isLock() || that.preventStackError(msgItem)) {
+    if (_self.isLock() || _self.preventStackError(msgItem)) {
         return false;
     }
     //进入消息队列
-    that.messageQueue.push(msgItem);
+    _self.messageQueue.push(msgItem);
     //如果正在执行
-    if (that.waiting) {
+    if (_self.waiting) {
         return false;
     }
     //异步执行消息队列分发
     setTimeout(function() {
         //获取消息队列数组快照
-        var queue = tool.extend([], that.messageQueue);
+        var queue = tool.extend([], _self.messageQueue);
         //清空队列
-        that.messageQueue = [];
+        _self.messageQueue = [];
         //通知监听
-        noticeListener.call(that, queue)
+        noticeListener.call(_self, queue)
     })
 }
 
@@ -38,12 +39,12 @@ export var sendPipeMessage = function(pipeIndex:number, msg:pipeMsg, options:pip
 
 //通知监听
 export var noticeListener = function(queue) {
-    var that = this;
+    var _self = this;
     if (!tool.isArray(queue) || queue.length === 0) {
         return false;
     }
     //接收消息进入等待状态
-    that.waiting = true;
+    _self.waiting = true;
     //分发处理消息
     for (var i = 0; i < queue.length; i++) {
         var {
@@ -52,7 +53,7 @@ export var noticeListener = function(queue) {
             options
         } = queue[i];
         //消息分发
-        that.pipeUser.map(function(item, index) {
+        _self.pipeUser.map(function(item, index) {
             //判断是否是正确注册接收函数
             if (!item || !item.receiveCallback || !tool.isFunction(item.receiveCallback)) {
                 return false;
@@ -65,7 +66,7 @@ export var noticeListener = function(queue) {
             //分发
             try {
                 //消息队列加锁
-                that.openLock();
+                _self.openLock();
                 //执行分发
                 var result = receiveCallback(msg, options);
                 //消息队列解锁
@@ -74,18 +75,18 @@ export var noticeListener = function(queue) {
                     tool.isObject(result) &&
                     (result instanceof Promise ||
                         (result.then && tool.isFunction(result.then)))) {
-                    result.then(that.closeLock, that.closeLock)
+                    result.then(_self.closeLock, _self.closeLock)
                 } else {
-                    that.closeLock()
+                    _self.closeLock()
                 }
             } catch (e) {
-                that.closeLock()
-                that.$devError('[keepObserver] use pipe message notice is runing error:' + e)
+                _self.closeLock()
+                consoleTools.warnError('use pipe message notice is runing error:' + e)
             }
         });
     }
     //等待状态结束
-    that.waiting = false;
+    _self.waiting = false;
 }
 
 

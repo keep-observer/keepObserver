@@ -1,4 +1,4 @@
-export declare type reportType = {
+export declare type reportParams = {
     type: string;
     typeName: string;
     location: string;

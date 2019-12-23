@@ -1,5 +1,5 @@
 import * as tool from '../../../util/tool';
-import { RecordKey,exitBackstageFlag } from './constant.js'
+import { RecordKey,exitBackstageFlag } from './constant'
 
 
 

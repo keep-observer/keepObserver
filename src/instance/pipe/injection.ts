@@ -1,30 +1,33 @@
 import * as tool from '../../util/tool';
+import * as consoleTools from '../../util/console'
+import { Provider } from '../../types/instance'
 
 import { pipeUser } from '../../types/pipe'
+
 
 /*
     receive Plug-ins Server
     params
-    @Provider  type es6 class
+    @Provider  type es6 class  or classInstance 
     explan: Provider class render apply function ,apply runing return method object ,on mounted is keepObsever class 
  */
-export var use = function(Provider) {
-    if (!Provider || !tool.isFunction(Provider)) {
-        this.$devError('[keepObserver] use method receive provider is not right')
+export var use = function(Provider:Provider,) {
+    if (!Provider || (!tool.isFunction(Provider) && !tool.isClassObject(Provider)) ) {
+        consoleTools.warnError('use method receive provider is not right')
         return false;
     }
     //初始化注入服务
     var config = this._config
-    var providerInstalcen = new Provider(config);
+    var providerInstalcen = tool.isFunction(Provider)? new Provider(config) : Provider
     //检查注入方法是否存在存在apply,存在则加入到管道流中
     //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var {
-        apply
+        apply = null
     } = providerInstalcen
     if (apply && tool.isFunction(apply)) {
         this.injection(providerInstalcen, apply)
     } else {
-        this.$devError('[keepObserver] use method receive provider is not apply method')
+        consoleTools.warnError('use method receive provider is not apply method')
         return false;
     }
 }
@@ -42,33 +45,39 @@ export var use = function(Provider) {
         explan: apply function
  */
 export var injection = function(scope, applyFn) {
-    var that = this;
+    var _self = this;
+    var config = this._config
     //check data
     if (!applyFn || !tool.isFunction(applyFn)) {
-        that.$devError('[keepObserver] injection receive ApplyFn is undefined or no function')
+        consoleTools.warnError('injection receive ApplyFn is undefined or no function')
         return false;
     }
     //cerate pipe listener
-    var pipeMethod = that.registerPipeListenerUser();
-    //dev method
-    var devMethod = {
-        $devLog: function() {
-            return that.$devLog(...arguments)
-        },
-        $devWarn: function() {
-            return that.$devWarn(...arguments)
-        },
-        $devError: function() {
-            return that.$devError(...arguments)
-        }
-    }
+    var pipeMethod = _self.registerPipeListenerUser();
     try {
         // runing apply
-        var userRenderMethod = applyFn.call(scope, pipeMethod, devMethod);
+        var userRenderMethod = applyFn.call(scope, pipeMethod, config);
         //mounte method
-        that.mixinKoInstance(scope, userRenderMethod);
+        if(tool.isObject && !tool.isEmptyObject(userRenderMethod)){
+            _self.oldVsersion_Danger_MixinKoInstance(scope, userRenderMethod);
+            return 
+        }
+        //new version mounte api method
+        // 1. $keepObserver.registerApi 
+        // 2. userRenderMethod : [{apiName,callback}...]
+        if(_self.$keepObserver.registerApi && tool.isArray(userRenderMethod) && !tool.isEmptyArray(userRenderMethod)){
+            userRenderMethod.forEach(el => {
+                if(tool.isObject(el) && !tool.isEmptyObject(el)){
+                    const { apiName='', callback=undefined } = el
+                    if(!apiName || !callback){
+                        return consoleTools.warnError(`apiName is '' or callback is undefined`)
+                    }
+                    _self.registerApi(apiName,callback)
+                }
+            });
+        }
     } catch (e) {
-        that.$devError('[keepObserver] injection receive ApplyFn is runing find error:' + e)
+        consoleTools.warnError('injection receive ApplyFn is runing find error:' + e)
     }
 }
 
@@ -84,9 +93,9 @@ export var injection = function(scope, applyFn) {
     }
  */
 export var registerPipeListenerUser = function() {
-    var that = this;
+    var _self = this;
     //pipe index
-    var pipeIndex = that.pipeUser.length;
+    var pipeIndex = _self.pipeUser.length;
     //pipe user obj
     var pipeUser:pipeUser = {
         //index
@@ -95,23 +104,23 @@ export var registerPipeListenerUser = function() {
         receiveCallback: null,
         //send message
         sendPipeMessage: function() {
-            return that.sendPipeMessage(pipeIndex, ...arguments)
+            return _self.sendPipeMessage(pipeIndex, ...arguments)
         },
         //register message
         registerRecivePipeMessage:null
     };
     //add listener
-    that.pipeUser[pipeIndex] = pipeUser;
+    _self.pipeUser[pipeIndex] = pipeUser;
     //register receive message listener
-    pipeUser.registerRecivePipeMessage = that.registerRecivePipeMessage(pipeIndex);
+    pipeUser.registerRecivePipeMessage = _self.registerRecivePipeMessage(pipeIndex);
     //render pipe method
     var renderMethod = {
         registerRecivePipeMessage: function() {
-            if (!that.pipeUser[pipeIndex]) return false;
+            if (!_self.pipeUser[pipeIndex]) return false;
             return pipeUser.registerRecivePipeMessage(...arguments)
         },
         sendPipeMessage: function() {
-            if (!that.pipeUser[pipeIndex]) return false;
+            if (!_self.pipeUser[pipeIndex]) return false;
             return pipeUser.sendPipeMessage(...arguments)
         }
     };
@@ -119,50 +128,5 @@ export var registerPipeListenerUser = function() {
 }
 
 
-
-
-/*
-    注入对象方法挂载到keepObserver中
-    params
-    @scope  type object 
-        explan:this指向
-    @renders type object
-        explan:render mounted keepObserver method list
- */
-export var mixinKoInstance = function(scope, renders) {
-    var that = this;
-    if (!renders || tool.isEmptyObject(renders)) {
-        that.$devWarn('[keepObserver] injection ApplyFn return Object is undefined')
-        return false;
-    }
-    var keepObserver = that.$keepObserver
-    for (var key in renders) {
-        //检查方法
-        var fn = renders[key]
-        if (!fn || !tool.isFunction(fn)) {
-            that.$devError('[keepObserver] injection ApplyFn return Object attr' + key + 'is not right')
-        }
-        //是否存在同名方法
-        if (keepObserver[key]) {
-            that.$devError('[keepObserver] injection Discover namesake methods')
-            continue;
-        }
-        //挂载到keepObserver 实例
-        Object.defineProperty(keepObserver,key,{
-            configurable: false,
-            enumerable: true,
-            value:(function(fn) {
-                return function(){
-                    var agrs = tool.toArray(arguments)
-                    try {
-                        fn.apply(scope,agrs)
-                    } catch (e) {
-                        that.$devError('[keepObserver] injection  methods ' + key + ' runing find error' + e)
-                    } 
-                }  
-            })(fn)
-        })
-    }
-}
 
 

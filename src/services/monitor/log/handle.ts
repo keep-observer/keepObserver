@@ -5,7 +5,7 @@ import * as tool from '../../../util/tool'
 	初始化替换相关信息
 */
 export var _handleInit = function() {
-    var that = this;
+    var _self = this;
     //替换window.console变量
     var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
 
@@ -14,20 +14,20 @@ export var _handleInit = function() {
     }
 
     baseLogList.map(function(method) {
-        that.console[method] = window.console[method];
+        _self.console[method] = window.console[method];
     })
-    that.console.time = window.console.time;
-    that.console.timeEnd = window.console.timeEnd;
-    that.console.clear = window.console.clear;
+    _self.console.time = window.console.time;
+    _self.console.timeEnd = window.console.timeEnd;
+    _self.console.clear = window.console.clear;
 
     baseLogList.map(method => {
         window.console[method] = (...args) => {
             //是否处于开发模式下
-            if (that._develop && that.console[method] && tool.isFunction(that.console[method])) {
-                that.console[method](...args);
+            if (_self._develop && _self.console[method] && tool.isFunction(_self.console[method])) {
+                _self.console[method](...args);
             }
             //交给拦截处理信息
-            that._handleMessage(method, args);
+            _self._handleMessage(method, args);
         }
     });
     //处理time timeEnd clear
@@ -40,31 +40,31 @@ export var _handleInit = function() {
         var type = 'timeEnd'
         if (pre) {
             var content = label + ':' + (Date.now() - pre) + 'ms';
-            that._handleMessage(type, [content]);
+            _self._handleMessage(type, [content]);
             //开发模式下打印
-            if (that._develop && that.console.log && tool.isFunction(that.console.log)) {
-                that.console.log(content);
+            if (_self._develop && _self.console.log && tool.isFunction(_self.console.log)) {
+                _self.console.log(content);
             }
         } else {
             var content = label + ': 0ms';
-            that._handleMessage(type, [content]);
+            _self._handleMessage(type, [content]);
             //开发模式下打印
-            if (that._develop && that.console.log && tool.isFunction(that.console.log)) {
-                that.console.log(content);
+            if (_self._develop && _self.console.log && tool.isFunction(_self.console.log)) {
+                _self.console.log(content);
             }
         }
     }
     window.console.clear = (...args) => {
-        that._handleMessage('clear', args);
-        that.console.clear.apply(window.console, args);
+        _self._handleMessage('clear', args);
+        _self.console.clear.apply(window.console, args);
     };
     //是否需要捕获跨域JS错误
-    if (that._config.catchCrossDomain && !that.$createElement) {
+    if (_self._config.catchCrossDomain && !_self.$createElement) {
         //侵入document.createElement  实现跨域JS捕获错误信息
         if (window.document || window.document.createElement) {
-            that.$createElement = window.document.createElement
+            _self.$createElement = window.document.createElement
             window.document.createElement = function(type) {
-                var resultDom = that.$createElement.call(window.document, type)
+                var resultDom = _self.$createElement.call(window.document, type)
                 if (type === 'script') {
                     resultDom.crossOrigin = 'anonymous';
                 }
@@ -75,11 +75,11 @@ export var _handleInit = function() {
     //监控window.onerror
     if (typeof window.addEventListener != 'undefined') {
         window.addEventListener('error', (...args) => {
-            that._handleError(...args)
+            _self._handleError(...args)
         }, true);
     } else {
         (<any>window).attachEvent('onerror', (...args) => {
-            that._handleError(...args)
+            _self._handleError(...args)
         })
     }
 }
@@ -96,7 +96,7 @@ export var _handleInit = function() {
 	@: data string  (JSON格式对象报文)
  */
 export var _handleMessage = function(type, agrs) {
-    var that = this;
+    var _self = this;
     var reportData:any = {}
         //agrs不是数组 或是空数组 则不处理
     if (!tool.isArray(agrs) || agrs.length === 0) {
@@ -105,8 +105,9 @@ export var _handleMessage = function(type, agrs) {
     reportData.type = type;
     //直接转成JSON
     reportData.data = JSON.stringify(agrs);
+    const { reportParams,control } = _self.handleReportData(reportData)
     //上报
-    that.noticeReport(reportData)
+    _self.noticeReport(reportParams,control)
 }
 
 
@@ -128,7 +129,7 @@ export var _handleMessage = function(type, agrs) {
 	}
  */
 export var _handleError = function(errorEvent) {
-    var that = this;
+    var _self = this;
     var errorObj:any = {};
     var url = errorEvent.filename || errorEvent.url || false
     //可能是跨域资源JS出现错误 这获取不到详细信息
@@ -139,18 +140,18 @@ export var _handleError = function(errorEvent) {
             errorObj.nodeName = errorEvent.target.nodeName 
             errorObj.url = errorEvent.target.src;
             setTimeout(function() {
-                that._handleMessage('loadError', [errorObj])
+                _self._handleMessage('loadError', [errorObj])
             })
             return false;
         }
         //未知错误是否捕获
-        if (!that._config.unknowErrorCatch) return false;
+        if (!_self._config.unknowErrorCatch) return false;
         errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
         errorObj.url = '';
         errorObj.line = 0;
         errorObj.colum = 0;
         setTimeout(function() {
-            that._handleMessage('jsError', [errorObj])
+            _self._handleMessage('jsError', [errorObj])
         })
         return false;
     }
@@ -160,7 +161,7 @@ export var _handleError = function(errorEvent) {
     errorObj.line = errorEvent.lineno || 'Error row not obtained'
     errorObj.colum = errorEvent.colno || 'Error column not obtained'
     setTimeout(function() {
-        that._handleMessage('jsError', [errorObj])
+        _self._handleMessage('jsError', [errorObj])
     })
     return true;
 }

@@ -1,4 +1,5 @@
-declare class KeepObserverNetwork {
+import KeepObserverPublic from '../../../share/public/index';
+declare class KeepObserverNetwork extends KeepObserverPublic {
     private _config;
     private _typeName;
     private _open;
@@ -6,7 +7,6 @@ declare class KeepObserverNetwork {
     private _setRequestHeader;
     private timeout;
     private timeoutRequest;
-    private eventListener;
     private networkList;
     private stopObserver;
     private startObserver;
@@ -15,9 +15,7 @@ declare class KeepObserverNetwork {
     private _handleTimeout;
     private _handleDoneXML;
     private _handleJudgeDisbale;
-    private addReportListener;
     private handleReportData;
-    private noticeReport;
     constructor(config: any);
     apply(pipe: any): {
         $networkStop: any;

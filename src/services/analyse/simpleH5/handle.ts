@@ -1,6 +1,6 @@
 import * as tool from '../../../util/tool';
-import * as assist from './tool.js'
-import { RecordKey,exitBackstageFlag,RecordDataKey } from './constant.js'
+import * as assist from './tool'
+import { RecordKey,exitBackstageFlag,RecordDataKey } from './constant'
 
 
 
@@ -10,18 +10,18 @@ var  nowDate = assist.createDataRecord()
 
 //开始
 export var begine = function(config){
-    var that = this;
+    var _self = this;
     var { analyseDomList } = config
     //handle dom list
     if(analyseDomList || tool.isArray(analyseDomList)){
-        that.analyseDomList = that.handleAnalyseDomList(analyseDomList,function(event){
-            that.triggerAcitveReport(event);
+        _self.analyseDomList = _self.handleAnalyseDomList(analyseDomList,function(event){
+            _self.triggerAcitveReport(event);
         })
     }else{
-        that.$devWarn('[keepObserver] analyseServer simpleH5 is analyse dom list is no exist or is no arrayType')
+        _self.$devWarn('[keepObserver] analyseServer simpleH5 is analyse dom list is no exist or is no arrayType')
     } 
     //reset report data and init report
-    that.triggerInitReport();
+    _self.triggerInitReport();
 }
 
 
@@ -111,7 +111,7 @@ export var triggerInitReport = function(){
 
 //创建上报数据
 export var createReportData = function(){
-    var that = this;
+    var _self = this;
     var reportData = this.reportData
     // handle dom observer info
     if(!tool.isEmptyObject(this.analyseDomList)){

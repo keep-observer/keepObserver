@@ -1,6 +1,6 @@
 
 
-export type reportType = {
+export type reportParams = {
     type: string;
     typeName: string;
     location: string;

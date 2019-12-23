@@ -17,7 +17,7 @@ module.exports = merge(baseWebpackConfig, {
         libraryTarget: 'umd',
         umdNamedDefine: true,
         //输出目录
-        path: path.resolve(__dirname, '../@keepObserver'),
+        path: path.resolve(__dirname, '../@core'),
     },
     devtool: false,
     plugins: [

@@ -138,6 +138,13 @@ export function isPlainObject(obj) {
 }
 
 
+/*
+ * 检查是否是class 实例对象
+*/
+export function isClassObject(obj){
+    return isObject(obj) && !isPlainObject(obj)? true : false
+}
+
 
 /*
   转换工具
@@ -238,64 +245,74 @@ export function getUniqueID() {
     多内容合并覆盖优先级: arguments[0]<arguments[1]<arguments[2]..
     如果sources 不是数组或者对象 则直接忽略
  */
-export function extend(...args) {
-    if (args.length === 0) {
-        console.error('extends params is undefined')
-        return {};
-    }
-    if (args.length === 1) {
-        return args[0]
-    }
-    var target = args[0];
-    var sources = args.slice(1, args.length)
-
-    if (!isObject(target) && !isArray(target)) {
-        target = {};
-    }
-    sources.map(function(item) {
-        //防止死循环
-        if (target === item) {
-            return false;
-        }
-        //如果内容是对象 
-        if (isObject(item)) {
-            //开始遍历
-            for (var key in item) {
-                //如果内容是对象
-                if (isObject(item[key])) {
-                    //修正数据
-                    target[key] = (target[key] && isObject(target[key])) ? target[key] : {};
-                    target[key] = extend(target[key], item[key])
-                } else if (isArray(item[key])) {
-                    //修正数据
-                    target[key] = (target[key] && isArray(target[key])) ? target[key] : [];
-                    target[key] = extend(target[key], item[key])
-                } else {
-                    //基本类型直接赋值
-                    target[key] = item[key]
-                }
-            }
-        } else if (isArray(item)) {
-            for (var i = 0; i < item.length; i++) {
-                //如果内容是对象
-                if (isObject(item[i])) {
-                    //修正数据
-                    target[i] = (target[i] && isObject(target[i])) ? target[i] : {}
-                    target[i] = extend(target[i], item[i])
-                } else if (isArray(item[i])) {
-                    //修正数据
-                    target[i] = (target[i] && isArray(target[i])) ? target[i] : [];
-                    target[i] = extend(target[i], item[i])
-                } else {
-                    //基本类型直接赋值
-                    target[i] = item[i]
-                }
-            }
-        }
-        //其他类型直接忽略  
-    })
-    return target
+export function extend(...arg) {
+	var args = toArray(arguments);
+	if (args.length === 0) {
+		console.error("extends params is undefined");
+		return {};
+	}
+	if (args.length === 1) {
+		return args[0];
+	}
+	var target = args[0];
+	var sources = args.slice(1, args.length);
+	if (!isObject(target) && !isArray(target)) {
+		target = {};
+	}
+	sources.map(item => {
+		//防止死循环
+		if (target === item) {
+			return false;
+		}
+		//如果内容是对象
+		if (isObject(item)) {
+			//开始遍历
+			for (var key in item) {
+				//如果内容是对象
+				if (isObject(item[key]) && !isEmptyObject(item[key])) {
+					//修正数据
+					target[key] = target[key] && isObject(target[key]) ? target[key] : {};
+					target[key] = extend(target[key], item[key]);
+				} else if (isArray(item[key]) && !isEmptyArray(item[key])) {
+					//修正数据
+					target[key] =target[key] && isArray(target[key]) ? target[key] : [];
+					target[key] = extend(target[key], item[key]);
+				}else if (isObject(item[key]) && isEmptyObject(item[key])){
+					target[key] = {}
+				}else if (isArray(item[key]) && isEmptyArray(item[key])){
+					target[key] = []
+				}else {
+					//基本类型直接赋值
+					target[key] = item[key];
+				}
+			}
+		} else if (isArray(item)) {
+			for (var i = 0; i < item.length; i++) {
+				//如果内容是对象
+				if (isObject(item[i]) && !isEmptyObject(item[i])) {
+					//修正数据
+					target[i] = target[i] && isObject(target[i]) ? target[i] : {};
+					target[i] = extend(target[i], item[i]);
+				} else if (isArray(item[i]) && !isEmptyArray(item[i])) {
+					//修正数据
+					target[i] = target[i] && isArray(target[i]) ? target[i] : [];
+					target[i] = extend(target[i], item[i]);
+				}else if (isObject(item[i]) && isEmptyObject(item[i])){
+					target[i] = {}
+				}else if (isArray(item[i]) && isEmptyArray(item[i])){
+					target[i] = []
+				}else {
+					//基本类型直接赋值
+					target[i] = item[i];
+				}
+			}
+		}
+		//其他类型直接忽略
+	});
+	return target;
 }
+
+
 
 
 
@@ -319,5 +336,58 @@ export function mixin(origin:any,provider:any) {
         })
     }
 }
+
+
+
+/**
+ * @filter: 
+ * @param obj { array and object} 
+ * @param call { array.filter(callback)} 
+ * @return: new obj
+ */
+export function filter(obj,callback){
+	if((!isArray(obj) && !isObject(obj)) || !isFunction(callback)){
+		return obj
+	}
+	if(isArray(obj)){
+		return obj.filter(callback)
+	}
+	let newObje = {}
+	for(let key in obj){
+		let value = obj[key]
+		if(callback(value,key)){
+			newObje[key] = value
+		}
+	}
+	return newObje
+}
+
+
+
+/**
+ * @map: 
+ * @param obj { array and object} 
+ * @param call { array.filter(callback)} 
+ * @return: new obj
+ */
+export function map(obj,callback){
+	if((!isArray(obj) && !isObject(obj)) || !isFunction(callback)){
+		return obj
+	}
+	if(isArray(obj)){
+		return obj.map(callback)
+	}
+	let newObje = {}
+	for(let key in obj){
+		let value = obj[key]
+		newObje[key] = callback(value,key)
+	}
+	return newObje
+}
+
+
+
+
+ 
 
 
