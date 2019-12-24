@@ -77,7 +77,7 @@ class KeepObserverReport  extends KeepObserverPublic  {
     //constructor
     constructor(config = kpConfigs){
         super(config)
-        const { reportCustom,develop,developGetMsgLog,develogDiscardLog,develogDeleteLog } = config
+        const { reportCustom,develop,developGetMsgLog,develogDiscardLog,develogDeleteLog } = config as any
         //存混合配置
         var reportConfig:any = reportCustom || {};
         //是否是开发模式

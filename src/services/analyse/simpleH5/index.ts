@@ -62,10 +62,10 @@ class KeepObserverSimpleH5Analyse extends KeepObserverPublic{
     private createReportData = createReportData.bind(this)
 
     //构造函数
-    constructor(config:any) {
+    constructor(config={}) {
         super(config)
         //初始化上传相关实例
-        const { simpleH5AnalyseCustom=false } = config
+        const { simpleH5AnalyseCustom=false } = config as any
         var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || {};
         this._config = tool.extend(defaultConfig, simpleH5AnalyseCustomConfig)
         //原生方法

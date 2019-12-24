@@ -50,9 +50,6 @@ var entryJs = {
 	...entryData.entry,
 }
 
-console.log(entryData)
-console.log(entryHtml)
-debugger
 
 var dev_WebpackConfig = {
 	mode:'development',

@@ -9,6 +9,7 @@ var separate = require('./separate.js');
 
 
 module.exports = merge(baseWebpackConfig, {
+    mode: 'development',  //开发
     entry: separate,
     //输出文件
     output: {

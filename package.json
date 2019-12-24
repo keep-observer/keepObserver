@@ -4,7 +4,8 @@
   "description": "web -- watch  is JS-error netWork  console..log  observer  web-monitor",
   "main": "index.js",
   "scripts": {
-    "test": "node --inspect --debug-brk test/start.js",
+    "test": "node test/start.js",
+    "dev": "node test/dev.js",
     "build": "node build/build.js",
     "link": "npm run build && npm unlink && npm link"
   },
@@ -16,7 +17,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.5",
     "chalk": "^2.4.2",
-    "chromedriver": "^2.45.0",
+    "chromedriver": "^2.46.0",
     "connect-history-api-fallback": "^1.6.0",
     "copy-webpack-plugin": "^4.6.0",
     "crypto-js": "^3.1.9-1",
@@ -40,6 +41,7 @@
     "rimraf": "^2.6.3",
     "semver": "^5.7.0",
     "shelljs": "^0.7.6",
+    "webdriver-manager": "^12.1.7",
     "webpack": "~4.2.0",
     "webpack-bundle-analyzer": "^2.2.1",
     "webpack-dev-middleware": "^3.7.2",

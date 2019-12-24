@@ -30,13 +30,13 @@ class KeepObserver extends KeepObserverPublic{
     private updateVersionClearCache = updateVersionClearCache.bind(this);
     private registerApi = registerApi.bind(this)
 
-    constructor(config:any) {
-        super(config)
-        //获取实例配置
-        this._config = tool.extend(defaultConfig, config ,{
+    constructor(config={}) {
+        super(config = tool.extend(defaultConfig, config ,{
             version:version,
             deviceID:getDeviceId()
-        });
+        }))
+        //获取实例配置
+        this._config = config
         //管道实例
         this._pipe = new keepObserverPipe(this, this._config)
         //init

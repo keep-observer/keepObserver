@@ -1,6 +1,7 @@
 import * as tool from '../../../util/tool'
 
 
+
 /*
 	初始化替换相关信息
 */
@@ -98,13 +99,26 @@ export var _handleInit = function() {
 export var _handleMessage = function(type, agrs) {
     var _self = this;
     var reportData:any = {}
-        //agrs不是数组 或是空数组 则不处理
+    var separate = ' , '
+    var data = ''
+    //agrs不是数组 或是空数组 则不处理
     if (!tool.isArray(agrs) || agrs.length === 0) {
         return false;
     }
     reportData.type = type;
-    //直接转成JSON
-    reportData.data = JSON.stringify(agrs);
+    //直接转成字符串形式
+    agrs.forEach( (el,index)=>{
+        try{
+            if(tool.isObject(el)){
+                data += `${index===0?'':separate}${JSON.stringify(el)}`  
+            }else{
+                data += `${index===0?'':separate}${tool.toString(el).replace(/[\s\r\n\t]/g,'')}`  
+            }
+        }catch(err){
+            data += `${index===0?'':separate}toString is err:${tool.toString(err).replace(/[\s\r\n\t]/g,'')}`  
+        }
+    })
+    reportData.data = data
     const { reportParams,control } = _self.handleReportData(reportData)
     //上报
     _self.noticeReport(reportParams,control)

@@ -9,7 +9,7 @@ declare class KeepObserverVue extends KeepObserverPublic {
     private _handleInit;
     private _handleVueError;
     private handleReportData;
-    constructor(config: any);
+    constructor(config?: {});
     apply(pipe: any): {
         $vueStop: any;
         $vueStart: any;

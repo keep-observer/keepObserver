@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="1"
+            failures="0"
+            tests="0">
+
+  <testsuite name="index"
+    errors="1" failures="0" hostname="" id="" package="index" skipped="1"
+    tests="0" time="0.000" timestamp="">
+  
+
+  
+    <system-err>
+      [0;31m  Error: An error occurred while retrieving a new session: &#34;session not created: Chrome version must be between 71 and 75&#34;[0m
+[0;90m       at endReadableNT (_stream_readable.js:1129:12)
+       at process._tickCallback (internal/process/next_tick.js:63:19)[0m
+    </system-err>
+  
+
+  
+    
+    <testcase
+      name="testStart" classname="index">
+      <skipped />
+    </testcase>
+    
+  
+  </testsuite>
+</testsuites>

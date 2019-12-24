@@ -35,10 +35,10 @@ class KeepObserverLog extends KeepObserverPublic{
 
 
     //构造函数
-    constructor(config:any) {
+    constructor(config={}) {
         super(config)
         //初始化上传相关实例
-        const { logCustom=false,develop=false } = config
+        const { logCustom=false,develop=false } = config as any
         var logConfig:any = logCustom || {};
         //是否是开发模式
         logConfig.develop = develop ? true : false;

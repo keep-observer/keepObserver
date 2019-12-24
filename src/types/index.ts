@@ -1,7 +1,7 @@
 import * as instanceType from './instance'
 import * as pipeType from './pipe'
 import * as reportType from './report'
-
+import * as middlesType from './middle'
 
 
 
@@ -10,5 +10,6 @@ import * as reportType from './report'
 export default {
     ...instanceType,
     ...reportType,
-    ...pipeType
+    ...pipeType,
+    ...middlesType
 }

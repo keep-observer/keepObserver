@@ -32,10 +32,10 @@ class KeepObserverVue  extends KeepObserverPublic{
     
 
     //构造函数
-    constructor(config:any) {
+    constructor(config={}) {
         super(config)
         //初始化上传相关实例
-        const { vueCustom=false ,vueInstance=false } = config
+        const { vueCustom=false ,vueInstance=false } = config as any
         var vueConfig:any = vueCustom || {};
         vueConfig.vueInstance = vueInstance;
         //判断是否存在实例

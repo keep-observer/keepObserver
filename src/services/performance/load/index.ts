@@ -29,9 +29,9 @@ class KeepObserverLoad extends KeepObserverPublic {
 
 
     //构造函数
-    constructor(config:any) {
+    constructor(config={}) {
         super(config)
-        const { LoadCustom=false } = config
+        const { LoadCustom=false } = config as any
         var LoadCustomConfig = LoadCustom || {};
         //存混合配置
         this._config = tool.extend(defaultConfig, LoadCustomConfig)

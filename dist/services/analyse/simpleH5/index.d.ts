@@ -21,7 +21,7 @@ declare class KeepObserverSimpleH5Analyse extends KeepObserverPublic {
     private triggerAcitveReport;
     private triggerInitReport;
     private createReportData;
-    constructor(config: any);
+    constructor(config?: {});
     apply(pipe: any): {
         $simpleH5AnalyseClearSaveRecive: any;
         $simpleH5AnalyseStop: any;

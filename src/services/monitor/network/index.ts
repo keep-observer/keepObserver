@@ -41,10 +41,10 @@ class KeepObserverNetwork extends KeepObserverPublic{
 
 
     //构造函数
-    constructor(config:any) {
+    constructor(config={}) {
         super(config)
         //存混合配置
-        const { networkCustom=false } = config
+        const { networkCustom=false } = config as any
         var networkConfig = networkCustom || {};
         this._config = tool.extend(defaultConfig, networkConfig)
         //上报名
