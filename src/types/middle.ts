@@ -3,7 +3,7 @@
 
 
 export interface middlesFn {
-    (Interrupt:Function,next:Function):(...any)=>any
+    (interrupt:Function,next:Function):(...any)=>any
 }
 
 

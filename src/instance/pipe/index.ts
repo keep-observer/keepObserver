@@ -1,7 +1,6 @@
 
 import * as tool from '../../util/tool';
 import KeepObserverPublic from '../../share/public/index'
-
 import { pipeUser } from '../../types/pipe'
 
 

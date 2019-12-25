@@ -6,12 +6,15 @@ debugger;
 const ko = new KeepObserver({
     develop:true
 })
-ko.use(KeepObserverLog)
+const log = new KeepObserverLog({
+    develop:true
+})
+ko.use(log)
 
 
-
-ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
-    console.log(32333333)
+log.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
+    debugger
+    console.log(111111111)
 })
 
 

@@ -843,21 +843,9 @@ var __spread = this && this.__spread || function () {
   return ar;
 };
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var tool = __importStar(__webpack_require__(/*! ../../util/tool */ "./src/util/tool.ts"));
 
 var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/console.ts");
 
@@ -870,20 +858,10 @@ function () {
 
     this._develop = develop; //中间件初始化
 
-    this._middles = {};
+    this._middles = {}; //中间件执行过程中 禁止重复触发 loop
+
+    this._runMiddleBuff = {};
   }
-
-  KeepObserverMiddleWare.prototype.extend = function (_middless) {
-    var _self = this;
-
-    return _self._middles = tool.extend({}, _middless, _self._middles);
-  };
-
-  KeepObserverMiddleWare.prototype.check = function (scopeName) {
-    var _self = this;
-
-    return !!_self._middles[scopeName];
-  };
 
   KeepObserverMiddleWare.prototype.run = function (scopeName) {
     var args = [];
@@ -895,9 +873,16 @@ function () {
     var _self = this;
 
     if (!_self._middles[scopeName]) {
-      return console_1.warnError(scopeName + " middles function is undefined", this._develop);
+      console_1.warnError(scopeName + " middles function is undefined", this._develop);
+      return false;
     }
 
+    if (_self._runMiddleBuff[scopeName]) {
+      console_1.devWarn(this._develop, scopeName + " middles is run");
+      return false;
+    }
+
+    _self._runMiddleBuff[scopeName] = true;
     var middlesQueue = _self._middles[scopeName];
     var len = middlesQueue.length;
     var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
@@ -907,10 +892,10 @@ function () {
 
       for (var _i = 0; _i < arguments.length; _i++) {
         result[_i] = arguments[_i];
-      } // res(component)
-
+      }
 
       index = len;
+      _self._runMiddleBuff[scopeName] = false;
       return result;
     }; //向下执行中间件
 
@@ -924,7 +909,7 @@ function () {
         }
 
         if (index === len) {
-          return;
+          return params;
         }
 
         index++;
@@ -1035,8 +1020,6 @@ var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/consol
 
 var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/share/middleware/index.ts"));
 
-var _publicMiddlesCache = {};
-
 var KeepObserverPublic =
 /** @class */
 function () {
@@ -1045,15 +1028,10 @@ function () {
       config = {};
     }
 
-    var _a = config,
-        _b = _a.develop,
-        develop = _b === void 0 ? false : _b,
-        _c = _a.instance,
-        instance = _c === void 0 ? false : _c; //当前是否处于开发模式
+    var _a = config.develop,
+        develop = _a === void 0 ? false : _a; //当前是否处于开发模式
 
-    this._develop = develop; //事件队列
-
-    this._eventListener = []; //公共中间件事件
+    this._develop = develop; //公共中间件事件
 
     this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
 
@@ -1062,17 +1040,9 @@ function () {
 
 
   KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
-    var _self = this; //公共中间件缓存
-
-
-    return _self._middleWareInstance.use(scopeName, middlesFn);
-  }; //检查中间件是否存在
-
-
-  KeepObserverPublic.prototype.checkMiddle = function (scopeName) {
     var _self = this;
 
-    return _self._middleWareInstance.check(scopeName);
+    return _self._middleWareInstance.use(scopeName, middlesFn);
   }; //执行中间件逻辑
 
 
@@ -1088,50 +1058,42 @@ function () {
     var _self = this;
 
     return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
-  };
+  }; //兼容老版本做保留,内部使用中间件替换
+
 
   KeepObserverPublic.prototype.addReportListener = function (callback) {
     var _self = this;
 
     if (callback) {
-      _self._eventListener.push(callback);
+      var _a = __read(_self._publicMiddleScopeNames, 1),
+          scopeName = _a[0]; //  1 -> 2 -> 3 -> 2 -> 1
+
+
+      this.useMiddle(scopeName, function (interrupt, next) {
+        return function (reportParams, control) {
+          var _a;
+
+          var resultParams = next(reportParams, control);
+
+          if (!tool.isEmptyArray(resultParams) && resultParams.length === 2) {
+            _a = __read(resultParams, 2), reportParams = _a[0], control = _a[1];
+          }
+
+          return callback(reportParams, control);
+        };
+      });
     }
   };
 
   KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
-    var _this = this;
-
     var _self = this;
 
-    if (_self._eventListener.length === 0) {
-      return false;
-    } //通知上报
+    console_1.devLog(_self._develop, reportParams, control); //执行中间件
 
+    var _a = __read(_self._publicMiddleScopeNames, 1),
+        scopeName = _a[0];
 
-    return Promise.all(_self._eventListener.map(function (item) {
-      if (tool.isFunction(item)) {
-        //执行中间件
-        var _a = __read(_self._publicMiddleScopeNames, 1),
-            scopeName = _a[0];
-
-        if (_self.checkMiddle(scopeName)) {
-          var reuslt = _this.runMiddle(scopeName, reportParams, control);
-
-          if (reuslt && !tool.isEmptyObject(reuslt) && reuslt['reportParams'] && reuslt['control']) {
-            reportParams = reuslt['reportParams'];
-            control = reuslt['control'];
-          }
-        }
-
-        console_1.devLog(_self._develop, reportParams, control); //通用中间件执行位置
-
-        return item(reportParams, control);
-      }
-
-      var message = "eventListener " + tool.toString(item) + " is not Function";
-      console_1.warnError(message, _self._develop);
-      return Promise.reject(message);
-    }));
+    this.runMiddle(scopeName, reportParams, control);
   };
 
   return KeepObserverPublic;
@@ -1240,6 +1202,21 @@ exports.devLog = function (develop) {
 
   if (!develop) return;
   return exports.log.apply(void 0, __spread(["[keepObserver] log message:"], arg));
+};
+
+exports.devWarn = function (develop) {
+  if (develop === void 0) {
+    develop = true;
+  }
+
+  var arg = [];
+
+  for (var _i = 1; _i < arguments.length; _i++) {
+    arg[_i - 1] = arguments[_i];
+  }
+
+  if (!develop) return;
+  return exports.wran.apply(void 0, __spread(["[keepObserver] wran message:"], arg));
 };
 
 exports.warnError = function (msg, develop) {

@@ -182,6 +182,21 @@ exports.devLog = function (develop) {
   return exports.log.apply(void 0, __spread(["[keepObserver] log message:"], arg));
 };
 
+exports.devWarn = function (develop) {
+  if (develop === void 0) {
+    develop = true;
+  }
+
+  var arg = [];
+
+  for (var _i = 1; _i < arguments.length; _i++) {
+    arg[_i - 1] = arguments[_i];
+  }
+
+  if (!develop) return;
+  return exports.wran.apply(void 0, __spread(["[keepObserver] wran message:"], arg));
+};
+
 exports.warnError = function (msg, develop) {
   if (develop === void 0) {
     develop = true;

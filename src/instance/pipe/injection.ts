@@ -11,7 +11,7 @@ import { pipeUser } from '../../types/pipe'
     @Provider  type es6 class  or classInstance 
     explan: Provider class render apply function ,apply runing return method object ,on mounted is keepObsever class 
  */
-export var use = function(Provider:Provider,) {
+export var use = function(Provider:Provider) {
     if (!Provider || (!tool.isFunction(Provider) && !tool.isClassObject(Provider)) ) {
         consoleTools.warnError('use method receive provider is not right')
         return false;

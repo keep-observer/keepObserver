@@ -13,6 +13,7 @@ declare const _default: {
         (message?: any, ...optionalParams: any[]): void;
     };
     devLog: (develop?: boolean, ...arg: any[]) => void;
+    devWarn: (develop?: boolean, ...arg: any[]) => void;
     warnError: (msg: string, develop?: boolean) => void;
     dateFormat(date: any, format: any): any;
     isNumber(value: any): boolean;
