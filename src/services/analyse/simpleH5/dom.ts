@@ -1,6 +1,4 @@
-import * as tool from '../../../util/tool';
-import * as consoleTools from '../../../util/console'
-
+import { consoleTools,tool } from '@util/index'
 
 var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
 var Clear_CN_CodeReg = /[^\u4e00-\u9fa5\w]/ig;

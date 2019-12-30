@@ -1,6 +1,6 @@
-import { pipeOptons } from '../../types/pipe';
-import { reportParams } from '../../types/report';
-import { middlesFn } from '../../types/middle';
+import { pipeOptons } from '../../../types/pipe';
+import { reportParams } from '../../../types/report';
+import { middlesFn } from '../../../types/middle';
 declare class KeepObserverPublic {
     private _middleWareInstance;
     _publicMiddleScopeNames: string[];

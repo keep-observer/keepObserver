@@ -1,7 +1,7 @@
 
-import * as tool from '../../util/tool';
-import KeepObserverPublic from '../../share/public/index'
+import { KeepObserverPublic } from '@util/index'
 import { pipeUser } from '../../types/pipe'
+
 
 
 import { 
@@ -29,9 +29,6 @@ import {
     judgeAnomaly,
     resetStackCount
 } from './preventAnomaly'
-
-
-
 
 
 

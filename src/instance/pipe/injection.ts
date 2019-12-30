@@ -1,5 +1,4 @@
-import * as tool from '../../util/tool';
-import * as consoleTools from '../../util/console'
+import { consoleTools,tool } from '@util/index'
 import { Provider } from '../../types/instance'
 
 import { pipeUser } from '../../types/pipe'

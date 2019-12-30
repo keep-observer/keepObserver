@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("@util/index"));
 	else if(typeof define === 'function' && define.amd)
-		define([], factory);
+		define(["@util/index"], factory);
 	else {
-		var a = factory();
+		var a = typeof exports === 'object' ? factory(require("@util/index")) : factory(root["@util/index"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function() {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__util_index__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -111,21 +111,11 @@ exports.version = '2.0.0-beta.1';
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 /*
     处理url挂载参数
     handle url paramns
@@ -179,7 +169,7 @@ var AjaxServer = function AjaxServer(config) {
     } //can is use params
 
 
-    if (params && tool.isObject(params)) {
+    if (params && index_1.tool.isObject(params)) {
       url = handleUrlParams(url, params);
     }
 
@@ -190,8 +180,8 @@ var AjaxServer = function AjaxServer(config) {
       'Content-Type': 'application/json;charset=UTF-8'
     };
 
-    if (customeHead && tool.isObject(customeHead)) {
-      xhrHead = tool.extend(xhrHead, customeHead);
+    if (customeHead && index_1.tool.isObject(customeHead)) {
+      xhrHead = index_1.tool.extend(xhrHead, customeHead);
     }
 
     xhrHead['keepObserver-reportAjax'] = 'yes';
@@ -265,21 +255,11 @@ exports["default"] = AjaxServer;
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 /*
         接受自定义上报内容
         model1: arguments[0]  type object
@@ -293,7 +273,7 @@ exports.$setCustomeReportData = function (params) {
   var _self = this; //判断数据正确性
 
 
-  var args = tool.toArray(arguments);
+  var args = index_1.tool.toArray(arguments);
 
   if (!args || args.length === 0) {
     return false;
@@ -305,18 +285,18 @@ exports.$setCustomeReportData = function (params) {
 
   var params = args[0]; //如果是普通添加
 
-  if (tool.isObject(params) && !tool.isEmptyObject(params)) {
+  if (index_1.tool.isObject(params) && !index_1.tool.isEmptyObject(params)) {
     //设置用户自定义上报内容
-    _self._customeInfo = tool.extend(_self._customeInfo, params);
+    _self._customeInfo = index_1.tool.extend(_self._customeInfo, params);
     return false;
   } //如果是修改并覆盖之前的数据
 
 
-  if (tool.isBoolean(params) && params && args.length > 1) {
+  if (index_1.tool.isBoolean(params) && params && args.length > 1) {
     params = args.slice(1, args.length);
     params.map(function (item) {
-      if (tool.isObject(item) && !tool.isEmptyObject(item)) {
-        _self._customeInfo = tool.extend(_self._customeInfo, item);
+      if (index_1.tool.isObject(item) && !index_1.tool.isEmptyObject(item)) {
+        _self._customeInfo = index_1.tool.extend(_self._customeInfo, item);
       }
     });
   }
@@ -380,21 +360,11 @@ exports["default"] = {
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 /*
     receive the report data
     params
@@ -420,7 +390,7 @@ var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/uti
 
 exports._getReportContent = function (params, control) {
   //判断数据合法性
-  if (!params || !params.type || !params.typeName || !params.data || !tool.isObject(params.data)) {
+  if (!params || !params.type || !params.typeName || !params.data || !index_1.tool.isObject(params.data)) {
     this.$devLog('[keepObserver] reportServer receive reportData is not right');
     return false;
   }
@@ -432,7 +402,7 @@ exports._getReportContent = function (params, control) {
 
 
   if (this.develop && this.developGetMsgLog) {
-    var log = tool.extend({}, params);
+    var log = index_1.tool.extend({}, params);
     log.develop_title = '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data";
     this.$devLog(log);
   } //是否删除之前保存的数据
@@ -494,7 +464,7 @@ exports._saveReportData = function (params) {
   reportData.push(params);
   this.reportData[type] = reportData; //保存到locationStorage中
 
-  tool.setStorage(type, reportData);
+  index_1.tool.setStorage(type, reportData);
 };
 /*
     删除保存的上报数据
@@ -505,7 +475,7 @@ exports._saveReportData = function (params) {
 exports._removeReportData = function (type) {
   if (this.reportData[type]) {
     this.reportData[type] = [];
-    tool.removeStorage(type); //开发模式下打印
+    index_1.tool.removeStorage(type); //开发模式下打印
 
     if (this.develop && this.develogDeleteLog) {
       this._$devLog('[keepObserver] observer ' + type + 'type Of monitor data is clean up');
@@ -557,25 +527,13 @@ var __importDefault = this && this.__importDefault || function (mod) {
   };
 };
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
 var defaultConfig_1 = __importDefault(__webpack_require__(/*! ./defaultConfig */ "./src/services/report/plain/defaultConfig.ts"));
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
-
-var index_1 = __importDefault(__webpack_require__(/*! ../../../share/public/index */ "./src/share/public/index.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/report/plain/api.ts");
 
@@ -635,7 +593,7 @@ function (_super) {
 
     reportConfig.develogDeleteLog = develogDeleteLog ? true : false; //混合默认配置
 
-    _this._config = tool.extend(defaultConfig_1["default"], reportConfig); //监听事件
+    _this._config = index_1.tool.extend(defaultConfig_1["default"], reportConfig); //监听事件
     //上传数据保存
 
     _this.reportData = {}; //用户自定义上传参数
@@ -663,7 +621,7 @@ function (_super) {
 
     var handleType = _self._config.$observer_Type;
     handleType.forEach(function (type) {
-      var cacheData = tool.getStorage(type);
+      var cacheData = index_1.tool.getStorage(type);
       _self.reportData[type] = [];
 
       if (cacheData) {
@@ -691,7 +649,7 @@ function (_super) {
   };
 
   return KeepObserverReport;
-}(index_1["default"]);
+}(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverReport;
 
@@ -707,16 +665,6 @@ exports["default"] = KeepObserverReport;
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
@@ -727,9 +675,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
-
-var consoleTools = __importStar(__webpack_require__(/*! ../../../util/console */ "./src/util/console.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var ajax_1 = __importDefault(__webpack_require__(/*! ./ajax */ "./src/services/report/plain/ajax.ts"));
 /*
@@ -760,7 +706,7 @@ exports._handleReport = function (params, control) {
   var _self = this; //如果未传入数据类型
 
 
-  if (!params || !control || !tool.isObject(params) || !tool.isObject(control)) {
+  if (!params || !control || !index_1.tool.isObject(params) || !index_1.tool.isObject(control)) {
     return false;
   } //获得上传数据
 
@@ -776,7 +722,7 @@ exports._handleReport = function (params, control) {
       onReportBeforeHook = _a.onReportBeforeHook,
       onReportResultHook = _a.onReportResultHook; //如果没有设置上传URL 那么停止上传
 
-  if (!reportUrl || !tool.isArray(reportUrl)) {
+  if (!reportUrl || !index_1.tool.isArray(reportUrl)) {
     _self._handleReportFail(onReportFail, reportData, null);
 
     return false;
@@ -793,7 +739,7 @@ exports._handleReport = function (params, control) {
       url = item;
     }
 
-    if (!tool.isString(url)) {
+    if (!index_1.tool.isString(url)) {
       _self._handleReportFail(onReportFail, reportData, null);
 
       return false;
@@ -803,7 +749,7 @@ exports._handleReport = function (params, control) {
 
     var customeHead = onReportBeforeSetHead ? _self._handleHook(onReportBeforeSetHead, item) : false;
 
-    if (customeHead && tool.isObject(customeHead) && !tool.isEmptyObject(customeHead)) {
+    if (customeHead && index_1.tool.isObject(customeHead) && !index_1.tool.isEmptyObject(customeHead)) {
       reportConfig.customeHead = customeHead;
     } //获取请求
 
@@ -825,7 +771,7 @@ exports._handleReport = function (params, control) {
       });
     } catch (err) {
       //上传报错
-      consoleTools.warnError('report Server Process find error:' + err);
+      index_1.consoleTools.warnError('report Server Process find error:' + err);
     } //end
 
   }); // map url end
@@ -845,7 +791,7 @@ exports._handleResponse = function (params, control, url, responseData) {
   var _self = this; //如果未传入数据类型
 
 
-  if (!params || !control || !tool.isObject(params) || !tool.isObject(control)) {
+  if (!params || !control || !index_1.tool.isObject(params) || !index_1.tool.isObject(control)) {
     return false;
   }
 
@@ -915,7 +861,7 @@ exports._createReportData = function (params, control) {
   reportData.data = params.data; //处理自定义信息
 
   if (_self._customeInfo) {
-    reportData.customeInfo = tool.extend({}, _self._customeInfo);
+    reportData.customeInfo = index_1.tool.extend({}, _self._customeInfo);
   } //处理上报数据是否合并上报
 
 
@@ -925,20 +871,20 @@ exports._createReportData = function (params, control) {
     for (var key in _self.reportData) {
       var value = _self.reportData[key];
 
-      if (tool.isArray(value) && value.length > 0) {
-        reportData.preTrackData[key] = tool.extend({}, value); //删除相关数据
+      if (index_1.tool.isArray(value) && value.length > 0) {
+        reportData.preTrackData[key] = index_1.tool.extend({}, value); //删除相关数据
 
         _self._removeReportData(key);
       }
     } //修正数据
 
 
-    reportData.preTrackData = tool.isEmptyObject(reportData.preTrackData) ? null : reportData.preTrackData;
+    reportData.preTrackData = index_1.tool.isEmptyObject(reportData.preTrackData) ? null : reportData.preTrackData;
   } //开发模式下打印上报数据
 
 
   if (_self.develop) {
-    var log = tool.extend({}, reportData);
+    var log = index_1.tool.extend({}, reportData);
     log.develop_title = params.type + " type " + params.typeName + " will report Server,report Data in the data ";
 
     _self.$devLog(log);
@@ -956,9 +902,9 @@ exports._createReportData = function (params, control) {
 
 
 exports._handleHook = function () {
-  var args = tool.toArray(arguments);
+  var args = index_1.tool.toArray(arguments);
 
-  if (!args || args.length === 0 || !tool.isFunction(args[0])) {
+  if (!args || args.length === 0 || !index_1.tool.isFunction(args[0])) {
     return false;
   }
 
@@ -969,7 +915,7 @@ exports._handleHook = function () {
     var result = onHook(params);
   } catch (err) {
     //报错
-    consoleTools.warnError(onHook.name + 'callback hook is runing error:' + err);
+    index_1.consoleTools.warnError(onHook.name + 'callback hook is runing error:' + err);
   }
 
   return result;
@@ -991,7 +937,7 @@ exports._handleReportFail = function (onFail, reportData, reportUrl) {
   try {
     onFail(reportData, reportUrl);
   } catch (err) {
-    consoleTools.warnError('report Server callback hook is runing error:' + err);
+    index_1.consoleTools.warnError('report Server callback hook is runing error:' + err);
   }
 };
 
@@ -1030,933 +976,14 @@ exports.handleReportDataResponse = function (type, content, url) {
 
 /***/ }),
 
-/***/ "./src/share/middleware/index.ts":
-/*!***************************************!*\
-  !*** ./src/share/middleware/index.ts ***!
-  \***************************************/
+/***/ "@util/index":
+/*!******************************!*\
+  !*** external "@util/index" ***!
+  \******************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/console.ts");
-
-var KeepObserverMiddleWare =
-/** @class */
-function () {
-  function KeepObserverMiddleWare(_a) {
-    var _b = _a.develop,
-        develop = _b === void 0 ? false : _b; //当前是否处于开发模式
-
-    this._develop = develop; //中间件初始化
-
-    this._middles = {}; //中间件执行过程中 禁止重复触发 loop
-
-    this._runMiddleBuff = {};
-  }
-
-  KeepObserverMiddleWare.prototype.run = function (scopeName) {
-    var args = [];
-
-    for (var _i = 1; _i < arguments.length; _i++) {
-      args[_i - 1] = arguments[_i];
-    }
-
-    var _self = this;
-
-    if (!_self._middles[scopeName]) {
-      console_1.warnError(scopeName + " middles function is undefined", this._develop);
-      return false;
-    }
-
-    if (_self._runMiddleBuff[scopeName]) {
-      console_1.devWarn(this._develop, scopeName + " middles is run");
-      return false;
-    }
-
-    _self._runMiddleBuff[scopeName] = true;
-    var middlesQueue = _self._middles[scopeName];
-    var len = middlesQueue.length;
-    var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
-
-    var interrupt = function interrupt() {
-      var result = [];
-
-      for (var _i = 0; _i < arguments.length; _i++) {
-        result[_i] = arguments[_i];
-      }
-
-      index = len;
-      _self._runMiddleBuff[scopeName] = false;
-      return result;
-    }; //向下执行中间件
-
-
-    var runNext = function runNext(next) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        if (index === len) {
-          return params;
-        }
-
-        index++;
-        return next.apply(void 0, __spread(params));
-      };
-    };
-
-    var exec = middlesQueue.reduce(function (a, b) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        return a(interrupt, runNext(b.apply(void 0, __spread(params))));
-      };
-    });
-    return exec(interrupt, interrupt).apply(void 0, __spread(args));
-  };
-
-  KeepObserverMiddleWare.prototype.use = function (scopeName, middlesFn) {
-    var _self = this;
-
-    if (_self._middles[scopeName]) {
-      return _self._middles[scopeName].push(middlesFn);
-    }
-
-    _self._middles[scopeName] = [];
-    return _self._middles[scopeName].push(middlesFn);
-  };
-
-  return KeepObserverMiddleWare;
-}();
-
-exports["default"] = KeepObserverMiddleWare;
-
-/***/ }),
-
-/***/ "./src/share/public/index.ts":
-/*!***********************************!*\
-  !*** ./src/share/public/index.ts ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var tool = __importStar(__webpack_require__(/*! ../../util/tool */ "./src/util/tool.ts"));
-
-var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/console.ts");
-
-var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/share/middleware/index.ts"));
-
-var KeepObserverPublic =
-/** @class */
-function () {
-  function KeepObserverPublic(config) {
-    if (config === void 0) {
-      config = {};
-    }
-
-    var _a = config.develop,
-        develop = _a === void 0 ? false : _a; //当前是否处于开发模式
-
-    this._develop = develop; //公共中间件事件
-
-    this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
-
-    this._middleWareInstance = new index_1["default"](config);
-  } //注册中间件逻辑
-
-
-  KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
-    var _self = this;
-
-    return _self._middleWareInstance.use(scopeName, middlesFn);
-  }; //执行中间件逻辑
-
-
-  KeepObserverPublic.prototype.runMiddle = function (scopeName) {
-    var args = [];
-
-    for (var _i = 1; _i < arguments.length; _i++) {
-      args[_i - 1] = arguments[_i];
-    }
-
-    var _a;
-
-    var _self = this;
-
-    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
-  }; //兼容老版本做保留,内部使用中间件替换
-
-
-  KeepObserverPublic.prototype.addReportListener = function (callback) {
-    var _self = this;
-
-    if (callback) {
-      var _a = __read(_self._publicMiddleScopeNames, 1),
-          scopeName = _a[0]; //  1 -> 2 -> 3 -> 2 -> 1
-
-
-      this.useMiddle(scopeName, function (interrupt, next) {
-        return function (reportParams, control) {
-          var _a;
-
-          var resultParams = next(reportParams, control);
-
-          if (!tool.isEmptyArray(resultParams) && resultParams.length === 2) {
-            _a = __read(resultParams, 2), reportParams = _a[0], control = _a[1];
-          }
-
-          return callback(reportParams, control);
-        };
-      });
-    }
-  };
-
-  KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
-    var _self = this;
-
-    console_1.devLog(_self._develop, reportParams, control); //执行中间件
-
-    var _a = __read(_self._publicMiddleScopeNames, 1),
-        scopeName = _a[0];
-
-    this.runMiddle(scopeName, reportParams, control);
-  };
-
-  return KeepObserverPublic;
-}();
-
-exports["default"] = KeepObserverPublic;
-
-/***/ }),
-
-/***/ "./src/util/console.ts":
-/*!*****************************!*\
-  !*** ./src/util/console.ts ***!
-  \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var $log = window.console.log;
-var $wran = window.console.warn;
-var $error = window.console.error;
-
-window.console.log = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $log.apply(window.console, args);
-};
-
-window.console.error = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $error.apply(window.console, args);
-};
-
-window.console.warn = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $wran.apply(window.console, args);
-};
-
-exports.log = $log;
-exports.error = $error;
-exports.wran = $wran;
-
-exports.devLog = function (develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  var arg = [];
-
-  for (var _i = 1; _i < arguments.length; _i++) {
-    arg[_i - 1] = arguments[_i];
-  }
-
-  if (!develop) return;
-  return exports.log.apply(void 0, __spread(["[keepObserver] log message:"], arg));
-};
-
-exports.devWarn = function (develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  var arg = [];
-
-  for (var _i = 1; _i < arguments.length; _i++) {
-    arg[_i - 1] = arguments[_i];
-  }
-
-  if (!develop) return;
-  return exports.wran.apply(void 0, __spread(["[keepObserver] wran message:"], arg));
-};
-
-exports.warnError = function (msg, develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  if (!develop) return;
-  return exports.error("[keepObserver] find error! message: " + msg);
-};
-
-/***/ }),
-
-/***/ "./src/util/tool.ts":
-/*!**************************!*\
-  !*** ./src/util/tool.ts ***!
-  \**************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var console_1 = __webpack_require__(/*! ./console */ "./src/util/console.ts");
-/**
- * 根据时间搓 返回时间
- * @param date format
- * @return string
- */
-
-
-function dateFormat(date, format) {
-  if (!format || typeof format !== 'string') {
-    console.error('format is undefiend or type is Error');
-    return '';
-  }
-
-  date = date instanceof Date ? date : typeof date === 'number' || typeof date === 'string' ? new Date(date) : new Date(); //解析
-
-  var formatReg = {
-    'y+': date.getFullYear(),
-    'M+': date.getMonth() + 1,
-    'd+': date.getDate(),
-    'h+': date.getHours(),
-    'm+': date.getMinutes(),
-    's+': date.getSeconds()
-  };
-
-  for (var reg in formatReg) {
-    if (new RegExp(reg).test(format)) {
-      var match = RegExp.lastMatch;
-      format = format.replace(match, formatReg[reg] < 10 ? '0' + formatReg[reg] : formatReg[reg].toString());
-    }
-  }
-
-  return format;
-}
-
-exports.dateFormat = dateFormat;
-/**
- * 检查script基本数据类型
- * @param mixed value
- * @return boolean
- */
-
-function isNumber(value) {
-  return Object.prototype.toString.call(value) == '[object Number]';
-}
-
-exports.isNumber = isNumber;
-
-function isString(value) {
-  return Object.prototype.toString.call(value) == '[object String]';
-}
-
-exports.isString = isString;
-
-function isArray(value) {
-  return Object.prototype.toString.call(value) == '[object Array]';
-}
-
-exports.isArray = isArray;
-
-function isBoolean(value) {
-  return Object.prototype.toString.call(value) == '[object Boolean]';
-}
-
-exports.isBoolean = isBoolean;
-
-function isRegExp(value) {
-  return Object.prototype.toString.call(value) == "[object RegExp]";
-}
-
-exports.isRegExp = isRegExp;
-
-function isDateObject(value) {
-  return Object.prototype.toString.call(value) == "[object Date]";
-}
-
-exports.isDateObject = isDateObject;
-
-function isUndefined(value) {
-  return value === undefined;
-}
-
-exports.isUndefined = isUndefined;
-
-function isNull(value) {
-  return value === null;
-}
-
-exports.isNull = isNull;
-
-function isExist(value) {
-  return !isUndefined(value) && !isNull(value);
-}
-
-exports.isExist = isExist;
-
-function isSymbol(value) {
-  return Object.prototype.toString.call(value) == '[object Symbol]';
-}
-
-exports.isSymbol = isSymbol;
-
-function isSVGElement(value) {
-  return isElement(value) && (value instanceof SVGElement || value.ownerSVGElement);
-}
-
-exports.isSVGElement = isSVGElement;
-
-function isObject(value) {
-  return Object.prototype.toString.call(value) == '[object Object]' || // if it isn't a primitive value, then it is a common object
-  !isNumber(value) && !isString(value) && !isBoolean(value) && !isDateObject(value) && !isRegExp(value) && !isArray(value) && !isNull(value) && !isFunction(value) && !isUndefined(value) && !isSymbol(value);
-}
-
-exports.isObject = isObject;
-
-function isEmptyObject(obj) {
-  if (!isObject(obj)) {
-    return true;
-  }
-
-  for (var key in obj) {
-    return false;
-  }
-
-  return true;
-}
-
-exports.isEmptyObject = isEmptyObject;
-
-function isEmptyArray(array) {
-  if (!isArray(array)) {
-    return true;
-  }
-
-  return array.length > 0 ? false : true;
-}
-
-exports.isEmptyArray = isEmptyArray;
-
-function isFunction(value) {
-  return Object.prototype.toString.call(value) == '[object Function]';
-}
-
-exports.isFunction = isFunction;
-
-function isElement(value) {
-  return (typeof HTMLElement === "undefined" ? "undefined" : _typeof(HTMLElement)) === 'object' ? value instanceof HTMLElement : //DOM2
-  value && _typeof(value) === "object" && value !== null && value.nodeType === 1 && typeof value.nodeName === "string";
-}
-
-exports.isElement = isElement;
-
-function isWindow(value) {
-  var toString = Object.prototype.toString.call(value);
-  return toString == '[object global]' || toString == '[object Window]' || toString == '[object DOMWindow]';
-}
-
-exports.isWindow = isWindow;
-/**
- * 检查是否是普通空对象
- * @param object obj
- * @return boolean
- */
-
-function isPlainObject(obj) {
-  var hasOwn = Object.prototype.hasOwnProperty; // Must be an Object.
-
-  if (!obj || _typeof(obj) !== 'object' || obj.nodeType || isWindow(obj)) {
-    return false;
-  }
-
-  try {
-    if (obj.constructor && !hasOwn.call(obj, 'constructor') && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
-      return false;
-    }
-  } catch (e) {
-    return false;
-  }
-
-  var key;
-
-  for (key in obj) {}
-
-  return key === undefined || hasOwn.call(obj, key);
-}
-
-exports.isPlainObject = isPlainObject;
-/*
- * 检查是否是class 实例对象
-*/
-
-function isClassObject(obj) {
-  return isObject(obj) && !isPlainObject(obj) ? true : false;
-}
-
-exports.isClassObject = isClassObject;
-/*
-  转换工具
- */
-
-function toArray(array) {
-  return Array.prototype.slice.call(array);
-}
-
-exports.toArray = toArray;
-
-function toString(content) {
-  if (!content) {
-    return '';
-  }
-
-  if (typeof content === 'string') {
-    return content;
-  }
-
-  return content.toString();
-}
-
-exports.toString = toString;
-/*
-    辅助存储保存监控数据
-*/
-//sessionStorage
-
-function setSessionStorage(key, value) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  value = JSON.stringify(value);
-  sessionStorage.setItem(key, value);
-}
-
-exports.setSessionStorage = setSessionStorage;
-
-function getSessionStorage(key) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  var value = sessionStorage.getItem(key);
-  return value ? JSON.parse(value) : '';
-}
-
-exports.getSessionStorage = getSessionStorage;
-
-function removeSessionStorage(key) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  sessionStorage.removeItem(key);
-}
-
-exports.removeSessionStorage = removeSessionStorage; //localStorage
-
-function setStorage(key, value) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  value = JSON.stringify(value);
-  localStorage.setItem(key, value);
-}
-
-exports.setStorage = setStorage;
-
-function getStorage(key) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  var value = localStorage.getItem(key);
-  return value ? JSON.parse(value) : '';
-}
-
-exports.getStorage = getStorage;
-
-function removeStorage(key) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  localStorage.removeItem(key);
-}
-
-exports.removeStorage = removeStorage;
-/*
-    参考Vconsole 生产唯一ID
- */
-
-function getUniqueID() {
-  var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
-    var r = Math.random() * 16 | 0,
-        t = new Date().getTime(),
-        v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
-    return v.toString(16);
-  });
-  return id;
-}
-
-exports.getUniqueID = getUniqueID;
-/*
-    深度合并内容
-    引用类型克隆合并
-    arguments[0] = target
-    arguments type is Object Or Array
-    多内容合并覆盖优先级: arguments[0]<arguments[1]<arguments[2]..
-    如果sources 不是数组或者对象 则直接忽略
- */
-
-function extend() {
-  var arg = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    arg[_i] = arguments[_i];
-  }
-
-  var args = toArray(arguments);
-
-  if (args.length === 0) {
-    console.error("extends params is undefined");
-    return {};
-  }
-
-  if (args.length === 1) {
-    return args[0];
-  }
-
-  var target = args[0];
-  var sources = args.slice(1, args.length);
-
-  if (!isObject(target) && !isArray(target)) {
-    target = {};
-  }
-
-  sources.map(function (item) {
-    //防止死循环
-    if (target === item) {
-      return false;
-    } //如果内容是对象
-
-
-    if (isObject(item)) {
-      //开始遍历
-      for (var key in item) {
-        //如果内容是对象
-        if (isObject(item[key]) && !isEmptyObject(item[key])) {
-          //修正数据
-          target[key] = target[key] && isObject(target[key]) ? target[key] : {};
-          target[key] = extend(target[key], item[key]);
-        } else if (isArray(item[key]) && !isEmptyArray(item[key])) {
-          //修正数据
-          target[key] = target[key] && isArray(target[key]) ? target[key] : [];
-          target[key] = extend(target[key], item[key]);
-        } else if (isObject(item[key]) && isEmptyObject(item[key])) {
-          target[key] = {};
-        } else if (isArray(item[key]) && isEmptyArray(item[key])) {
-          target[key] = [];
-        } else {
-          //基本类型直接赋值
-          target[key] = item[key];
-        }
-      }
-    } else if (isArray(item)) {
-      for (var i = 0; i < item.length; i++) {
-        //如果内容是对象
-        if (isObject(item[i]) && !isEmptyObject(item[i])) {
-          //修正数据
-          target[i] = target[i] && isObject(target[i]) ? target[i] : {};
-          target[i] = extend(target[i], item[i]);
-        } else if (isArray(item[i]) && !isEmptyArray(item[i])) {
-          //修正数据
-          target[i] = target[i] && isArray(target[i]) ? target[i] : [];
-          target[i] = extend(target[i], item[i]);
-        } else if (isObject(item[i]) && isEmptyObject(item[i])) {
-          target[i] = {};
-        } else if (isArray(item[i]) && isEmptyArray(item[i])) {
-          target[i] = [];
-        } else {
-          //基本类型直接赋值
-          target[i] = item[i];
-        }
-      }
-    } //其他类型直接忽略
-
-  });
-  return target;
-}
-
-exports.extend = extend;
-/*
-    mixin calss method and params
-*/
-
-function mixin(origin, provider) {
-  if (!provider || !isObject(provider) || isEmptyObject(provider)) {
-    console_1.warnError('keepObserver $mixin receive params not right');
-  }
-
-  for (var key in provider) {
-    if (origin[key]) {
-      console_1.warnError('keepObserver $mixin method key: ' + key + ' is exist');
-      continue;
-    } //不允许重写
-
-
-    Object.defineProperty(origin, key, {
-      configurable: false,
-      enumerable: true,
-      value: provider[key]
-    });
-  }
-}
-
-exports.mixin = mixin;
-/**
- * @filter:
- * @param obj { array and object}
- * @param call { array.filter(callback)}
- * @return: new obj
- */
-
-function filter(obj, callback) {
-  if (!isArray(obj) && !isObject(obj) || !isFunction(callback)) {
-    return obj;
-  }
-
-  if (isArray(obj)) {
-    return obj.filter(callback);
-  }
-
-  var newObje = {};
-
-  for (var key in obj) {
-    var value = obj[key];
-
-    if (callback(value, key)) {
-      newObje[key] = value;
-    }
-  }
-
-  return newObje;
-}
-
-exports.filter = filter;
-/**
- * @map:
- * @param obj { array and object}
- * @param call { array.filter(callback)}
- * @return: new obj
- */
-
-function map(obj, callback) {
-  if (!isArray(obj) && !isObject(obj) || !isFunction(callback)) {
-    return obj;
-  }
-
-  if (isArray(obj)) {
-    return obj.map(callback);
-  }
-
-  var newObje = {};
-
-  for (var key in obj) {
-    var value = obj[key];
-    newObje[key] = callback(value, key);
-  }
-
-  return newObje;
-}
-
-exports.map = map;
+module.exports = __WEBPACK_EXTERNAL_MODULE__util_index__;
 
 /***/ })
 

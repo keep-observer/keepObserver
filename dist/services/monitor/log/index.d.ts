@@ -1,9 +1,10 @@
-import KeepObserverPublic from '../../../share/public/index';
+import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverLog extends KeepObserverPublic {
     private _config;
     private _typeName;
     private console;
     private $createElement;
+    private addReportListener;
     private stopObserver;
     private startObserver;
     private _handleInit;

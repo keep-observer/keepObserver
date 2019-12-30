@@ -1,5 +1,4 @@
-import * as tool from '../../util/tool';
-import * as consoleTools from '../../util/console'
+import { consoleTools,tool } from '@util/index'
 
 //防止堆栈错误
 export var preventStackError = function(msgItem) {

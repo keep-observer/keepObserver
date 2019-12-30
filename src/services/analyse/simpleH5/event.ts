@@ -1,8 +1,6 @@
-import * as tool from '../../../util/tool';
-import * as consoleTools from '../../../util/console'
+import { consoleTools,tool } from '@util/index'
 
-import * as assist from './tool'
-import { RecordKey,exitBackstageFlag } from './constant'
+
 
 
 var attributeKey = 'keepObserverUniqueID'+tool.getUniqueID().substring(0,8)

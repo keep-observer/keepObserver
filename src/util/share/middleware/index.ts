@@ -1,10 +1,10 @@
-import * as tool from '../../util/tool';
-import { warnError,devWarn } from '../../util/console'
+import * as tool from '../../../util/tool';
+import { warnError,devWarn } from '../../../util/console'
 
 import {
     middlesFn,
     middles
-} from '../../types/middle'
+} from '../../../types/middle'
 
 
 
@@ -24,9 +24,24 @@ class KeepObserverMiddleWare {
     }
 
 
+    static publicMiddles = {}
+    static usePublishMiddles(scopeName:string,middlesFn:middlesFn):any{
+        const _staticSelf = this
+        if(_staticSelf.publicMiddles[scopeName]){
+            return _staticSelf.publicMiddles[scopeName].push(middlesFn)
+        }
+        _staticSelf.publicMiddles[scopeName] = []
+        return _staticSelf.publicMiddles[scopeName].push(middlesFn)
+    }
+
+
 
     public run(scopeName:string,...args:any[]):any{
         var _self = this
+        //获取到公共中间件聚合
+        const publicMiddles =  (this.constructor as any).publicMiddles
+        
+
         if(!_self._middles[scopeName]){
             warnError(`${scopeName} middles function is undefined`,this._develop)
             return false
@@ -35,9 +50,9 @@ class KeepObserverMiddleWare {
             devWarn(this._develop,`${scopeName} middles is run`)
             return false
         }
-        _self._runMiddleBuff[scopeName] = true
+        _self._runMiddleBuff[scopeName] = true;
         const middlesQueue = _self._middles[scopeName]
-        const  len = middlesQueue.length 
+        const len = middlesQueue.length 
         var index = 1;
         // 中断方法，停止执行剩下的中间件,直接返回
         const interrupt = (...result)=>{
@@ -57,7 +72,7 @@ class KeepObserverMiddleWare {
         return exec(interrupt,interrupt)(...args)
     }
 
-
+    
     public use(scopeName:string,middlesFn:middlesFn):any{
         var _self = this
         if(_self._middles[scopeName]){

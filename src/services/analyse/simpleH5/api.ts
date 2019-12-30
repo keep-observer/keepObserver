@@ -1,4 +1,4 @@
-import * as tool from '../../../util/tool';
+import { tool } from '@util/index'
 import { RecordKey,exitBackstageFlag } from './constant'
 
 

@@ -1,6 +1,5 @@
 import defaultConfig from './defaultConfig';
-import * as tool from '../../../util/tool';
-import KeepObserverPublic from '../../../share/public/index'
+import { KeepObserverPublic,tool } from '@util/index'
 
 import {
     getSystemInfo,
@@ -19,6 +18,7 @@ class KeepObserverLoad extends KeepObserverPublic {
     private _config:any;
     private _systemInfo:any;
     private _typeName:string;
+    private addReportListener:any; //继承中属性
     //method
     private getSystemInfo = getSystemInfo.bind(this)
     private getWebPerformance = getWebPerformance.bind(this)

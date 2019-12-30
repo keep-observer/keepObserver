@@ -1,5 +1,4 @@
-import * as tool from '../../util/tool';
-
+import { tool } from '@util/index'
 
 const updateVersionRecordKey = 'versionRecord';
 const keepObserverRecordReg = /^keepObserverData/i;

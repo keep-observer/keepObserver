@@ -1,7 +1,7 @@
 import defaultConfig from './defaultConfig';
-import * as tool from '../../../util/tool';
+import { KeepObserverPublic,tool } from '@util/index'
 
-import KeepObserverPublic from '../../../share/public/index'
+
 
 import {
     stopObserver,
@@ -24,6 +24,7 @@ class KeepObserverLog extends KeepObserverPublic{
     private _typeName :string;
     private console: any;
     private $createElement : any|boolean;
+    private addReportListener:any; //继承中属性
     //method
     private stopObserver = stopObserver.bind(this)
     private startObserver = startObserver.bind(this)

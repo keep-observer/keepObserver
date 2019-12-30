@@ -1,6 +1,4 @@
-
-import * as tool from '../../../util/tool'
-import KeepObserverPublic from '../../../share/public/index'
+import { KeepObserverPublic,tool } from '@util/index'
 
 import {
     stopObserver,
@@ -23,6 +21,7 @@ class KeepObserverVue  extends KeepObserverPublic{
     private _typeName: string;
     private  _vue: any;
     private _originErrorHandle: any;
+    private addReportListener:any; //继承中属性
     //method
     private stopObserver = stopObserver.bind(this);
     private startObserver = startObserver.bind(this);

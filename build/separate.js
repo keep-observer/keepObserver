@@ -2,8 +2,6 @@
 
 
 module.exports = {
-    'util':'./src/util/index.ts',
-    /***********************************************/
     'instance': "./src/instance/index.ts",
     'report/plain': "./src/services/report/plain/index.ts",
     'monitor/log': "./src/services/monitor/log/index.ts",

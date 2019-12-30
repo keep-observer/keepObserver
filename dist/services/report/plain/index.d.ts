@@ -1,4 +1,4 @@
-import KeepObserverPublic from '../../../share/public/index';
+import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverReport extends KeepObserverPublic {
     private _config;
     private _customeInfo;
@@ -9,6 +9,7 @@ declare class KeepObserverReport extends KeepObserverPublic {
     private developGetMsgLog;
     private develogDeleteLog;
     private develogDiscardLog;
+    private addReportListener;
     private $setCustomeReportData;
     private _getReportContent;
     private _saveReportData;

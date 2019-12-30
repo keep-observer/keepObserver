@@ -1,7 +1,6 @@
-import * as tool from '../../../util/tool';
-import * as assist from './tool'
+import { consoleTools,tool } from '@util/index'
 import { RecordKey,exitBackstageFlag,RecordDataKey } from './constant'
-
+import * as assist from './tool'
 
 
 var  nowDate = assist.createDataRecord()

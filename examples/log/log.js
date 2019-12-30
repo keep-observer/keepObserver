@@ -1,19 +1,17 @@
 import KeepObserver from '../../@core/instance'
 import KeepObserverLog from '../../@core/monitor/log'
 
+
 debugger;
+
 
 const ko = new KeepObserver({
     develop:true
 })
-const log = new KeepObserverLog({
-    develop:true
-})
-ko.use(log)
+ko.use(KeepObserverLog)
 
 
-log.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
-    debugger
+ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
     console.log(111111111)
 })
 
@@ -21,8 +19,9 @@ log.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
 
 
 setTimeout(()=>{
+    debugger
     console.log('aaaaaaaa',ko,ko.useMiddle)
-})
+},100)
 
 
 

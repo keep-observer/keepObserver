@@ -1,6 +1,6 @@
 import defaultConfig from './defaultConfig';
-import * as tool from '../../../util/tool';
-import KeepObserverPublic from '../../../share/public/index'
+import { KeepObserverPublic,tool } from '@util/index'
+
 
 import { 
     handleAnalyseDomList,
@@ -44,7 +44,8 @@ class KeepObserverSimpleH5Analyse extends KeepObserverPublic{
     private _domListener:any;
     private analyseDomList: any;
     private uniqueId: string;
-    private reportData:reportDataType
+    private reportData:reportDataType;
+    private addReportListener:any; //继承中属性
     //method
     private getDomTitle = getDomTitle.bind(this)
     private handleAnalyseDomList = handleAnalyseDomList.bind(this)

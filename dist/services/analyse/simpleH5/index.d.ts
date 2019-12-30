@@ -1,4 +1,4 @@
-import KeepObserverPublic from '../../../share/public/index';
+import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverSimpleH5Analyse extends KeepObserverPublic {
     private _config;
     private _addEventListener;
@@ -7,6 +7,7 @@ declare class KeepObserverSimpleH5Analyse extends KeepObserverPublic {
     private analyseDomList;
     private uniqueId;
     private reportData;
+    private addReportListener;
     private getDomTitle;
     private handleAnalyseDomList;
     private stopAnalyse;

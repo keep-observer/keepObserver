@@ -1,4 +1,4 @@
-import KeepObserverPublic from '../../share/public/index';
+import { KeepObserverPublic } from '@util/index';
 declare class keepObserverPipe extends KeepObserverPublic {
     private _config;
     private _props;

@@ -4,14 +4,16 @@ var webpack = require('webpack')
 var baseWebpackConfig = require('./webpack.config.base.js')
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+var FileManagerPlugin = require('filemanager-webpack-plugin');
 var merge = require('webpack-merge')
 
-var separate = require('./separate.js');
 
 
 module.exports = merge(baseWebpackConfig, {
     mode: 'development',  //开发
-    entry: separate,
+    entry: {
+        index: './src/util/index.ts',
+    },
     //输出文件
     output: {
         //文件命名
@@ -19,14 +21,19 @@ module.exports = merge(baseWebpackConfig, {
         libraryTarget: 'umd',
         umdNamedDefine: true,
         //输出目录
-        path: path.resolve(__dirname, '../@core'),
+        path: path.resolve(__dirname, '../@util'),
     },
     devtool: false,
-    externals: [
-        '@util/index'
-    ],
     plugins: [
         new ProgressBarPlugin(),
-        new BundleAnalyzerPlugin(),
+        new FileManagerPlugin({
+            onEnd: [
+                {
+                    copy: [
+                        { source: path.resolve(__dirname, '../src/util/package.json'), destination: path.resolve(__dirname, '../@util') }
+                    ]
+                }
+            ]
+        })
     ]
 })

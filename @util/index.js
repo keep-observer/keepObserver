@@ -100,9 +100,7 @@ var __read = this && this.__read || function (o, n) {
       e;
 
   try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
   } catch (error) {
     e = {
       error: error
@@ -119,9 +117,7 @@ var __read = this && this.__read || function (o, n) {
 };
 
 var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
+  for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
 
   return ar;
 };
@@ -221,9 +217,7 @@ exports.warnError = function (msg, develop) {
 var __importStar = this && this.__importStar || function (mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
   result["default"] = mod;
   return result;
 };
@@ -237,12 +231,12 @@ var tool = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts"))
 
 var RecordKey = 'deviceId';
 
-var getDeviceId = function getDeviceId() {
+var getDeviceId = function () {
   return storageModel();
 }; //localStorage model
 
 
-var storageModel = function storageModel() {
+var storageModel = function () {
   if (!window.localStorage) {
     return false;
   }
@@ -261,9 +255,9 @@ var storageModel = function storageModel() {
 //暂不启用, 放在第二次重构升级在启用
 
 
-var iframeModel = function iframeModel() {};
+var iframeModel = function () {};
 
-exports["default"] = getDeviceId;
+exports.default = getDeviceId;
 
 /***/ }),
 
@@ -277,30 +271,18 @@ exports["default"] = getDeviceId;
 "use strict";
 
 
-var __assign = this && this.__assign || function () {
-  __assign = Object.assign || function (t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-      s = arguments[i];
-
-      for (var p in s) {
-        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-      }
-    }
-
-    return t;
-  };
-
-  return __assign.apply(this, arguments);
-};
-
 var __importStar = this && this.__importStar || function (mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
   result["default"] = mod;
   return result;
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
 };
 
 Object.defineProperty(exports, "__esModule", {
@@ -309,11 +291,348 @@ Object.defineProperty(exports, "__esModule", {
 
 var tool = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts"));
 
+exports.tool = tool;
+
 var consoleTools = __importStar(__webpack_require__(/*! ./console */ "./src/util/console.ts"));
 
-var deviceId = __importStar(__webpack_require__(/*! ./deviceID */ "./src/util/deviceID.ts"));
+exports.consoleTools = consoleTools;
 
-exports["default"] = __assign({}, tool, consoleTools, deviceId);
+var deviceID_1 = __importDefault(__webpack_require__(/*! ./deviceID */ "./src/util/deviceID.ts"));
+
+exports.getDeviceId = deviceID_1.default;
+
+var public_1 = __importDefault(__webpack_require__(/*! ./share/public */ "./src/util/share/public/index.ts"));
+
+exports.KeepObserverPublic = public_1.default;
+
+var middleware_1 = __importDefault(__webpack_require__(/*! ./share/middleware */ "./src/util/share/middleware/index.ts"));
+
+exports.KeepObserverMiddleWare = middleware_1.default;
+
+/***/ }),
+
+/***/ "./src/util/share/middleware/index.ts":
+/*!********************************************!*\
+  !*** ./src/util/share/middleware/index.ts ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __read = this && this.__read || function (o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+};
+
+var __spread = this && this.__spread || function () {
+  for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+
+  return ar;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
+
+var KeepObserverMiddleWare =
+/** @class */
+function () {
+  function KeepObserverMiddleWare(_a) {
+    var _b = _a.develop,
+        develop = _b === void 0 ? false : _b; //当前是否处于开发模式
+
+    this._develop = develop; //中间件初始化
+
+    this._middles = {}; //中间件执行过程中 禁止重复触发 loop
+
+    this._runMiddleBuff = {};
+  }
+
+  KeepObserverMiddleWare.usePublishMiddles = function (scopeName, middlesFn) {
+    var _staticSelf = this;
+
+    if (_staticSelf.publicMiddles[scopeName]) {
+      return _staticSelf.publicMiddles[scopeName].push(middlesFn);
+    }
+
+    _staticSelf.publicMiddles[scopeName] = [];
+    return _staticSelf.publicMiddles[scopeName].push(middlesFn);
+  };
+
+  KeepObserverMiddleWare.prototype.run = function (scopeName) {
+    var args = [];
+
+    for (var _i = 1; _i < arguments.length; _i++) {
+      args[_i - 1] = arguments[_i];
+    }
+
+    var _self = this;
+
+    var publicMiddles = this.constructor.publicMiddles;
+    debugger;
+
+    if (!_self._middles[scopeName]) {
+      console_1.warnError(scopeName + " middles function is undefined", this._develop);
+      return false;
+    }
+
+    if (_self._runMiddleBuff[scopeName]) {
+      console_1.devWarn(this._develop, scopeName + " middles is run");
+      return false;
+    }
+
+    _self._runMiddleBuff[scopeName] = true;
+    var middlesQueue = _self._middles[scopeName];
+    var len = middlesQueue.length;
+    var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
+
+    var interrupt = function () {
+      var result = [];
+
+      for (var _i = 0; _i < arguments.length; _i++) {
+        result[_i] = arguments[_i];
+      }
+
+      index = len;
+      _self._runMiddleBuff[scopeName] = false;
+      return result;
+    }; //向下执行中间件
+
+
+    var runNext = function (next) {
+      return function () {
+        var params = [];
+
+        for (var _i = 0; _i < arguments.length; _i++) {
+          params[_i] = arguments[_i];
+        }
+
+        if (index === len) {
+          return params;
+        }
+
+        index++;
+        return next.apply(void 0, __spread(params));
+      };
+    };
+
+    var exec = middlesQueue.reduce(function (a, b) {
+      return function () {
+        var params = [];
+
+        for (var _i = 0; _i < arguments.length; _i++) {
+          params[_i] = arguments[_i];
+        }
+
+        return a(interrupt, runNext(b.apply(void 0, __spread(params))));
+      };
+    });
+    return exec(interrupt, interrupt).apply(void 0, __spread(args));
+  };
+
+  KeepObserverMiddleWare.prototype.use = function (scopeName, middlesFn) {
+    var _self = this;
+
+    if (_self._middles[scopeName]) {
+      return _self._middles[scopeName].push(middlesFn);
+    }
+
+    _self._middles[scopeName] = [];
+    return _self._middles[scopeName].push(middlesFn);
+  };
+
+  KeepObserverMiddleWare.publicMiddles = {};
+  return KeepObserverMiddleWare;
+}();
+
+exports.default = KeepObserverMiddleWare;
+
+/***/ }),
+
+/***/ "./src/util/share/public/index.ts":
+/*!****************************************!*\
+  !*** ./src/util/share/public/index.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __read = this && this.__read || function (o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+};
+
+var __spread = this && this.__spread || function () {
+  for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+
+  return ar;
+};
+
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result["default"] = mod;
+  return result;
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+
+var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
+
+var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/util/share/middleware/index.ts"));
+
+var KeepObserverPublic =
+/** @class */
+function () {
+  function KeepObserverPublic(config) {
+    if (config === void 0) {
+      config = {};
+    }
+
+    var _a = config.develop,
+        develop = _a === void 0 ? false : _a; //当前是否处于开发模式
+
+    this._develop = develop; //公共中间件事件
+
+    this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
+
+    this._middleWareInstance = new index_1.default(config);
+  } //注册中间件逻辑
+
+
+  KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
+    var _self = this;
+
+    return _self._middleWareInstance.use(scopeName, middlesFn);
+  }; //执行中间件逻辑
+
+
+  KeepObserverPublic.prototype.runMiddle = function (scopeName) {
+    var args = [];
+
+    for (var _i = 1; _i < arguments.length; _i++) {
+      args[_i - 1] = arguments[_i];
+    }
+
+    var _a;
+
+    var _self = this;
+
+    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
+  }; //兼容老版本做保留,内部使用中间件替换
+
+
+  KeepObserverPublic.prototype.addReportListener = function (callback) {
+    var _self = this;
+
+    if (callback) {
+      var _a = __read(_self._publicMiddleScopeNames, 1),
+          scopeName = _a[0]; //  1 -> 2 -> 3 -> 2 -> 1
+
+
+      this.useMiddle(scopeName, function (interrupt, next) {
+        return function (reportParams, control) {
+          var _a;
+
+          var resultParams = next(reportParams, control); //result promise
+
+          if (resultParams instanceof Promise || resultParams.then && tool.isFunction(resultParams.then)) {
+            return resultParams.then(function (promiseResult) {
+              var _a;
+
+              if (!tool.isEmptyArray(promiseResult) && promiseResult.length === 2) {
+                _a = __read(promiseResult, 2), reportParams = _a[0], control = _a[1];
+              }
+
+              callback(reportParams, control);
+              return [reportParams, control];
+            });
+          } //noPromise
+
+
+          if (!tool.isEmptyArray(resultParams) && resultParams.length === 2) {
+            _a = __read(resultParams, 2), reportParams = _a[0], control = _a[1];
+          }
+
+          callback(reportParams, control);
+          return [reportParams, control];
+        };
+      });
+    }
+  };
+
+  KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
+    var _self = this;
+
+    console_1.devLog(_self._develop, reportParams, control); //执行中间件
+
+    var _a = __read(_self._publicMiddleScopeNames, 1),
+        scopeName = _a[0];
+
+    this.runMiddle(scopeName, reportParams, control);
+  };
+
+  return KeepObserverPublic;
+}();
+
+exports.default = KeepObserverPublic;
 
 /***/ }),
 
@@ -326,8 +645,6 @@ exports["default"] = __assign({}, tool, consoleTools, deviceId);
 
 "use strict";
 
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -479,8 +796,8 @@ function isFunction(value) {
 exports.isFunction = isFunction;
 
 function isElement(value) {
-  return (typeof HTMLElement === "undefined" ? "undefined" : _typeof(HTMLElement)) === 'object' ? value instanceof HTMLElement : //DOM2
-  value && _typeof(value) === "object" && value !== null && value.nodeType === 1 && typeof value.nodeName === "string";
+  return typeof HTMLElement === 'object' ? value instanceof HTMLElement : //DOM2
+  value && typeof value === "object" && value !== null && value.nodeType === 1 && typeof value.nodeName === "string";
 }
 
 exports.isElement = isElement;
@@ -500,7 +817,7 @@ exports.isWindow = isWindow;
 function isPlainObject(obj) {
   var hasOwn = Object.prototype.hasOwnProperty; // Must be an Object.
 
-  if (!obj || _typeof(obj) !== 'object' || obj.nodeType || isWindow(obj)) {
+  if (!obj || typeof obj !== 'object' || obj.nodeType || isWindow(obj)) {
     return false;
   }
 

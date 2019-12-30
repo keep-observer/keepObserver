@@ -1,7 +1,5 @@
-import * as tool from '../../util/tool';
-import * as consoleTools from '../../util/console'
 
-
+import { consoleTools } from '@util/index'
 
 
 export const registerApi = function(apiName:string,cb:(...args:any[])=>any){

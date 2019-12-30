@@ -1,4 +1,4 @@
-import KeepObserverPublic from '../../../share/public/index';
+import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverNetwork extends KeepObserverPublic {
     private _config;
     private _typeName;
@@ -8,6 +8,7 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private timeout;
     private timeoutRequest;
     private networkList;
+    private addReportListener;
     private stopObserver;
     private startObserver;
     private _handleInit;

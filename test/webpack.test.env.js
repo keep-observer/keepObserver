@@ -10,7 +10,6 @@ var dev_WebpackConfig = require('./webpack.config')
 var webServerPromise = function(){
     return new Promise((res,rej)=>{
         var compiler = webpack(dev_WebpackConfig, function() {
-            console.log(arguments)
             console.log('测试环境构建完成\n')
             setTimeout(function() {
                 res(server)

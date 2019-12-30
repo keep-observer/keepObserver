@@ -1,19 +1,16 @@
-import * as tool from '../../util/tool';
-import { warnError,devLog } from '../../util/console'
+import * as tool from '../../../util/tool';
+import { warnError,devLog } from '../../../util/console'
 import  KeepObserverMiddleWare  from '../middleware/index'
-
 
 import {
     pipeOptons
-} from '../../types/pipe'
+} from '../../../types/pipe'
 import {
     reportParams
-} from '../../types/report'
+} from '../../../types/report'
 import {
     middlesFn
-} from '../../types/middle'
-
-
+} from '../../../types/middle'
 
 
 
@@ -55,10 +52,22 @@ class KeepObserverPublic {
             //  1 -> 2 -> 3 -> 2 -> 1
             this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams,control:pipeOptons)=>{
                 var resultParams  =  next(reportParams,control)
+                //result promise
+                if(resultParams instanceof Promise || (resultParams.then && tool.isFunction(resultParams.then))){
+                    return resultParams.then((promiseResult)=>{
+                        if(!tool.isEmptyArray(promiseResult) && promiseResult.length === 2){
+                            [ reportParams , control ] = promiseResult
+                        }
+                        callback(reportParams,control)
+                        return [ reportParams , control ]
+                    })
+                }
+                //noPromise
                 if(!tool.isEmptyArray(resultParams) && resultParams.length === 2){
                     [ reportParams , control ] = resultParams
                 }
-                return callback(reportParams,control)
+                callback(reportParams,control)
+                return [ reportParams , control ]
             })
         }
     }

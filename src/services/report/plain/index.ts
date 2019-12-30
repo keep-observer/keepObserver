@@ -4,8 +4,7 @@ import {
 } from '../../../constants/index'
 
 import defaultConfig from './defaultConfig';
-import * as tool from '../../../util/tool';
-import KeepObserverPublic from '../../../share/public/index'
+import { KeepObserverPublic,tool } from '@util/index'
 
 import {
     $setCustomeReportData,
@@ -47,6 +46,7 @@ class KeepObserverReport  extends KeepObserverPublic  {
     private developGetMsgLog: boolean;
     private develogDeleteLog: boolean;
     private develogDiscardLog: boolean;
+    private addReportListener:any; //继承中属性
     //method
     private $setCustomeReportData = $setCustomeReportData.bind(this);
     private _getReportContent = _getReportContent.bind(this);

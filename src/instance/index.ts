@@ -1,11 +1,10 @@
-import * as tool from '../util/tool';
-import getDeviceId from '../util/deviceID'
+import { KeepObserverPublic,KeepObserverMiddleWare,tool,getDeviceId } from '@util/index'
 import defaultConfig from './defaultConfig';
-import KeepObserverPublic from '../share/public/index'
 import { Provider } from '../types/instance'
 
 
 import keepObserverPipe from './pipe/index';
+
 import {
     version
 } from '../constants/index';
@@ -20,6 +19,11 @@ import {
     apis
 } from './method/api'
 
+//type
+import {
+    middlesFn
+} from '../types/middle'
+
 
 
 
@@ -33,6 +37,7 @@ class KeepObserver extends KeepObserverPublic{
     private updateVersionClearCache = updateVersionClearCache.bind(this);
     private registerApi = registerApi.bind(this)
 
+
     constructor(config={}) {
         super(config = tool.extend(defaultConfig, config ,{
             version: version,
@@ -42,20 +47,27 @@ class KeepObserver extends KeepObserverPublic{
         this._config = config
         //管道实例
         this._pipe = new keepObserverPipe(this, this._config)
-        //中间件事件
-        this._middleScopeNames = tool.extend([],this._publicMiddleScopeNames,[
-            'use'
-        ])
         //init
         this.init()
     }
     
-    //api
+
+    //主实例重载中间件服务
+    public useMiddle(scopeName:string,middlesFn:middlesFn){
+        return KeepObserverMiddleWare.usePublishMiddles(scopeName,middlesFn)
+    }
+
+
+    //挂载插件服务
     public use(Provider:Provider){
         return this._pipe.use(Provider)
     }
+
+    //api
     public apis = apis.bind(this)
 }
+
+
 
 
 

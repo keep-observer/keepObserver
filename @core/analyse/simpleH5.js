@@ -1,13 +1,13 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
+		module.exports = factory(require("@util/index"));
 	else if(typeof define === 'function' && define.amd)
-		define([], factory);
+		define(["@util/index"], factory);
 	else {
-		var a = factory();
+		var a = typeof exports === 'object' ? factory(require("@util/index")) : factory(root["@util/index"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function() {
+})(window, function(__WEBPACK_EXTERNAL_MODULE__util_index__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -91,21 +91,11 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var constant_1 = __webpack_require__(/*! ./constant */ "./src/services/analyse/simpleH5/constant.ts");
 /*
@@ -139,7 +129,7 @@ exports.startAnalyse = function (config) {
 
 
 exports.clearSaveRecive = function () {
-  tool.removeStorage(constant_1.RecordKey);
+  index_1.tool.removeStorage(constant_1.RecordKey);
 };
 
 /***/ }),
@@ -201,23 +191,11 @@ exports["default"] = {
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
-
-var consoleTools = __importStar(__webpack_require__(/*! ../../../util/console */ "./src/util/console.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
 var Clear_CN_CodeReg = /[^\u4e00-\u9fa5\w]/ig;
@@ -232,15 +210,15 @@ exports.handleAnalyseDomList = function (analyseDomList, activeFn) {
 
   analyseDomList.forEach(function (item) {
     //check type
-    if (!tool.isString(item) && !tool.isElement(item)) {
-      consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not string or not domElement');
+    if (!index_1.tool.isString(item) && !index_1.tool.isElement(item)) {
+      index_1.consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not string or not domElement');
       return false;
     }
 
-    var el = tool.isElement(item) ? item : document.querySelector(item);
+    var el = index_1.tool.isElement(item) ? item : document.querySelector(item);
 
-    if (!el || !tool.isElement(el)) {
-      consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not find domElement');
+    if (!el || !index_1.tool.isElement(el)) {
+      index_1.consoleTools.warnError('analyseServer simpleH5 config analyseDomList item is not find domElement');
       return false;
     } //handle el
 
@@ -257,7 +235,7 @@ exports.handleAnalyseDomList = function (analyseDomList, activeFn) {
     var destroyEvent = _self.registerAnalyseDomEvent(el, function (event) {
       statusBuff[title] = true;
 
-      if (activeFn && tool.isFunction(activeFn)) {
+      if (activeFn && index_1.tool.isFunction(activeFn)) {
         activeFn(event);
       }
     });
@@ -310,25 +288,13 @@ exports.getDomTitle = function (el) {
 "use strict";
 
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
-var consoleTools = __importStar(__webpack_require__(/*! ../../../util/console */ "./src/util/console.ts"));
-
-var attributeKey = 'keepObserverUniqueID' + tool.getUniqueID().substring(0, 8); //注册相关DOM埋点检测事件服务
+var attributeKey = 'keepObserverUniqueID' + index_1.tool.getUniqueID().substring(0, 8); //注册相关DOM埋点检测事件服务
 
 exports.registerAnalyseDomEvent = function (el, fn) {
   var _self = this;
@@ -349,7 +315,7 @@ exports.registerAnalyseDomEvent = function (el, fn) {
   el.setAttribute(attributeKey, true); //return destroyEvent
 
   return function () {
-    if (el && tool.isElement(el)) {
+    if (el && index_1.tool.isElement(el)) {
       _self._removeEventListener.apply(el, [event, fn]);
     }
 
@@ -371,15 +337,15 @@ exports._handleEventTarget = function () {
 
     Node.prototype.addEventListener = function () {
       var target = this;
-      var args = tool.toArray(arguments);
+      var args = index_1.tool.toArray(arguments);
       /*
           validata params
           [0] = string eventName
           [1] = function eventHandleFunction
       */
 
-      if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
-        consoleTools.warnError('element addEventListener params error');
+      if (args.length < 2 || !index_1.tool.isString(args[0]) || !index_1.tool.isFunction(args[1])) {
+        index_1.consoleTools.warnError('element addEventListener params error');
         return false;
       } //patch = args[1] = eventHandleFunction setTimeout 
 
@@ -388,7 +354,7 @@ exports._handleEventTarget = function () {
 
       args[1] = function () {
         var sgin = target.getAttribute(attributeKey);
-        var handleArgs = tool.toArray(arguments); // observer target dom
+        var handleArgs = index_1.tool.toArray(arguments); // observer target dom
 
         if (sgin) {
           return setTimeout(function () {
@@ -405,22 +371,22 @@ exports._handleEventTarget = function () {
 
     Node.prototype.removeEventListener = function () {
       var target = this;
-      var args = tool.toArray(arguments);
+      var args = index_1.tool.toArray(arguments);
       /*
           validata params
           [0] = string eventName
           [1] = function eventHandleFunction
       */
 
-      if (args.length < 2 || !tool.isString(args[0]) || !tool.isFunction(args[1])) {
-        consoleTools.warnError('element removeEventListener params error');
+      if (args.length < 2 || !index_1.tool.isString(args[0]) || !index_1.tool.isFunction(args[1])) {
+        index_1.consoleTools.warnError('element removeEventListener params error');
         return false;
       }
 
       return _self._removeEventListener.apply(target, args);
     };
   } else {
-    consoleTools.warnError('analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
+    index_1.consoleTools.warnError('analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
     return false;
   }
 
@@ -433,7 +399,7 @@ exports._recoverEventTarget = function () {
     Node.prototype.addEventListener = this._addEventListener;
     Node.prototype.removeEventListener = this._removeEventListener;
   } else {
-    consoleTools.warnError('analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
+    index_1.consoleTools.warnError('analyseServer simpleH5: borwser not can EventTarget.prototype.addEventListener');
     return false;
   }
 
@@ -467,11 +433,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
-
-var assist = __importStar(__webpack_require__(/*! ./tool */ "./src/services/analyse/simpleH5/tool.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var constant_1 = __webpack_require__(/*! ./constant */ "./src/services/analyse/simpleH5/constant.ts");
+
+var assist = __importStar(__webpack_require__(/*! ./tool */ "./src/services/analyse/simpleH5/tool.ts"));
 
 var nowDate = assist.createDataRecord(); //开始
 
@@ -480,7 +446,7 @@ exports.begine = function (config) {
 
   var analyseDomList = config.analyseDomList; //handle dom list
 
-  if (analyseDomList || tool.isArray(analyseDomList)) {
+  if (analyseDomList || index_1.tool.isArray(analyseDomList)) {
     _self.analyseDomList = _self.handleAnalyseDomList(analyseDomList, function (event) {
       _self.triggerAcitveReport(event);
     });
@@ -494,11 +460,11 @@ exports.begine = function (config) {
 
 
 exports.destroy = function () {
-  if (!tool.isEmptyObject(this.analyseDomList)) {
+  if (!index_1.tool.isEmptyObject(this.analyseDomList)) {
     for (var key in this.analyseDomList) {
       var item = this.analyseDomList[key];
 
-      if (item.destroyEvent && tool.isFunction(item.destroyEvent)) {
+      if (item.destroyEvent && index_1.tool.isFunction(item.destroyEvent)) {
         item.destroyEvent();
       }
     }
@@ -534,12 +500,12 @@ exports.triggerAcitveReport = function (event) {
 
 exports.triggerInitReport = function () {
   //尝试读取缓存数据
-  var saveRecord = tool.getStorage(constant_1.RecordKey);
-  var backStageFlag = tool.getSessionStorage(constant_1.exitBackstageFlag);
-  var dateRecord = tool.getStorage(constant_1.RecordDataKey);
+  var saveRecord = index_1.tool.getStorage(constant_1.RecordKey);
+  var backStageFlag = index_1.tool.getSessionStorage(constant_1.exitBackstageFlag);
+  var dateRecord = index_1.tool.getStorage(constant_1.RecordDataKey);
 
   if (saveRecord) {
-    this.reportData = tool.extend(this.reportData, saveRecord);
+    this.reportData = index_1.tool.extend(this.reportData, saveRecord);
   }
 
   if (!backStageFlag) {
@@ -547,22 +513,22 @@ exports.triggerInitReport = function () {
     this.reportData.repeatCountAll += 1;
     this.reportData = this.createReportData();
     this.noticeReport(this.reportData);
-    tool.setSessionStorage(constant_1.exitBackstageFlag, true);
+    index_1.tool.setSessionStorage(constant_1.exitBackstageFlag, true);
   } // update now day data
 
 
   if (!dateRecord) {
-    tool.setStorage(constant_1.RecordDataKey, nowDate);
+    index_1.tool.setStorage(constant_1.RecordDataKey, nowDate);
   } else if (parseInt(dateRecord) < nowDate) {
     this.reportData.repeatCount = 0;
 
-    if (!tool.isEmptyObject(this.reportData.useActives)) {
+    if (!index_1.tool.isEmptyObject(this.reportData.useActives)) {
       for (var key in this.reportData.useActives) {
         this.reportData.useActives[key].activeCount = 0;
       }
     }
 
-    tool.setStorage(constant_1.RecordDataKey, nowDate);
+    index_1.tool.setStorage(constant_1.RecordDataKey, nowDate);
   }
 }; //创建上报数据
 
@@ -572,7 +538,7 @@ exports.createReportData = function () {
 
   var reportData = this.reportData; // handle dom observer info
 
-  if (!tool.isEmptyObject(this.analyseDomList)) {
+  if (!index_1.tool.isEmptyObject(this.analyseDomList)) {
     for (var key in this.analyseDomList) {
       var item = this.analyseDomList[key]; // no exist
 
@@ -581,7 +547,7 @@ exports.createReportData = function () {
           activeCount: item.getActiveStauts() ? 1 : 0,
           activeCountAll: item.getActiveStauts() ? 1 : 0
         };
-      } else if (tool.isExist(reportData.useActives[key].activeCount)) {
+      } else if (index_1.tool.isExist(reportData.useActives[key].activeCount)) {
         if (item.getActiveStauts()) {
           reportData.useActives[key].activeCount += 1;
           reportData.useActives[key].activeCountAll += 1;
@@ -594,7 +560,7 @@ exports.createReportData = function () {
   } //save storage
 
 
-  tool.setStorage(constant_1.RecordKey, reportData);
+  index_1.tool.setStorage(constant_1.RecordKey, reportData);
   return reportData;
 };
 
@@ -642,25 +608,13 @@ var __importDefault = this && this.__importDefault || function (mod) {
   };
 };
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
 var defaultConfig_1 = __importDefault(__webpack_require__(/*! ./defaultConfig */ "./src/services/analyse/simpleH5/defaultConfig.ts"));
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
-
-var index_1 = __importDefault(__webpack_require__(/*! ../../../share/public/index */ "./src/share/public/index.ts"));
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var dom_1 = __webpack_require__(/*! ./dom */ "./src/services/analyse/simpleH5/dom.ts");
 
@@ -705,7 +659,7 @@ function (_super) {
     var _a = config.simpleH5AnalyseCustom,
         simpleH5AnalyseCustom = _a === void 0 ? false : _a;
     var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || {};
-    _this._config = tool.extend(defaultConfig_1["default"], simpleH5AnalyseCustomConfig); //原生方法
+    _this._config = index_1.tool.extend(defaultConfig_1["default"], simpleH5AnalyseCustomConfig); //原生方法
 
     _this._addEventListener = false;
     _this._removeEventListener = false; //拦截DOM列表
@@ -724,11 +678,11 @@ function (_super) {
     */
 
     _this.analyseDomList = {};
-    _this.uniqueId = tool.getUniqueID();
+    _this.uniqueId = index_1.tool.getUniqueID();
     /*上报内容*/
 
     _this.reportData = {
-      id: tool.getUniqueID(),
+      id: index_1.tool.getUniqueID(),
       repeatCountAll: 0,
       repeatCount: 0,
       useActives: {} //行为事件
@@ -755,7 +709,7 @@ function (_super) {
   };
 
   return KeepObserverSimpleH5Analyse;
-}(index_1["default"]);
+}(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverSimpleH5Analyse;
 
@@ -842,933 +796,14 @@ exports.createDataRecord = createDataRecord;
 
 /***/ }),
 
-/***/ "./src/share/middleware/index.ts":
-/*!***************************************!*\
-  !*** ./src/share/middleware/index.ts ***!
-  \***************************************/
+/***/ "@util/index":
+/*!******************************!*\
+  !*** external "@util/index" ***!
+  \******************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/console.ts");
-
-var KeepObserverMiddleWare =
-/** @class */
-function () {
-  function KeepObserverMiddleWare(_a) {
-    var _b = _a.develop,
-        develop = _b === void 0 ? false : _b; //当前是否处于开发模式
-
-    this._develop = develop; //中间件初始化
-
-    this._middles = {}; //中间件执行过程中 禁止重复触发 loop
-
-    this._runMiddleBuff = {};
-  }
-
-  KeepObserverMiddleWare.prototype.run = function (scopeName) {
-    var args = [];
-
-    for (var _i = 1; _i < arguments.length; _i++) {
-      args[_i - 1] = arguments[_i];
-    }
-
-    var _self = this;
-
-    if (!_self._middles[scopeName]) {
-      console_1.warnError(scopeName + " middles function is undefined", this._develop);
-      return false;
-    }
-
-    if (_self._runMiddleBuff[scopeName]) {
-      console_1.devWarn(this._develop, scopeName + " middles is run");
-      return false;
-    }
-
-    _self._runMiddleBuff[scopeName] = true;
-    var middlesQueue = _self._middles[scopeName];
-    var len = middlesQueue.length;
-    var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
-
-    var interrupt = function interrupt() {
-      var result = [];
-
-      for (var _i = 0; _i < arguments.length; _i++) {
-        result[_i] = arguments[_i];
-      }
-
-      index = len;
-      _self._runMiddleBuff[scopeName] = false;
-      return result;
-    }; //向下执行中间件
-
-
-    var runNext = function runNext(next) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        if (index === len) {
-          return params;
-        }
-
-        index++;
-        return next.apply(void 0, __spread(params));
-      };
-    };
-
-    var exec = middlesQueue.reduce(function (a, b) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        return a(interrupt, runNext(b.apply(void 0, __spread(params))));
-      };
-    });
-    return exec(interrupt, interrupt).apply(void 0, __spread(args));
-  };
-
-  KeepObserverMiddleWare.prototype.use = function (scopeName, middlesFn) {
-    var _self = this;
-
-    if (_self._middles[scopeName]) {
-      return _self._middles[scopeName].push(middlesFn);
-    }
-
-    _self._middles[scopeName] = [];
-    return _self._middles[scopeName].push(middlesFn);
-  };
-
-  return KeepObserverMiddleWare;
-}();
-
-exports["default"] = KeepObserverMiddleWare;
-
-/***/ }),
-
-/***/ "./src/share/public/index.ts":
-/*!***********************************!*\
-  !*** ./src/share/public/index.ts ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) {
-    if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  }
-  result["default"] = mod;
-  return result;
-};
-
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var tool = __importStar(__webpack_require__(/*! ../../util/tool */ "./src/util/tool.ts"));
-
-var console_1 = __webpack_require__(/*! ../../util/console */ "./src/util/console.ts");
-
-var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/share/middleware/index.ts"));
-
-var KeepObserverPublic =
-/** @class */
-function () {
-  function KeepObserverPublic(config) {
-    if (config === void 0) {
-      config = {};
-    }
-
-    var _a = config.develop,
-        develop = _a === void 0 ? false : _a; //当前是否处于开发模式
-
-    this._develop = develop; //公共中间件事件
-
-    this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
-
-    this._middleWareInstance = new index_1["default"](config);
-  } //注册中间件逻辑
-
-
-  KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
-    var _self = this;
-
-    return _self._middleWareInstance.use(scopeName, middlesFn);
-  }; //执行中间件逻辑
-
-
-  KeepObserverPublic.prototype.runMiddle = function (scopeName) {
-    var args = [];
-
-    for (var _i = 1; _i < arguments.length; _i++) {
-      args[_i - 1] = arguments[_i];
-    }
-
-    var _a;
-
-    var _self = this;
-
-    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
-  }; //兼容老版本做保留,内部使用中间件替换
-
-
-  KeepObserverPublic.prototype.addReportListener = function (callback) {
-    var _self = this;
-
-    if (callback) {
-      var _a = __read(_self._publicMiddleScopeNames, 1),
-          scopeName = _a[0]; //  1 -> 2 -> 3 -> 2 -> 1
-
-
-      this.useMiddle(scopeName, function (interrupt, next) {
-        return function (reportParams, control) {
-          var _a;
-
-          var resultParams = next(reportParams, control);
-
-          if (!tool.isEmptyArray(resultParams) && resultParams.length === 2) {
-            _a = __read(resultParams, 2), reportParams = _a[0], control = _a[1];
-          }
-
-          return callback(reportParams, control);
-        };
-      });
-    }
-  };
-
-  KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
-    var _self = this;
-
-    console_1.devLog(_self._develop, reportParams, control); //执行中间件
-
-    var _a = __read(_self._publicMiddleScopeNames, 1),
-        scopeName = _a[0];
-
-    this.runMiddle(scopeName, reportParams, control);
-  };
-
-  return KeepObserverPublic;
-}();
-
-exports["default"] = KeepObserverPublic;
-
-/***/ }),
-
-/***/ "./src/util/console.ts":
-/*!*****************************!*\
-  !*** ./src/util/console.ts ***!
-  \*****************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var $log = window.console.log;
-var $wran = window.console.warn;
-var $error = window.console.error;
-
-window.console.log = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $log.apply(window.console, args);
-};
-
-window.console.error = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $error.apply(window.console, args);
-};
-
-window.console.warn = function () {
-  var args = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-
-  $wran.apply(window.console, args);
-};
-
-exports.log = $log;
-exports.error = $error;
-exports.wran = $wran;
-
-exports.devLog = function (develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  var arg = [];
-
-  for (var _i = 1; _i < arguments.length; _i++) {
-    arg[_i - 1] = arguments[_i];
-  }
-
-  if (!develop) return;
-  return exports.log.apply(void 0, __spread(["[keepObserver] log message:"], arg));
-};
-
-exports.devWarn = function (develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  var arg = [];
-
-  for (var _i = 1; _i < arguments.length; _i++) {
-    arg[_i - 1] = arguments[_i];
-  }
-
-  if (!develop) return;
-  return exports.wran.apply(void 0, __spread(["[keepObserver] wran message:"], arg));
-};
-
-exports.warnError = function (msg, develop) {
-  if (develop === void 0) {
-    develop = true;
-  }
-
-  if (!develop) return;
-  return exports.error("[keepObserver] find error! message: " + msg);
-};
-
-/***/ }),
-
-/***/ "./src/util/tool.ts":
-/*!**************************!*\
-  !*** ./src/util/tool.ts ***!
-  \**************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var console_1 = __webpack_require__(/*! ./console */ "./src/util/console.ts");
-/**
- * 根据时间搓 返回时间
- * @param date format
- * @return string
- */
-
-
-function dateFormat(date, format) {
-  if (!format || typeof format !== 'string') {
-    console.error('format is undefiend or type is Error');
-    return '';
-  }
-
-  date = date instanceof Date ? date : typeof date === 'number' || typeof date === 'string' ? new Date(date) : new Date(); //解析
-
-  var formatReg = {
-    'y+': date.getFullYear(),
-    'M+': date.getMonth() + 1,
-    'd+': date.getDate(),
-    'h+': date.getHours(),
-    'm+': date.getMinutes(),
-    's+': date.getSeconds()
-  };
-
-  for (var reg in formatReg) {
-    if (new RegExp(reg).test(format)) {
-      var match = RegExp.lastMatch;
-      format = format.replace(match, formatReg[reg] < 10 ? '0' + formatReg[reg] : formatReg[reg].toString());
-    }
-  }
-
-  return format;
-}
-
-exports.dateFormat = dateFormat;
-/**
- * 检查script基本数据类型
- * @param mixed value
- * @return boolean
- */
-
-function isNumber(value) {
-  return Object.prototype.toString.call(value) == '[object Number]';
-}
-
-exports.isNumber = isNumber;
-
-function isString(value) {
-  return Object.prototype.toString.call(value) == '[object String]';
-}
-
-exports.isString = isString;
-
-function isArray(value) {
-  return Object.prototype.toString.call(value) == '[object Array]';
-}
-
-exports.isArray = isArray;
-
-function isBoolean(value) {
-  return Object.prototype.toString.call(value) == '[object Boolean]';
-}
-
-exports.isBoolean = isBoolean;
-
-function isRegExp(value) {
-  return Object.prototype.toString.call(value) == "[object RegExp]";
-}
-
-exports.isRegExp = isRegExp;
-
-function isDateObject(value) {
-  return Object.prototype.toString.call(value) == "[object Date]";
-}
-
-exports.isDateObject = isDateObject;
-
-function isUndefined(value) {
-  return value === undefined;
-}
-
-exports.isUndefined = isUndefined;
-
-function isNull(value) {
-  return value === null;
-}
-
-exports.isNull = isNull;
-
-function isExist(value) {
-  return !isUndefined(value) && !isNull(value);
-}
-
-exports.isExist = isExist;
-
-function isSymbol(value) {
-  return Object.prototype.toString.call(value) == '[object Symbol]';
-}
-
-exports.isSymbol = isSymbol;
-
-function isSVGElement(value) {
-  return isElement(value) && (value instanceof SVGElement || value.ownerSVGElement);
-}
-
-exports.isSVGElement = isSVGElement;
-
-function isObject(value) {
-  return Object.prototype.toString.call(value) == '[object Object]' || // if it isn't a primitive value, then it is a common object
-  !isNumber(value) && !isString(value) && !isBoolean(value) && !isDateObject(value) && !isRegExp(value) && !isArray(value) && !isNull(value) && !isFunction(value) && !isUndefined(value) && !isSymbol(value);
-}
-
-exports.isObject = isObject;
-
-function isEmptyObject(obj) {
-  if (!isObject(obj)) {
-    return true;
-  }
-
-  for (var key in obj) {
-    return false;
-  }
-
-  return true;
-}
-
-exports.isEmptyObject = isEmptyObject;
-
-function isEmptyArray(array) {
-  if (!isArray(array)) {
-    return true;
-  }
-
-  return array.length > 0 ? false : true;
-}
-
-exports.isEmptyArray = isEmptyArray;
-
-function isFunction(value) {
-  return Object.prototype.toString.call(value) == '[object Function]';
-}
-
-exports.isFunction = isFunction;
-
-function isElement(value) {
-  return (typeof HTMLElement === "undefined" ? "undefined" : _typeof(HTMLElement)) === 'object' ? value instanceof HTMLElement : //DOM2
-  value && _typeof(value) === "object" && value !== null && value.nodeType === 1 && typeof value.nodeName === "string";
-}
-
-exports.isElement = isElement;
-
-function isWindow(value) {
-  var toString = Object.prototype.toString.call(value);
-  return toString == '[object global]' || toString == '[object Window]' || toString == '[object DOMWindow]';
-}
-
-exports.isWindow = isWindow;
-/**
- * 检查是否是普通空对象
- * @param object obj
- * @return boolean
- */
-
-function isPlainObject(obj) {
-  var hasOwn = Object.prototype.hasOwnProperty; // Must be an Object.
-
-  if (!obj || _typeof(obj) !== 'object' || obj.nodeType || isWindow(obj)) {
-    return false;
-  }
-
-  try {
-    if (obj.constructor && !hasOwn.call(obj, 'constructor') && !hasOwn.call(obj.constructor.prototype, 'isPrototypeOf')) {
-      return false;
-    }
-  } catch (e) {
-    return false;
-  }
-
-  var key;
-
-  for (key in obj) {}
-
-  return key === undefined || hasOwn.call(obj, key);
-}
-
-exports.isPlainObject = isPlainObject;
-/*
- * 检查是否是class 实例对象
-*/
-
-function isClassObject(obj) {
-  return isObject(obj) && !isPlainObject(obj) ? true : false;
-}
-
-exports.isClassObject = isClassObject;
-/*
-  转换工具
- */
-
-function toArray(array) {
-  return Array.prototype.slice.call(array);
-}
-
-exports.toArray = toArray;
-
-function toString(content) {
-  if (!content) {
-    return '';
-  }
-
-  if (typeof content === 'string') {
-    return content;
-  }
-
-  return content.toString();
-}
-
-exports.toString = toString;
-/*
-    辅助存储保存监控数据
-*/
-//sessionStorage
-
-function setSessionStorage(key, value) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  value = JSON.stringify(value);
-  sessionStorage.setItem(key, value);
-}
-
-exports.setSessionStorage = setSessionStorage;
-
-function getSessionStorage(key) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  var value = sessionStorage.getItem(key);
-  return value ? JSON.parse(value) : '';
-}
-
-exports.getSessionStorage = getSessionStorage;
-
-function removeSessionStorage(key) {
-  if (!window.sessionStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  sessionStorage.removeItem(key);
-}
-
-exports.removeSessionStorage = removeSessionStorage; //localStorage
-
-function setStorage(key, value) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  value = JSON.stringify(value);
-  localStorage.setItem(key, value);
-}
-
-exports.setStorage = setStorage;
-
-function getStorage(key) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  var value = localStorage.getItem(key);
-  return value ? JSON.parse(value) : '';
-}
-
-exports.getStorage = getStorage;
-
-function removeStorage(key) {
-  if (!window.localStorage) {
-    return;
-  }
-
-  key = 'keepObserverData_' + key;
-  localStorage.removeItem(key);
-}
-
-exports.removeStorage = removeStorage;
-/*
-    参考Vconsole 生产唯一ID
- */
-
-function getUniqueID() {
-  var id = 'xxxxxxxx-xxx-t-xxx--xxxxxxxx'.replace(/[xyt]/g, function (c) {
-    var r = Math.random() * 16 | 0,
-        t = new Date().getTime(),
-        v = c == 'x' ? r : c == 't' ? t : r & 0x3 | 0x8;
-    return v.toString(16);
-  });
-  return id;
-}
-
-exports.getUniqueID = getUniqueID;
-/*
-    深度合并内容
-    引用类型克隆合并
-    arguments[0] = target
-    arguments type is Object Or Array
-    多内容合并覆盖优先级: arguments[0]<arguments[1]<arguments[2]..
-    如果sources 不是数组或者对象 则直接忽略
- */
-
-function extend() {
-  var arg = [];
-
-  for (var _i = 0; _i < arguments.length; _i++) {
-    arg[_i] = arguments[_i];
-  }
-
-  var args = toArray(arguments);
-
-  if (args.length === 0) {
-    console.error("extends params is undefined");
-    return {};
-  }
-
-  if (args.length === 1) {
-    return args[0];
-  }
-
-  var target = args[0];
-  var sources = args.slice(1, args.length);
-
-  if (!isObject(target) && !isArray(target)) {
-    target = {};
-  }
-
-  sources.map(function (item) {
-    //防止死循环
-    if (target === item) {
-      return false;
-    } //如果内容是对象
-
-
-    if (isObject(item)) {
-      //开始遍历
-      for (var key in item) {
-        //如果内容是对象
-        if (isObject(item[key]) && !isEmptyObject(item[key])) {
-          //修正数据
-          target[key] = target[key] && isObject(target[key]) ? target[key] : {};
-          target[key] = extend(target[key], item[key]);
-        } else if (isArray(item[key]) && !isEmptyArray(item[key])) {
-          //修正数据
-          target[key] = target[key] && isArray(target[key]) ? target[key] : [];
-          target[key] = extend(target[key], item[key]);
-        } else if (isObject(item[key]) && isEmptyObject(item[key])) {
-          target[key] = {};
-        } else if (isArray(item[key]) && isEmptyArray(item[key])) {
-          target[key] = [];
-        } else {
-          //基本类型直接赋值
-          target[key] = item[key];
-        }
-      }
-    } else if (isArray(item)) {
-      for (var i = 0; i < item.length; i++) {
-        //如果内容是对象
-        if (isObject(item[i]) && !isEmptyObject(item[i])) {
-          //修正数据
-          target[i] = target[i] && isObject(target[i]) ? target[i] : {};
-          target[i] = extend(target[i], item[i]);
-        } else if (isArray(item[i]) && !isEmptyArray(item[i])) {
-          //修正数据
-          target[i] = target[i] && isArray(target[i]) ? target[i] : [];
-          target[i] = extend(target[i], item[i]);
-        } else if (isObject(item[i]) && isEmptyObject(item[i])) {
-          target[i] = {};
-        } else if (isArray(item[i]) && isEmptyArray(item[i])) {
-          target[i] = [];
-        } else {
-          //基本类型直接赋值
-          target[i] = item[i];
-        }
-      }
-    } //其他类型直接忽略
-
-  });
-  return target;
-}
-
-exports.extend = extend;
-/*
-    mixin calss method and params
-*/
-
-function mixin(origin, provider) {
-  if (!provider || !isObject(provider) || isEmptyObject(provider)) {
-    console_1.warnError('keepObserver $mixin receive params not right');
-  }
-
-  for (var key in provider) {
-    if (origin[key]) {
-      console_1.warnError('keepObserver $mixin method key: ' + key + ' is exist');
-      continue;
-    } //不允许重写
-
-
-    Object.defineProperty(origin, key, {
-      configurable: false,
-      enumerable: true,
-      value: provider[key]
-    });
-  }
-}
-
-exports.mixin = mixin;
-/**
- * @filter:
- * @param obj { array and object}
- * @param call { array.filter(callback)}
- * @return: new obj
- */
-
-function filter(obj, callback) {
-  if (!isArray(obj) && !isObject(obj) || !isFunction(callback)) {
-    return obj;
-  }
-
-  if (isArray(obj)) {
-    return obj.filter(callback);
-  }
-
-  var newObje = {};
-
-  for (var key in obj) {
-    var value = obj[key];
-
-    if (callback(value, key)) {
-      newObje[key] = value;
-    }
-  }
-
-  return newObje;
-}
-
-exports.filter = filter;
-/**
- * @map:
- * @param obj { array and object}
- * @param call { array.filter(callback)}
- * @return: new obj
- */
-
-function map(obj, callback) {
-  if (!isArray(obj) && !isObject(obj) || !isFunction(callback)) {
-    return obj;
-  }
-
-  if (isArray(obj)) {
-    return obj.map(callback);
-  }
-
-  var newObje = {};
-
-  for (var key in obj) {
-    var value = obj[key];
-    newObje[key] = callback(value, key);
-  }
-
-  return newObje;
-}
-
-exports.map = map;
+module.exports = __WEBPACK_EXTERNAL_MODULE__util_index__;
 
 /***/ })
 
