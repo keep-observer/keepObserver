@@ -12,7 +12,8 @@ ko.use(KeepObserverLog)
 
 
 ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
-    console.log(111111111)
+    debugger
+    console.log(111111111,params)
 })
 
 

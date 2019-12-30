@@ -51,7 +51,11 @@ class KeepObserverPublic {
             const [ scopeName ] = _self._publicMiddleScopeNames
             //  1 -> 2 -> 3 -> 2 -> 1
             this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams,control:pipeOptons)=>{
-                var resultParams  =  next(reportParams,control)
+                var resultParams:any  =  next(reportParams,control)
+                if(!resultParams){
+                    callback(reportParams,control)
+                    return [ reportParams , control ]
+                }
                 //result promise
                 if(resultParams instanceof Promise || (resultParams.then && tool.isFunction(resultParams.then))){
                     return resultParams.then((promiseResult)=>{
@@ -71,6 +75,7 @@ class KeepObserverPublic {
             })
         }
     }
+    //run noticeReort middle
     public noticeReport(reportParams:reportParams,control:pipeOptons) {
         var _self = this;
         devLog(_self._develop,reportParams,control)

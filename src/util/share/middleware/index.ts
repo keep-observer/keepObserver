@@ -24,14 +24,26 @@ class KeepObserverMiddleWare {
     }
 
 
+    //公共方法和部分
     static publicMiddles = {}
     static usePublishMiddles(scopeName:string,middlesFn:middlesFn):any{
         const _staticSelf = this
         if(_staticSelf.publicMiddles[scopeName]){
-            return _staticSelf.publicMiddles[scopeName].push(middlesFn)
+            return _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
         }
         _staticSelf.publicMiddles[scopeName] = []
-        return _staticSelf.publicMiddles[scopeName].push(middlesFn)
+        return _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
+    }
+
+
+    //unshift 从前向后执行 第一个加入的中间件最后一个执行
+    public use(scopeName:string,middlesFn:middlesFn):any{
+        var _self = this
+        if(_self._middles[scopeName]){
+            return _self._middles[scopeName].unshift(middlesFn)
+        }
+        _self._middles[scopeName] = []
+        return _self._middles[scopeName].unshift(middlesFn)
     }
 
 
@@ -40,9 +52,7 @@ class KeepObserverMiddleWare {
         var _self = this
         //获取到公共中间件聚合
         const publicMiddles =  (this.constructor as any).publicMiddles
-        
-
-        if(!_self._middles[scopeName]){
+        if(!_self._middles[scopeName] && !publicMiddles[scopeName]){
             warnError(`${scopeName} middles function is undefined`,this._develop)
             return false
         }
@@ -51,7 +61,9 @@ class KeepObserverMiddleWare {
             return false
         }
         _self._runMiddleBuff[scopeName] = true;
-        const middlesQueue = _self._middles[scopeName]
+        //合并中间件队列
+        const publicMiddleQueue = publicMiddles[scopeName] || []
+        const middlesQueue = publicMiddleQueue.concat( (_self._middles[scopeName]||[]) )
         const len = middlesQueue.length 
         var index = 1;
         // 中断方法，停止执行剩下的中间件,直接返回
@@ -72,15 +84,6 @@ class KeepObserverMiddleWare {
         return exec(interrupt,interrupt)(...args)
     }
 
-    
-    public use(scopeName:string,middlesFn:middlesFn):any{
-        var _self = this
-        if(_self._middles[scopeName]){
-            return _self._middles[scopeName].push(middlesFn)
-        }
-        _self._middles[scopeName] = []
-        return _self._middles[scopeName].push(middlesFn)
-    }
 
 
 }

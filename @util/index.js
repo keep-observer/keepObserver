@@ -376,11 +376,23 @@ function () {
     var _staticSelf = this;
 
     if (_staticSelf.publicMiddles[scopeName]) {
-      return _staticSelf.publicMiddles[scopeName].push(middlesFn);
+      return _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
     }
 
     _staticSelf.publicMiddles[scopeName] = [];
-    return _staticSelf.publicMiddles[scopeName].push(middlesFn);
+    return _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
+  }; //unshift 从前向后执行 第一个加入的中间件最后一个执行
+
+
+  KeepObserverMiddleWare.prototype.use = function (scopeName, middlesFn) {
+    var _self = this;
+
+    if (_self._middles[scopeName]) {
+      return _self._middles[scopeName].unshift(middlesFn);
+    }
+
+    _self._middles[scopeName] = [];
+    return _self._middles[scopeName].unshift(middlesFn);
   };
 
   KeepObserverMiddleWare.prototype.run = function (scopeName) {
@@ -390,12 +402,12 @@ function () {
       args[_i - 1] = arguments[_i];
     }
 
-    var _self = this;
+    var _self = this; //获取到公共中间件聚合
+
 
     var publicMiddles = this.constructor.publicMiddles;
-    debugger;
 
-    if (!_self._middles[scopeName]) {
+    if (!_self._middles[scopeName] && !publicMiddles[scopeName]) {
       console_1.warnError(scopeName + " middles function is undefined", this._develop);
       return false;
     }
@@ -406,7 +418,8 @@ function () {
     }
 
     _self._runMiddleBuff[scopeName] = true;
-    var middlesQueue = _self._middles[scopeName];
+    var publicMiddleQueue = publicMiddles[scopeName] || [];
+    var middlesQueue = publicMiddleQueue.concat(_self._middles[scopeName] || []);
     var len = middlesQueue.length;
     var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
 
@@ -452,18 +465,8 @@ function () {
       };
     });
     return exec(interrupt, interrupt).apply(void 0, __spread(args));
-  };
+  }; //公共方法和部分
 
-  KeepObserverMiddleWare.prototype.use = function (scopeName, middlesFn) {
-    var _self = this;
-
-    if (_self._middles[scopeName]) {
-      return _self._middles[scopeName].push(middlesFn);
-    }
-
-    _self._middles[scopeName] = [];
-    return _self._middles[scopeName].push(middlesFn);
-  };
 
   KeepObserverMiddleWare.publicMiddles = {};
   return KeepObserverMiddleWare;
@@ -591,7 +594,13 @@ function () {
         return function (reportParams, control) {
           var _a;
 
-          var resultParams = next(reportParams, control); //result promise
+          var resultParams = next(reportParams, control);
+
+          if (!resultParams) {
+            callback(reportParams, control);
+            return [reportParams, control];
+          } //result promise
+
 
           if (resultParams instanceof Promise || resultParams.then && tool.isFunction(resultParams.then)) {
             return resultParams.then(function (promiseResult) {
@@ -616,7 +625,8 @@ function () {
         };
       });
     }
-  };
+  }; //run noticeReort middle
+
 
   KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
     var _self = this;
