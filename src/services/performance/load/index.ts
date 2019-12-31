@@ -17,7 +17,6 @@ import {
 class KeepObserverLoad extends KeepObserverPublic {
     private _config:any;
     private _systemInfo:any;
-    private _typeName:string;
     private addReportListener:any; //继承中属性
     //method
     private getSystemInfo = getSystemInfo.bind(this)
@@ -32,13 +31,11 @@ class KeepObserverLoad extends KeepObserverPublic {
     constructor(config={}) {
         super(config)
         const { LoadCustom=false } = config as any
-        var LoadCustomConfig = LoadCustom || {};
+        var LoadCustomConfig = LoadCustom || config;
         //存混合配置
         this._config = tool.extend(defaultConfig, LoadCustomConfig)
         //系统信息
         this._systemInfo = false;
-        //上报名
-        this._typeName = 'Load'
         //开始获取系统信息
         this.getSystemInfo();
     }

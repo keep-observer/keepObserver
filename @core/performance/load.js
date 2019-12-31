@@ -339,7 +339,7 @@ function (_super) {
     _this.handleReportData = report_1.handleReportData.bind(_this);
     var _a = config.LoadCustom,
         LoadCustom = _a === void 0 ? false : _a;
-    var LoadCustomConfig = LoadCustom || {}; //存混合配置
+    var LoadCustomConfig = LoadCustom || config; //存混合配置
 
     _this._config = index_1.tool.extend(defaultConfig_1["default"], LoadCustomConfig); //系统信息
 
@@ -387,13 +387,8 @@ exports.handleReportData = function (content) {
     environment: window.navigator.userAgent,
     reportTime: new Date().getTime()
   };
-  var control = {}; //系统信息和首屏性能立即上报
-
-  control.lazy = false;
-  control.isReport = true;
   return {
-    reportParams: reportParams,
-    control: control
+    reportParams: reportParams
   };
 };
 

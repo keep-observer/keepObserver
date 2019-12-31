@@ -2,13 +2,24 @@ import { consoleTools,tool } from '@util/index'
 import * as networkTool from './tool';
 
 
-const  reportFlag = 'keepObserver-reportAjax'
+
 
 /*
     初始化ajax请求监控
     在这里替换window.XMLHttpRequest变量进行监控
 */
-export var _handleInit = function() {
+export var _init = function() {
+    //拦截Ajax以及fetch
+    this._patchXMLAjax();
+    this._patchFetch()
+}
+
+
+
+/*
+	拦截XML AJax信息
+ */
+export var _patchXMLAjax = function() {
     var _self = this;
     var _XMLHttp = (<any>window).XMLHttpRequest;
     //不支持 ajax 不进行监控
@@ -18,16 +29,6 @@ export var _handleInit = function() {
     _self._open = (<any>window).XMLHttpRequest.prototype.open
     _self._send = (<any>window).XMLHttpRequest.prototype.send
     _self._setRequestHeader = (<any>window).XMLHttpRequest.prototype.setRequestHeader
-        //处理Ajax
-    _self._handleXMLAjax();
-}
-
-
-/*
-	拦截XML AJax信息
- */
-export var _handleXMLAjax = function() {
-    var _self = this;
     //拦截原生open
     (<any>window).XMLHttpRequest.prototype.open = function(method,url) {
         var XML = this;
@@ -150,10 +151,6 @@ export var _handleXMLAjax = function() {
             var value = args[1] ? args[1] : '';
             setHead[key] = value
             XML._setHead[XML._id] = setHead
-            //如果是上报头,标记，则忽略设置
-            if(key === reportFlag){
-                return ;
-            }
         }
         return _self._setRequestHeader.apply(XML, args);
     }
@@ -200,6 +197,17 @@ export var _handleXMLAjax = function() {
 
 
 
+
+/*
+	拦截fetch信息
+ */
+export var _patchFetch = function(){
+
+}
+
+
+
+
 /*
 	处理接口请求超时
  */
@@ -240,11 +248,6 @@ export var _handleTimeout = function(id) {
 export var _handleDoneXML = function(id) {
     var _self = this;
     var ajaxItem = tool.extend({}, _self.networkList[id]);
-    var {
-        onHandleJudgeResponse,
-        onHandleRequestData,
-        onHandleResponseData
-    } = _self._config;
     //空的对象不做处理
     if (tool.isEmptyObject(ajaxItem)) {
         return false;
@@ -255,40 +258,11 @@ export var _handleDoneXML = function(id) {
         _self.networkList[id];
         return false;
     }
-    //如果存在自定义处理 请求data配置
-    if (onHandleRequestData) {
-        try {
-            ajaxItem.handleReqData = onHandleRequestData(ajaxItem)
-        } catch (err) {
-            ajaxItem.handleReqData = 'Custom handleRequestData find error:' + err
-        }
-    }
     //判断状态码是否出错
     var status = ajaxItem.status;
     if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
         ajaxItem.isError = true;
         ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
-    }
-    //如果存在自定义处理 响应data配置
-    if (onHandleResponseData && !ajaxItem.isError) {
-        try {
-            ajaxItem.handleResData = onHandleResponseData(ajaxItem)
-        } catch (err) {
-            ajaxItem.handleResData = 'Custom handleResponseData find error:' + err
-        }
-    }
-    //如果存在自定义处理响应数据是否出错
-    if (onHandleJudgeResponse && !ajaxItem.isError) {
-        try {
-            ajaxItem.isError = onHandleJudgeResponse(ajaxItem);
-            if (ajaxItem.isError) {
-                ajaxItem.errorContent = ajaxItem.isError;
-                ajaxItem.isError = true
-            }
-        } catch (err) {
-            ajaxItem.isError = true
-            ajaxItem.errorContent = 'Custom handleJudgeResponse find error:' + err;
-        }
     }
     //通知上传
     _self.noticeReport(ajaxItem);
@@ -311,7 +285,7 @@ export var _handleJudgeDisbale = function(ajaxInfo) {
         ignoreRequestList
     } = this._config;
     //判断是否是是屏蔽url
-    if (ignoreRequestList && tool.isArray(ignoreRequestList)) {
+    if (ignoreRequestList && !tool.isEmptyArray(ignoreRequestList)) {
         var url = ajaxInfo.url
         var unReport = false;
         ignoreRequestList.forEach(function(item) {
@@ -324,9 +298,7 @@ export var _handleJudgeDisbale = function(ajaxInfo) {
             return false;
         }
     }
-    //判断是否是keepObserver的上报请求
-    if (ajaxInfo.requestHead && ajaxInfo.requestHead[reportFlag]) {
-        return false;
-    }
     return true;
 }
+
+

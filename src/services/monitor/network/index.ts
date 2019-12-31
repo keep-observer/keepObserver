@@ -6,8 +6,8 @@ import {
     startObserver
 } from './api';
 import {
-    _handleInit,
-    _handleXMLAjax,
+    _init,
+    _patchXMLAjax,
     _handleTimeout,
     _handleDoneXML,
     _handleJudgeDisbale
@@ -25,15 +25,17 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private _open: boolean| any;
     private _send: boolean| any;
     private _setRequestHeader: boolean| any;
+    private _fetch: any;
     private timeout: any;
     private timeoutRequest: any;
     private networkList: any;
-    private addReportListener:any; //继承中属性
+    private isCatch: boolean;
+    private addReportListener: any; //继承中属性
     //method
     private stopObserver = stopObserver.bind(this);
     private startObserver = startObserver.bind(this);
-    private _handleInit = _handleInit.bind(this);
-    private _handleXMLAjax = _handleXMLAjax.bind(this);
+    private _init = _init.bind(this);
+    private _patchXMLAjax = _patchXMLAjax.bind(this);
     private _handleTimeout = _handleTimeout.bind(this);
     private _handleDoneXML = _handleDoneXML.bind(this);
     private _handleJudgeDisbale = _handleJudgeDisbale.bind(this);
@@ -44,11 +46,15 @@ class KeepObserverNetwork extends KeepObserverPublic{
     constructor(config={}) {
         super(config)
         //存混合配置
-        const { networkCustom=false } = config as any
-        var networkConfig = networkCustom || {};
+        const { networkCustom=false ,reportCustom=false } = config as any
+        const reportUrl = (reportCustom && reportCustom.reportUrl)? reportCustom.reportUrl:[]
+        var networkConfig = tool.extend({ reportUrl }, networkCustom || config)
         this._config = tool.extend(defaultConfig, networkConfig)
+        this._config.ignoreRequestList = this._config.ignoreRequestList.concat(reportUrl)
         //上报名
         this._typeName = 'network'
+        //是否开启捕获
+        this.isCatch = true
         //监控的数据列表
         this.networkList = {};
         //替换window.XMLHttpRequest变量
@@ -59,7 +65,7 @@ class KeepObserverNetwork extends KeepObserverPublic{
         this.timeout = {};
         this.timeoutRequest = {};
         // 开启网络拦截监控
-        this.startObserver();
+        this._init();
     }
 
 

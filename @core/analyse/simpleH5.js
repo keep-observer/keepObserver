@@ -658,7 +658,7 @@ function (_super) {
 
     var _a = config.simpleH5AnalyseCustom,
         simpleH5AnalyseCustom = _a === void 0 ? false : _a;
-    var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || {};
+    var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || config;
     _this._config = index_1.tool.extend(defaultConfig_1["default"], simpleH5AnalyseCustomConfig); //原生方法
 
     _this._addEventListener = false;
@@ -737,15 +737,10 @@ exports.handleReportData = function (content) {
     location: window.location.href,
     environment: window.navigator.userAgent,
     reportTime: new Date().getTime()
-  };
-  var control = {}; //option
+  }; //option
 
-  control.lazy = false;
-  control.isError = false;
-  control.isReport = true;
   return {
-    reportParams: reportParams,
-    control: control
+    reportParams: reportParams
   };
 };
 

@@ -299,7 +299,7 @@ function (_super) {
         vueCustom = _b === void 0 ? false : _b,
         _c = _a.vueInstance,
         vueInstance = _c === void 0 ? false : _c;
-    var vueConfig = vueCustom || {};
+    var vueConfig = vueCustom || config;
     vueConfig.vueInstance = vueInstance; //判断是否存在实例
 
     if (vueConfig.vueInstance) {
@@ -355,22 +355,11 @@ exports.handleReportData = function (content) {
     data: content,
     location: window.location.href,
     environment: window.navigator.userAgent,
-    reportTime: new Date().getTime()
+    reportTime: new Date().getTime(),
+    isError: true
   };
-  var control = {}; //option
-
-  control.lazy = true;
-
-  if (content.isError) {
-    control.lazy = false;
-    control.baseExtend = true;
-    control.isError = true;
-    control.isReport = true;
-  }
-
   return {
-    reportParams: reportParams,
-    control: control
+    reportParams: reportParams
   };
 };
 

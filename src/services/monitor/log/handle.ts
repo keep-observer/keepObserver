@@ -59,30 +59,6 @@ export var _handleInit = function() {
         _self._handleMessage('clear', args);
         _self.console.clear.apply(window.console, args);
     };
-    //是否需要捕获跨域JS错误
-    if (_self._config.catchCrossDomain && !_self.$createElement) {
-        //侵入document.createElement  实现跨域JS捕获错误信息
-        if (window.document || window.document.createElement) {
-            _self.$createElement = window.document.createElement
-            window.document.createElement = function(type) {
-                var resultDom = _self.$createElement.call(window.document, type)
-                if (type === 'script') {
-                    resultDom.crossOrigin = 'anonymous';
-                }
-                return resultDom
-            }
-        }
-    }
-    //监控window.onerror
-    if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('error', (...args) => {
-            _self._handleError(...args)
-        }, true);
-    } else {
-        (<any>window).attachEvent('onerror', (...args) => {
-            _self._handleError(...args)
-        })
-    }
 }
 
 
@@ -125,60 +101,6 @@ export var _handleMessage = function(type, agrs) {
 }
 
 
-
-
-
-
-
-
-/*
-	监听 window.onerror,并处理错误信息
-	@errorEvent 		:错误信息对象
-	////////  上报error对象 /////////
-	errorObj object = {
-		errMsg: 			错误信息
-		url:                错误文件
-		line:         		错误所在行
-		colum:              错误所在列
-	}
- */
-export var _handleError = function(errorEvent) {
-    var _self = this;
-    var errorObj:any = {};
-    var url = errorEvent.filename || errorEvent.url || false
-    //可能是跨域资源JS出现错误 这获取不到详细信息
-    if ( (!errorEvent.message || errorEvent.message === 'Script error.') && !url) {
-        //有可能是资源加载错误被捕获
-        if(errorEvent.target && !tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src){
-            errorObj.errMsg = 'loadError! web request Resource loading error' ;
-            errorObj.nodeName = errorEvent.target.nodeName 
-            errorObj.url = errorEvent.target.src;
-            setTimeout(function() {
-                _self._handleMessage('loadError', [errorObj])
-            })
-            return false;
-        }
-        //未知错误是否捕获
-        if (!_self._config.unknowErrorCatch) return false;
-        errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
-        errorObj.url = '';
-        errorObj.line = 0;
-        errorObj.colum = 0;
-        setTimeout(function() {
-            _self._handleMessage('jsError', [errorObj])
-        })
-        return false;
-    }
-    //处理错误信息
-    errorObj.errMsg = errorEvent.message || 'Error detail info not obtained'
-    errorObj.url = url;
-    errorObj.line = errorEvent.lineno || 'Error row not obtained'
-    errorObj.colum = errorEvent.colno || 'Error column not obtained'
-    setTimeout(function() {
-        _self._handleMessage('jsError', [errorObj])
-    })
-    return true;
-}
 
 
 

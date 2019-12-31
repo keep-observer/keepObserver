@@ -10,7 +10,6 @@ import {
 import {
     _handleInit,
     _handleMessage,
-    _handleError,
 } from './handle'
 import {
     handleReportData,
@@ -23,14 +22,12 @@ class KeepObserverLog extends KeepObserverPublic{
     private _config: any;
     private _typeName :string;
     private console: any;
-    private $createElement : any|boolean;
-    private addReportListener:any; //继承中属性
+    private addReportListener:any;  //继承中属性
     //method
     private stopObserver = stopObserver.bind(this)
     private startObserver = startObserver.bind(this)
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)
-    private _handleError = _handleError.bind(this)
     private handleReportData = handleReportData.bind(this)
 
 
@@ -40,17 +37,15 @@ class KeepObserverLog extends KeepObserverPublic{
         super(config)
         //初始化上传相关实例
         const { logCustom=false,develop=false } = config as any
-        var logConfig:any = logCustom || {};
+        var logConfig:any = logCustom || config;
         //是否是开发模式
-        logConfig.develop = develop ? true : false;
+        logConfig.develop = develop
         //存混合配置
         this._config = tool.extend(defaultConfig, logConfig)
         //上报名
         this._typeName = 'log'
         //替换window.console
         this.console = {};
-        //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
-        this.$createElement = false;
         //启动监控
         this.startObserver();
     }

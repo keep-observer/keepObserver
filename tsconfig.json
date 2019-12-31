@@ -5,7 +5,7 @@
 		"declaration": true,
 		"jsx": "react",
 		"noImplicitAny": false,
-		"outDir": "./dist",
+		"outDir": "./types",
 		"noImplicitThis": false,
 		"downlevelIteration": true,
 		"types": [
@@ -24,7 +24,7 @@
 	},
 	"include": [
 		"./src/**/*",
-		"./dist"
+		"./types"
 	],
 	"exclude": [
 		"./node_modules",

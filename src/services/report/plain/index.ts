@@ -26,14 +26,7 @@ import {
 } from './response'
 
 
-const kpConfigs = {
-    reportCustom:false,
-    develop:false,
-    test:false,
-    developGetMsgLog:false,
-    develogDiscardLog:false,
-    develogDeleteLog:false 
-}
+
 
 // report Server 
 class KeepObserverReport  extends KeepObserverPublic  {
@@ -43,9 +36,6 @@ class KeepObserverReport  extends KeepObserverPublic  {
     private _projectVersion: string;
     private reportData: any;
     private develop: boolean;
-    private developGetMsgLog: boolean;
-    private develogDeleteLog: boolean;
-    private develogDiscardLog: boolean;
     private addReportListener:any; //继承中属性
     //method
     private $setCustomeReportData = $setCustomeReportData.bind(this);
@@ -75,19 +65,13 @@ class KeepObserverReport  extends KeepObserverPublic  {
 
 
     //constructor
-    constructor(config = kpConfigs){
+    constructor(config = {}){
         super(config)
-        const { reportCustom,develop,developGetMsgLog,develogDiscardLog,develogDeleteLog } = config as any
+        const { reportCustom=false,develop=false } = config as any
         //存混合配置
         var reportConfig:any = reportCustom || {};
         //是否是开发模式
-        reportConfig.develop = develop ? true : false;
-        //开发环境下获取报文是否打印
-        reportConfig.developGetMsgLog = developGetMsgLog ? true : false;
-        //开发环境下丢弃数据 是否打印出来
-        reportConfig.develogDiscardLog = develogDiscardLog ? true : false;
-        //开发环境下删除出数据 是否打印出来
-        reportConfig.develogDeleteLog = develogDeleteLog ? true : false;
+        reportConfig.develop = develop
         //混合默认配置
         this._config = tool.extend(defaultConfig, reportConfig);
         //监听事件
@@ -101,9 +85,6 @@ class KeepObserverReport  extends KeepObserverPublic  {
         this._projectVersion = this._config.projectVersion || 'unknow-version'
         //当前是否处于开发模式
         this.develop = this._config.develop;
-        this.developGetMsgLog = this._config.developGetMsgLog;
-        this.develogDeleteLog = this._config.develogDeleteLog;
-        this.develogDiscardLog = this._config.develogDiscardLog;
         //初始化
         this._init();
     }

@@ -67,7 +67,7 @@ class KeepObserverSimpleH5Analyse extends KeepObserverPublic{
         super(config)
         //初始化上传相关实例
         const { simpleH5AnalyseCustom=false } = config as any
-        var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || {};
+        var simpleH5AnalyseCustomConfig = simpleH5AnalyseCustom || config;
         this._config = tool.extend(defaultConfig, simpleH5AnalyseCustomConfig)
         //原生方法
         this._addEventListener = false;

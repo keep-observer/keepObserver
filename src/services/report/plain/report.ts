@@ -174,20 +174,6 @@ export var _createReportData = function(params, control) {
     if (_self._customeInfo) {
         reportData.customeInfo = tool.extend({}, _self._customeInfo);
     }
-    //处理上报数据是否合并上报
-    if (control.trackExtend) {
-        reportData.preTrackData = {}
-        for (var key in _self.reportData) {
-            var value = _self.reportData[key];
-            if (tool.isArray(value) && value.length > 0) {
-                reportData.preTrackData[key] = tool.extend({}, value);
-                //删除相关数据
-                _self._removeReportData(key)
-            }
-        }
-        //修正数据
-        reportData.preTrackData = tool.isEmptyObject(reportData.preTrackData) ? null : reportData.preTrackData
-    }
     //开发模式下打印上报数据
     if (_self.develop) {
         var log = tool.extend({}, reportData)

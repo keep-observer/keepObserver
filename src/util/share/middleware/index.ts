@@ -81,7 +81,13 @@ class KeepObserverMiddleWare {
             return next(...params)
         }  
         const exec = middlesQueue.reduce((a , b)=>(...params)=>a(interrupt,runNext(b(...params))))
-        return exec(interrupt,interrupt)(...args)
+        var result = null
+        try{
+            result = exec(interrupt,interrupt)(...args)
+        }catch(err){
+            warnError(`${scopeName} middles exec is error:`+tool.toString(err),_self._develop)
+        }
+        return result
     }
 
 

@@ -1,15 +1,14 @@
 import { consoleTools,tool } from '@util/index'
 
-import { pipeMsg, pipeOptons } from '../../types/pipe'
+import { catchParams } from '../../types/pipe'
 
 
 //发送消息在管道内流通
-export var sendPipeMessage = function(pipeIndex:number, msg:pipeMsg, options:pipeOptons) {
+export var sendPipeMessage = function(pipeIndex:number, params:catchParams,) {
     var _self = this;
     var msgItem = {
         pipeIndex: pipeIndex,
-        msg: msg,
-        options: options,
+        params: params,
     };
     //是否消息队列加锁,并且防止异常消息
     if (_self.isLock() || _self.preventStackError(msgItem)) {
@@ -48,8 +47,7 @@ export var noticeListener = function(queue) {
     for (var i = 0; i < queue.length; i++) {
         var {
             pipeIndex,
-            msg,
-            options
+            params,
         } = queue[i];
         //消息分发
         _self.pipeUser.map(function(item, index) {
@@ -67,7 +65,7 @@ export var noticeListener = function(queue) {
                 //消息队列加锁
                 _self.openLock();
                 //执行分发
-                var result = receiveCallback(msg, options);
+                var result = receiveCallback(params);
                 //消息队列解锁
                 //如果返回值是promise或者存在then将解锁放入回调
                 if (result &&

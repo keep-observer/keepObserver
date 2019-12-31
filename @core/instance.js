@@ -989,13 +989,12 @@ Object.defineProperty(exports, "__esModule", {
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //发送消息在管道内流通
 
 
-exports.sendPipeMessage = function (pipeIndex, msg, options) {
+exports.sendPipeMessage = function (pipeIndex, params) {
   var _self = this;
 
   var msgItem = {
     pipeIndex: pipeIndex,
-    msg: msg,
-    options: options
+    params: params
   }; //是否消息队列加锁,并且防止异常消息
 
   if (_self.isLock() || _self.preventStackError(msgItem)) {
@@ -1035,8 +1034,7 @@ exports.noticeListener = function (queue) {
   for (var i = 0; i < queue.length; i++) {
     var _a = queue[i],
         pipeIndex = _a.pipeIndex,
-        msg = _a.msg,
-        options = _a.options; //消息分发
+        params = _a.params; //消息分发
 
     _self.pipeUser.map(function (item, index) {
       //判断是否是正确注册接收函数
@@ -1056,7 +1054,7 @@ exports.noticeListener = function (queue) {
         _self.openLock(); //执行分发
 
 
-        var result = receiveCallback(msg, options); //消息队列解锁
+        var result = receiveCallback(params); //消息队列解锁
         //如果返回值是promise或者存在then将解锁放入回调
 
         if (result && index_1.tool.isObject(result) && (result instanceof Promise || result.then && index_1.tool.isFunction(result.then))) {

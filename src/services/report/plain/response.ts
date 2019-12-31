@@ -1,7 +1,5 @@
 import { consoleTools,tool } from '@util/index'
-import {
-    pipeOptons
-} from '../../../types/pipe'
+
 import {
     reportParams
 } from '../../../types/report'
@@ -22,11 +20,9 @@ export var handleReportDataResponse = function(type,content,url) {
         environment : window.navigator.userAgent,
         reportTime : new Date().getTime(),
     };
-    var control:pipeOptons = {};
     //option
     return {
         reportParams: reportParams,
-        control: control
     }
 }
 

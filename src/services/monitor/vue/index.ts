@@ -35,7 +35,7 @@ class KeepObserverVue  extends KeepObserverPublic{
         super(config)
         //初始化上传相关实例
         const { vueCustom=false ,vueInstance=false } = config as any
-        var vueConfig:any = vueCustom || {};
+        var vueConfig:any = vueCustom || config;
         vueConfig.vueInstance = vueInstance;
         //判断是否存在实例
         if (vueConfig.vueInstance) {

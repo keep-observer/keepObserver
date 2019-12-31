@@ -108,11 +108,6 @@ exports.stopObserver = function () {
   window.console.timeEnd = this.console.timeEnd;
   window.console.clear = this.console.clear;
   this.console = {};
-
-  if (this._config.catchCrossDomain) {
-    window.document.createElement = this.$createElement;
-    this.$createElement = false;
-  }
 };
 /*
     开始监听
@@ -147,12 +142,7 @@ exports.startObserver = function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = {
-  //是否捕获跨域JS错误
-  catchCrossDomain: true,
-  //未知错误是否捕获
-  unknowErrorCatch: false
-};
+exports["default"] = {};
 
 /***/ }),
 
@@ -288,48 +278,7 @@ exports._handleInit = function () {
     _self._handleMessage('clear', args);
 
     _self.console.clear.apply(window.console, args);
-  }; //是否需要捕获跨域JS错误
-
-
-  if (_self._config.catchCrossDomain && !_self.$createElement) {
-    //侵入document.createElement  实现跨域JS捕获错误信息
-    if (window.document || window.document.createElement) {
-      _self.$createElement = window.document.createElement;
-
-      window.document.createElement = function (type) {
-        var resultDom = _self.$createElement.call(window.document, type);
-
-        if (type === 'script') {
-          resultDom.crossOrigin = 'anonymous';
-        }
-
-        return resultDom;
-      };
-    }
-  } //监控window.onerror
-
-
-  if (typeof window.addEventListener != 'undefined') {
-    window.addEventListener('error', function () {
-      var args = [];
-
-      for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-      }
-
-      _self._handleError.apply(_self, __spread(args));
-    }, true);
-  } else {
-    window.attachEvent('onerror', function () {
-      var args = [];
-
-      for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-      }
-
-      _self._handleError.apply(_self, __spread(args));
-    });
-  }
+  };
 };
 /*
     处理打印信息
@@ -371,59 +320,6 @@ exports._handleMessage = function (type, agrs) {
 
 
   _self.noticeReport(reportParams, control);
-};
-/*
-    监听 window.onerror,并处理错误信息
-    @errorEvent 		:错误信息对象
-    ////////  上报error对象 /////////
-    errorObj object = {
-        errMsg: 			错误信息
-        url:                错误文件
-        line:         		错误所在行
-        colum:              错误所在列
-    }
- */
-
-
-exports._handleError = function (errorEvent) {
-  var _self = this;
-
-  var errorObj = {};
-  var url = errorEvent.filename || errorEvent.url || false; //可能是跨域资源JS出现错误 这获取不到详细信息
-
-  if ((!errorEvent.message || errorEvent.message === 'Script error.') && !url) {
-    //有可能是资源加载错误被捕获
-    if (errorEvent.target && !index_1.tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src) {
-      errorObj.errMsg = 'loadError! web request Resource loading error';
-      errorObj.nodeName = errorEvent.target.nodeName;
-      errorObj.url = errorEvent.target.src;
-      setTimeout(function () {
-        _self._handleMessage('loadError', [errorObj]);
-      });
-      return false;
-    } //未知错误是否捕获
-
-
-    if (!_self._config.unknowErrorCatch) return false;
-    errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
-    errorObj.url = '';
-    errorObj.line = 0;
-    errorObj.colum = 0;
-    setTimeout(function () {
-      _self._handleMessage('jsError', [errorObj]);
-    });
-    return false;
-  } //处理错误信息
-
-
-  errorObj.errMsg = errorEvent.message || 'Error detail info not obtained';
-  errorObj.url = url;
-  errorObj.line = errorEvent.lineno || 'Error row not obtained';
-  errorObj.colum = errorEvent.colno || 'Error column not obtained';
-  setTimeout(function () {
-    _self._handleMessage('jsError', [errorObj]);
-  });
-  return true;
 };
 
 /***/ }),
@@ -503,7 +399,6 @@ function (_super) {
     _this.startObserver = api_1.startObserver.bind(_this);
     _this._handleInit = handle_1._handleInit.bind(_this);
     _this._handleMessage = handle_1._handleMessage.bind(_this);
-    _this._handleError = handle_1._handleError.bind(_this);
     _this.handleReportData = report_1.handleReportData.bind(_this); //初始化上传相关实例
 
     var _a = config,
@@ -511,17 +406,15 @@ function (_super) {
         logCustom = _b === void 0 ? false : _b,
         _c = _a.develop,
         develop = _c === void 0 ? false : _c;
-    var logConfig = logCustom || {}; //是否是开发模式
+    var logConfig = logCustom || config; //是否是开发模式
 
-    logConfig.develop = develop ? true : false; //存混合配置
+    logConfig.develop = develop; //存混合配置
 
     _this._config = index_1.tool.extend(defaultConfig_1["default"], logConfig); //上报名
 
     _this._typeName = 'log'; //替换window.console
 
-    _this.console = {}; //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
-
-    _this.$createElement = false; //启动监控
+    _this.console = {}; //启动监控
 
     _this.startObserver();
 
@@ -567,26 +460,8 @@ exports.handleReportData = function (content) {
     environment: window.navigator.userAgent,
     reportTime: new Date().getTime()
   };
-  var control = {}; //option
-
-  control.lazy = true; //如果是clear,清除之前的console.log相关信息
-
-  if (content.type === 'clear') {
-    control.preDelete = true;
-    control.ignore = true;
-  } //如果是JS运行报错,或者打印错误error合并上报所有内容
-
-
-  if (content.type === 'jsError' || content.type === 'error') {
-    control.lazy = false;
-    control.trackExtend = true;
-    control.isError = true;
-    control.isReport = true;
-  }
-
   return {
-    reportParams: reportParams,
-    control: control
+    reportParams: reportParams
   };
 };
 

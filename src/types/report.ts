@@ -11,9 +11,8 @@ export type reportParams = {
     deviceID?: string;
     projectVersion?: string;
     customeInfo?: any;
-    preTrackData?: any;
     //标识项
-    isMonitorError?: boolean;
+    isError?: boolean;
     isPerformance?: boolean;
     isAnalyse?: boolean;
 

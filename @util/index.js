@@ -352,9 +352,19 @@ var __spread = this && this.__spread || function () {
   return ar;
 };
 
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result["default"] = mod;
+  return result;
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
 
 var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
 
@@ -417,7 +427,8 @@ function () {
       return false;
     }
 
-    _self._runMiddleBuff[scopeName] = true;
+    _self._runMiddleBuff[scopeName] = true; //合并中间件队列
+
     var publicMiddleQueue = publicMiddles[scopeName] || [];
     var middlesQueue = publicMiddleQueue.concat(_self._middles[scopeName] || []);
     var len = middlesQueue.length;
@@ -464,7 +475,15 @@ function () {
         return a(interrupt, runNext(b.apply(void 0, __spread(params))));
       };
     });
-    return exec(interrupt, interrupt).apply(void 0, __spread(args));
+    var result = null;
+
+    try {
+      result = exec(interrupt, interrupt).apply(void 0, __spread(args));
+    } catch (err) {
+      console_1.warnError(scopeName + " middles exec is error:" + tool.toString(err), _self._develop);
+    }
+
+    return result;
   }; //公共方法和部分
 
 
@@ -517,14 +536,6 @@ var __spread = this && this.__spread || function () {
   return ar;
 };
 
-var __importStar = this && this.__importStar || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-  result["default"] = mod;
-  return result;
-};
-
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
@@ -534,8 +545,6 @@ var __importDefault = this && this.__importDefault || function (mod) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
 
 var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
 
@@ -563,7 +572,9 @@ function () {
   KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
     var _self = this;
 
-    return _self._middleWareInstance.use(scopeName, middlesFn);
+    _self._middleWareInstance.use(scopeName, middlesFn);
+
+    return _self;
   }; //执行中间件逻辑
 
 
@@ -578,7 +589,9 @@ function () {
 
     var _self = this;
 
-    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
+    (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
+
+    return _self;
   }; //兼容老版本做保留,内部使用中间件替换
 
 
@@ -591,52 +604,24 @@ function () {
 
 
       this.useMiddle(scopeName, function (interrupt, next) {
-        return function (reportParams, control) {
-          var _a;
-
-          var resultParams = next(reportParams, control);
-
-          if (!resultParams) {
-            callback(reportParams, control);
-            return [reportParams, control];
-          } //result promise
-
-
-          if (resultParams instanceof Promise || resultParams.then && tool.isFunction(resultParams.then)) {
-            return resultParams.then(function (promiseResult) {
-              var _a;
-
-              if (!tool.isEmptyArray(promiseResult) && promiseResult.length === 2) {
-                _a = __read(promiseResult, 2), reportParams = _a[0], control = _a[1];
-              }
-
-              callback(reportParams, control);
-              return [reportParams, control];
-            });
-          } //noPromise
-
-
-          if (!tool.isEmptyArray(resultParams) && resultParams.length === 2) {
-            _a = __read(resultParams, 2), reportParams = _a[0], control = _a[1];
-          }
-
-          callback(reportParams, control);
-          return [reportParams, control];
+        return function (reportParams) {
+          console_1.devLog(_self._develop, reportParams);
+          next(reportParams);
+          return callback(reportParams);
         };
       });
     }
   }; //run noticeReort middle
 
 
-  KeepObserverPublic.prototype.noticeReport = function (reportParams, control) {
-    var _self = this;
+  KeepObserverPublic.prototype.noticeReport = function (reportParams) {
+    var _self = this; //执行中间件
 
-    console_1.devLog(_self._develop, reportParams, control); //执行中间件
 
     var _a = __read(_self._publicMiddleScopeNames, 1),
         scopeName = _a[0];
 
-    this.runMiddle(scopeName, reportParams, control);
+    this.runMiddle(scopeName, reportParams);
   };
 
   return KeepObserverPublic;

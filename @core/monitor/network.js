@@ -95,23 +95,26 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 /*
-    停止监听
+    停止捕获
 */
 
 exports.stopObserver = function () {
-  window.XMLHttpRequest.prototype.open = this._open(window).XMLHttpRequest.prototype.send = this._send(window).XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader;
-  this._open = null;
-  this._send = null;
-  this.__setRequestHeader = null;
+  //这种方式会和angular 6的zone 等polyfills.js产生冲突
+  // (<any>window).XMLHttpRequest.prototype.open = this._open
+  // (<any>window).XMLHttpRequest.prototype.send = this._send
+  // (<any>window).XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader
+  // this._open = null;
+  // this._send = null
+  // this.__setRequestHeader = null;
+  this.isCatch = false;
 };
 /*
-    开始监听
+    开始捕获
  */
 
 
 exports.startObserver = function () {
-  //开启网络拦截监控
-  this._handleInit();
+  this.isCatch = true;
 };
 
 /***/ }),
@@ -137,13 +140,9 @@ exports["default"] = {
   //默认超时时间 20S;
   timeout: 20000,
   //屏蔽URL
-  ignoreRequestList: false,
-  //自定义判断接口返回是否正确
-  onHandleJudgeResponse: false,
-  //自定义处理响应数据 
-  onHandleResponseData: false,
-  //自定义处理请求数据
-  onHandleRequestData: false
+  ignoreRequestList: [],
+  //是否捕获响应内容
+  isCatchResponseContent: true
 };
 
 /***/ }),
@@ -175,14 +174,24 @@ Object.defineProperty(exports, "__esModule", {
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var networkTool = __importStar(__webpack_require__(/*! ./tool */ "./src/services/monitor/network/tool.ts"));
-
-var reportFlag = 'keepObserver-reportAjax';
 /*
     初始化ajax请求监控
     在这里替换window.XMLHttpRequest变量进行监控
 */
 
-exports._handleInit = function () {
+
+exports._init = function () {
+  //拦截Ajax以及fetch
+  this._patchXMLAjax();
+
+  this._patchFetch();
+};
+/*
+    拦截XML AJax信息
+ */
+
+
+exports._patchXMLAjax = function () {
   var _self = this;
 
   var _XMLHttp = window.XMLHttpRequest; //不支持 ajax 不进行监控
@@ -193,20 +202,8 @@ exports._handleInit = function () {
 
   _self._open = window.XMLHttpRequest.prototype.open;
   _self._send = window.XMLHttpRequest.prototype.send;
-  _self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader; //处理Ajax
 
-  _self._handleXMLAjax();
-};
-/*
-    拦截XML AJax信息
- */
-
-
-exports._handleXMLAjax = function () {
-  var _self = this; //拦截原生open
-
-
-  window.XMLHttpRequest.prototype.open = function (method, url) {
+  _self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader(window).XMLHttpRequest.prototype.open = function (method, url) {
     var XML = this;
     var args = index_1.tool.toArray(arguments); //定时器
 
@@ -332,11 +329,7 @@ exports._handleXMLAjax = function () {
       var key = args[0] ? args[0] : 'unkownRequestHead';
       var value = args[1] ? args[1] : '';
       setHead[key] = value;
-      XML._setHead[XML._id] = setHead; //如果是上报头,标记，则忽略设置
-
-      if (key === reportFlag) {
-        return;
-      }
+      XML._setHead[XML._id] = setHead;
     }
 
     return _self._setRequestHeader.apply(XML, args);
@@ -387,6 +380,12 @@ exports._handleXMLAjax = function () {
   };
 };
 /*
+    拦截fetch信息
+ */
+
+
+exports._patchFetch = function () {};
+/*
     处理接口请求超时
  */
 
@@ -430,11 +429,7 @@ exports._handleTimeout = function (id) {
 exports._handleDoneXML = function (id) {
   var _self = this;
 
-  var ajaxItem = index_1.tool.extend({}, _self.networkList[id]);
-  var _a = _self._config,
-      onHandleJudgeResponse = _a.onHandleJudgeResponse,
-      onHandleRequestData = _a.onHandleRequestData,
-      onHandleResponseData = _a.onHandleResponseData; //空的对象不做处理
+  var ajaxItem = index_1.tool.extend({}, _self.networkList[id]); //空的对象不做处理
 
   if (index_1.tool.isEmptyObject(ajaxItem)) {
     return false;
@@ -446,15 +441,6 @@ exports._handleDoneXML = function (id) {
   if (!_self._handleJudgeDisbale(ajaxItem)) {
     _self.networkList[id];
     return false;
-  } //如果存在自定义处理 请求data配置
-
-
-  if (onHandleRequestData) {
-    try {
-      ajaxItem.handleReqData = onHandleRequestData(ajaxItem);
-    } catch (err) {
-      ajaxItem.handleReqData = 'Custom handleRequestData find error:' + err;
-    }
   } //判断状态码是否出错
 
 
@@ -463,30 +449,6 @@ exports._handleDoneXML = function (id) {
   if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
     ajaxItem.isError = true;
     ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
-  } //如果存在自定义处理 响应data配置
-
-
-  if (onHandleResponseData && !ajaxItem.isError) {
-    try {
-      ajaxItem.handleResData = onHandleResponseData(ajaxItem);
-    } catch (err) {
-      ajaxItem.handleResData = 'Custom handleResponseData find error:' + err;
-    }
-  } //如果存在自定义处理响应数据是否出错
-
-
-  if (onHandleJudgeResponse && !ajaxItem.isError) {
-    try {
-      ajaxItem.isError = onHandleJudgeResponse(ajaxItem);
-
-      if (ajaxItem.isError) {
-        ajaxItem.errorContent = ajaxItem.isError;
-        ajaxItem.isError = true;
-      }
-    } catch (err) {
-      ajaxItem.isError = true;
-      ajaxItem.errorContent = 'Custom handleJudgeResponse find error:' + err;
-    }
   } //通知上传
 
 
@@ -508,7 +470,7 @@ exports._handleDoneXML = function (id) {
 exports._handleJudgeDisbale = function (ajaxInfo) {
   var ignoreRequestList = this._config.ignoreRequestList; //判断是否是是屏蔽url
 
-  if (ignoreRequestList && index_1.tool.isArray(ignoreRequestList)) {
+  if (ignoreRequestList && !index_1.tool.isEmptyArray(ignoreRequestList)) {
     var url = ajaxInfo.url;
     var unReport = false;
     ignoreRequestList.forEach(function (item) {
@@ -521,11 +483,6 @@ exports._handleJudgeDisbale = function (ajaxInfo) {
     if (unReport) {
       return false;
     }
-  } //判断是否是keepObserver的上报请求
-
-
-  if (ajaxInfo.requestHead && ajaxInfo.requestHead[reportFlag]) {
-    return false;
   }
 
   return true;
@@ -606,19 +563,28 @@ function (_super) {
 
     _this.stopObserver = api_1.stopObserver.bind(_this);
     _this.startObserver = api_1.startObserver.bind(_this);
-    _this._handleInit = handle_1._handleInit.bind(_this);
-    _this._handleXMLAjax = handle_1._handleXMLAjax.bind(_this);
+    _this._init = handle_1._init.bind(_this);
+    _this._patchXMLAjax = handle_1._patchXMLAjax.bind(_this);
     _this._handleTimeout = handle_1._handleTimeout.bind(_this);
     _this._handleDoneXML = handle_1._handleDoneXML.bind(_this);
     _this._handleJudgeDisbale = handle_1._handleJudgeDisbale.bind(_this);
     _this.handleReportData = report_1.handleReportData.bind(_this); //存混合配置
 
-    var _a = config.networkCustom,
-        networkCustom = _a === void 0 ? false : _a;
-    var networkConfig = networkCustom || {};
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], networkConfig); //上报名
+    var _a = config,
+        _b = _a.networkCustom,
+        networkCustom = _b === void 0 ? false : _b,
+        _c = _a.reportCustom,
+        reportCustom = _c === void 0 ? false : _c;
+    var reportUrl = reportCustom && reportCustom.reportUrl ? reportCustom.reportUrl : [];
+    var networkConfig = index_1.tool.extend({
+      reportUrl: reportUrl
+    }, networkCustom || config);
+    _this._config = index_1.tool.extend(defaultConfig_1["default"], networkConfig);
+    _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //上报名
 
-    _this._typeName = 'network'; //监控的数据列表
+    _this._typeName = 'network'; //是否开启捕获
+
+    _this.isCatch = true; //监控的数据列表
 
     _this.networkList = {}; //替换window.XMLHttpRequest变量
 
@@ -629,7 +595,7 @@ function (_super) {
     _this.timeout = {};
     _this.timeoutRequest = {}; // 开启网络拦截监控
 
-    _this.startObserver();
+    _this._init();
 
     return _this;
   } //提供一个挂载入口
@@ -671,24 +637,11 @@ exports.handleReportData = function (content) {
     data: content,
     location: window.location.href,
     environment: window.navigator.userAgent,
-    reportTime: new Date().getTime()
+    reportTime: new Date().getTime(),
+    isError: content.isTimeout || content.isError ? true : false
   };
-  var control = {}; //option
-
-  control.lazy = true; //是否请求出错
-
-  if (content.isError) {
-    control = {};
-    control.lazy = false;
-    control.isReport = true; //是否是超时请求,超时请求不合并上报
-
-    control.trackExtend = content.isTimeout ? false : true;
-    control.isError = content.isTimeout ? false : true;
-  }
-
   return {
-    reportParams: reportParams,
-    control: control
+    reportParams: reportParams
   };
 };
 

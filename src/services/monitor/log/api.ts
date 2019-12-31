@@ -11,10 +11,6 @@ export var stopObserver = function() {
     window.console.timeEnd = this.console.timeEnd
     window.console.clear = this.console.clear
     this.console = {};
-    if (this._config.catchCrossDomain) {
-        window.document.createElement = this.$createElement
-        this.$createElement = false;
-    }
 }
 
 

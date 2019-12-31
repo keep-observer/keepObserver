@@ -2,9 +2,7 @@ import * as tool from '../../../util/tool';
 import { warnError,devLog } from '../../../util/console'
 import  KeepObserverMiddleWare  from '../middleware/index'
 
-import {
-    pipeOptons
-} from '../../../types/pipe'
+
 import {
     reportParams
 } from '../../../types/report'
@@ -34,12 +32,14 @@ class KeepObserverPublic {
     //注册中间件逻辑
     public useMiddle(scopeName:string,middlesFn:middlesFn):any{
         var _self = this;
-        return _self._middleWareInstance.use(scopeName,middlesFn)
+        _self._middleWareInstance.use(scopeName,middlesFn)
+        return _self
     }
     //执行中间件逻辑
     public runMiddle(scopeName:string,...args:any[]):any{
         var _self = this;
-        return _self._middleWareInstance.run(scopeName,...args)
+        _self._middleWareInstance.run(scopeName,...args)
+        return _self
     }
 
     
@@ -50,38 +50,19 @@ class KeepObserverPublic {
         if (callback) {
             const [ scopeName ] = _self._publicMiddleScopeNames
             //  1 -> 2 -> 3 -> 2 -> 1
-            this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams,control:pipeOptons)=>{
-                var resultParams:any  =  next(reportParams,control)
-                if(!resultParams){
-                    callback(reportParams,control)
-                    return [ reportParams , control ]
-                }
-                //result promise
-                if(resultParams instanceof Promise || (resultParams.then && tool.isFunction(resultParams.then))){
-                    return resultParams.then((promiseResult)=>{
-                        if(!tool.isEmptyArray(promiseResult) && promiseResult.length === 2){
-                            [ reportParams , control ] = promiseResult
-                        }
-                        callback(reportParams,control)
-                        return [ reportParams , control ]
-                    })
-                }
-                //noPromise
-                if(!tool.isEmptyArray(resultParams) && resultParams.length === 2){
-                    [ reportParams , control ] = resultParams
-                }
-                callback(reportParams,control)
-                return [ reportParams , control ]
+            this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
+                devLog(_self._develop,reportParams)
+                next(reportParams)
+                return callback(reportParams)
             })
         }
     }
     //run noticeReort middle
-    public noticeReport(reportParams:reportParams,control:pipeOptons) {
+    public noticeReport(reportParams:reportParams) {
         var _self = this;
-        devLog(_self._develop,reportParams,control)
         //执行中间件
         const [ scopeName ] = _self._publicMiddleScopeNames
-        this.runMiddle(scopeName,reportParams,control)
+        this.runMiddle(scopeName,reportParams)
     }
 
 
