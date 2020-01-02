@@ -1,6 +1,8 @@
 import defaultConfig from './defaultConfig';
 import { KeepObserverPublic,tool } from '@util/index'
 
+import { networkListType } from '../../../types/network'
+
 import { 
     stopObserver,
     startObserver
@@ -8,6 +10,7 @@ import {
 import {
     _init,
     _patchXMLAjax,
+    _patchFetch,
     _handleTimeout,
     _handleDoneXML,
     _handleJudgeDisbale
@@ -21,14 +24,13 @@ import {
 // 获取系统信息
 class KeepObserverNetwork extends KeepObserverPublic{
     private _config: any;
-    private _typeName: string;
     private _open: boolean| any;
     private _send: boolean| any;
     private _setRequestHeader: boolean| any;
     private _fetch: any;
     private timeout: any;
     private timeoutRequest: any;
-    private networkList: any;
+    private networkList: networkListType;
     private isCatch: boolean;
     private addReportListener: any; //继承中属性
     //method
@@ -36,6 +38,7 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private startObserver = startObserver.bind(this);
     private _init = _init.bind(this);
     private _patchXMLAjax = _patchXMLAjax.bind(this);
+    private _patchFetch = _patchFetch.bind(this);
     private _handleTimeout = _handleTimeout.bind(this);
     private _handleDoneXML = _handleDoneXML.bind(this);
     private _handleJudgeDisbale = _handleJudgeDisbale.bind(this);
@@ -51,16 +54,10 @@ class KeepObserverNetwork extends KeepObserverPublic{
         var networkConfig = tool.extend({ reportUrl }, networkCustom || config)
         this._config = tool.extend(defaultConfig, networkConfig)
         this._config.ignoreRequestList = this._config.ignoreRequestList.concat(reportUrl)
-        //上报名
-        this._typeName = 'network'
         //是否开启捕获
         this.isCatch = true
         //监控的数据列表
         this.networkList = {};
-        //替换window.XMLHttpRequest变量
-        this._open = false;
-        this._send = false;
-        this._setRequestHeader = false;
         //辅助捕获超时
         this.timeout = {};
         this.timeoutRequest = {};

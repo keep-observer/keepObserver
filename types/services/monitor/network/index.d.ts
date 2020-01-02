@@ -1,7 +1,6 @@
 import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverNetwork extends KeepObserverPublic {
     private _config;
-    private _typeName;
     private _open;
     private _send;
     private _setRequestHeader;
@@ -15,6 +14,7 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private startObserver;
     private _init;
     private _patchXMLAjax;
+    private _patchFetch;
     private _handleTimeout;
     private _handleDoneXML;
     private _handleJudgeDisbale;

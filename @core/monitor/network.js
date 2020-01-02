@@ -194,6 +194,7 @@ exports._init = function () {
 exports._patchXMLAjax = function () {
   var _self = this;
 
+  var isCatchResponseContent = _self._config.isCatchResponseContent;
   var _XMLHttp = window.XMLHttpRequest; //不支持 ajax 不进行监控
 
   if (!_XMLHttp) {
@@ -202,8 +203,9 @@ exports._patchXMLAjax = function () {
 
   _self._open = window.XMLHttpRequest.prototype.open;
   _self._send = window.XMLHttpRequest.prototype.send;
+  _self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader; //拦截原生open
 
-  _self._setRequestHeader = window.XMLHttpRequest.prototype.setRequestHeader(window).XMLHttpRequest.prototype.open = function (method, url) {
+  window.XMLHttpRequest.prototype.open = function (method, url) {
     var XML = this;
     var args = index_1.tool.toArray(arguments); //定时器
 
@@ -288,7 +290,7 @@ exports._patchXMLAjax = function () {
 
         clearInterval(timer);
         item.endTime = +new Date(), item.costTime = item.endTime - (item.startTime || item.endTime) + 'ms';
-        item.response = XML.response; //请求结束完成
+        item.response = isCatchResponseContent ? XML.response : 'no-catch-responseContent'; //请求结束完成
 
         setTimeout(function () {
           //是否是超时接口 超时的接口不做处理
@@ -320,7 +322,10 @@ exports._patchXMLAjax = function () {
       }
     }, 10);
     return _self._open.apply(XML, args);
-  }(window).XMLHttpRequest.prototype.setRequestHeader = function (header) {
+  }; //拦截原始设置请求头
+
+
+  window.XMLHttpRequest.prototype.setRequestHeader = function (header) {
     var XML = this;
     var args = index_1.tool.toArray(arguments);
 
@@ -333,7 +338,10 @@ exports._patchXMLAjax = function () {
     }
 
     return _self._setRequestHeader.apply(XML, args);
-  }(window).XMLHttpRequest.prototype.send = function () {
+  }; //拦截原生send
+
+
+  window.XMLHttpRequest.prototype.send = function () {
     var XML = this;
     var id = XML._id;
 
@@ -347,8 +355,10 @@ exports._patchXMLAjax = function () {
 
     if (!_self.networkList[id]) {
       _self.networkList[id] = {};
-    } //保存请求方法
+    } //type ajax
 
+
+    _self.networkList[id].type = 'ajax'; //保存请求方法
 
     _self.networkList[id].method = method;
 
@@ -384,7 +394,130 @@ exports._patchXMLAjax = function () {
  */
 
 
-exports._patchFetch = function () {};
+exports._patchFetch = function () {
+  if (!window.fetch) {
+    return false;
+  }
+
+  var _self = this;
+
+  var isCatchResponseContent = _self._config.isCatchResponseContent;
+  _self._fetch = window.fetch; //https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/fetch#%E5%8F%82%E6%95%B0
+
+  window.fetch = function (input, init) {
+    if (init === void 0) {
+      init = undefined;
+    }
+
+    var fetchSelf = this;
+    var args = arguments;
+    var id = index_1.tool.getUniqueID();
+
+    if (!_self.networkList[id]) {
+      _self.networkList[id] = {};
+    }
+
+    var _a = networkTool.handleReqUrl(input.toString()),
+        url = _a.url,
+        params = _a.params; //处理请求url和params
+
+
+    _self.networkList[id].type = 'fetch';
+    _self.networkList[id].url = url;
+    _self.networkList[id].params = params;
+
+    if (init && !index_1.tool.isEmptyObject(init)) {
+      _self.networkList[id].method = init.method ? init.method : 'get';
+      _self.networkList[id].data = init.body ? init.body : '';
+      _self.networkList[id].requestHead = init.headers ? init.headers : undefined;
+    } else {
+      _self.networkList[id].method = 'get';
+      _self.networkList[id].data = '';
+      _self.networkList[id].requestHead = undefined;
+    }
+
+    return new Promise(function (resolve, reject) {
+      var promise;
+      var startTime = new Date().getTime();
+
+      var handleResponse = function handleResponse(response, content) {
+        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].response = isCatchResponseContent ? content : 'no-catch-responseContent';
+        _self.networkList[id].status = response.status;
+        var headers = index_1.tool.toArray(response.headers.keys());
+
+        if (!index_1.tool.isEmptyArray(headers)) {
+          _self.networkList[id].responseHead = {};
+          headers.forEach(function (key) {
+            _self.networkList[id].responseHead[key] = response.headers.get(key);
+          });
+        } else {
+          _self.networkList[id].responseHead = undefined;
+        }
+
+        _self.networkList[id].responseType = response.type;
+        setTimeout(function () {
+          //是否是超时接口 超时的接口不做处理
+          if (!_self.timeoutRequest[id]) {
+            _self._handleDoneXML(id);
+          }
+        });
+      };
+
+      try {
+        _self.networkList[id].startTime = startTime; //开启定时器 判断接口是否超时
+
+        _self._handleTimeout(id);
+
+        promise = _self._fetch.apply(fetchSelf, args);
+      } catch (error) {
+        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].response = 'fetch error:' + error;
+        _self.networkList[id].status = 0;
+        _self.networkList[id].responseHead = '';
+        _self.networkList[id].responseType = 'error';
+        setTimeout(function () {
+          _self._handleDoneXML(id);
+        });
+        reject(error);
+        return;
+      }
+
+      promise.then(function (response) {
+        resolve(response.clone()); //结束超时捕获
+
+        _self._handleTimeout(id); //stream only
+
+
+        if (response.ok) {
+          response.text().then(function (content) {
+            handleResponse(response, content);
+          }, function (err) {
+            handleResponse(response, 'fetch response.text() error:' + err);
+          });
+        } else {
+          handleResponse(response, 'fetch error:' + response.statusText);
+        }
+      }, function (error) {
+        //结束超时捕获
+        _self._handleTimeout(id);
+
+        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].response = 'fetch error:' + error;
+        _self.networkList[id].status = 0;
+        _self.networkList[id].responseHead = '';
+        _self.networkList[id].responseType = 'error';
+        setTimeout(function () {
+          //是否是超时接口 超时的接口不做处理
+          if (!_self.timeoutRequest[id]) {
+            _self._handleDoneXML(id);
+          }
+        });
+        reject(error);
+      });
+    });
+  };
+};
 /*
     处理接口请求超时
  */
@@ -565,6 +698,7 @@ function (_super) {
     _this.startObserver = api_1.startObserver.bind(_this);
     _this._init = handle_1._init.bind(_this);
     _this._patchXMLAjax = handle_1._patchXMLAjax.bind(_this);
+    _this._patchFetch = handle_1._patchFetch.bind(_this);
     _this._handleTimeout = handle_1._handleTimeout.bind(_this);
     _this._handleDoneXML = handle_1._handleDoneXML.bind(_this);
     _this._handleJudgeDisbale = handle_1._handleJudgeDisbale.bind(_this);
@@ -580,17 +714,11 @@ function (_super) {
       reportUrl: reportUrl
     }, networkCustom || config);
     _this._config = index_1.tool.extend(defaultConfig_1["default"], networkConfig);
-    _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //上报名
-
-    _this._typeName = 'network'; //是否开启捕获
+    _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //是否开启捕获
 
     _this.isCatch = true; //监控的数据列表
 
-    _this.networkList = {}; //替换window.XMLHttpRequest变量
-
-    _this._open = false;
-    _this._send = false;
-    _this._setRequestHeader = false; //辅助捕获超时
+    _this.networkList = {}; //辅助捕获超时
 
     _this.timeout = {};
     _this.timeoutRequest = {}; // 开启网络拦截监控

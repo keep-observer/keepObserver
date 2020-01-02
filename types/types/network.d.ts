@@ -16,3 +16,18 @@ export declare type networkType = {
     isError?: boolean;
     errorContent?: any;
 };
+export interface networkRecordType {
+    type: 'ajax' | 'fetch';
+    url: string;
+    method: string;
+    data: any;
+    requestHead: any;
+    status?: number;
+    response: string;
+    startTime: number;
+    costTime: number;
+    endTime: number;
+}
+export declare type networkListType = {
+    [propName: string]: networkRecordType;
+};

@@ -429,9 +429,7 @@ function (_super) {
 
     errorConfig.develop = develop; //存混合配置
 
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], errorConfig); //上报名
-
-    _this._typeName = 'error'; //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
+    _this._config = index_1.tool.extend(defaultConfig_1["default"], errorConfig); //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
 
     _this.$createElement = false; //启动监控
 

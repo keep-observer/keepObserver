@@ -20,7 +20,6 @@ import {
 // 获取系统信息
 class KeepObserverLog extends KeepObserverPublic{
     private _config: any;
-    private _typeName :string;
     private console: any;
     private addReportListener:any;  //继承中属性
     //method
@@ -42,8 +41,6 @@ class KeepObserverLog extends KeepObserverPublic{
         logConfig.develop = develop
         //存混合配置
         this._config = tool.extend(defaultConfig, logConfig)
-        //上报名
-        this._typeName = 'log'
         //替换window.console
         this.console = {};
         //启动监控

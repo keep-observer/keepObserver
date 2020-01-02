@@ -2,7 +2,6 @@ import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverLoad extends KeepObserverPublic {
     private _config;
     private _systemInfo;
-    private _typeName;
     private addReportListener;
     private getSystemInfo;
     private getWebPerformance;

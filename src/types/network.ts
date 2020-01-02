@@ -19,3 +19,19 @@ export type networkType = {
 }
 
 
+export interface networkRecordType {
+    type: 'ajax'|'fetch',
+    url: string,
+    method: string,
+    data: any,
+    requestHead: any 
+    status?: number,
+    response: string,
+    startTime: number,
+    costTime: number,
+    endTime: number,
+}
+
+export type networkListType = {
+    [propName: string]:networkRecordType
+}

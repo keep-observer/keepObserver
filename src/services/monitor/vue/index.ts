@@ -18,7 +18,6 @@ import {
 // 获取系统信息
 class KeepObserverVue  extends KeepObserverPublic{
     private  _config: any;
-    private _typeName: string;
     private  _vue: any;
     private _originErrorHandle: any;
     private addReportListener:any; //继承中属性
@@ -43,8 +42,6 @@ class KeepObserverVue  extends KeepObserverPublic{
         }
         //存混合配置
         this._config = tool.extend({}, vueConfig)
-        //上报名
-        this._typeName = 'vue'
         //vue实例
         this._vue = this._config.vueInstance;
         // 开启vue拦截

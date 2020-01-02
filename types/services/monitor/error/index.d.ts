@@ -1,7 +1,6 @@
 import { KeepObserverPublic } from '@util/index';
 declare class KeepObserverError extends KeepObserverPublic {
     private _config;
-    private _typeName;
     private console;
     private $createElement;
     private addReportListener;

@@ -410,9 +410,7 @@ function (_super) {
 
     logConfig.develop = develop; //存混合配置
 
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], logConfig); //上报名
-
-    _this._typeName = 'log'; //替换window.console
+    _this._config = index_1.tool.extend(defaultConfig_1["default"], logConfig); //替换window.console
 
     _this.console = {}; //启动监控
 

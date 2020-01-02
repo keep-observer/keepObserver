@@ -20,7 +20,6 @@ import {
 // 获取系统信息
 class KeepObserverError extends KeepObserverPublic{
     private _config: any;
-    private _typeName :string;
     private console: any;
     private $createElement : any|boolean;
     private addReportListener:any; //继承中属性
@@ -44,8 +43,6 @@ class KeepObserverError extends KeepObserverPublic{
         errorConfig.develop = develop
         //存混合配置
         this._config = tool.extend(defaultConfig, errorConfig)
-        //上报名
-        this._typeName = 'error'
         //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
         this.$createElement = false;
         //启动监控

@@ -307,9 +307,7 @@ function (_super) {
     } //存混合配置
 
 
-    _this._config = index_1.tool.extend({}, vueConfig); //上报名
-
-    _this._typeName = 'vue'; //vue实例
+    _this._config = index_1.tool.extend({}, vueConfig); //vue实例
 
     _this._vue = _this._config.vueInstance; // 开启vue拦截
 

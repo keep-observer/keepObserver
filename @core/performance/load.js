@@ -343,9 +343,7 @@ function (_super) {
 
     _this._config = index_1.tool.extend(defaultConfig_1["default"], LoadCustomConfig); //系统信息
 
-    _this._systemInfo = false; //上报名
-
-    _this._typeName = 'Load'; //开始获取系统信息
+    _this._systemInfo = false; //开始获取系统信息
 
     _this.getSystemInfo();
 

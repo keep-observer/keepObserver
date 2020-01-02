@@ -21,10 +21,9 @@ ko.use(KeepObserverError)
 //中间件劫持   ko的中间件将在插件之前执行， 实例的中间件是全部插件共享的
 ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
     debugger
-    const [ reportParams,control ] = params
-    control.isError = false
+    const [ reportParams ] = params
     reportParams.test = 'aaaaaa'
-    next(reportParams,control)
+    next(reportParams)
 })
 
 
