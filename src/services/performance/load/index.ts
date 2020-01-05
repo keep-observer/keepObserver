@@ -7,9 +7,6 @@ import {
     checkIsOneDay,
     recordReport,
 } from './handle'
-import {
-    handleReportData,
-} from './report';
 
 
 
@@ -23,15 +20,16 @@ class KeepObserverLoad extends KeepObserverPublic {
     private getWebPerformance = getWebPerformance.bind(this)
     private checkIsOneDay = checkIsOneDay.bind(this)
     private recordReport = recordReport.bind(this)
-    private handleReportData = handleReportData.bind(this);
 
 
 
     //构造函数
     constructor(config={}) {
         super(config)
-        const { LoadCustom=false } = config as any
+        const { LoadCustom=false,develop=false  } = config as any
         var LoadCustomConfig = LoadCustom || config;
+        //是否是开发模式
+        LoadCustomConfig.develop = develop
         //存混合配置
         this._config = tool.extend(defaultConfig, LoadCustomConfig)
         //系统信息
@@ -50,3 +48,4 @@ class KeepObserverLoad extends KeepObserverPublic {
 
 
 export default KeepObserverLoad
+

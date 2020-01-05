@@ -132,9 +132,10 @@ var saveFlag = 'loadRecordReportDate'; //获取系统信息
 exports.getSystemInfo = function () {
   var _self = this;
 
+  var develop = _self._config.develop;
   var oneDayFlag = this.checkIsOneDay(); //判断是否每天最多获取上传一次
 
-  if (this._config.isOneDay && oneDayFlag) {
+  if (!develop && _self._config.isOneDay && oneDayFlag) {
     return false;
   } //开始获取系统信息
 
@@ -143,7 +144,12 @@ exports.getSystemInfo = function () {
     _self.getWebPerformance(function (Result) {
       _self._systemInfo = Result; //上报
 
-      _self.noticeReport(_self._systemInfo); //记录
+      _self.noticeReport({
+        type: "performance",
+        typeName: 'load',
+        data: _self._systemInfo,
+        isPerformance: true
+      }); //记录
 
 
       _self.recordReport();
@@ -313,9 +319,7 @@ var defaultConfig_1 = __importDefault(__webpack_require__(/*! ./defaultConfig */
 
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/performance/load/handle.ts");
-
-var report_1 = __webpack_require__(/*! ./report */ "./src/services/performance/load/report.ts"); // 获取系统信息
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/performance/load/handle.ts"); // 获取系统信息
 
 
 var KeepObserverLoad =
@@ -336,10 +340,14 @@ function (_super) {
     _this.getWebPerformance = handle_1.getWebPerformance.bind(_this);
     _this.checkIsOneDay = handle_1.checkIsOneDay.bind(_this);
     _this.recordReport = handle_1.recordReport.bind(_this);
-    _this.handleReportData = report_1.handleReportData.bind(_this);
-    var _a = config.LoadCustom,
-        LoadCustom = _a === void 0 ? false : _a;
-    var LoadCustomConfig = LoadCustom || config; //存混合配置
+    var _a = config,
+        _b = _a.LoadCustom,
+        LoadCustom = _b === void 0 ? false : _b,
+        _c = _a.develop,
+        develop = _c === void 0 ? false : _c;
+    var LoadCustomConfig = LoadCustom || config; //是否是开发模式
+
+    LoadCustomConfig.develop = develop; //存混合配置
 
     _this._config = index_1.tool.extend(defaultConfig_1["default"], LoadCustomConfig); //系统信息
 
@@ -359,36 +367,6 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverLoad;
-
-/***/ }),
-
-/***/ "./src/services/performance/load/report.ts":
-/*!*************************************************!*\
-  !*** ./src/services/performance/load/report.ts ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //处理整理数据
-
-exports.handleReportData = function (content) {
-  var reportParams = {
-    type: "performance",
-    typeName: 'load',
-    data: content,
-    location: window.location.href,
-    environment: window.navigator.userAgent,
-    reportTime: new Date().getTime()
-  };
-  return {
-    reportParams: reportParams
-  };
-};
 
 /***/ }),
 

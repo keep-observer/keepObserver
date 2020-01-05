@@ -403,7 +403,8 @@ function () {
 
     _self._middles[scopeName] = [];
     return _self._middles[scopeName].unshift(middlesFn);
-  };
+  }; //中间件异步执行
+
 
   KeepObserverMiddleWare.prototype.run = function (scopeName) {
     var args = [];
@@ -419,12 +420,12 @@ function () {
 
     if (!_self._middles[scopeName] && !publicMiddles[scopeName]) {
       console_1.warnError(scopeName + " middles function is undefined", this._develop);
-      return false;
+      return Promise.reject(scopeName + " middles function is undefined");
     }
 
     if (_self._runMiddleBuff[scopeName]) {
       console_1.devWarn(this._develop, scopeName + " middles is run");
-      return false;
+      return Promise.reject(scopeName + " middles is run");
     }
 
     _self._runMiddleBuff[scopeName] = true; //合并中间件队列
@@ -432,58 +433,58 @@ function () {
     var publicMiddleQueue = publicMiddles[scopeName] || [];
     var middlesQueue = publicMiddleQueue.concat(_self._middles[scopeName] || []);
     var len = middlesQueue.length;
-    var index = 1; // 中断方法，停止执行剩下的中间件,直接返回
+    var index = 1;
+    return new Promise(function (resolve, reject) {
+      // 中断方法，停止执行剩下的中间件,直接返回
+      var interrupt = function () {
+        var result = [];
 
-    var interrupt = function () {
-      var result = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+          result[_i] = arguments[_i];
+        }
 
-      for (var _i = 0; _i < arguments.length; _i++) {
-        result[_i] = arguments[_i];
+        index = len;
+        _self._runMiddleBuff[scopeName] = false;
+        return resolve(result);
+      }; //向下执行中间件
+
+
+      var runNext = function (next) {
+        return function () {
+          var params = [];
+
+          for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+          }
+
+          if (index === len) {
+            return params;
+          }
+
+          index++;
+          return next.apply(void 0, __spread(params));
+        };
+      };
+
+      var exec = middlesQueue.reduce(function (a, b) {
+        return function () {
+          var params = [];
+
+          for (var _i = 0; _i < arguments.length; _i++) {
+            params[_i] = arguments[_i];
+          }
+
+          return a(interrupt, runNext(b.apply(void 0, __spread(params))));
+        };
+      });
+
+      try {
+        exec(interrupt, interrupt).apply(void 0, __spread(args));
+      } catch (err) {
+        console_1.warnError(scopeName + " middles exec is error:" + tool.toString(err), _self._develop);
+        reject(scopeName + " middles exec is error:" + tool.toString(err));
       }
-
-      index = len;
-      _self._runMiddleBuff[scopeName] = false;
-      return result;
-    }; //向下执行中间件
-
-
-    var runNext = function (next) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        if (index === len) {
-          return params;
-        }
-
-        index++;
-        return next.apply(void 0, __spread(params));
-      };
-    };
-
-    var exec = middlesQueue.reduce(function (a, b) {
-      return function () {
-        var params = [];
-
-        for (var _i = 0; _i < arguments.length; _i++) {
-          params[_i] = arguments[_i];
-        }
-
-        return a(interrupt, runNext(b.apply(void 0, __spread(params))));
-      };
     });
-    var result = null;
-
-    try {
-      result = exec(interrupt, interrupt).apply(void 0, __spread(args));
-    } catch (err) {
-      console_1.warnError(scopeName + " middles exec is error:" + tool.toString(err), _self._develop);
-    }
-
-    return result;
   }; //公共方法和部分
 
 
@@ -504,6 +505,20 @@ exports.default = KeepObserverMiddleWare;
 
 "use strict";
 
+
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
 
 var __read = this && this.__read || function (o, n) {
   var m = typeof Symbol === "function" && o[Symbol.iterator];
@@ -566,7 +581,14 @@ function () {
     this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
 
     this._middleWareInstance = new index_1.default(config);
-  } //注册中间件逻辑
+  }
+
+  KeepObserverPublic.extendReport = function (params) {
+    var newParams = __assign({}, this.extendReportParams, params);
+
+    this.extendReportParams = newParams;
+    return newParams;
+  }; //注册中间件逻辑
 
 
   KeepObserverPublic.prototype.useMiddle = function (scopeName, middlesFn) {
@@ -611,19 +633,41 @@ function () {
         };
       });
     }
+  }; //整理上报数据
+
+
+  KeepObserverPublic.prototype.handleReportData = function (params) {
+    var defaultParams = {
+      data: undefined,
+      type: 'undefined',
+      typeName: 'undefined'
+    }; //获取到公共中间件聚合
+
+    var extendParams = this.constructor.extendReportParams;
+
+    var reportParams = __assign({}, defaultParams, {
+      location: window.location.href,
+      environment: window.navigator.userAgent,
+      reportTime: new Date().getTime()
+    }, params, extendParams);
+
+    return reportParams;
   }; //run noticeReort middle
 
 
-  KeepObserverPublic.prototype.noticeReport = function (reportParams) {
+  KeepObserverPublic.prototype.noticeReport = function (catchParams) {
     var _self = this; //执行中间件
 
 
     var _a = __read(_self._publicMiddleScopeNames, 1),
         scopeName = _a[0];
 
+    var reportParams = _self.handleReportData(catchParams);
+
     this.runMiddle(scopeName, reportParams);
   };
 
+  KeepObserverPublic.extendReportParams = {};
   return KeepObserverPublic;
 }();
 

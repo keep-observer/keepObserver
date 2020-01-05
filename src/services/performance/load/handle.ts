@@ -5,10 +5,11 @@ const saveFlag = 'loadRecordReportDate'
 
 //获取系统信息
 export var getSystemInfo = function() {
-    var _self = this;
-    var oneDayFlag = this.checkIsOneDay()
-        //判断是否每天最多获取上传一次
-    if (this._config.isOneDay && oneDayFlag) {
+    const _self = this;
+    const { develop } = _self._config
+    const oneDayFlag = this.checkIsOneDay()
+    //判断是否每天最多获取上传一次
+    if ( !develop && _self._config.isOneDay && oneDayFlag ) {
         return false;
     }
     //开始获取系统信息
@@ -16,7 +17,12 @@ export var getSystemInfo = function() {
         _self.getWebPerformance(function(Result) {
             _self._systemInfo = Result
             //上报
-            _self.noticeReport(_self._systemInfo);
+            _self.noticeReport({
+                type : "performance",
+                typeName : 'load',
+                data:_self._systemInfo,
+                isPerformance:true
+            })
             //记录
             _self.recordReport();
         })

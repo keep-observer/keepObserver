@@ -18,7 +18,6 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private _handleTimeout;
     private _handleDoneXML;
     private _handleJudgeDisbale;
-    private handleReportData;
     constructor(config?: {});
     apply(pipe: any): {
         $networkStop: any;

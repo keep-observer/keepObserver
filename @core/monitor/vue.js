@@ -216,11 +216,15 @@ exports._handleVueError = function (err, vm, info) {
     errInfo.stackMsg = index_1.tool.toString(err.stack);
   } else {
     errInfo.errMsg = index_1.tool.toString(err);
-  }
+  } //上报
 
-  errInfo.isError = true; //上报
 
-  _self.noticeReport(errInfo);
+  _self.noticeReport({
+    type: "monitor",
+    typeName: 'vue',
+    data: errInfo,
+    isError: true
+  });
 };
 
 /***/ }),
@@ -269,9 +273,7 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/monitor/vue/api.ts");
 
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/vue/handle.ts");
-
-var report_1 = __webpack_require__(/*! ./report */ "./src/services/monitor/vue/report.ts"); // 获取系统信息
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/vue/handle.ts"); // 获取系统信息
 
 
 var KeepObserverVue =
@@ -291,18 +293,17 @@ function (_super) {
     _this.stopObserver = api_1.stopObserver.bind(_this);
     _this.startObserver = api_1.startObserver.bind(_this);
     _this._handleInit = handle_1._handleInit.bind(_this);
-    _this._handleVueError = handle_1._handleVueError.bind(_this);
-    _this.handleReportData = report_1.handleReportData.bind(_this); //初始化上传相关实例
+    _this._handleVueError = handle_1._handleVueError.bind(_this); //初始化上传相关实例
 
     var _a = config,
         _b = _a.vueCustom,
         vueCustom = _b === void 0 ? false : _b,
-        _c = _a.vueInstance,
-        vueInstance = _c === void 0 ? false : _c;
+        _c = _a.Vue,
+        Vue = _c === void 0 ? false : _c;
     var vueConfig = vueCustom || config;
-    vueConfig.vueInstance = vueInstance; //判断是否存在实例
+    vueConfig.vueInstance = Vue; //判断是否存在实例
 
-    if (vueConfig.vueInstance) {
+    if (!vueConfig.vueInstance) {
       return _this;
     } //存混合配置
 
@@ -329,37 +330,6 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverVue;
-
-/***/ }),
-
-/***/ "./src/services/monitor/vue/report.ts":
-/*!********************************************!*\
-  !*** ./src/services/monitor/vue/report.ts ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //处理整理数据
-
-exports.handleReportData = function (content) {
-  var reportParams = {
-    type: "monitor",
-    typeName: 'vue',
-    data: content,
-    location: window.location.href,
-    environment: window.navigator.userAgent,
-    reportTime: new Date().getTime(),
-    isError: true
-  };
-  return {
-    reportParams: reportParams
-  };
-};
 
 /***/ }),
 

@@ -9,6 +9,6 @@ declare class KeepObserverMiddleWare {
     static publicMiddles: {};
     static usePublishMiddles(scopeName: string, middlesFn: middlesFn): any;
     use(scopeName: string, middlesFn: middlesFn): any;
-    run(scopeName: string, ...args: any[]): any;
+    run(scopeName: string, ...args: any[]): Promise<{}>;
 }
 export default KeepObserverMiddleWare;

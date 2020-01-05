@@ -1,14 +1,19 @@
+export declare type userInfo = {
+    id: string;
+    email?: string;
+    name?: string;
+};
 export declare type reportParams = {
     type: string;
     typeName: string;
+    data: any;
     location: string;
     reportTime: number;
     environment: string;
-    data: any;
-    project?: string;
-    deviceID?: string;
+    projectName?: string;
     projectVersion?: string;
-    customeInfo?: any;
+    version?: string;
+    userInfo?: userInfo;
     isError?: boolean;
     isPerformance?: boolean;
     isAnalyse?: boolean;

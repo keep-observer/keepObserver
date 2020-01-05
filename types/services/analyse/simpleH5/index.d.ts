@@ -13,7 +13,6 @@ declare class KeepObserverSimpleH5Analyse extends KeepObserverPublic {
     private stopAnalyse;
     private startAnalyse;
     private clearSaveRecive;
-    private handleReportData;
     private registerAnalyseDomEvent;
     private _handleEventTarget;
     private _recoverEventTarget;

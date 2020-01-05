@@ -15,9 +15,7 @@ import {
     _handleDoneXML,
     _handleJudgeDisbale
 } from './handle';
-import {
-    handleReportData,
-} from './report';
+
 
 
 
@@ -42,7 +40,6 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private _handleTimeout = _handleTimeout.bind(this);
     private _handleDoneXML = _handleDoneXML.bind(this);
     private _handleJudgeDisbale = _handleJudgeDisbale.bind(this);
-    private handleReportData = handleReportData.bind(this);
 
 
     //构造函数

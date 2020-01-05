@@ -2,7 +2,9 @@ import * as tool from '../../../util/tool';
 import { warnError,devLog } from '../../../util/console'
 import  KeepObserverMiddleWare  from '../middleware/index'
 
-
+import {
+    catchParams
+} from '../../../types/pipe'
 import {
     reportParams
 } from '../../../types/report'
@@ -14,7 +16,7 @@ import {
 
 class KeepObserverPublic {
     private _middleWareInstance: KeepObserverMiddleWare;
-    public _publicMiddleScopeNames: string[];
+    private _publicMiddleScopeNames: string[];
     public _develop :boolean;
 
 
@@ -26,6 +28,16 @@ class KeepObserverPublic {
         this._publicMiddleScopeNames = [ 'noticeReport' ];
         //注册中间件实例
         this._middleWareInstance = new KeepObserverMiddleWare(config)
+    }
+
+    static extendReportParams = {};
+    static extendReport(params:any){
+        const newParams = {
+            ...this.extendReportParams,
+            ...params
+        }
+        this.extendReportParams = newParams
+        return newParams
     }
     
 
@@ -57,11 +69,31 @@ class KeepObserverPublic {
             })
         }
     }
+    //整理上报数据
+    public handleReportData(params:catchParams){
+        const defaultParams = { 
+            data:undefined,
+            type:'undefined',
+            typeName:'undefined'
+        }
+        //获取到公共中间件聚合
+        const extendParams =  (this.constructor as any).extendReportParams
+        var reportParams:reportParams = {
+            ...defaultParams,
+            location : window.location.href,
+            environment : window.navigator.userAgent,
+            reportTime : new Date().getTime(),
+            ...params,
+            ...extendParams
+        };
+        return reportParams
+    }
     //run noticeReort middle
-    public noticeReport(reportParams:reportParams) {
+    public noticeReport(catchParams:catchParams) {
         var _self = this;
         //执行中间件
         const [ scopeName ] = _self._publicMiddleScopeNames
+        const reportParams = _self.handleReportData(catchParams)
         this.runMiddle(scopeName,reportParams)
     }
 

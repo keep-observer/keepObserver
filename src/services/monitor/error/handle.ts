@@ -69,9 +69,13 @@ export var _handleMessage = function(type, agrs) {
         }
     })
     reportData.data = data
-    const { reportParams,control } = _self.handleReportData(reportData)
     //上报
-    _self.noticeReport(reportParams,control)
+    _self.noticeReport({
+        type : "monitor",
+        typeName : 'error',
+        data:reportData,
+        isError: true
+    })
 }
 
 

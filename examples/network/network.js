@@ -6,7 +6,8 @@ import KeepObserverNetwork from '../../@core/monitor/network'
 
 const tesrRequest = 'http://localhost:9003/report'
 const testTimeout = 'http://localhost:9003/timeout'
-
+const test404 = 'http://localhost:9003/404'
+const test500 = 'http://localhost:9003/500'
 
 debugger;
 //实例
@@ -46,6 +47,19 @@ axios.get(tesrRequest).then(res=>{
     console.log('ajax timeout reject',err)
 })
 
+axios.get(test404).then((res)=>{
+    console.log('ajax 404 resolve',res)
+},(err)=>{
+    console.log('ajax 404 reject',err)
+})
+
+
+axios.get(test500).then((res)=>{
+    console.log('ajax 500 resolve',res)
+},(err)=>{
+    console.log('ajax 500 reject',err)
+})
+
 
 
 
@@ -55,11 +69,19 @@ fetch(tesrRequest).then(  function(response) {
     }
     return fetch(testTimeout)
 }).then((res)=>{
-    debugger;
     if(res.ok){
         res.text().then((text)=>console.log('fetch timeout resolve', text),err=>console.log('fetch timeout reject', err))
     }
 },(err)=>{
     console.log('fetch timeout reject',err)
 })
-
+fetch(test404).then((res)=>{
+    console.log('fetch 404 resolve',res)
+},(err)=>{
+    console.log('fetch 404 reject',err)
+})
+fetch(test500).then((res)=>{
+    console.log('fetch 500 resolve',res)
+},(err)=>{
+    console.log('fetch 500 reject',err)
+})

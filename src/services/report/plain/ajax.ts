@@ -47,7 +47,6 @@ var AjaxServer = function(config) {
             customeHead,
         } = config;
         var resHead = {};
-        var synchroTime = false;
         //judge data
         if (!url || !data) {
             rej('report data fail, report url and report data is exist undefined!')

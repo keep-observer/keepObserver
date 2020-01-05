@@ -29,6 +29,14 @@ const networkServer = function(){
             return res.send('timeout')
         },40000)
     })
+
+    app.get('/404', (req, res) => {
+        res.status(404).send('');
+    })
+
+    app.get('/500', (req, res) => {
+        res.status(500).send('');
+    })
     
     app.listen(9003, () => console.log('network serive is http://localhost:9003'))
 }

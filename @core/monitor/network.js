@@ -585,7 +585,12 @@ exports._handleDoneXML = function (id) {
   } //通知上传
 
 
-  _self.noticeReport(ajaxItem); //上报后删除记录
+  _self.noticeReport({
+    type: "monitor",
+    typeName: 'network',
+    data: ajaxItem,
+    isError: ajaxItem.isTimeout || ajaxItem.isError ? true : false
+  }); //上报后删除记录
 
 
   delete _self.networkList[id];
@@ -675,9 +680,7 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/monitor/network/api.ts");
 
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/network/handle.ts");
-
-var report_1 = __webpack_require__(/*! ./report */ "./src/services/monitor/network/report.ts"); // 获取系统信息
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/network/handle.ts"); // 获取系统信息
 
 
 var KeepObserverNetwork =
@@ -701,8 +704,7 @@ function (_super) {
     _this._patchFetch = handle_1._patchFetch.bind(_this);
     _this._handleTimeout = handle_1._handleTimeout.bind(_this);
     _this._handleDoneXML = handle_1._handleDoneXML.bind(_this);
-    _this._handleJudgeDisbale = handle_1._handleJudgeDisbale.bind(_this);
-    _this.handleReportData = report_1.handleReportData.bind(_this); //存混合配置
+    _this._handleJudgeDisbale = handle_1._handleJudgeDisbale.bind(_this); //存混合配置
 
     var _a = config,
         _b = _a.networkCustom,
@@ -741,37 +743,6 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverNetwork;
-
-/***/ }),
-
-/***/ "./src/services/monitor/network/report.ts":
-/*!************************************************!*\
-  !*** ./src/services/monitor/network/report.ts ***!
-  \************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //处理整理数据
-
-exports.handleReportData = function (content) {
-  var reportParams = {
-    type: "monitor",
-    typeName: 'network',
-    data: content,
-    location: window.location.href,
-    environment: window.navigator.userAgent,
-    reportTime: new Date().getTime(),
-    isError: content.isTimeout || content.isError ? true : false
-  };
-  return {
-    reportParams: reportParams
-  };
-};
 
 /***/ }),
 

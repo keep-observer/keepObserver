@@ -312,14 +312,13 @@ exports._handleMessage = function (type, agrs) {
       data += (index === 0 ? '' : separate) + "toString is err:" + index_1.tool.toString(err).replace(/[\s\r\n\t]/g, '');
     }
   });
-  reportData.data = data;
+  reportData.data = data; //上报
 
-  var _a = _self.handleReportData(reportData),
-      reportParams = _a.reportParams,
-      control = _a.control; //上报
-
-
-  _self.noticeReport(reportParams, control);
+  _self.noticeReport({
+    type: "monitor",
+    typeName: 'log',
+    data: reportData
+  });
 };
 
 /***/ }),
@@ -376,9 +375,7 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/monitor/log/api.ts");
 
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/log/handle.ts");
-
-var report_1 = __webpack_require__(/*! ./report */ "./src/services/monitor/log/report.ts"); // 获取系统信息
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/log/handle.ts"); // 获取系统信息
 
 
 var KeepObserverLog =
@@ -398,8 +395,7 @@ function (_super) {
     _this.stopObserver = api_1.stopObserver.bind(_this);
     _this.startObserver = api_1.startObserver.bind(_this);
     _this._handleInit = handle_1._handleInit.bind(_this);
-    _this._handleMessage = handle_1._handleMessage.bind(_this);
-    _this.handleReportData = report_1.handleReportData.bind(_this); //初始化上传相关实例
+    _this._handleMessage = handle_1._handleMessage.bind(_this); //初始化上传相关实例
 
     var _a = config,
         _b = _a.logCustom,
@@ -432,36 +428,6 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverLog;
-
-/***/ }),
-
-/***/ "./src/services/monitor/log/report.ts":
-/*!********************************************!*\
-  !*** ./src/services/monitor/log/report.ts ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //处理整理数据
-
-exports.handleReportData = function (content) {
-  var reportParams = {
-    type: "monitor",
-    typeName: 'log',
-    data: content,
-    location: window.location.href,
-    environment: window.navigator.userAgent,
-    reportTime: new Date().getTime()
-  };
-  return {
-    reportParams: reportParams
-  };
-};
 
 /***/ }),
 

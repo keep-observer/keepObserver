@@ -7,7 +7,6 @@ declare class KeepObserverLoad extends KeepObserverPublic {
     private getWebPerformance;
     private checkIsOneDay;
     private recordReport;
-    private handleReportData;
     constructor(config?: {});
     apply(pipe: any): void;
 }

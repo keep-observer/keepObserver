@@ -186,8 +186,6 @@ var index_3 = __webpack_require__(/*! ../constants/index */ "./src/constants/ind
 
 var update_1 = __webpack_require__(/*! ./method/update */ "./src/instance/method/update.ts");
 
-var init_1 = __webpack_require__(/*! ./method/init */ "./src/instance/method/init.ts");
-
 var api_1 = __webpack_require__(/*! ./method/api */ "./src/instance/method/api.ts");
 
 var KeepObserver =
@@ -200,13 +198,14 @@ function (_super) {
       config = {};
     }
 
-    var _this = _super.call(this, config = index_1.tool.extend(defaultConfig_1["default"], config, {
+    var _this = _super.call(this, config = index_1.tool.extend(defaultConfig_1["default"], {
+      projectName: "",
+      projectVersion: "",
       version: index_3.version,
       deviceID: index_1.getDeviceId()
-    })) || this; //method
+    }, config)) || this; //method
 
 
-    _this.init = init_1.init.bind(_this);
     _this.updateVersionClearCache = update_1.updateVersionClearCache.bind(_this);
     _this.registerApi = api_1.registerApi.bind(_this); //api
 
@@ -214,9 +213,22 @@ function (_super) {
 
     _this._config = config; //管道实例
 
-    _this._pipe = new index_2["default"](_this, _this._config); //init
+    _this._pipe = new index_2["default"](_this, _this._config); //扩展上报内容
 
-    _this.init();
+    var _a = _this._config,
+        projectName = _a.projectName,
+        projectVersion = _a.projectVersion;
+
+    _this.extendReportParams({
+      projectName: projectName,
+      projectVersion: projectVersion,
+      version: index_3.version
+    }); //是否需要更新版本清除缓存
+
+
+    if (_this._config.projectVersion && _this._config.updateVersionClearCache) {
+      _this.updateVersionClearCache();
+    }
 
     return _this;
   } //主实例重载中间件服务
@@ -224,6 +236,18 @@ function (_super) {
 
   KeepObserver.prototype.useMiddle = function (scopeName, middlesFn) {
     return index_1.KeepObserverMiddleWare.usePublishMiddles(scopeName, middlesFn);
+  }; //扩展上报属性
+
+
+  KeepObserver.prototype.extendReportParams = function (params) {
+    return index_1.KeepObserverPublic.extendReport(params);
+  }; //设置用户信息
+
+
+  KeepObserver.prototype.setUserInfo = function (userInfo) {
+    return index_1.KeepObserverPublic.extendReport({
+      userInfo: userInfo
+    });
   }; //挂载插件服务
 
 
@@ -316,31 +340,6 @@ exports.apis = function (apiName) {
   var callback = _self.apis[apiName];
   return callback.apply(void 0, __spread(args));
 };
-
-/***/ }),
-
-/***/ "./src/instance/method/init.ts":
-/*!*************************************!*\
-  !*** ./src/instance/method/init.ts ***!
-  \*************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //隔离开初始化服务,不对外提供
-
-function init() {
-  //是否需要更新版本清除缓存
-  if (this._config.projectVersion && this._config.updateVersionClearCache) {
-    this.updateVersionClearCache();
-  }
-}
-
-exports.init = init;
 
 /***/ }),
 

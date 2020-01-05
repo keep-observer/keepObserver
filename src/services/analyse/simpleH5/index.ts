@@ -23,9 +23,7 @@ import {
     startAnalyse,
     clearSaveRecive,
 } from './api'
-import {
-    handleReportData,
-} from './report'
+
 
 type reportDataType = {
     id: string,                         //唯一浏览器标识
@@ -52,7 +50,6 @@ class KeepObserverSimpleH5Analyse extends KeepObserverPublic{
     private stopAnalyse = stopAnalyse.bind(this)
     private startAnalyse = startAnalyse.bind(this)
     private clearSaveRecive = clearSaveRecive.bind(this)
-    private handleReportData = handleReportData.bind(this)
     private registerAnalyseDomEvent = registerAnalyseDomEvent.bind(this)
     private  _handleEventTarget = _handleEventTarget.bind(this)
     private _recoverEventTarget = _recoverEventTarget.bind(this)

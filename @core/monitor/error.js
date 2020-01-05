@@ -277,14 +277,14 @@ exports._handleMessage = function (type, agrs) {
       data += (index === 0 ? '' : separate) + "toString is err:" + index_1.tool.toString(err).replace(/[\s\r\n\t]/g, '');
     }
   });
-  reportData.data = data;
+  reportData.data = data; //上报
 
-  var _a = _self.handleReportData(reportData),
-      reportParams = _a.reportParams,
-      control = _a.control; //上报
-
-
-  _self.noticeReport(reportParams, control);
+  _self.noticeReport({
+    type: "monitor",
+    typeName: 'error',
+    data: reportData,
+    isError: true
+  });
 };
 /*
     监听 window.onerror,并处理错误信息
@@ -394,9 +394,7 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/monitor/error/api.ts");
 
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/error/handle.ts");
-
-var report_1 = __webpack_require__(/*! ./report */ "./src/services/monitor/error/report.ts"); // 获取系统信息
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/error/handle.ts"); // 获取系统信息
 
 
 var KeepObserverError =
@@ -417,8 +415,7 @@ function (_super) {
     _this.startObserver = api_1.startObserver.bind(_this);
     _this._handleInit = handle_1._handleInit.bind(_this);
     _this._handleMessage = handle_1._handleMessage.bind(_this);
-    _this._handleError = handle_1._handleError.bind(_this);
-    _this.handleReportData = report_1.handleReportData.bind(_this); //初始化上传相关实例
+    _this._handleError = handle_1._handleError.bind(_this); //初始化上传相关实例
 
     var _a = config,
         _b = _a.errorCustom,
@@ -451,37 +448,6 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverError;
-
-/***/ }),
-
-/***/ "./src/services/monitor/error/report.ts":
-/*!**********************************************!*\
-  !*** ./src/services/monitor/error/report.ts ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //处理整理数据
-
-exports.handleReportData = function (content) {
-  var reportParams = {
-    type: "monitor",
-    typeName: 'error',
-    data: content,
-    location: window.location.href,
-    environment: window.navigator.userAgent,
-    reportTime: new Date().getTime(),
-    isError: true
-  };
-  return {
-    reportParams: reportParams
-  };
-};
 
 /***/ }),
 

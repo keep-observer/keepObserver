@@ -372,7 +372,12 @@ export var _handleDoneXML = function(id) {
         ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
     }
     //通知上传
-    _self.noticeReport(ajaxItem);
+    _self.noticeReport({
+        type : "monitor",
+        typeName : 'network',
+        data:ajaxItem,
+        isError: (ajaxItem.isTimeout || ajaxItem.isError) ? true : false,
+    })
     //上报后删除记录
     delete _self.networkList[id];
 }

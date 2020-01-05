@@ -11,9 +11,7 @@ import {
     _handleInit,
     _handleMessage,
 } from './handle'
-import {
-    handleReportData,
-} from './report'
+
 
 
 
@@ -27,7 +25,6 @@ class KeepObserverLog extends KeepObserverPublic{
     private startObserver = startObserver.bind(this)
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)
-    private handleReportData = handleReportData.bind(this)
 
 
 

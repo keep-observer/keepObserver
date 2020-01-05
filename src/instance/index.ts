@@ -12,9 +12,6 @@ import {
     updateVersionClearCache,
 } from './method/update';
 import {
-    init
-} from './method/init'
-import {
     registerApi,
     apis
 } from './method/api'
@@ -23,7 +20,9 @@ import {
 import {
     middlesFn
 } from '../types/middle'
-
+import {
+    userInfo
+} from '../types/report'
 
 
 
@@ -33,22 +32,32 @@ class KeepObserver extends KeepObserverPublic{
     private _apis: { apiName:string,cb:(...args:any[])=>any }
     private _middleScopeNames: string[] 
     //method
-    private init = init.bind(this)
     private updateVersionClearCache = updateVersionClearCache.bind(this);
     private registerApi = registerApi.bind(this)
 
 
     constructor(config={}) {
-        super(config = tool.extend(defaultConfig, config ,{
-            version: version,
+        super(config = tool.extend(defaultConfig ,{
+            projectName:"",
+            projectVersion:"",
+            version,
             deviceID: getDeviceId()
-        }))
+        },config))
         //获取实例配置
         this._config = config
         //管道实例
         this._pipe = new keepObserverPipe(this, this._config)
-        //init
-        this.init()
+        //扩展上报内容
+        const { projectName,projectVersion } = this._config
+        this.extendReportParams({
+            projectName,
+            projectVersion,
+            version,
+        })
+        //是否需要更新版本清除缓存
+        if(this._config.projectVersion && this._config.updateVersionClearCache){
+            this.updateVersionClearCache();
+        }
     }
     
 
@@ -56,13 +65,22 @@ class KeepObserver extends KeepObserverPublic{
     public useMiddle(scopeName:string,middlesFn:middlesFn){
         return KeepObserverMiddleWare.usePublishMiddles(scopeName,middlesFn)
     }
+    //扩展上报属性
+    public extendReportParams(params:any){
+        return KeepObserverPublic.extendReport(params)
+    }
+    //设置用户信息
+    public setUserInfo(userInfo:userInfo){
+        return KeepObserverPublic.extendReport({
+            userInfo:userInfo
+        })
+    }
 
 
     //挂载插件服务
     public use(Provider:Provider){
         return this._pipe.use(Provider)
     }
-
     //api
     public apis = apis.bind(this)
 }

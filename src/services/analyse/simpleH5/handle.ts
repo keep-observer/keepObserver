@@ -65,7 +65,12 @@ export var triggerAcitveReport = function(event){
     }
     //上报
     this.reportData = this.createReportData();
-    this.noticeReport(this.reportData);
+    this.noticeReport({
+        type : "analyse",
+        typeName : 'simpleH5',
+        data:this.reportData,
+        isAnalyse:true
+    });
 }
 
 
@@ -85,7 +90,12 @@ export var triggerInitReport = function(){
         this.reportData.repeatCount += 1;
         this.reportData.repeatCountAll += 1;
         this.reportData = this.createReportData();
-        this.noticeReport(this.reportData);
+        this.noticeReport({
+            type : "analyse",
+            typeName : 'simpleH5',
+            data:this.reportData,
+            isAnalyse:true
+        });
         tool.setSessionStorage(exitBackstageFlag,true);
     }
     // update now day data

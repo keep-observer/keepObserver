@@ -8,9 +8,7 @@ import {
     _handleInit,
     _handleVueError,
 } from './handle'
-import {
-    handleReportData,
-} from './report';
+
 
 
 
@@ -26,18 +24,17 @@ class KeepObserverVue  extends KeepObserverPublic{
     private startObserver = startObserver.bind(this);
     private _handleInit = _handleInit.bind(this);
     private _handleVueError = _handleVueError.bind(this);
-    private handleReportData = handleReportData.bind(this);
     
 
     //构造函数
     constructor(config={}) {
         super(config)
         //初始化上传相关实例
-        const { vueCustom=false ,vueInstance=false } = config as any
+        const { vueCustom=false ,Vue=false } = config as any
         var vueConfig:any = vueCustom || config;
-        vueConfig.vueInstance = vueInstance;
+        vueConfig.vueInstance = Vue;
         //判断是否存在实例
-        if (vueConfig.vueInstance) {
+        if (!vueConfig.vueInstance) {
             return this;
         }
         //存混合配置

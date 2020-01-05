@@ -36,7 +36,11 @@ export var _handleVueError = function(err, vm, info) {
     } else {
         errInfo.errMsg = tool.toString(err);
     }
-    errInfo.isError = true
     //上报
-    _self.noticeReport(errInfo)
+    _self.noticeReport({
+        type : "monitor",
+        typeName : 'vue',
+        data:errInfo,
+        isError: true
+    })
 }

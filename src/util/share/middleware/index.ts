@@ -47,18 +47,18 @@ class KeepObserverMiddleWare {
     }
 
 
-
-    public run(scopeName:string,...args:any[]):any{
+    //中间件异步执行
+    public run(scopeName:string,...args:any[]):Promise<{}>{
         var _self = this
         //获取到公共中间件聚合
         const publicMiddles =  (this.constructor as any).publicMiddles
         if(!_self._middles[scopeName] && !publicMiddles[scopeName]){
             warnError(`${scopeName} middles function is undefined`,this._develop)
-            return false
+            return Promise.reject(`${scopeName} middles function is undefined`)
         }
         if(_self._runMiddleBuff[scopeName]){
             devWarn(this._develop,`${scopeName} middles is run`)
-            return false
+            return Promise.reject(`${scopeName} middles is run`)
         }
         _self._runMiddleBuff[scopeName] = true;
         //合并中间件队列
@@ -66,28 +66,29 @@ class KeepObserverMiddleWare {
         const middlesQueue = publicMiddleQueue.concat( (_self._middles[scopeName]||[]) )
         const len = middlesQueue.length 
         var index = 1;
-        // 中断方法，停止执行剩下的中间件,直接返回
-        const interrupt = (...result)=>{
-            index = len;
-            _self._runMiddleBuff[scopeName] = false
-            return result
-        }
-        //向下执行中间件
-        const runNext = (next)=>(...params)=>{
-            if(index === len){
-                return params;
+        return new Promise((resolve,reject)=>{
+             // 中断方法，停止执行剩下的中间件,直接返回
+            const interrupt = (...result)=>{
+                index = len;
+                _self._runMiddleBuff[scopeName] = false
+                return resolve(result)
             }
-            index++
-            return next(...params)
-        }  
-        const exec = middlesQueue.reduce((a , b)=>(...params)=>a(interrupt,runNext(b(...params))))
-        var result = null
-        try{
-            result = exec(interrupt,interrupt)(...args)
-        }catch(err){
-            warnError(`${scopeName} middles exec is error:`+tool.toString(err),_self._develop)
-        }
-        return result
+            //向下执行中间件
+            const runNext = (next)=>(...params)=>{
+                if(index === len){
+                    return params;
+                }
+                index++
+                return next(...params)
+            }  
+            const exec = middlesQueue.reduce((a , b)=>(...params)=>a(interrupt,runNext(b(...params))))
+            try{
+                exec(interrupt,interrupt)(...args)
+            }catch(err){
+                warnError(`${scopeName} middles exec is error:`+tool.toString(err),_self._develop)
+                reject(`${scopeName} middles exec is error:`+tool.toString(err))
+            }
+        })
     }
 
 

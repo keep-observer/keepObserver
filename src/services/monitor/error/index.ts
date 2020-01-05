@@ -11,9 +11,7 @@ import {
     _handleMessage,
     _handleError,
 } from './handle'
-import {
-    handleReportData,
-} from './report'
+
 
 
 
@@ -29,8 +27,6 @@ class KeepObserverError extends KeepObserverPublic{
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)
     private _handleError = _handleError.bind(this)
-    private handleReportData = handleReportData.bind(this)
-
 
 
     //构造函数

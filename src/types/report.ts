@@ -1,16 +1,27 @@
 
 
+export type userInfo = {
+    id:string,
+    email?:string,
+    name?:string,
+}
+
+
+
+
+
 export type reportParams = {
     type: string;
     typeName: string;
+    data: any;
     location: string;
     reportTime: number;
     environment: string;
-    data: any;
-    project?: string;
-    deviceID?: string;
+    //扩展项
+    projectName?: string;
     projectVersion?: string;
-    customeInfo?: any;
+    version?: string;
+    userInfo?: userInfo;
     //标识项
     isError?: boolean;
     isPerformance?: boolean;

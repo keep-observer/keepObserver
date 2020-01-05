@@ -9,7 +9,6 @@ declare class KeepObserverError extends KeepObserverPublic {
     private _handleInit;
     private _handleMessage;
     private _handleError;
-    private handleReportData;
     constructor(config?: {});
     apply(pipe: any): {
         $errorStop: any;

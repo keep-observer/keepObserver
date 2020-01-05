@@ -7,7 +7,6 @@ declare class KeepObserverLog extends KeepObserverPublic {
     private startObserver;
     private _handleInit;
     private _handleMessage;
-    private handleReportData;
     constructor(config?: {});
     apply(pipe: any): {
         $logStop: any;

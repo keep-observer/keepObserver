@@ -5,11 +5,13 @@ export declare type pipeUser = {
     registerRecivePipeMessage: any;
 };
 export interface catchParams {
-    type: 'monitor' | 'performance' | 'analyse' | 'response';
+    type: 'monitor' | 'performance' | 'analyse' | 'report' | 'custome' | 'undefined';
     typeName: string;
-    location: string;
-    environment: string;
     data: any;
-    reportTime: number;
+    location?: string;
+    environment?: string;
+    reportTime?: number;
     isError?: boolean;
+    isPerformance?: boolean;
+    isAnalyse?: boolean;
 }
