@@ -223,7 +223,9 @@ function (_super) {
       projectName: projectName,
       projectVersion: projectVersion,
       version: index_3.version
-    }); //是否需要更新版本清除缓存
+    });
+
+    _this.extendMiddleScopeName(_this._publicMiddleScopeNames); //是否需要更新版本清除缓存
 
 
     if (_this._config.projectVersion && _this._config.updateVersionClearCache) {
@@ -248,6 +250,13 @@ function (_super) {
     return index_1.KeepObserverPublic.extendReport({
       userInfo: userInfo
     });
+  }; //拓展中间件实例
+
+
+  KeepObserver.prototype.extendMiddleScopeName = function (_middleScopeNames) {
+    var middleScopeNames = this.middleScopeNames;
+    if (index_1.tool.isEmptyArray(_middleScopeNames)) return;
+    return this.middleScopeNames = index_1.tool.toArray(new Set(middleScopeNames.concat(_middleScopeNames)));
   }; //挂载插件服务
 
 
@@ -650,6 +659,10 @@ exports.registerPipeListenerUser = function () {
     sendPipeMessage: function sendPipeMessage() {
       return _self.sendPipeMessage.apply(_self, __spread([pipeIndex], arguments));
     },
+    //registerMiddleScopeName
+    registerMiddleScopeName: function registerMiddleScopeName(middleScopeNames) {
+      return _self.$keepObserver.extendMiddleScopeName(middleScopeNames);
+    },
     //register message
     registerRecivePipeMessage: null
   }; //add listener
@@ -666,6 +679,11 @@ exports.registerPipeListenerUser = function () {
     sendPipeMessage: function sendPipeMessage() {
       if (!_self.pipeUser[pipeIndex]) return false;
       return pipeUser.sendPipeMessage.apply(pipeUser, __spread(arguments));
+    },
+    //registerMiddleScopeName
+    registerMiddleScopeName: function registerMiddleScopeName(middleScopeNames) {
+      if (!_self.pipeUser[pipeIndex]) return false;
+      return pipeUser.registerMiddleScopeName(middleScopeNames);
     }
   };
   return renderMethod;
@@ -762,10 +780,10 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //防止堆
 
 
 exports.preventStackError = function (msgItem) {
-  var msg = msgItem.msg,
+  var params = msgItem.params,
       pipeIndex = msgItem.pipeIndex;
 
-  if (!msg || !index_1.tool.isExist(pipeIndex) || !index_1.tool.isExist(msg.data)) {
+  if (!params || !index_1.tool.isExist(pipeIndex) || !index_1.tool.isExist(params.data)) {
     return true;
   } //是否该消息已经进入屏蔽阶段
 
@@ -778,13 +796,19 @@ exports.preventStackError = function (msgItem) {
 
     return true;
   } //json解析成字符串加密为KEY 这里可能存在JSON转义出现错误的可能
+  //这里暂时有点疑问，data里面可能出现window之类的 会导致json解析失败
 
 
   try {
-    var key = JSON.stringify(msg.data);
+    var key = JSON.stringify(params.data);
   } catch (e) {
-    index_1.consoleTools.warnError('find error : ' + e);
-    return true;
+    index_1.consoleTools.warnError('find error : ' + e); // return true
+
+    var _a = params.type,
+        type = _a === void 0 ? 'undefined' : _a,
+        _b = params.typeName,
+        typeName = _b === void 0 ? 'undefined' : _b;
+    var key = type + typeName + index_1.tool.toString(e);
   } //触发计数
 
 
@@ -801,8 +825,7 @@ exports.preventStackError = function (msgItem) {
 
 
 exports.judgeAnomaly = function (count, msgItem) {
-  var msg = msgItem.msg,
-      pipeIndex = msgItem.pipeIndex;
+  var pipeIndex = msgItem.pipeIndex;
 
   if (count > 10 && count < 20) {
     index_1.consoleTools.warnError('send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ');

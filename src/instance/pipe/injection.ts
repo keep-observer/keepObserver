@@ -102,8 +102,12 @@ export var registerPipeListenerUser = function() {
         //receiveCallBack
         receiveCallback: null,
         //send message
-        sendPipeMessage: function() {
+        sendPipeMessage: function(){
             return _self.sendPipeMessage(pipeIndex, ...arguments)
+        },
+        //registerMiddleScopeName
+        registerMiddleScopeName:(middleScopeNames:string[])=>{
+            return _self.$keepObserver.extendMiddleScopeName(middleScopeNames)
         },
         //register message
         registerRecivePipeMessage:null
@@ -121,7 +125,12 @@ export var registerPipeListenerUser = function() {
         sendPipeMessage: function() {
             if (!_self.pipeUser[pipeIndex]) return false;
             return pipeUser.sendPipeMessage(...arguments)
-        }
+        },
+        //registerMiddleScopeName
+        registerMiddleScopeName:(middleScopeNames:string[])=>{
+            if (!_self.pipeUser[pipeIndex]) return false;
+            return pipeUser.registerMiddleScopeName(middleScopeNames)
+        },
     };
     return renderMethod
 }

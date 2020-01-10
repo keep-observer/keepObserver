@@ -65,7 +65,6 @@ var AjaxServer = function(config) {
         if (customeHead && tool.isObject(customeHead)) {
             xhrHead = tool.extend(xhrHead, customeHead)
         }
-        xhrHead['keepObserver-reportAjax'] = 'yes';
         for (var key in xhrHead) {
             xhr.setRequestHeader(key, xhrHead[key]);
         }

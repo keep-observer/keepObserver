@@ -2,6 +2,7 @@ export declare type pipeUser = {
     pipeIndex: any;
     receiveCallback: any;
     sendPipeMessage: any;
+    registerMiddleScopeName: any;
     registerRecivePipeMessage: any;
 };
 export interface catchParams {

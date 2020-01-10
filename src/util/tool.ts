@@ -150,6 +150,9 @@ export function isClassObject(obj){
   转换工具
  */
 export function toArray(array) {
+    if(Array.from){
+        return Array.from(array)
+    }
     return Array.prototype.slice.call(array)
 }
 export function toString(content) {

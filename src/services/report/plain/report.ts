@@ -13,6 +13,7 @@ import {
  */
 export var _handleReport = function(reportData:reportParams) {
     var _self = this;
+    const [ reportBefore,reportFinish,reportFail ] = _self.middleScopeNames
     //如果未传入数据类型
     if (!reportData || !tool.isObject(reportData)) {
         return false;
@@ -25,9 +26,8 @@ export var _handleReport = function(reportData:reportParams) {
     if (!reportUrl || tool.isEmptyArray(reportUrl)) {
         return false;
     }
-    //遍历URL上传列表
-    //开始依次上传
-    reportUrl.map( (item)=>{
+    //遍历URL上传列表开始依次上传
+    reportUrl.map( async (item)=>{
         var reportConfig:any = {
             url: item,
             data: reportData,
@@ -35,17 +35,17 @@ export var _handleReport = function(reportData:reportParams) {
             customeHead: undefined,
         };
         //上传前hook位
-
+        [ reportConfig ] = await _self.runMiddle(reportBefore,reportConfig)
         //上传
         try {
-            AjaxServer(reportConfig).then(function(result:any) {
-                //response data
-                _self._handleResponse(reportData,item,result.data)
+            AjaxServer(reportConfig).then( async (result:any)=>{
                 //上报结束hook位
-
+                result = await _self.runMiddle(reportFinish,result)
+                //response data
+                _self._handleResponse(reportData,item,result)
             }, function(err) {
                 //上传失败回调hook位
-
+                _self.runMiddle(reportFail,err,reportData)
             })
         } catch (err) {
             //上传报错
@@ -65,13 +65,17 @@ export var _handleReport = function(reportData:reportParams) {
     -------------------------------------------
     ps: control.isResponse 才进行处理
  */
-export var _handleResponse = function(params,url,responseData){
+export var _handleResponse = function(params,url,response){
     var _self = this;
+    const { isNoticeResponse } = _self._config
     //如果未传入数据类型
     if (!params  || !tool.isObject(params) ) {
         return false;
     }
-    if( !params.typeName || !url || !responseData){
+    if( !params.typeName || !url || !response ){
+        return false;
+    }
+    if(!isNoticeResponse){
         return false;
     }
     //handle push message quenen
@@ -80,7 +84,7 @@ export var _handleResponse = function(params,url,responseData){
         typeName : 'response',
         data : {
             params,
-            responseData,
+            response,
             url
         },
     })

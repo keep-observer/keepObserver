@@ -18,6 +18,7 @@ class KeepObserverPublic {
     private _middleWareInstance: KeepObserverMiddleWare;
     private _publicMiddleScopeNames: string[];
     public _develop :boolean;
+    public middleScopeNames :string[]
 
 
     constructor(config={}) {
@@ -26,6 +27,8 @@ class KeepObserverPublic {
         this._develop = develop;
         //公共中间件事件
         this._publicMiddleScopeNames = [ 'noticeReport' ];
+        //由子元素继承并重载
+        this.middleScopeNames = []
         //注册中间件实例
         this._middleWareInstance = new KeepObserverMiddleWare(config)
     }
@@ -50,8 +53,7 @@ class KeepObserverPublic {
     //执行中间件逻辑
     public runMiddle(scopeName:string,...args:any[]):any{
         var _self = this;
-        _self._middleWareInstance.run(scopeName,...args)
-        return _self
+        return _self._middleWareInstance.run(scopeName,...args)
     }
 
     

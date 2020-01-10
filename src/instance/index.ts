@@ -30,7 +30,8 @@ class KeepObserver extends KeepObserverPublic{
     private _config: any
     private _pipe: any
     private _apis: { apiName:string,cb:(...args:any[])=>any }
-    private _middleScopeNames: string[] 
+    private middleScopeNames: string[]           //继承属性
+    private _publicMiddleScopeNames: string[]    //继承属性
     //method
     private updateVersionClearCache = updateVersionClearCache.bind(this);
     private registerApi = registerApi.bind(this)
@@ -54,6 +55,7 @@ class KeepObserver extends KeepObserverPublic{
             projectVersion,
             version,
         })
+        this.extendMiddleScopeName(this._publicMiddleScopeNames)
         //是否需要更新版本清除缓存
         if(this._config.projectVersion && this._config.updateVersionClearCache){
             this.updateVersionClearCache();
@@ -75,7 +77,12 @@ class KeepObserver extends KeepObserverPublic{
             userInfo:userInfo
         })
     }
-
+    //拓展中间件实例
+    public extendMiddleScopeName(_middleScopeNames:string[]){
+        const { middleScopeNames } = this
+        if(tool.isEmptyArray(_middleScopeNames)) return;
+        return this.middleScopeNames = tool.toArray(new Set(middleScopeNames.concat(_middleScopeNames)))
+    }
 
     //挂载插件服务
     public use(Provider:Provider){

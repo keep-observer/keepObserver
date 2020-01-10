@@ -3,10 +3,10 @@ import { consoleTools,tool } from '@util/index'
 //防止堆栈错误
 export var preventStackError = function(msgItem) {
     var {
-        msg,
+        params,
         pipeIndex
     } = msgItem
-    if (!msg || !tool.isExist(pipeIndex) || !tool.isExist(msg.data)){
+    if (!params || !tool.isExist(pipeIndex) || !tool.isExist(params.data)){
         return true;
     }
     //是否该消息已经进入屏蔽阶段
@@ -18,11 +18,14 @@ export var preventStackError = function(msgItem) {
         return true
     }
     //json解析成字符串加密为KEY 这里可能存在JSON转义出现错误的可能
+    //这里暂时有点疑问，data里面可能出现window之类的 会导致json解析失败
     try {
-        var key = JSON.stringify(msg.data)
+        var key = JSON.stringify(params.data)
     } catch (e) {
         consoleTools.warnError('find error : ' + e)
-        return true
+        // return true
+        const { type='undefined' ,typeName='undefined' } = params
+        var key = type+typeName+tool.toString(e)
     }
     //触发计数
     if (!this.stackCountBuff[key]) {
@@ -40,7 +43,6 @@ export var preventStackError = function(msgItem) {
 //判断是否出现异常错误
 export var judgeAnomaly = function(count, msgItem) {
     var {
-        msg,
         pipeIndex
     } = msgItem
     if (count > 10 && count < 20) {

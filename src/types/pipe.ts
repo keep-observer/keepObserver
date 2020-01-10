@@ -1,10 +1,11 @@
 
 
 export type pipeUser = {
-    pipeIndex: any;
-    receiveCallback: any;
-    sendPipeMessage: any;
-    registerRecivePipeMessage: any
+    pipeIndex: number;
+    receiveCallback: Function | any;
+    sendPipeMessage: Function;
+    registerMiddleScopeName:Function;
+    registerRecivePipeMessage: Function;
 }
 
 

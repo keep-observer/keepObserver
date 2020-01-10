@@ -419,8 +419,8 @@ function () {
     var publicMiddles = this.constructor.publicMiddles;
 
     if (!_self._middles[scopeName] && !publicMiddles[scopeName]) {
-      console_1.warnError(scopeName + " middles function is undefined", this._develop);
-      return Promise.reject(scopeName + " middles function is undefined");
+      console_1.devWarn(this._develop, scopeName + " middles function is undefined");
+      return Promise.resolve(args);
     }
 
     if (_self._runMiddleBuff[scopeName]) {
@@ -578,7 +578,9 @@ function () {
 
     this._develop = develop; //公共中间件事件
 
-    this._publicMiddleScopeNames = ['noticeReport']; //注册中间件实例
+    this._publicMiddleScopeNames = ['noticeReport']; //由子元素继承并重载
+
+    this.middleScopeNames = []; //注册中间件实例
 
     this._middleWareInstance = new index_1.default(config);
   }
@@ -611,9 +613,7 @@ function () {
 
     var _self = this;
 
-    (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
-
-    return _self;
+    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
   }; //兼容老版本做保留,内部使用中间件替换
 
 
@@ -890,6 +890,10 @@ exports.isClassObject = isClassObject;
  */
 
 function toArray(array) {
+  if (Array.from) {
+    return Array.from(array);
+  }
+
   return Array.prototype.slice.call(array);
 }
 

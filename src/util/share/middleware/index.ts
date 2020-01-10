@@ -53,8 +53,8 @@ class KeepObserverMiddleWare {
         //获取到公共中间件聚合
         const publicMiddles =  (this.constructor as any).publicMiddles
         if(!_self._middles[scopeName] && !publicMiddles[scopeName]){
-            warnError(`${scopeName} middles function is undefined`,this._develop)
-            return Promise.reject(`${scopeName} middles function is undefined`)
+            devWarn(this._develop,`${scopeName} middles function is undefined`)
+            return Promise.resolve(args)
         }
         if(_self._runMiddleBuff[scopeName]){
             devWarn(this._develop,`${scopeName} middles is run`)

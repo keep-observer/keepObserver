@@ -18,7 +18,8 @@ import {
 class KeepObserverReport  extends KeepObserverPublic  {
     private _config: any;
     private develop: boolean;
-    private addReportListener:any;  //继承中属性
+    private addReportListener:any;          //继承中属性
+    readonly middleScopeNames:string[];     //继承中属性
     //method
     private _getReportContent = _getReportContent.bind(this);
     private _handleReport = _handleReport.bind(this);
@@ -36,6 +37,8 @@ class KeepObserverReport  extends KeepObserverPublic  {
         reportConfig.develop = develop
         //混合默认配置
         this._config = tool.extend(defaultConfig, reportConfig);
+        //重载中间件命名空间
+        this.middleScopeNames = ['reportBefore','reportFinish','reportFail']
     }
     
 
@@ -48,6 +51,7 @@ class KeepObserverReport  extends KeepObserverPublic  {
     public apply(pipe) {
         var _self = this;
         pipe.registerRecivePipeMessage(_self._getReportContent, _self)
+        pipe.registerMiddleScopeName(_self.middleScopeNames)
         _self.addReportListener(pipe.sendPipeMessage)
         return {}
     }
@@ -57,5 +61,9 @@ class KeepObserverReport  extends KeepObserverPublic  {
 
 
 
+
 export default KeepObserverReport
+
+
+
 

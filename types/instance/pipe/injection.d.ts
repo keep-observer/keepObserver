@@ -4,4 +4,5 @@ export declare var injection: (scope: any, applyFn: any) => boolean;
 export declare var registerPipeListenerUser: () => {
     registerRecivePipeMessage: () => any;
     sendPipeMessage: () => any;
+    registerMiddleScopeName: (middleScopeNames: string[]) => any;
 };

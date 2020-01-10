@@ -3,6 +3,10 @@ const app = express()
 
 
 const networkServer = function(){
+    app.use(express.json())
+    app.use(express.urlencoded({ extended: true }))
+
+
     app.all('*', function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         if (/Safari/gi.test(req.headers['user-agent'])) {
@@ -36,6 +40,12 @@ const networkServer = function(){
 
     app.get('/500', (req, res) => {
         res.status(500).send('');
+    })
+
+
+    app.post('/reportReceive', (req, res) => {
+        console.log('接收到上传信息',req.body)
+        return res.send('success')
     })
     
     app.listen(9003, () => console.log('network serive is http://localhost:9003'))

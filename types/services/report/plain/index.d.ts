@@ -3,6 +3,7 @@ declare class KeepObserverReport extends KeepObserverPublic {
     private _config;
     private develop;
     private addReportListener;
+    readonly middleScopeNames: string[];
     private _getReportContent;
     private _handleReport;
     private _handleResponse;

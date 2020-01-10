@@ -5,6 +5,7 @@ declare class KeepObserverPublic {
     private _middleWareInstance;
     private _publicMiddleScopeNames;
     _develop: boolean;
+    middleScopeNames: string[];
     constructor(config?: {});
     static extendReportParams: {};
     static extendReport(params: any): any;
