@@ -236,7 +236,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = {
+  //上报url
   reportUrl: [],
+  //是否需要通知响应
   isNoticeResponse: false
 };
 
@@ -270,12 +272,6 @@ exports._getReportContent = function (params) {
   if (!params || !params.type || !params.typeName || !params.data) {
     index_1.consoleTools.devLog(develop, '[keepObserver] reportServer receive reportData is not right : typeName and type and data is undefined ');
     return false;
-  } //是否是开发模式需要打印
-
-
-  if (develop) {
-    var log = index_1.tool.extend({}, params);
-    index_1.consoleTools.devLog(develop, '[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data");
   } //上报
 
 

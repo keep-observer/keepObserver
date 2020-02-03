@@ -1,9 +1,9 @@
 export declare type pipeUser = {
-    pipeIndex: any;
-    receiveCallback: any;
-    sendPipeMessage: any;
-    registerMiddleScopeName: any;
-    registerRecivePipeMessage: any;
+    pipeIndex: number;
+    receiveCallback: Function | any;
+    sendPipeMessage: Function;
+    registerMiddleScopeName: Function;
+    registerRecivePipeMessage: Function;
 };
 export interface catchParams {
     type: 'monitor' | 'performance' | 'analyse' | 'report' | 'custome' | 'undefined';

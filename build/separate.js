@@ -8,8 +8,9 @@ module.exports = {
     'monitor/network': "./src/services/monitor/network/index.ts",
     'monitor/vue': "./src/services/monitor/vue/index.ts",
     'performance/load': "./src/services/performance/load/index.ts",
-    //暂未完成
     'report/plain': "./src/services/report/plain/index.ts",
+    //暂未完成
+    'report/kibanaApm': "./src/services/report/kibanaApm/index.ts",
     // "analyse/simpleH5": "./src/services/analyse/simpleH5/index.ts",
 }
 

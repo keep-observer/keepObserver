@@ -11,12 +11,16 @@ module.exports = {
               exclude:/node_modules/
             },
             {
+                test: /\.js$/,
+                use:['babel-loader'],
+            },
+            {
                 test: /\.(scss|css)$/,
                 use: ['to-string-loader', 'css-loader','sass-loader'],
             }
         ]
     },
     resolve:{
-        extensions:['.ts'],
+        extensions:['.ts','.js'],
     }
 }

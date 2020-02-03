@@ -18,3 +18,8 @@ export declare type reportParams = {
     isPerformance?: boolean;
     isAnalyse?: boolean;
 };
+export declare type kibanaApmUserContext = {
+    id: string;
+    username: string;
+    email: string;
+};

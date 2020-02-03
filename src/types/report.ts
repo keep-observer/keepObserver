@@ -29,3 +29,9 @@ export type reportParams = {
 
 }
 
+
+export type kibanaApmUserContext = {
+    id: string;
+    username: string;
+    email: string;
+}

@@ -19,11 +19,6 @@ export var _getReportContent = function(params:reportParams) {
         consoleTools.devLog(develop,'[keepObserver] reportServer receive reportData is not right : typeName and type and data is undefined ')
         return false;
     }
-    //是否是开发模式需要打印
-    if (develop) {
-        var log = tool.extend({}, params)
-        consoleTools.devLog(develop,'[keepObserver] get' + log.type + 'type:' + log.typeName + " of monitor data")
-    }
     //上报
     _self._handleReport(params);
 }
