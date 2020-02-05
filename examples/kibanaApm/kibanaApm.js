@@ -7,7 +7,7 @@ import KeepObserverKibanaApmReport from '../../@core/report/kibanaApm'
 
 import axios from 'axios'
 
-const reportReceive = 'http://localhost:9003/reportReceive'
+const reportReceive = 'http://stat-srv.jiguang.cn/v2/apm'
 
 const tesrRequest = 'http://localhost:9003/report'
 const testTimeout = 'http://localhost:9003/timeout'
@@ -18,7 +18,9 @@ const test500 = 'http://localhost:9003/500'
 //实例
 const ko = new KeepObserver({ 
     develop:true,
-    reportUrl:[reportReceive] 
+    serverUrl:reportReceive,
+    serviceName: "dev-test",
+    agentVersion: "step_1",
 })
 ko.use(KeepObserverKibanaApmReport)
 //注册服务插件

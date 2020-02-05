@@ -716,7 +716,12 @@ function (_super) {
       reportUrl: reportUrl
     }, networkCustom || config);
     _this._config = index_1.tool.extend(defaultConfig_1["default"], networkConfig);
-    _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //是否开启捕获
+    _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //kabanaApm serverUrl
+
+    if (_this._config.serverUrl) {
+      _this._config.ignoreRequestList.push(_this._config.serverUrl);
+    } //是否开启捕获
+
 
     _this.isCatch = true; //监控的数据列表
 

@@ -1,5 +1,6 @@
 declare const _default: {
-    reportUrl: any[];
+    serverUrl: any;
     serviceName: string;
+    agentVersion: string;
 };
 export default _default;

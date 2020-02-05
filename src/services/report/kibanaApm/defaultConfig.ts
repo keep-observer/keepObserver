@@ -1,8 +1,10 @@
 
 export default {
     //上报url
-    reportUrl: [],
+    serverUrl: null,
     //服务名
-    serviceName: ''
+    serviceName: 'undefined',
+    //版本
+    agentVersion: 'undefined',
 }
 

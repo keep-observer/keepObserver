@@ -51,6 +51,10 @@ class KeepObserverNetwork extends KeepObserverPublic{
         var networkConfig = tool.extend({ reportUrl }, networkCustom || config)
         this._config = tool.extend(defaultConfig, networkConfig)
         this._config.ignoreRequestList = this._config.ignoreRequestList.concat(reportUrl)
+        //kabanaApm serverUrl
+        if(this._config.serverUrl){
+            this._config.ignoreRequestList.push(this._config.serverUrl)
+        }
         //是否开启捕获
         this.isCatch = true
         //监控的数据列表

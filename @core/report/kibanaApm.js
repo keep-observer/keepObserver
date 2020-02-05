@@ -4330,6 +4330,24 @@ if (getRandomValues) {
 
 /***/ }),
 
+/***/ "./src/services/report/kibanaApm/custome.ts":
+/*!**************************************************!*\
+  !*** ./src/services/report/kibanaApm/custome.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports._handleCustome = function (params) {};
+
+/***/ }),
+
 /***/ "./src/services/report/kibanaApm/defaultConfig.ts":
 /*!********************************************************!*\
   !*** ./src/services/report/kibanaApm/defaultConfig.ts ***!
@@ -4345,9 +4363,66 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = {
   //上报url
-  reportUrl: [],
+  serverUrl: null,
   //服务名
-  serviceName: ''
+  serviceName: 'undefined',
+  //版本
+  agentVersion: 'undefined'
+};
+
+/***/ }),
+
+/***/ "./src/services/report/kibanaApm/handle.ts":
+/*!*************************************************!*\
+  !*** ./src/services/report/kibanaApm/handle.ts ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
+
+exports._getReportContent = function (params) {
+  var _self = this;
+
+  var develop = _self._config.develop; //判断数据合法性
+
+  if (!params || !params.type || !params.typeName || !params.data) {
+    index_1.consoleTools.devLog(develop, '[keepObserver] reportServer receive reportData is not right : typeName and type and data is undefined ');
+    return false;
+  } //处理上报
+
+
+  debugger;
+
+  switch (params.type) {
+    case 'monitor':
+      this._handleMonitor(params);
+
+      break;
+
+    case 'performance':
+      this._handlePerformance(params);
+
+      break;
+
+    case 'custome':
+      this._handleCustome(params);
+
+      break;
+    //以下暂缺，kibanaApm暂时不处理
+
+    case 'analyse':
+    case 'undefined':
+    default:
+      index_1.consoleTools.warnError(params.type + 'is no handle type');
+  }
 };
 
 /***/ }),
@@ -4402,14 +4477,21 @@ var defaultConfig_1 = __importDefault(__webpack_require__(/*! ./defaultConfig */
 
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
-var transaction_1 = __importDefault(__webpack_require__(/*! ./transaction */ "./src/services/report/kibanaApm/transaction.ts")); // report Server 
+var transaction_1 = __importDefault(__webpack_require__(/*! ./transaction */ "./src/services/report/kibanaApm/transaction.ts"));
+
+var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/report/kibanaApm/handle.ts");
+
+var custome_1 = __webpack_require__(/*! ./custome */ "./src/services/report/kibanaApm/custome.ts");
+
+var performance_1 = __webpack_require__(/*! ./performance */ "./src/services/report/kibanaApm/performance.ts");
+
+var monitor_1 = __webpack_require__(/*! ./monitor */ "./src/services/report/kibanaApm/monitor.ts"); // report Server 
 
 
 var KeepObserverKibanaApmReport =
 /** @class */
 function (_super) {
-  __extends(KeepObserverKibanaApmReport, _super); //method
-  //constructor
+  __extends(KeepObserverKibanaApmReport, _super); //constructor
 
 
   function KeepObserverKibanaApmReport(config) {
@@ -4417,8 +4499,14 @@ function (_super) {
       config = {};
     }
 
-    var _this = _super.call(this, config) || this;
+    var _this = _super.call(this, config) || this; //method
 
+
+    _this._getReportContent = handle_1._getReportContent.bind(_this);
+    _this._handleCustome = custome_1._handleCustome.bind(_this);
+    _this._handlePerformance = performance_1._handlePerformance.bind(_this);
+    _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
+    _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
     var _a = config,
         _b = _a.reportCustom,
         reportCustom = _b === void 0 ? false : _b,
@@ -4431,8 +4519,7 @@ function (_super) {
 
     _this._config = index_1.tool.extend(defaultConfig_1["default"], reportConfig); //重载中间件命名空间
 
-    _this.middleScopeNames = [];
-    debugger; //init
+    _this.middleScopeNames = []; //init
 
     _this.tracerTransaction = new transaction_1["default"](_this._config);
     return _this;
@@ -4443,9 +4530,9 @@ function (_super) {
 
 
   KeepObserverKibanaApmReport.prototype.apply = function (pipe) {
-    var _self = this; // pipe.registerRecivePipeMessage(_self._getReportContent, _self)
+    var _self = this;
 
-
+    pipe.registerRecivePipeMessage(_self._getReportContent, _self);
     pipe.registerMiddleScopeName(_self.middleScopeNames);
 
     _self.addReportListener(pipe.sendPipeMessage);
@@ -4457,6 +4544,72 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = KeepObserverKibanaApmReport;
+
+/***/ }),
+
+/***/ "./src/services/report/kibanaApm/monitor.ts":
+/*!**************************************************!*\
+  !*** ./src/services/report/kibanaApm/monitor.ts ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports._handleMonitor = function (params) {
+  var _self = this;
+
+  switch (params.typeName) {
+    case 'log':
+      return _self._handleMonitorLog(params);
+
+    default:
+      return;
+  }
+};
+
+exports._handleMonitorLog = function (params) {
+  var _self = this;
+
+  var data = params.data,
+      type = params.type,
+      typeName = params.typeName;
+  var taskName = type + "-" + typeName;
+
+  var task = _self.tracerTransaction.createCustomEventTransaction(taskName, {
+    transactionSampleRate: 1
+  });
+
+  for (var key in data) {
+    task.startSpan(data[key], key);
+  }
+
+  task.addTags(data);
+  task.end();
+};
+
+/***/ }),
+
+/***/ "./src/services/report/kibanaApm/performance.ts":
+/*!******************************************************!*\
+  !*** ./src/services/report/kibanaApm/performance.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports._handlePerformance = function (params) {};
 
 /***/ }),
 
@@ -4526,7 +4679,7 @@ function () {
       configService.setUserContext(userInfo);
     };
 
-    this.createCustomEventTransaction = function (name, type, options) {
+    this.createCustomEventTransaction = function (name, options) {
       var self = _this;
 
       if (!self.Initialized) {
@@ -4537,7 +4690,7 @@ function () {
         transactionSampleRate: 1
       }, options);
 
-      var transaction = new transaction_1["default"](name, type, _option); //添加onEnd事件
+      var transaction = new transaction_1["default"](name, name, _option); //添加onEnd事件
 
       Object.defineProperty(transaction, 'onEnd', {
         enumerable: false,

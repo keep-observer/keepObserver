@@ -12,7 +12,8 @@ import {
     _handlePerformance
 } from './performance'
 import {
-    _handleMonitor
+    _handleMonitor,
+    _handleMonitorLog
 } from './monitor'
 
 
@@ -29,6 +30,7 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
     private _handleCustome = _handleCustome.bind(this)
     private _handlePerformance = _handlePerformance.bind(this)
     private _handleMonitor = _handleMonitor.bind(this)
+    private _handleMonitorLog = _handleMonitorLog.bind(this)
     
     //constructor
     constructor(config = {}){
@@ -42,7 +44,6 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
         this._config = tool.extend(defaultConfig, reportConfig);
         //重载中间件命名空间
         this.middleScopeNames = []
-        debugger;
         //init
         this.tracerTransaction = new TracerTransaction( this._config)
     }

@@ -51,7 +51,7 @@ class TracerTransaction {
     }
 
 
-    public createCustomEventTransaction = (name:string,type:string,options?:any) => {
+    public createCustomEventTransaction = (name:string,type:string,options?:any):Transaction => {
         var self = this
         if(!self.Initialized){
             return false;
