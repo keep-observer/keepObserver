@@ -30,7 +30,7 @@ class TracerTransaction {
         );
         return transactionService.startTransaction(name, type);
     };
-
+    
 
     // custom transcation
     private initCustomTransaction = (config) =>{

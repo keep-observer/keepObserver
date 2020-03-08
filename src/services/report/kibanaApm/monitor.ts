@@ -14,20 +14,21 @@ export const _handleMonitor = function(params:reportParams){
     switch(params.typeName){
         case 'log':
             return _self._handleMonitorLog(params,task);
+        case 'error':
+            return consoleTools.warnError('kibanaAPM has a error is monitor of self, is not handle monitor error report')
         default:
             return;
     }
 }
 
 
+
 export const _handleMonitorLog = function(params:reportParams,task:Transaction){
     const { data } = params
-    for(let key in data){
-        task.startSpan(data[key],key);
-    }
     task.addTags(data)
     task.end();
 }
+
 
 
 export const _handleMonitorNetwork = function(params:reportParams,task:Transaction){

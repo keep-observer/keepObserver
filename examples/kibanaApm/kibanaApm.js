@@ -7,7 +7,7 @@ import KeepObserverKibanaApmReport from '../../@core/report/kibanaApm'
 
 import axios from 'axios'
 
-const reportReceive = 'http://stat-srv.jiguang.cn/v2/apm'
+const reportReceive = 'http://localhost:8200'
 
 const tesrRequest = 'http://localhost:9003/report'
 const testTimeout = 'http://localhost:9003/timeout'
@@ -37,6 +37,9 @@ ko.use(KeepObserverNetwork)
 setTimeout(()=>{
     // debugger
     console.log('aaaaaaaa',ko,ko.useMiddle)
+    setTimeout(()=>{
+        console.log('throw',throwTest)
+    })
 },100)
 
 

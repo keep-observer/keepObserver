@@ -9,9 +9,6 @@ import {
     _handleCustome
 } from './custome'
 import {
-    _handlePerformance
-} from './performance'
-import {
     _handleMonitor,
     _handleMonitorLog
 } from './monitor'
@@ -28,7 +25,6 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
     //method
     private _getReportContent = _getReportContent.bind(this)
     private _handleCustome = _handleCustome.bind(this)
-    private _handlePerformance = _handlePerformance.bind(this)
     private _handleMonitor = _handleMonitor.bind(this)
     private _handleMonitorLog = _handleMonitorLog.bind(this)
     

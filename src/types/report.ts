@@ -26,7 +26,6 @@ export type reportParams = {
     isError?: boolean;
     isPerformance?: boolean;
     isAnalyse?: boolean;
-
 }
 
 

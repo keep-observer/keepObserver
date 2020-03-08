@@ -8,6 +8,6 @@ declare class TracerTransaction {
     createTransaction: (name: string, type: string) => any;
     private initCustomTransaction;
     setCustomTransactionUserInfo: (userInfo: kibanaApmUserContext) => void;
-    createCustomEventTransaction: (name: string, options?: any) => any;
+    createCustomEventTransaction: (name: string, type: string, options?: any) => any;
 }
 export default TracerTransaction;

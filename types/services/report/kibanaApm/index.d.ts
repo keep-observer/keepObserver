@@ -7,7 +7,6 @@ declare class KeepObserverKibanaApmReport extends KeepObserverPublic {
     readonly middleScopeNames: string[];
     private _getReportContent;
     private _handleCustome;
-    private _handlePerformance;
     private _handleMonitor;
     private _handleMonitorLog;
     constructor(config?: {});

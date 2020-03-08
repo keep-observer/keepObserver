@@ -14,19 +14,16 @@ export const _getReportContent = function(params:reportParams){
         return false;
     }
     //处理上报
-    debugger
     switch(params.type){
         case 'monitor':
             this._handleMonitor(params)
-            break;
-        case 'performance':
-            this._handlePerformance(params)
             break;
         case 'custome':
             this._handleCustome(params)
             break;
         //以下暂缺，kibanaApm暂时不处理
         case 'analyse':
+        case 'performance':
         case 'undefined':
         default:
             consoleTools.warnError(params.type+'is no handle type')

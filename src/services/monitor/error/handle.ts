@@ -1,4 +1,5 @@
 import { consoleTools,tool } from '@util/index'
+import  errorStackParser  from 'error-stack-parser'
 
 
 
@@ -7,8 +8,6 @@ import { consoleTools,tool } from '@util/index'
 */
 export var _handleInit = function() {
     var _self = this;
-    //替换window.console变量
-    var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
     //是否需要捕获跨域JS错误
     if (_self._config.catchCrossDomain && !_self.$createElement) {
         //侵入document.createElement  实现跨域JS捕获错误信息
@@ -28,14 +27,18 @@ export var _handleInit = function() {
         window.addEventListener('error', (...args) => {
             _self._handleError(...args)
         }, true);
+        window.addEventListener('unhandledrejection', (...args) => {
+            _self._handlePromiseCatchReject(...args)
+        }, true);
     } else {
         (<any>window).attachEvent('onerror', (...args) => {
             _self._handleError(...args)
         })
     }
+    //替换EventTarget.prototype.addEventListener
+    //替换setTimeout and setInterval
+    //addEventListener promise unhandledrejection
 }
-
-
 
 
 
@@ -43,32 +46,19 @@ export var _handleInit = function() {
 /*
 	处理打印信息
 	上报报文如下
-	@: type string  (log|info|debug.... jsError)
+	@: type string  (error)
 	@: data string  (JSON格式对象报文)
  */
 export var _handleMessage = function(type, agrs) {
     var _self = this;
     var reportData:any = {}
-    var separate = ' , '
-    var data = ''
     //agrs不是数组 或是空数组 则不处理
     if (!tool.isArray(agrs) || agrs.length === 0) {
         return false;
     }
+    var  [ data ] = agrs
     reportData.type = type;
-    //直接转成字符串形式
-    agrs.forEach( (el,index)=>{
-        try{
-            if(tool.isObject(el)){
-                data += `${index===0?'':separate}${JSON.stringify(el)}`  
-            }else{
-                data += `${index===0?'':separate}${tool.toString(el).replace(/[\s\r\n\t]/g,'')}`  
-            }
-        }catch(err){
-            data += `${index===0?'':separate}toString is err:${tool.toString(err).replace(/[\s\r\n\t]/g,'')}`  
-        }
-    })
-    reportData.data = data
+    reportData.data = data || {}
     //上报
     _self.noticeReport({
         type : "monitor",
@@ -81,58 +71,90 @@ export var _handleMessage = function(type, agrs) {
 
 
 
-
-
-
-
 /*
 	监听 window.onerror,并处理错误信息
 	@errorEvent 		:错误信息对象
 	////////  上报error对象 /////////
 	errorObj object = {
-		errMsg: 			错误信息
-		url:                错误文件
+        type：              错误类型
+		message: 			错误信息
+		filename:           错误文件
 		line:         		错误所在行
-		colum:              错误所在列
+        colum:              错误所在列
+        stackTraces:        堆栈信息
 	}
  */
 export var _handleError = function(errorEvent) {
     var _self = this;
     var errorObj:any = {};
-    var url = errorEvent.filename || errorEvent.url || false
+    // get filename
+    var filename = errorEvent.filename || errorEvent.url || false
+    filename = filename === '<anonymous>'? false :filename
+    var defaultUrl =  '(inline script)'
+    //读取错误信息
+    var message = errorEvent.message || (errorEvent.error && errorEvent.error.message)
+    var line =  errorEvent.lineno || 0
+    var colum = errorEvent.colno || 0
+    var type = 'jsError'
+    var stackTraces = []
     //可能是跨域资源JS出现错误 这获取不到详细信息
-    if ( (!errorEvent.message || errorEvent.message === 'Script error.') && !url) {
+    if ( (!message || message.indexOf('Script error') > -1 ) && !filename) {
         //有可能是资源加载错误被捕获
         if(errorEvent.target && !tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src){
-            errorObj.errMsg = 'loadError! web request Resource loading error' ;
-            errorObj.nodeName = errorEvent.target.nodeName 
-            errorObj.url = errorEvent.target.src;
-            setTimeout(function() {
-                _self._handleMessage('loadError', [errorObj])
-            })
-            return false;
+            message = `loadError! web request Resource load error -> ${errorEvent.target.nodeName}` ;
+            filename = errorEvent.target.src;
+            type = 'loadError'
+        }else if (_self._config.unknowErrorCatch){
+            //未知错误是否捕获
+            filename = defaultUrl
+            message = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + message;
         }
-        //未知错误是否捕获
-        if (!_self._config.unknowErrorCatch) return false;
-        errorObj.errMsg = 'jsError!There may be an error in the JS for cross-domain resources, and the error URL location cannot be obtained. The error message is:' + errorEvent.message;
-        errorObj.url = '';
-        errorObj.line = 0;
-        errorObj.colum = 0;
-        setTimeout(function() {
-            _self._handleMessage('jsError', [errorObj])
-        })
-        return false;
+    }else{
+        //正常捕获到了错误信息
+        //尝试获取堆栈信息
+        try {
+            stackTraces = errorStackParser.parse(errorEvent.error)
+        } catch (e) {}
+        if (!filename && stackTraces.length) {
+            var lastFrame = stackTraces[stackTraces.length - 1]
+            if (lastFrame.filename) {
+                filename = lastFrame.filename
+                line = lastFrame.lineNumber
+                colum = lastFrame.columnNumber
+            } else {
+                filename = defaultUrl
+                line = errorEvent.lineno || 0
+                colum = errorEvent.colno || 0
+            }
+            message = message || 'Error detail info not obtained'
+        }
+    }
+    errorObj = {
+        filename,
+        type,
+        line,
+        colum,
+        message,
+        stackTraces,
     }
     //处理错误信息
-    errorObj.errMsg = errorEvent.message || 'Error detail info not obtained'
-    errorObj.url = url;
-    errorObj.line = errorEvent.lineno || 'Error row not obtained'
-    errorObj.colum = errorEvent.colno || 'Error column not obtained'
-    setTimeout(function() {
-        _self._handleMessage('jsError', [errorObj])
-    })
+    _self._handleMessage('error', [errorObj])
     return true;
 }
 
 
+
+
+//捕获promise reject 以及catch
+export var _handlePromiseCatchReject = function(errorEvent){
+    console.log(errorEvent)
+}
+
+
+
+
+//拦截addEventListener以及setTime setInterval 注入try
+//注意这个方法会对性能有影响
+export var _handlePatchTryCatch = function(){
+}
 

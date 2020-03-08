@@ -2,10 +2,10 @@ import KeepObserver from '../../@core/instance'
 import KeepObserverError from '../../@core/monitor/error'
 
 
-debugger;
+
 //实例
 const ko = new KeepObserver({ develop:true })
-
+const tesrRequest = 'http://localhost:9003/error.js'
 
 /*
     simple
@@ -30,5 +30,11 @@ ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
 
 //抛出一个错误
 debugger
+setTimeout(()=>{
+    debugger
+    var errorScript = document.createElement('script')
+    errorScript.src = tesrRequest
+    document.body.appendChild(errorScript)
+},1000)
 console.log('throw',throwTest)
 

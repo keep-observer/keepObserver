@@ -81,6 +81,327 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/elastic-apm-js-core/node_modules/error-stack-parser/error-stack-parser.js":
+/*!************************************************************************************************!*\
+  !*** ./node_modules/elastic-apm-js-core/node_modules/error-stack-parser/error-stack-parser.js ***!
+  \************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+  'use strict'; // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
+
+  /* istanbul ignore next */
+
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! stackframe */ "./node_modules/elastic-apm-js-core/node_modules/stackframe/stackframe.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {}
+})(this, function ErrorStackParser(StackFrame) {
+  'use strict';
+
+  var FIREFOX_SAFARI_STACK_REGEXP = /(^|@)\S+\:\d+/;
+  var CHROME_IE_STACK_REGEXP = /^\s*at .*(\S+\:\d+|\(native\))/m;
+  var SAFARI_NATIVE_CODE_REGEXP = /^(eval@)?(\[native code\])?$/;
+
+  function _map(array, fn, thisArg) {
+    if (typeof Array.prototype.map === 'function') {
+      return array.map(fn, thisArg);
+    } else {
+      var output = new Array(array.length);
+
+      for (var i = 0; i < array.length; i++) {
+        output[i] = fn.call(thisArg, array[i]);
+      }
+
+      return output;
+    }
+  }
+
+  function _filter(array, fn, thisArg) {
+    if (typeof Array.prototype.filter === 'function') {
+      return array.filter(fn, thisArg);
+    } else {
+      var output = [];
+
+      for (var i = 0; i < array.length; i++) {
+        if (fn.call(thisArg, array[i])) {
+          output.push(array[i]);
+        }
+      }
+
+      return output;
+    }
+  }
+
+  function _indexOf(array, target) {
+    if (typeof Array.prototype.indexOf === 'function') {
+      return array.indexOf(target);
+    } else {
+      for (var i = 0; i < array.length; i++) {
+        if (array[i] === target) {
+          return i;
+        }
+      }
+
+      return -1;
+    }
+  }
+
+  return {
+    /**
+     * Given an Error object, extract the most information from it.
+     *
+     * @param {Error} error object
+     * @return {Array} of StackFrames
+     */
+    parse: function ErrorStackParser$$parse(error) {
+      if (typeof error.stacktrace !== 'undefined' || typeof error['opera#sourceloc'] !== 'undefined') {
+        return this.parseOpera(error);
+      } else if (error.stack && error.stack.match(CHROME_IE_STACK_REGEXP)) {
+        return this.parseV8OrIE(error);
+      } else if (error.stack) {
+        return this.parseFFOrSafari(error);
+      } else {
+        throw new Error('Cannot parse given Error object');
+      }
+    },
+    // Separate line and column numbers from a string of the form: (URI:Line:Column)
+    extractLocation: function ErrorStackParser$$extractLocation(urlLike) {
+      // Fail-fast but return locations like "(native)"
+      if (urlLike.indexOf(':') === -1) {
+        return [urlLike];
+      }
+
+      var regExp = /(.+?)(?:\:(\d+))?(?:\:(\d+))?$/;
+      var parts = regExp.exec(urlLike.replace(/[\(\)]/g, ''));
+      return [parts[1], parts[2] || undefined, parts[3] || undefined];
+    },
+    parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
+      var filtered = _filter(error.stack.split('\n'), function (line) {
+        return !!line.match(CHROME_IE_STACK_REGEXP);
+      }, this);
+
+      return _map(filtered, function (line) {
+        if (line.indexOf('(eval ') > -1) {
+          // Throw away eval information until we implement stacktrace.js/stackframe#8
+          line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^\()]*)|(\)\,.*$)/g, '');
+        }
+
+        var tokens = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').split(/\s+/).slice(1);
+        var locationParts = this.extractLocation(tokens.pop());
+        var functionName = tokens.join(' ') || undefined;
+        var fileName = _indexOf(['eval', '<anonymous>'], locationParts[0]) > -1 ? undefined : locationParts[0];
+        return new StackFrame(functionName, undefined, fileName, locationParts[1], locationParts[2], line);
+      }, this);
+    },
+    parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
+      var filtered = _filter(error.stack.split('\n'), function (line) {
+        return !line.match(SAFARI_NATIVE_CODE_REGEXP);
+      }, this);
+
+      return _map(filtered, function (line) {
+        // Throw away eval information until we implement stacktrace.js/stackframe#8
+        if (line.indexOf(' > eval') > -1) {
+          line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval\:\d+\:\d+/g, ':$1');
+        }
+
+        if (line.indexOf('@') === -1 && line.indexOf(':') === -1) {
+          // Safari eval frames only have function names and nothing else
+          return new StackFrame(line);
+        } else {
+          var tokens = line.split('@');
+          var locationParts = this.extractLocation(tokens.pop());
+          var functionName = tokens.join('@') || undefined;
+          return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2], line);
+        }
+      }, this);
+    },
+    parseOpera: function ErrorStackParser$$parseOpera(e) {
+      if (!e.stacktrace || e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length) {
+        return this.parseOpera9(e);
+      } else if (!e.stack) {
+        return this.parseOpera10(e);
+      } else {
+        return this.parseOpera11(e);
+      }
+    },
+    parseOpera9: function ErrorStackParser$$parseOpera9(e) {
+      var lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
+      var lines = e.message.split('\n');
+      var result = [];
+
+      for (var i = 2, len = lines.length; i < len; i += 2) {
+        var match = lineRE.exec(lines[i]);
+
+        if (match) {
+          result.push(new StackFrame(undefined, undefined, match[2], match[1], undefined, lines[i]));
+        }
+      }
+
+      return result;
+    },
+    parseOpera10: function ErrorStackParser$$parseOpera10(e) {
+      var lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
+      var lines = e.stacktrace.split('\n');
+      var result = [];
+
+      for (var i = 0, len = lines.length; i < len; i += 2) {
+        var match = lineRE.exec(lines[i]);
+
+        if (match) {
+          result.push(new StackFrame(match[3] || undefined, undefined, match[2], match[1], undefined, lines[i]));
+        }
+      }
+
+      return result;
+    },
+    // Opera 10.65+ Error.stack very similar to FF/Safari
+    parseOpera11: function ErrorStackParser$$parseOpera11(error) {
+      var filtered = _filter(error.stack.split('\n'), function (line) {
+        return !!line.match(FIREFOX_SAFARI_STACK_REGEXP) && !line.match(/^Error created at/);
+      }, this);
+
+      return _map(filtered, function (line) {
+        var tokens = line.split('@');
+        var locationParts = this.extractLocation(tokens.pop());
+        var functionCall = tokens.shift() || '';
+        var functionName = functionCall.replace(/<anonymous function(: (\w+))?>/, '$2').replace(/\([^\)]*\)/g, '') || undefined;
+        var argsRaw;
+
+        if (functionCall.match(/\(([^\)]*)\)/)) {
+          argsRaw = functionCall.replace(/^[^\(]+\(([^\)]*)\)$/, '$1');
+        }
+
+        var args = argsRaw === undefined || argsRaw === '[arguments not available]' ? undefined : argsRaw.split(',');
+        return new StackFrame(functionName, args, locationParts[0], locationParts[1], locationParts[2], line);
+      }, this);
+    }
+  };
+});
+
+/***/ }),
+
+/***/ "./node_modules/elastic-apm-js-core/node_modules/stackframe/stackframe.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/elastic-apm-js-core/node_modules/stackframe/stackframe.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
+  'use strict'; // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
+
+  /* istanbul ignore next */
+
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {}
+})(this, function () {
+  'use strict';
+
+  function _isNumber(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  }
+
+  function StackFrame(functionName, args, fileName, lineNumber, columnNumber, source) {
+    if (functionName !== undefined) {
+      this.setFunctionName(functionName);
+    }
+
+    if (args !== undefined) {
+      this.setArgs(args);
+    }
+
+    if (fileName !== undefined) {
+      this.setFileName(fileName);
+    }
+
+    if (lineNumber !== undefined) {
+      this.setLineNumber(lineNumber);
+    }
+
+    if (columnNumber !== undefined) {
+      this.setColumnNumber(columnNumber);
+    }
+
+    if (source !== undefined) {
+      this.setSource(source);
+    }
+  }
+
+  StackFrame.prototype = {
+    getFunctionName: function () {
+      return this.functionName;
+    },
+    setFunctionName: function (v) {
+      this.functionName = String(v);
+    },
+    getArgs: function () {
+      return this.args;
+    },
+    setArgs: function (v) {
+      if (Object.prototype.toString.call(v) !== '[object Array]') {
+        throw new TypeError('Args must be an Array');
+      }
+
+      this.args = v;
+    },
+    // NOTE: Property name may be misleading as it includes the path,
+    // but it somewhat mirrors V8's JavaScriptStackTraceApi
+    // https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi and Gecko's
+    // http://mxr.mozilla.org/mozilla-central/source/xpcom/base/nsIException.idl#14
+    getFileName: function () {
+      return this.fileName;
+    },
+    setFileName: function (v) {
+      this.fileName = String(v);
+    },
+    getLineNumber: function () {
+      return this.lineNumber;
+    },
+    setLineNumber: function (v) {
+      if (!_isNumber(v)) {
+        throw new TypeError('Line Number must be a Number');
+      }
+
+      this.lineNumber = Number(v);
+    },
+    getColumnNumber: function () {
+      return this.columnNumber;
+    },
+    setColumnNumber: function (v) {
+      if (!_isNumber(v)) {
+        throw new TypeError('Column Number must be a Number');
+      }
+
+      this.columnNumber = Number(v);
+    },
+    getSource: function () {
+      return this.source;
+    },
+    setSource: function (v) {
+      this.source = String(v);
+    },
+    toString: function () {
+      var functionName = this.getFunctionName() || '{anonymous}';
+      var args = '(' + (this.getArgs() || []).join(',') + ')';
+      var fileName = this.getFileName() ? '@' + this.getFileName() : '';
+      var lineNumber = _isNumber(this.getLineNumber()) ? ':' + this.getLineNumber() : '';
+      var columnNumber = _isNumber(this.getColumnNumber()) ? ':' + this.getColumnNumber() : '';
+      return functionName + args + fileName + lineNumber + columnNumber;
+    }
+  };
+  return StackFrame;
+});
+
+/***/ }),
+
 /***/ "./node_modules/elastic-apm-js-core/src/common/apm-server.js":
 /*!*******************************************************************!*\
   !*** ./node_modules/elastic-apm-js-core/src/common/apm-server.js ***!
@@ -2460,7 +2781,7 @@ module.exports = {
  * THE SOFTWARE.
  *
  */
-var errorStackParser = __webpack_require__(/*! error-stack-parser */ "./node_modules/error-stack-parser/error-stack-parser.js");
+var errorStackParser = __webpack_require__(/*! error-stack-parser */ "./node_modules/elastic-apm-js-core/node_modules/error-stack-parser/error-stack-parser.js");
 
 class StackTraceService {
   constructor(configService, loggingService) {
@@ -3967,327 +4288,6 @@ module.exports = Transaction;
 
 /***/ }),
 
-/***/ "./node_modules/error-stack-parser/error-stack-parser.js":
-/*!***************************************************************!*\
-  !*** ./node_modules/error-stack-parser/error-stack-parser.js ***!
-  \***************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-  'use strict'; // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
-
-  /* istanbul ignore next */
-
-  if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! stackframe */ "./node_modules/stackframe/stackframe.js")], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {}
-})(this, function ErrorStackParser(StackFrame) {
-  'use strict';
-
-  var FIREFOX_SAFARI_STACK_REGEXP = /(^|@)\S+\:\d+/;
-  var CHROME_IE_STACK_REGEXP = /^\s*at .*(\S+\:\d+|\(native\))/m;
-  var SAFARI_NATIVE_CODE_REGEXP = /^(eval@)?(\[native code\])?$/;
-
-  function _map(array, fn, thisArg) {
-    if (typeof Array.prototype.map === 'function') {
-      return array.map(fn, thisArg);
-    } else {
-      var output = new Array(array.length);
-
-      for (var i = 0; i < array.length; i++) {
-        output[i] = fn.call(thisArg, array[i]);
-      }
-
-      return output;
-    }
-  }
-
-  function _filter(array, fn, thisArg) {
-    if (typeof Array.prototype.filter === 'function') {
-      return array.filter(fn, thisArg);
-    } else {
-      var output = [];
-
-      for (var i = 0; i < array.length; i++) {
-        if (fn.call(thisArg, array[i])) {
-          output.push(array[i]);
-        }
-      }
-
-      return output;
-    }
-  }
-
-  function _indexOf(array, target) {
-    if (typeof Array.prototype.indexOf === 'function') {
-      return array.indexOf(target);
-    } else {
-      for (var i = 0; i < array.length; i++) {
-        if (array[i] === target) {
-          return i;
-        }
-      }
-
-      return -1;
-    }
-  }
-
-  return {
-    /**
-     * Given an Error object, extract the most information from it.
-     *
-     * @param {Error} error object
-     * @return {Array} of StackFrames
-     */
-    parse: function ErrorStackParser$$parse(error) {
-      if (typeof error.stacktrace !== 'undefined' || typeof error['opera#sourceloc'] !== 'undefined') {
-        return this.parseOpera(error);
-      } else if (error.stack && error.stack.match(CHROME_IE_STACK_REGEXP)) {
-        return this.parseV8OrIE(error);
-      } else if (error.stack) {
-        return this.parseFFOrSafari(error);
-      } else {
-        throw new Error('Cannot parse given Error object');
-      }
-    },
-    // Separate line and column numbers from a string of the form: (URI:Line:Column)
-    extractLocation: function ErrorStackParser$$extractLocation(urlLike) {
-      // Fail-fast but return locations like "(native)"
-      if (urlLike.indexOf(':') === -1) {
-        return [urlLike];
-      }
-
-      var regExp = /(.+?)(?:\:(\d+))?(?:\:(\d+))?$/;
-      var parts = regExp.exec(urlLike.replace(/[\(\)]/g, ''));
-      return [parts[1], parts[2] || undefined, parts[3] || undefined];
-    },
-    parseV8OrIE: function ErrorStackParser$$parseV8OrIE(error) {
-      var filtered = _filter(error.stack.split('\n'), function (line) {
-        return !!line.match(CHROME_IE_STACK_REGEXP);
-      }, this);
-
-      return _map(filtered, function (line) {
-        if (line.indexOf('(eval ') > -1) {
-          // Throw away eval information until we implement stacktrace.js/stackframe#8
-          line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^\()]*)|(\)\,.*$)/g, '');
-        }
-
-        var tokens = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').split(/\s+/).slice(1);
-        var locationParts = this.extractLocation(tokens.pop());
-        var functionName = tokens.join(' ') || undefined;
-        var fileName = _indexOf(['eval', '<anonymous>'], locationParts[0]) > -1 ? undefined : locationParts[0];
-        return new StackFrame(functionName, undefined, fileName, locationParts[1], locationParts[2], line);
-      }, this);
-    },
-    parseFFOrSafari: function ErrorStackParser$$parseFFOrSafari(error) {
-      var filtered = _filter(error.stack.split('\n'), function (line) {
-        return !line.match(SAFARI_NATIVE_CODE_REGEXP);
-      }, this);
-
-      return _map(filtered, function (line) {
-        // Throw away eval information until we implement stacktrace.js/stackframe#8
-        if (line.indexOf(' > eval') > -1) {
-          line = line.replace(/ line (\d+)(?: > eval line \d+)* > eval\:\d+\:\d+/g, ':$1');
-        }
-
-        if (line.indexOf('@') === -1 && line.indexOf(':') === -1) {
-          // Safari eval frames only have function names and nothing else
-          return new StackFrame(line);
-        } else {
-          var tokens = line.split('@');
-          var locationParts = this.extractLocation(tokens.pop());
-          var functionName = tokens.join('@') || undefined;
-          return new StackFrame(functionName, undefined, locationParts[0], locationParts[1], locationParts[2], line);
-        }
-      }, this);
-    },
-    parseOpera: function ErrorStackParser$$parseOpera(e) {
-      if (!e.stacktrace || e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length) {
-        return this.parseOpera9(e);
-      } else if (!e.stack) {
-        return this.parseOpera10(e);
-      } else {
-        return this.parseOpera11(e);
-      }
-    },
-    parseOpera9: function ErrorStackParser$$parseOpera9(e) {
-      var lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
-      var lines = e.message.split('\n');
-      var result = [];
-
-      for (var i = 2, len = lines.length; i < len; i += 2) {
-        var match = lineRE.exec(lines[i]);
-
-        if (match) {
-          result.push(new StackFrame(undefined, undefined, match[2], match[1], undefined, lines[i]));
-        }
-      }
-
-      return result;
-    },
-    parseOpera10: function ErrorStackParser$$parseOpera10(e) {
-      var lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
-      var lines = e.stacktrace.split('\n');
-      var result = [];
-
-      for (var i = 0, len = lines.length; i < len; i += 2) {
-        var match = lineRE.exec(lines[i]);
-
-        if (match) {
-          result.push(new StackFrame(match[3] || undefined, undefined, match[2], match[1], undefined, lines[i]));
-        }
-      }
-
-      return result;
-    },
-    // Opera 10.65+ Error.stack very similar to FF/Safari
-    parseOpera11: function ErrorStackParser$$parseOpera11(error) {
-      var filtered = _filter(error.stack.split('\n'), function (line) {
-        return !!line.match(FIREFOX_SAFARI_STACK_REGEXP) && !line.match(/^Error created at/);
-      }, this);
-
-      return _map(filtered, function (line) {
-        var tokens = line.split('@');
-        var locationParts = this.extractLocation(tokens.pop());
-        var functionCall = tokens.shift() || '';
-        var functionName = functionCall.replace(/<anonymous function(: (\w+))?>/, '$2').replace(/\([^\)]*\)/g, '') || undefined;
-        var argsRaw;
-
-        if (functionCall.match(/\(([^\)]*)\)/)) {
-          argsRaw = functionCall.replace(/^[^\(]+\(([^\)]*)\)$/, '$1');
-        }
-
-        var args = argsRaw === undefined || argsRaw === '[arguments not available]' ? undefined : argsRaw.split(',');
-        return new StackFrame(functionName, args, locationParts[0], locationParts[1], locationParts[2], line);
-      }, this);
-    }
-  };
-});
-
-/***/ }),
-
-/***/ "./node_modules/stackframe/stackframe.js":
-/*!***********************************************!*\
-  !*** ./node_modules/stackframe/stackframe.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function (root, factory) {
-  'use strict'; // Universal Module Definition (UMD) to support AMD, CommonJS/Node.js, Rhino, and browsers.
-
-  /* istanbul ignore next */
-
-  if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
-				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
-				(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-  } else {}
-})(this, function () {
-  'use strict';
-
-  function _isNumber(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  }
-
-  function StackFrame(functionName, args, fileName, lineNumber, columnNumber, source) {
-    if (functionName !== undefined) {
-      this.setFunctionName(functionName);
-    }
-
-    if (args !== undefined) {
-      this.setArgs(args);
-    }
-
-    if (fileName !== undefined) {
-      this.setFileName(fileName);
-    }
-
-    if (lineNumber !== undefined) {
-      this.setLineNumber(lineNumber);
-    }
-
-    if (columnNumber !== undefined) {
-      this.setColumnNumber(columnNumber);
-    }
-
-    if (source !== undefined) {
-      this.setSource(source);
-    }
-  }
-
-  StackFrame.prototype = {
-    getFunctionName: function () {
-      return this.functionName;
-    },
-    setFunctionName: function (v) {
-      this.functionName = String(v);
-    },
-    getArgs: function () {
-      return this.args;
-    },
-    setArgs: function (v) {
-      if (Object.prototype.toString.call(v) !== '[object Array]') {
-        throw new TypeError('Args must be an Array');
-      }
-
-      this.args = v;
-    },
-    // NOTE: Property name may be misleading as it includes the path,
-    // but it somewhat mirrors V8's JavaScriptStackTraceApi
-    // https://code.google.com/p/v8/wiki/JavaScriptStackTraceApi and Gecko's
-    // http://mxr.mozilla.org/mozilla-central/source/xpcom/base/nsIException.idl#14
-    getFileName: function () {
-      return this.fileName;
-    },
-    setFileName: function (v) {
-      this.fileName = String(v);
-    },
-    getLineNumber: function () {
-      return this.lineNumber;
-    },
-    setLineNumber: function (v) {
-      if (!_isNumber(v)) {
-        throw new TypeError('Line Number must be a Number');
-      }
-
-      this.lineNumber = Number(v);
-    },
-    getColumnNumber: function () {
-      return this.columnNumber;
-    },
-    setColumnNumber: function (v) {
-      if (!_isNumber(v)) {
-        throw new TypeError('Column Number must be a Number');
-      }
-
-      this.columnNumber = Number(v);
-    },
-    getSource: function () {
-      return this.source;
-    },
-    setSource: function (v) {
-      this.source = String(v);
-    },
-    toString: function () {
-      var functionName = this.getFunctionName() || '{anonymous}';
-      var args = '(' + (this.getArgs() || []).join(',') + ')';
-      var fileName = this.getFileName() ? '@' + this.getFileName() : '';
-      var lineNumber = _isNumber(this.getLineNumber()) ? ':' + this.getLineNumber() : '';
-      var columnNumber = _isNumber(this.getColumnNumber()) ? ':' + this.getColumnNumber() : '';
-      return functionName + args + fileName + lineNumber + columnNumber;
-    }
-  };
-  return StackFrame;
-});
-
-/***/ }),
-
 /***/ "./node_modules/uuid/lib/rng-browser.js":
 /*!**********************************************!*\
   !*** ./node_modules/uuid/lib/rng-browser.js ***!
@@ -4399,16 +4399,9 @@ exports._getReportContent = function (params) {
   } //处理上报
 
 
-  debugger;
-
   switch (params.type) {
     case 'monitor':
       this._handleMonitor(params);
-
-      break;
-
-    case 'performance':
-      this._handlePerformance(params);
 
       break;
 
@@ -4419,6 +4412,7 @@ exports._getReportContent = function (params) {
     //以下暂缺，kibanaApm暂时不处理
 
     case 'analyse':
+    case 'performance':
     case 'undefined':
     default:
       index_1.consoleTools.warnError(params.type + 'is no handle type');
@@ -4483,8 +4477,6 @@ var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/report/kibana
 
 var custome_1 = __webpack_require__(/*! ./custome */ "./src/services/report/kibanaApm/custome.ts");
 
-var performance_1 = __webpack_require__(/*! ./performance */ "./src/services/report/kibanaApm/performance.ts");
-
 var monitor_1 = __webpack_require__(/*! ./monitor */ "./src/services/report/kibanaApm/monitor.ts"); // report Server 
 
 
@@ -4504,7 +4496,6 @@ function (_super) {
 
     _this._getReportContent = handle_1._getReportContent.bind(_this);
     _this._handleCustome = custome_1._handleCustome.bind(_this);
-    _this._handlePerformance = performance_1._handlePerformance.bind(_this);
     _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
     _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
     var _a = config,
@@ -4561,29 +4552,37 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
+
 exports._handleMonitor = function (params) {
   var _self = this;
 
+  var type = params.type,
+      typeName = params.typeName;
+  var taskName = type + "-" + typeName;
+
+  var task = _self.tracerTransaction.createCustomEventTransaction(taskName, typeName);
+
   switch (params.typeName) {
     case 'log':
-      return _self._handleMonitorLog(params);
+      return _self._handleMonitorLog(params, task);
+
+    case 'error':
+      return index_1.consoleTools.warnError('kibanaAPM has a error is monitor of self, is not handle monitor error report');
 
     default:
       return;
   }
 };
 
-exports._handleMonitorLog = function (params) {
-  var _self = this;
+exports._handleMonitorLog = function (params, task) {
+  var data = params.data;
+  task.addTags(data);
+  task.end();
+};
 
-  var data = params.data,
-      type = params.type,
-      typeName = params.typeName;
-  var taskName = type + "-" + typeName;
-
-  var task = _self.tracerTransaction.createCustomEventTransaction(taskName, {
-    transactionSampleRate: 1
-  });
+exports._handleMonitorNetwork = function (params, task) {
+  var data = params.data;
 
   for (var key in data) {
     task.startSpan(data[key], key);
@@ -4592,24 +4591,6 @@ exports._handleMonitorLog = function (params) {
   task.addTags(data);
   task.end();
 };
-
-/***/ }),
-
-/***/ "./src/services/report/kibanaApm/performance.ts":
-/*!******************************************************!*\
-  !*** ./src/services/report/kibanaApm/performance.ts ***!
-  \******************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports._handlePerformance = function (params) {};
 
 /***/ }),
 
@@ -4679,7 +4660,7 @@ function () {
       configService.setUserContext(userInfo);
     };
 
-    this.createCustomEventTransaction = function (name, options) {
+    this.createCustomEventTransaction = function (name, type, options) {
       var self = _this;
 
       if (!self.Initialized) {
@@ -4690,7 +4671,7 @@ function () {
         transactionSampleRate: 1
       }, options);
 
-      var transaction = new transaction_1["default"](name, name, _option); //添加onEnd事件
+      var transaction = new transaction_1["default"](name, type, _option); //添加onEnd事件
 
       Object.defineProperty(transaction, 'onEnd', {
         enumerable: false,
