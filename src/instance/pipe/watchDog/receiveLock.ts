@@ -1,4 +1,4 @@
-import * as tool from '../../util/tool';
+import * as tool from '../../../util/tool';
 
 
 

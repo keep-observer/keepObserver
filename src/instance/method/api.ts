@@ -19,3 +19,4 @@ export const apis = function(apiName:string,...args:any[]){
     const callback = _self.apis[apiName]
     return callback(...args)
 }
+

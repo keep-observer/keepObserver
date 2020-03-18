@@ -16,7 +16,6 @@ import {
 
 class KeepObserverPublic {
     private _middleWareInstance: KeepObserverMiddleWare;
-    private _publicMiddleScopeNames: string[];
     public _develop :boolean;
     public middleScopeNames :string[]
 
@@ -25,8 +24,6 @@ class KeepObserverPublic {
         const { develop = false, } =config as any
         //当前是否处于开发模式
         this._develop = develop;
-        //公共中间件事件
-        this._publicMiddleScopeNames = [ 'noticeReport' ];
         //由子元素继承并重载
         this.middleScopeNames = []
         //注册中间件实例
@@ -59,18 +56,18 @@ class KeepObserverPublic {
     
     
     //兼容老版本做保留,内部使用中间件替换
-    public addReportListener(callback) {
-        var _self = this;
-        if (callback) {
-            const [ scopeName ] = _self._publicMiddleScopeNames
-            //  1 -> 2 -> 3 -> 2 -> 1
-            this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
-                devLog(_self._develop,reportParams)
-                next(reportParams)
-                return callback(reportParams)
-            })
-        }
-    }
+    // public addReportListener(callback) {
+    //     var _self = this;
+    //     if (callback) {
+    //         const [ scopeName ] = _self._publicMiddleScopeNames
+    //         //  1 -> 2 -> 3 -> 2 -> 1
+    //         this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
+    //             devLog(_self._develop,reportParams)
+    //             next(reportParams)
+    //             return callback(reportParams)
+    //         })
+    //     }
+    // }
     //整理上报数据
     public handleReportData(params:catchParams){
         const defaultParams = { 
@@ -91,13 +88,13 @@ class KeepObserverPublic {
         return reportParams
     }
     //run noticeReort middle
-    public noticeReport(catchParams:catchParams) {
-        var _self = this;
-        //执行中间件
-        const [ scopeName ] = _self._publicMiddleScopeNames
-        const reportParams = _self.handleReportData(catchParams)
-        this.runMiddle(scopeName,reportParams)
-    }
+    // public noticeReport(catchParams:catchParams) {
+    //     var _self = this;
+    //     //执行中间件
+    //     const [ scopeName ] = _self._publicMiddleScopeNames
+    //     const reportParams = _self.handleReportData(catchParams)
+    //     this.runMiddle(scopeName,reportParams)
+    // }
 
 
 }

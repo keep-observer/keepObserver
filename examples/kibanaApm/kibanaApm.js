@@ -15,6 +15,7 @@ const test404 = 'http://localhost:9003/404'
 const test500 = 'http://localhost:9003/500'
 
 
+
 //实例
 const ko = new KeepObserver({ 
     develop:true,

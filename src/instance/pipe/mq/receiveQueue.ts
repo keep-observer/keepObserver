@@ -2,10 +2,10 @@ import { consoleTools,tool } from '@util/index'
 
 
 //注册管道接收数据函数
-export var registerRecivePipeMessage = function(pipeIndex) {
+export var registerRecivePipeMessage = function(id) {
     var _self = this;
     //修正索引
-    if (_self.pipeUser[pipeIndex].receiveCallback) {
+    if (_self.customerMap[id]) {
         consoleTools.warnError('register recive pipe index is Occupy')
         return false;
     }
@@ -17,7 +17,7 @@ export var registerRecivePipeMessage = function(pipeIndex) {
             return false;
         }
         //内部修改作用域调用
-        _self.pipeUser[pipeIndex].receiveCallback = function() {
+        _self.customerMap[id] = function() {
             var agrs = tool.toArray(arguments);
             //向注册进来的接收函数发送数据
             if (scope) {

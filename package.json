@@ -4,8 +4,8 @@
   "description": "web -- watch  is JS-error netWork  console..log  observer  web-monitor",
   "main": "index.js",
   "scripts": {
-    "test": "node test/start.js",
-    "dev": "node test/dev.js",
+    "test": "node dev/start.js",
+    "dev": "node dev/dev.js",
     "build:util": "node build/build-util.js",
     "build": "npm run build:util && node build/build.js",
     "link": "npm run build && npm unlink && npm link"
