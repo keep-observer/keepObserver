@@ -60,7 +60,6 @@ export var noticeListener = function(queue) {
             try {
                 //执行分发
                 var result = cb(params);
-                
             } catch (e) {
                 consoleTools.warnError('use pipe message notice is runing error:' + e)
             }

@@ -54,20 +54,6 @@ class KeepObserverPublic {
     }
 
     
-    
-    //兼容老版本做保留,内部使用中间件替换
-    // public addReportListener(callback) {
-    //     var _self = this;
-    //     if (callback) {
-    //         const [ scopeName ] = _self._publicMiddleScopeNames
-    //         //  1 -> 2 -> 3 -> 2 -> 1
-    //         this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
-    //             devLog(_self._develop,reportParams)
-    //             next(reportParams)
-    //             return callback(reportParams)
-    //         })
-    //     }
-    // }
     //整理上报数据
     public handleReportData(params:catchParams){
         const defaultParams = { 
@@ -87,6 +73,21 @@ class KeepObserverPublic {
         };
         return reportParams
     }
+
+    //兼容老版本做保留,内部使用中间件替换
+    // public addReportListener(callback) {
+    //     var _self = this;
+    //     if (callback) {
+    //         const [ scopeName ] = _self._publicMiddleScopeNames
+    //         //  1 -> 2 -> 3 -> 2 -> 1
+    //         this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
+    //             devLog(_self._develop,reportParams)
+    //             next(reportParams)
+    //             return callback(reportParams)
+    //         })
+    //     }
+    // }
+    
     //run noticeReort middle
     // public noticeReport(catchParams:catchParams) {
     //     var _self = this;

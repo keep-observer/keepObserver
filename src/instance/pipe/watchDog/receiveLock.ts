@@ -2,9 +2,6 @@ import * as tool from '../../../util/tool';
 
 
 
-//默认定时打开消息锁
-var receiveTime = false;
-
 
 
 export var isLock = function() {
@@ -34,11 +31,6 @@ export var openLock = function() {
 export var closeLock = function() {
     if (!this.receiveLock) {
         return false;
-    }
-    //恢复定时器
-    if (receiveTime) {
-        (<any>window).cleanTimeout(receiveTime)
-        receiveTime = false;
     }
     this.receiveLock = false;
 }

@@ -17,9 +17,9 @@ class MessageQueue{
         [propsName:number]:(...any)=>Promise<{}>
     }
     //method
-    private sendPipeMessage  = sendPipeMessage.bind(this)
     private noticeListener = noticeListener.bind(this)
-    private registerRecivePipeMessage = registerRecivePipeMessage.bind(this)
+    public sendPipeMessage  = sendPipeMessage.bind(this)
+    public registerRecivePipeMessage = registerRecivePipeMessage.bind(this)
 
 
     constructor(config) {

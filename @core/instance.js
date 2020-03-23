@@ -188,6 +188,10 @@ var update_1 = __webpack_require__(/*! ./method/update */ "./src/instance/method
 
 var api_1 = __webpack_require__(/*! ./method/api */ "./src/instance/method/api.ts");
 
+var middle_1 = __webpack_require__(/*! ./method/middle */ "./src/instance/method/middle.ts");
+
+var base_1 = __webpack_require__(/*! ./method/base */ "./src/instance/method/base.ts");
+
 var KeepObserver =
 /** @class */
 function (_super) {
@@ -209,7 +213,17 @@ function (_super) {
     _this.updateVersionClearCache = update_1.updateVersionClearCache.bind(_this);
     _this.registerApi = api_1.registerApi.bind(_this); //api
 
-    _this.apis = api_1.apis.bind(_this); //获取实例配置
+    _this.apis = api_1.apis.bind(_this); //拓展中间件实例
+
+    _this.extendMiddleScopeName = middle_1.extendMiddleScopeName.bind(_this); //主实例重载中间件服务
+
+    _this.useMiddle = middle_1.useMiddle.bind(_this); //扩展上报属性
+
+    _this.extendReportParams = base_1.extendReportParams.bind(_this); //设置用户信息
+
+    _this.setUserInfo = base_1.setUserInfo.bind(_this); //挂载插件服务
+
+    _this.use = base_1.use.bind(_this); //获取实例配置
 
     _this._config = config; //管道实例
 
@@ -233,36 +247,7 @@ function (_super) {
     }
 
     return _this;
-  } //主实例重载中间件服务
-
-
-  KeepObserver.prototype.useMiddle = function (scopeName, middlesFn) {
-    return index_1.KeepObserverMiddleWare.usePublishMiddles(scopeName, middlesFn);
-  }; //扩展上报属性
-
-
-  KeepObserver.prototype.extendReportParams = function (params) {
-    return index_1.KeepObserverPublic.extendReport(params);
-  }; //设置用户信息
-
-
-  KeepObserver.prototype.setUserInfo = function (userInfo) {
-    return index_1.KeepObserverPublic.extendReport({
-      userInfo: userInfo
-    });
-  }; //拓展中间件实例
-
-
-  KeepObserver.prototype.extendMiddleScopeName = function (_middleScopeNames) {
-    var middleScopeNames = this.middleScopeNames;
-    if (index_1.tool.isEmptyArray(_middleScopeNames)) return;
-    return this.middleScopeNames = index_1.tool.toArray(new Set(middleScopeNames.concat(_middleScopeNames)));
-  }; //挂载插件服务
-
-
-  KeepObserver.prototype.use = function (Provider) {
-    return this._pipe.use(Provider);
-  };
+  }
 
   return KeepObserver;
 }(index_1.KeepObserverPublic);
@@ -352,6 +337,71 @@ exports.apis = function (apiName) {
 
 /***/ }),
 
+/***/ "./src/instance/method/base.ts":
+/*!*************************************!*\
+  !*** ./src/instance/method/base.ts ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //扩展上报属性
+
+
+exports.extendReportParams = function (params) {
+  return index_1.KeepObserverPublic.extendReport(params);
+}; //设置用户信息
+
+
+exports.setUserInfo = function (userInfo) {
+  return index_1.KeepObserverPublic.extendReport({
+    userInfo: userInfo
+  });
+}; //挂载插件服务
+
+
+exports.use = function (Provider) {
+  return this._pipe.use(Provider);
+};
+
+/***/ }),
+
+/***/ "./src/instance/method/middle.ts":
+/*!***************************************!*\
+  !*** ./src/instance/method/middle.ts ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //拓展中间件实例
+
+
+exports.extendMiddleScopeName = function (_middleScopeNames) {
+  var middleScopeNames = this.middleScopeNames;
+  if (index_1.tool.isEmptyArray(_middleScopeNames)) return;
+  return this.middleScopeNames = index_1.tool.toArray(new Set(middleScopeNames.concat(_middleScopeNames)));
+}; //主实例重载中间件服务
+
+
+exports.useMiddle = function (scopeName, middlesFn) {
+  return index_1.KeepObserverMiddleWare.usePublishMiddles(scopeName, middlesFn);
+};
+
+/***/ }),
+
 /***/ "./src/instance/method/update.ts":
 /*!***************************************!*\
   !*** ./src/instance/method/update.ts ***!
@@ -430,23 +480,23 @@ var __extends = this && this.__extends || function () {
   };
 }();
 
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
+var index_2 = __importDefault(__webpack_require__(/*! ./mq/index */ "./src/instance/pipe/mq/index.ts"));
+
 var oldVsersion_1 = __webpack_require__(/*! ./oldVsersion */ "./src/instance/pipe/oldVsersion.ts");
 
 var injection_1 = __webpack_require__(/*! ./injection */ "./src/instance/pipe/injection.ts");
-
-var receiveQueue_1 = __webpack_require__(/*! ./receiveQueue */ "./src/instance/pipe/receiveQueue.ts");
-
-var triggerQueue_1 = __webpack_require__(/*! ./triggerQueue */ "./src/instance/pipe/triggerQueue.ts");
-
-var receiveLock_1 = __webpack_require__(/*! ./receiveLock */ "./src/instance/pipe/receiveLock.ts");
-
-var preventAnomaly_1 = __webpack_require__(/*! ./preventAnomaly */ "./src/instance/pipe/preventAnomaly.ts");
 
 var keepObserverPipe =
 /** @class */
@@ -459,34 +509,17 @@ function (_super) {
 
     _this.injection = injection_1.injection.bind(_this);
     _this.registerPipeListenerUser = injection_1.registerPipeListenerUser.bind(_this);
-    _this.registerRecivePipeMessage = receiveQueue_1.registerRecivePipeMessage.bind(_this);
-    _this.oldVsersion_Danger_MixinKoInstance = oldVsersion_1.oldVsersion_Danger_MixinKoInstance.bind(_this);
-    _this.sendPipeMessage = triggerQueue_1.sendPipeMessage.bind(_this);
-    _this.noticeListener = triggerQueue_1.noticeListener.bind(_this);
-    _this.isLock = receiveLock_1.isLock.bind(_this);
-    _this.openLock = receiveLock_1.openLock.bind(_this);
-    _this.closeLock = receiveLock_1.closeLock.bind(_this);
-    _this.preventStackError = preventAnomaly_1.preventStackError.bind(_this);
-    _this.judgeAnomaly = preventAnomaly_1.judgeAnomaly.bind(_this);
-    _this.resetStackCount = preventAnomaly_1.resetStackCount.bind(_this); // api
+    _this.oldVsersion_Danger_MixinKoInstance = oldVsersion_1.oldVsersion_Danger_MixinKoInstance.bind(_this); // api
 
     _this.use = injection_1.use.bind(_this); //获取实例配置
 
     _this._config = config; //获取kp实例
 
-    _this.$keepObserver = keepObserver; //消息是否在等待
+    _this.$keepObserver = keepObserver; //管道用户
 
-    _this.waiting = false; //消息接收锁
+    _this.pipeUser = []; //消息队列实例
 
-    _this.receiveLock = false; //堆栈计数对象
-
-    _this.stackCountBuff = {}; //堆栈运行定时器
-
-    _this.stackTimeFlag = false; //消息队列
-
-    _this.messageQueue = []; //管道用户
-
-    _this.pipeUser = [];
+    _this.$mq = new index_2["default"](config);
     return _this;
   }
 
@@ -597,16 +630,14 @@ exports.injection = function (scope, applyFn) {
   } //cerate pipe listener
 
 
-  var pipeMethod = _self.registerPipeListenerUser();
+  var pipeUser = _self.registerPipeListenerUser();
 
   try {
     // runing apply
-    var userRenderMethod = applyFn.call(scope, pipeMethod, config); //mounte method
+    var userRenderMethod = applyFn.call(scope, pipeUser, config); //mounte method oldVsersion
 
-    if (index_1.tool.isObject && !index_1.tool.isEmptyObject(userRenderMethod)) {
+    if (index_1.tool.isObject(userRenderMethod) && !index_1.tool.isEmptyObject(userRenderMethod)) {
       _self.oldVsersion_Danger_MixinKoInstance(scope, userRenderMethod);
-
-      return;
     } //new version mounte api method
     // 1. $keepObserver.registerApi 
     // 2. userRenderMethod : [{apiName,callback}...]
@@ -653,40 +684,237 @@ exports.registerPipeListenerUser = function () {
   var pipeUser = {
     //index
     pipeIndex: pipeIndex,
-    //receiveCallBack
-    receiveCallback: null,
     //send message
     sendPipeMessage: function sendPipeMessage() {
-      return _self.sendPipeMessage.apply(_self, __spread([pipeIndex], arguments));
+      var _a;
+
+      return (_a = _self.$mq).sendPipeMessage.apply(_a, __spread([pipeIndex], arguments));
     },
     //registerMiddleScopeName
     registerMiddleScopeName: function registerMiddleScopeName(middleScopeNames) {
       return _self.$keepObserver.extendMiddleScopeName(middleScopeNames);
     },
     //register message
-    registerRecivePipeMessage: null
+    registerRecivePipeMessage: _self.$mq.registerRecivePipeMessage(pipeIndex)
   }; //add listener
 
-  _self.pipeUser[pipeIndex] = pipeUser; //register receive message listener
+  _self.pipeUser[pipeIndex] = pipeUser;
+  return _self;
+};
 
-  pipeUser.registerRecivePipeMessage = _self.registerRecivePipeMessage(pipeIndex); //render pipe method
+/***/ }),
 
-  var renderMethod = {
-    registerRecivePipeMessage: function registerRecivePipeMessage() {
-      if (!_self.pipeUser[pipeIndex]) return false;
-      return pipeUser.registerRecivePipeMessage.apply(pipeUser, __spread(arguments));
-    },
-    sendPipeMessage: function sendPipeMessage() {
-      if (!_self.pipeUser[pipeIndex]) return false;
-      return pipeUser.sendPipeMessage.apply(pipeUser, __spread(arguments));
-    },
-    //registerMiddleScopeName
-    registerMiddleScopeName: function registerMiddleScopeName(middleScopeNames) {
-      if (!_self.pipeUser[pipeIndex]) return false;
-      return pipeUser.registerMiddleScopeName(middleScopeNames);
+/***/ "./src/instance/pipe/mq/index.ts":
+/*!***************************************!*\
+  !*** ./src/instance/pipe/mq/index.ts ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var triggerQueue_1 = __webpack_require__(/*! ./triggerQueue */ "./src/instance/pipe/mq/triggerQueue.ts");
+
+var receiveQueue_1 = __webpack_require__(/*! ./receiveQueue */ "./src/instance/pipe/mq/receiveQueue.ts");
+
+var MessageQueue =
+/** @class */
+function () {
+  function MessageQueue(config) {
+    //method
+    this.noticeListener = triggerQueue_1.noticeListener.bind(this);
+    this.sendPipeMessage = triggerQueue_1.sendPipeMessage.bind(this);
+    this.registerRecivePipeMessage = receiveQueue_1.registerRecivePipeMessage.bind(this); //消息是否在等待
+
+    this.waiting = false; //消息队列
+
+    this.messageQueue = []; //消费者集合
+
+    this.customerMap = {};
+  }
+
+  return MessageQueue;
+}();
+
+exports["default"] = MessageQueue;
+
+/***/ }),
+
+/***/ "./src/instance/pipe/mq/receiveQueue.ts":
+/*!**********************************************!*\
+  !*** ./src/instance/pipe/mq/receiveQueue.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __read = this && this.__read || function (o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
+      ar.push(r.value);
     }
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+};
+
+var __spread = this && this.__spread || function () {
+  for (var ar = [], i = 0; i < arguments.length; i++) {
+    ar = ar.concat(__read(arguments[i]));
+  }
+
+  return ar;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //注册管道接收数据函数
+
+
+exports.registerRecivePipeMessage = function (id) {
+  var _self = this; //修正索引
+
+
+  if (_self.customerMap[id]) {
+    index_1.consoleTools.warnError('register recive pipe index is Occupy');
+    return false;
+  } //返回一个闭包函数用来接收注册函数
+
+
+  return function (fn, scope) {
+    //接收函数
+    if (!fn || !index_1.tool.isFunction(fn)) {
+      index_1.consoleTools.warnError('registerRecivePipeMessage method receive function is not right');
+      return false;
+    } //内部修改作用域调用
+
+
+    _self.customerMap[id] = function () {
+      var agrs = index_1.tool.toArray(arguments); //向注册进来的接收函数发送数据
+
+      if (scope) {
+        return fn.apply(scope, agrs);
+      }
+
+      return fn.apply(void 0, __spread(agrs));
+    };
   };
-  return renderMethod;
+};
+
+/***/ }),
+
+/***/ "./src/instance/pipe/mq/triggerQueue.ts":
+/*!**********************************************!*\
+  !*** ./src/instance/pipe/mq/triggerQueue.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //发送消息在管道内流通
+
+
+exports.sendPipeMessage = function (id, params) {
+  var _self = this;
+
+  var msgItem = {
+    id: id,
+    params: params
+  }; //是否消息队列加锁,并且防止异常消息
+  //进入消息队列
+
+  _self.messageQueue.push(msgItem); //如果正在执行
+
+
+  if (_self.waiting) {
+    return false;
+  } //异步执行消息队列分发
+
+
+  setTimeout(function () {
+    //获取消息队列数组快照
+    var queue = _self.messageQueue.map(function (e) {
+      return e;
+    }); //清空队列
+
+
+    _self.messageQueue = []; //通知监听
+
+    exports.noticeListener.call(_self, queue);
+  });
+}; //通知监听
+
+
+exports.noticeListener = function (queue) {
+  var _self = this;
+
+  if (!index_1.tool.isArray(queue) || queue.length === 0) {
+    return false;
+  } //接收消息进入等待状态
+
+
+  _self.waiting = true; //分发处理消息
+
+  for (var i = 0; i < queue.length; i++) {
+    var _a = queue[i],
+        id = _a.id,
+        params = _a.params; //消息分发
+
+    index_1.tool.map(_self.customerMap, function (cb, pipeId) {
+      //判断是否是正确注册接收函数
+      if (!index_1.tool.isFunction(cb)) {
+        return false;
+      } //不允许自发自收
+
+
+      if (id === pipeId) {
+        return false;
+      } //分发
+
+
+      try {
+        //执行分发
+        var result = cb(params);
+      } catch (e) {
+        index_1.consoleTools.warnError('use pipe message notice is runing error:' + e);
+      }
+    });
+  } //等待状态结束
+
+
+  _self.waiting = false;
 };
 
 /***/ }),
@@ -758,342 +986,6 @@ exports.oldVsersion_Danger_MixinKoInstance = function (scope, renders) {
       }(fn)
     });
   }
-};
-
-/***/ }),
-
-/***/ "./src/instance/pipe/preventAnomaly.ts":
-/*!*********************************************!*\
-  !*** ./src/instance/pipe/preventAnomaly.ts ***!
-  \*********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //防止堆栈错误
-
-
-exports.preventStackError = function (msgItem) {
-  var params = msgItem.params,
-      pipeIndex = msgItem.pipeIndex;
-
-  if (!params || !index_1.tool.isExist(pipeIndex) || !index_1.tool.isExist(params.data)) {
-    return true;
-  } //是否该消息已经进入屏蔽阶段
-
-
-  if (!this.pipeUser[pipeIndex]) {
-    //是否是开发环境
-    if (this._config.develop) {
-      index_1.consoleTools.warnError('send pipe Message Maybe happend Endless loop , will ignore in the message');
-    }
-
-    return true;
-  } //json解析成字符串加密为KEY 这里可能存在JSON转义出现错误的可能
-  //这里暂时有点疑问，data里面可能出现window之类的 会导致json解析失败
-
-
-  try {
-    var key = JSON.stringify(params.data);
-  } catch (e) {
-    index_1.consoleTools.warnError('find error : ' + e); // return true
-
-    var _a = params.type,
-        type = _a === void 0 ? 'undefined' : _a,
-        _b = params.typeName,
-        typeName = _b === void 0 ? 'undefined' : _b;
-    var key = type + typeName + index_1.tool.toString(e);
-  } //触发计数
-
-
-  if (!this.stackCountBuff[key]) {
-    this.stackCountBuff[key] = 1;
-  } else {
-    this.stackCountBuff[key]++;
-  } //启动定时器每秒恢复一次计数
-
-
-  this.resetStackCount();
-  return this.judgeAnomaly(this.stackCountBuff[key], msgItem);
-}; //判断是否出现异常错误
-
-
-exports.judgeAnomaly = function (count, msgItem) {
-  var pipeIndex = msgItem.pipeIndex;
-
-  if (count > 10 && count < 20) {
-    index_1.consoleTools.warnError('send  pipe Message during 1000ms in Over 20 times. maybe Anomaly ');
-    return false;
-  }
-
-  if (count > 20) {
-    //从管道中卸载
-    this.pipeUser[pipeIndex] = null;
-    index_1.consoleTools.warnError('send pipe Message during 1000ms in Over 20 times,maybe happend Endless loop');
-    return true;
-  }
-
-  return false;
-}; //恢复计数
-
-
-exports.resetStackCount = function () {
-  var _self = this; //启动定时器每秒清理一次计数
-
-
-  if (!_self.stackTimeFlag) {
-    _self.stackTimeFlag = true;
-    setTimeout(function () {
-      _self.stackCountBuff = {};
-      _self.stackTimeFlag = false;
-    }, 1000);
-  }
-};
-
-/***/ }),
-
-/***/ "./src/instance/pipe/receiveLock.ts":
-/*!******************************************!*\
-  !*** ./src/instance/pipe/receiveLock.ts ***!
-  \******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-}); //默认定时打开消息锁
-
-var receiveTime = false;
-
-exports.isLock = function () {
-  return this.receiveLock;
-};
-
-exports.openLock = function () {
-  var _self = this;
-
-  if (_self.receiveLock && _self._config.queueLock) {
-    return false;
-  }
-
-  _self.receiveLock = true; //是否定时强制解锁
-
-  if (_self._config.timeOutUnlock) {
-    setTimeout(function () {
-      _self.closeLock();
-    }, _self._config.receiveUnlockTime);
-  }
-};
-
-exports.closeLock = function () {
-  if (!this.receiveLock) {
-    return false;
-  } //恢复定时器
-
-
-  if (receiveTime) {
-    window.cleanTimeout(receiveTime);
-    receiveTime = false;
-  }
-
-  this.receiveLock = false;
-};
-
-/***/ }),
-
-/***/ "./src/instance/pipe/receiveQueue.ts":
-/*!*******************************************!*\
-  !*** ./src/instance/pipe/receiveQueue.ts ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //注册管道接收数据函数
-
-
-exports.registerRecivePipeMessage = function (pipeIndex) {
-  var _self = this; //修正索引
-
-
-  if (_self.pipeUser[pipeIndex].receiveCallback) {
-    index_1.consoleTools.warnError('register recive pipe index is Occupy');
-    return false;
-  } //返回一个闭包函数用来接收注册函数
-
-
-  return function (fn, scope) {
-    //接收函数
-    if (!fn || !index_1.tool.isFunction(fn)) {
-      index_1.consoleTools.warnError('registerRecivePipeMessage method receive function is not right');
-      return false;
-    } //内部修改作用域调用
-
-
-    _self.pipeUser[pipeIndex].receiveCallback = function () {
-      var agrs = index_1.tool.toArray(arguments); //向注册进来的接收函数发送数据
-
-      if (scope) {
-        return fn.apply(scope, agrs);
-      }
-
-      return fn.apply(void 0, __spread(agrs));
-    };
-  };
-};
-
-/***/ }),
-
-/***/ "./src/instance/pipe/triggerQueue.ts":
-/*!*******************************************!*\
-  !*** ./src/instance/pipe/triggerQueue.ts ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //发送消息在管道内流通
-
-
-exports.sendPipeMessage = function (pipeIndex, params) {
-  var _self = this;
-
-  var msgItem = {
-    pipeIndex: pipeIndex,
-    params: params
-  }; //是否消息队列加锁,并且防止异常消息
-
-  if (_self.isLock() || _self.preventStackError(msgItem)) {
-    return false;
-  } //进入消息队列
-
-
-  _self.messageQueue.push(msgItem); //如果正在执行
-
-
-  if (_self.waiting) {
-    return false;
-  } //异步执行消息队列分发
-
-
-  setTimeout(function () {
-    //获取消息队列数组快照
-    var queue = index_1.tool.extend([], _self.messageQueue); //清空队列
-
-    _self.messageQueue = []; //通知监听
-
-    exports.noticeListener.call(_self, queue);
-  });
-}; //通知监听
-
-
-exports.noticeListener = function (queue) {
-  var _self = this;
-
-  if (!index_1.tool.isArray(queue) || queue.length === 0) {
-    return false;
-  } //接收消息进入等待状态
-
-
-  _self.waiting = true; //分发处理消息
-
-  for (var i = 0; i < queue.length; i++) {
-    var _a = queue[i],
-        pipeIndex = _a.pipeIndex,
-        params = _a.params; //消息分发
-
-    _self.pipeUser.map(function (item, index) {
-      //判断是否是正确注册接收函数
-      if (!item || !item.receiveCallback || !index_1.tool.isFunction(item.receiveCallback)) {
-        return false;
-      } //不允许自发自收
-
-
-      if (pipeIndex === index) {
-        return false;
-      }
-
-      var receiveCallback = item.receiveCallback; //分发
-
-      try {
-        //消息队列加锁
-        _self.openLock(); //执行分发
-
-
-        var result = receiveCallback(params); //消息队列解锁
-        //如果返回值是promise或者存在then将解锁放入回调
-
-        if (result && index_1.tool.isObject(result) && (result instanceof Promise || result.then && index_1.tool.isFunction(result.then))) {
-          result.then(_self.closeLock, _self.closeLock);
-        } else {
-          _self.closeLock();
-        }
-      } catch (e) {
-        _self.closeLock();
-
-        index_1.consoleTools.warnError('use pipe message notice is runing error:' + e);
-      }
-    });
-  } //等待状态结束
-
-
-  _self.waiting = false;
 };
 
 /***/ }),

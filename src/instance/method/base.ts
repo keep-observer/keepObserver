@@ -2,7 +2,7 @@
 import { KeepObserverPublic } from '@util/index'
  
 import { userInfo} from '../../types/report'
-
+import { Provider } from '../../types/instance'
 
 
 //扩展上报属性

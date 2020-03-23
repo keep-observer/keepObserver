@@ -445,7 +445,7 @@ function () {
 
         index = len;
         _self._runMiddleBuff[scopeName] = false;
-        return resolve(result);
+        return resolve.apply(void 0, __spread(result));
       }; //向下执行中间件
 
 
@@ -561,8 +561,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
-
 var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/util/share/middleware/index.ts"));
 
 var KeepObserverPublic =
@@ -576,9 +574,7 @@ function () {
     var _a = config.develop,
         develop = _a === void 0 ? false : _a; //当前是否处于开发模式
 
-    this._develop = develop; //公共中间件事件
-
-    this._publicMiddleScopeNames = ['noticeReport']; //由子元素继承并重载
+    this._develop = develop; //由子元素继承并重载
 
     this.middleScopeNames = []; //注册中间件实例
 
@@ -614,25 +610,6 @@ function () {
     var _self = this;
 
     return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
-  }; //兼容老版本做保留,内部使用中间件替换
-
-
-  KeepObserverPublic.prototype.addReportListener = function (callback) {
-    var _self = this;
-
-    if (callback) {
-      var _a = __read(_self._publicMiddleScopeNames, 1),
-          scopeName = _a[0]; //  1 -> 2 -> 3 -> 2 -> 1
-
-
-      this.useMiddle(scopeName, function (interrupt, next) {
-        return function (reportParams) {
-          console_1.devLog(_self._develop, reportParams);
-          next(reportParams);
-          return callback(reportParams);
-        };
-      });
-    }
   }; //整理上报数据
 
 
@@ -652,19 +629,6 @@ function () {
     }, params, extendParams);
 
     return reportParams;
-  }; //run noticeReort middle
-
-
-  KeepObserverPublic.prototype.noticeReport = function (catchParams) {
-    var _self = this; //执行中间件
-
-
-    var _a = __read(_self._publicMiddleScopeNames, 1),
-        scopeName = _a[0];
-
-    var reportParams = _self.handleReportData(catchParams);
-
-    this.runMiddle(scopeName, reportParams);
   };
 
   KeepObserverPublic.extendReportParams = {};

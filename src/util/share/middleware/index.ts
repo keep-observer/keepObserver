@@ -71,7 +71,7 @@ class KeepObserverMiddleWare {
             const interrupt = (...result)=>{
                 index = len;
                 _self._runMiddleBuff[scopeName] = false
-                return resolve(result)
+                return resolve(...result)
             }
             //向下执行中间件
             const runNext = (next)=>(...params)=>{
