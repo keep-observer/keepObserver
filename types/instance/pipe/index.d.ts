@@ -1,13 +1,18 @@
 import { KeepObserverPublic } from '@util/index';
+import MessageQueue from './MQ/index';
+import KeepObserver from '../index';
 declare class keepObserverPipe extends KeepObserverPublic {
     private _config;
-    private $keepObserver;
-    private $mq;
+    $keepObserver: any;
+    $mq: MessageQueue;
     private pipeUser;
+    readonly _publicMiddleScopeNames: string[];
+    useMiddle: Function;
+    runMiddle: Function;
+    _develop: boolean;
+    handleReportData: Function;
     private injection;
-    private registerPipeListenerUser;
-    private oldVsersion_Danger_MixinKoInstance;
-    constructor(keepObserver: any, config: any);
     use: any;
+    constructor(keepObserver: KeepObserver, config: any);
 }
 export default keepObserverPipe;

@@ -2,20 +2,19 @@
 import { KeepObserverMiddleWare } from '../../@util/index'
 
 
-describe("middle service",function(){
+describe("KeepObserverMiddleWare service",function(){
     //init service
-    var middle = new KeepObserverMiddleWare({develop:true})
+    var middle
     var testMiddleScopeName= 'testMiddle'
     beforeEach(function () {
         //config
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000
-        //var
         middle = new KeepObserverMiddleWare({develop:true})
     })
 
 
 
-    it("init config",function(){
+    it("init instance",function(){
         expect(middle._develop).toEqual(true)
         expect(middle._middles).toEqual({})
         expect(middle._runMiddleBuff).toEqual({})

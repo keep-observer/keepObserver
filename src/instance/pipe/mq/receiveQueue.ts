@@ -2,7 +2,7 @@ import { consoleTools,tool } from '@util/index'
 
 
 //注册管道接收数据函数
-export var registerRecivePipeMessage = function(id) {
+export var registerRecivePipeMessage = function(id:number) {
     var _self = this;
     //修正索引
     if (_self.customerMap[id]) {
@@ -10,11 +10,11 @@ export var registerRecivePipeMessage = function(id) {
         return false;
     }
     //返回一个闭包函数用来接收注册函数
-    return function(fn, scope) {
+    return function(fn:Function, scope?:any) {
         //接收函数
         if (!fn || !tool.isFunction(fn)) {
             consoleTools.warnError('registerRecivePipeMessage method receive function is not right')
-            return false;
+            return ;
         }
         //内部修改作用域调用
         _self.customerMap[id] = function() {

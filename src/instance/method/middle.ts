@@ -9,16 +9,12 @@ import {
 
 
 
-//拓展中间件实例
-export const extendMiddleScopeName = function(_middleScopeNames:string[]){
-    const { middleScopeNames } = this
-    if(tool.isEmptyArray(_middleScopeNames)) return;
-    return this.middleScopeNames = tool.toArray(new Set(middleScopeNames.concat(_middleScopeNames)))
-}
-
 
 //主实例重载中间件服务
 export const useMiddle = function(scopeName:string,middlesFn:middlesFn){
+    if(this.middleScopeNames.indexOf(scopeName)=== -1){
+        this.middleScopeNames.push(scopeName)
+    }
     return KeepObserverMiddleWare.usePublishMiddles(scopeName,middlesFn)
 }
 

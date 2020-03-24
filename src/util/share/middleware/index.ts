@@ -29,10 +29,12 @@ class KeepObserverMiddleWare {
     static usePublishMiddles(scopeName:string,middlesFn:middlesFn):any{
         const _staticSelf = this
         if(_staticSelf.publicMiddles[scopeName]){
-            return _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
+            _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
+            return _staticSelf.publicMiddles
         }
         _staticSelf.publicMiddles[scopeName] = []
-        return _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
+        _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
+        return _staticSelf.publicMiddles
     }
 
 

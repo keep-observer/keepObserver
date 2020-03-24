@@ -1,4 +1,3 @@
 import { Provider } from '../../types/instance';
-export declare var use: (Provider: Provider) => boolean;
-export declare var injection: (scope: any, applyFn: any) => boolean;
-export declare var registerPipeListenerUser: () => any;
+export declare const use: (Provider: Provider) => boolean;
+export declare const injection: (scope: any, applyFn: any) => boolean;

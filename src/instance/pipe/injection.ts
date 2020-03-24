@@ -1,7 +1,12 @@
-import { consoleTools,tool } from '@util/index'
-import { Provider } from '../../types/instance'
+import { consoleTools,tool,devLog} from '@util/index'
+import PipeUser from './PipeUser/index'
 
-import { pipeUser } from '../../types/pipe'
+
+import { Provider } from '../../types/instance'
+import { catchParams } from '../../types/pipe'
+import { reportParams } from '../../types/report'
+
+
 
 
 /*
@@ -10,7 +15,7 @@ import { pipeUser } from '../../types/pipe'
     @Provider  type es6 class  or classInstance 
     explan: Provider class render apply function ,apply runing return method object ,on mounted is keepObsever class 
  */
-export var use = function(Provider:Provider) {
+export const use = function(Provider:Provider) {
     if (!Provider || (!tool.isFunction(Provider) && !tool.isClassObject(Provider)) ) {
         consoleTools.warnError('use method receive provider is not right')
         return false;
@@ -43,7 +48,7 @@ export var use = function(Provider:Provider) {
     @applyFn type function
         explan: apply function
  */
-export var injection = function(scope, applyFn) {
+export const injection = function(scope, applyFn) {
     var _self = this;
     var config = this._config
     //check data
@@ -51,28 +56,22 @@ export var injection = function(scope, applyFn) {
         consoleTools.warnError('injection receive ApplyFn is undefined or no function')
         return false;
     }
-    //cerate pipe listener
-    var pipeUser = _self.registerPipeListenerUser();
+    //cerate pipeUser and add quenen
+    const pipeUser = new PipeUser(_self.pipeUser.length,_self)
+    _self.pipeUser[_self.pipeUser.length] = pipeUser;
     try {
         // runing apply
         var userRenderMethod = applyFn.call(scope, pipeUser, config);
-        //mounte method oldVsersion
-        if(tool.isObject(userRenderMethod) && !tool.isEmptyObject(userRenderMethod)){
-            _self.oldVsersion_Danger_MixinKoInstance(scope, userRenderMethod);
-        }
         //new version mounte api method
         // 1. $keepObserver.registerApi 
-        // 2. userRenderMethod : [{apiName,callback}...]
-        if(_self.$keepObserver.registerApi && tool.isArray(userRenderMethod) && !tool.isEmptyArray(userRenderMethod)){
-            userRenderMethod.forEach(el => {
-                if(tool.isObject(el) && !tool.isEmptyObject(el)){
-                    const { apiName='', callback=undefined } = el
-                    if(!apiName || !callback){
-                        return consoleTools.warnError(`apiName is '' or callback is undefined`)
-                    }
-                    _self.registerApi(apiName,callback)
+        // 2. userRenderMethod : {apiName:callback}
+        if(_self.$keepObserver.registerApi && tool.isObject(userRenderMethod) && !tool.isEmptyObject(userRenderMethod)){
+            tool.map(userRenderMethod,(callback:Function,apiName:String) => {
+                if(!apiName || !callback){
+                    return consoleTools.warnError(`apiName is '' or callback is undefined`)
                 }
-            });
+                _self.$keepObserver.registerApi(apiName,callback.bind(scope))
+            })
         }
     } catch (e) {
         consoleTools.warnError('injection receive ApplyFn is runing find error:' + e)
@@ -80,40 +79,6 @@ export var injection = function(scope, applyFn) {
 }
 
 
-
-/*
-    注册管道用户方法
-    params
-    null
-    ***********************
-    return pipeMethod {
-        registerRecivePipeMessage
-        sendPipeMessage
-    }
- */
-export var registerPipeListenerUser = function() {
-    var _self = this;
-    //pipe index
-    var pipeIndex = _self.pipeUser.length;
-    //pipe user obj
-    var pipeUser:pipeUser = {
-        //index
-        pipeIndex: pipeIndex,
-        //send message
-        sendPipeMessage: function(){
-            return _self.$mq.sendPipeMessage(pipeIndex, ...arguments)
-        },
-        //registerMiddleScopeName
-        registerMiddleScopeName:(middleScopeNames:string[])=>{
-            return _self.$keepObserver.extendMiddleScopeName(middleScopeNames)
-        },
-        //register message
-        registerRecivePipeMessage: _self.$mq.registerRecivePipeMessage(pipeIndex)
-    };
-    //add listener
-    _self.pipeUser[pipeIndex] = pipeUser;
-    return _self
-}
 
 
 

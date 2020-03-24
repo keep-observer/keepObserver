@@ -1,9 +1,3 @@
-export declare type pipeUser = {
-    pipeIndex: number;
-    sendPipeMessage: Function;
-    registerMiddleScopeName: Function;
-    registerRecivePipeMessage: Function;
-};
 export interface catchContent {
     type: string;
     [propName: string]: any;

@@ -1,7 +1,8 @@
 declare const _default: {
-    queueLock: boolean;
-    timeOutUnlock: boolean;
-    forceUnlockTime: number;
     updateVersionClearCache: boolean;
+    projectName: string;
+    projectVersion: string;
+    version: string;
+    deviceID: any;
 };
 export default _default;

@@ -386,11 +386,16 @@ function () {
     var _staticSelf = this;
 
     if (_staticSelf.publicMiddles[scopeName]) {
-      return _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
+      _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
+
+      return _staticSelf.publicMiddles;
     }
 
     _staticSelf.publicMiddles[scopeName] = [];
-    return _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
+
+    _staticSelf.publicMiddles[scopeName].unshift(middlesFn);
+
+    return _staticSelf.publicMiddles;
   }; //unshift 从前向后执行 第一个加入的中间件最后一个执行
 
 
@@ -576,7 +581,9 @@ function () {
 
     this._develop = develop; //由子元素继承并重载
 
-    this.middleScopeNames = []; //注册中间件实例
+    this.middleScopeNames = []; //由子元素继承
+
+    this._publicMiddleScopeNames = ['sendMessage']; //注册中间件实例
 
     this._middleWareInstance = new index_1.default(config);
   }

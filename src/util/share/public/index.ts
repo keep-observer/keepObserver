@@ -18,6 +18,7 @@ class KeepObserverPublic {
     private _middleWareInstance: KeepObserverMiddleWare;
     public _develop :boolean;
     public middleScopeNames :string[]
+    readonly _publicMiddleScopeNames: string[]
 
 
     constructor(config={}) {
@@ -26,6 +27,8 @@ class KeepObserverPublic {
         this._develop = develop;
         //由子元素继承并重载
         this.middleScopeNames = []
+        //由子元素继承
+        this._publicMiddleScopeNames = ['sendMessage']
         //注册中间件实例
         this._middleWareInstance = new KeepObserverMiddleWare(config)
     }
@@ -48,12 +51,10 @@ class KeepObserverPublic {
         return _self
     }
     //执行中间件逻辑
-    public runMiddle(scopeName:string,...args:any[]):any{
+    public runMiddle(scopeName:string,...args:any[]):Promise<{}>{
         var _self = this;
         return _self._middleWareInstance.run(scopeName,...args)
     }
-
-    
     //整理上报数据
     public handleReportData(params:catchParams){
         const defaultParams = { 
@@ -73,29 +74,6 @@ class KeepObserverPublic {
         };
         return reportParams
     }
-
-    //兼容老版本做保留,内部使用中间件替换
-    // public addReportListener(callback) {
-    //     var _self = this;
-    //     if (callback) {
-    //         const [ scopeName ] = _self._publicMiddleScopeNames
-    //         //  1 -> 2 -> 3 -> 2 -> 1
-    //         this.useMiddle(scopeName,(interrupt,next)=>(reportParams:reportParams)=>{
-    //             devLog(_self._develop,reportParams)
-    //             next(reportParams)
-    //             return callback(reportParams)
-    //         })
-    //     }
-    // }
-    
-    //run noticeReort middle
-    // public noticeReport(catchParams:catchParams) {
-    //     var _self = this;
-    //     //执行中间件
-    //     const [ scopeName ] = _self._publicMiddleScopeNames
-    //     const reportParams = _self.handleReportData(catchParams)
-    //     this.runMiddle(scopeName,reportParams)
-    // }
 
 
 }

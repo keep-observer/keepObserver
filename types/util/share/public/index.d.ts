@@ -5,11 +5,12 @@ declare class KeepObserverPublic {
     private _middleWareInstance;
     _develop: boolean;
     middleScopeNames: string[];
+    readonly _publicMiddleScopeNames: string[];
     constructor(config?: {});
     static extendReportParams: {};
     static extendReport(params: any): any;
     useMiddle(scopeName: string, middlesFn: middlesFn): any;
-    runMiddle(scopeName: string, ...args: any[]): any;
+    runMiddle(scopeName: string, ...args: any[]): Promise<{}>;
     handleReportData(params: catchParams): reportParams;
 }
 export default KeepObserverPublic;
