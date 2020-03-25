@@ -13,7 +13,7 @@ class MessageQueue{
         id: Number,
         params: catchParams
     }[]
-    private customerMap:{
+    private consumerMap:{
         [propsName:number]:(...any)=>Promise<{}>
     }
     //method
@@ -28,7 +28,7 @@ class MessageQueue{
         //消息队列
         this.messageQueue = [];
         //消费者集合
-        this.customerMap = {}
+        this.consumerMap = {}
     }
 }
 

@@ -42,8 +42,8 @@ describe("KeepObserver service",function(){
 
 
 
-    it('ProductService register api',function(){
-        class ProductService {
+    it('ProducerService register api',function(){
+        class ProducerService {
             testApi(){ return false}
             testApi2(count){return ++count}
             apply(pipe,config){
@@ -64,7 +64,7 @@ describe("KeepObserver service",function(){
             }
         }
         //init
-        const productServiceInstance = new ProductService()
+        const productServiceInstance = new ProducerService()
         spyOn(productServiceInstance,'testApi').and.callThrough();
         spyOn(productServiceInstance,'testApi2').and.callThrough();
         spyOn(productServiceInstance,'apply').and.callThrough();
@@ -90,8 +90,7 @@ describe("KeepObserver service",function(){
 
 
 
-
-    it('ProductService use MiddleService',function(done){
+    it('service use MiddleService',function(done){
         const extendScopeName = 'test_11'
         class ExtendMiddleService {
             constructor(){
@@ -102,11 +101,11 @@ describe("KeepObserver service",function(){
                 return this.runMiddle(extendScopeName,this.targetParams)
             }
             apply(pipe,config){
-                const { runMiddle,useMiddle } = pipe
+                const { runExtendMiddle,useExtendMiddle } = pipe
                 //get target middle method
-                this.runMiddle = runMiddle
+                this.runMiddle = runExtendMiddle
                 //register middle
-                useMiddle(extendScopeName,(interrupt,next)=>(...params)=>{
+                useExtendMiddle(extendScopeName,(interrupt,next)=>(...params)=>{
                     const [ value ] = params
                     let toEqualValue = {
                         ...this.targetParams,
@@ -153,7 +152,72 @@ describe("KeepObserver service",function(){
     })
 
 
-    
+
+    it('ProducerService send message and consumerService receive ',function(done){
+        const now = new Date().getTime()
+        //create message
+        const sendParams = {
+            type:'custome',
+            typeName:'test',
+            location:'localhost://test',
+            environment:'dev-test',
+            reportTime:now,
+            data:{
+                type:'test',
+                content:'karam-test'
+            }
+        }
+        const messageValue = {
+            ...sendParams,
+            //extendParams
+            projectName:'test',
+            projectVersion:'test-version',
+            version,
+        }
+        class ProducerService {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            targetSendMessage(params){ 
+                this.sendMessage(params)
+            }
+            apply(pipe,config){
+                const { sendMessage } = pipe
+                this.sendMessage = sendMessage
+                return{
+                    targetSendMessage:this.targetSendMessage,
+                }
+            }
+        }
+        class ConsumerService{
+            getMessage(message){
+                expect(message).toEqual(messageValue)
+                done()
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        const producerServiceInstace = new ProducerService()
+        const consumerServiceInstace = new ConsumerService()
+        spyOn(producerServiceInstace,'targetSendMessage').and.callThrough();
+        spyOn(consumerServiceInstace,'getMessage').and.callThrough();
+        testInstance.use(producerServiceInstace)
+        testInstance.use(consumerServiceInstace)
+        //add flag
+        expect(producerServiceInstace.sendMessage).toBeDefined()
+        spyOn(producerServiceInstace,'sendMessage').and.callThrough();
+        //add middle
+        testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
+            const [ value ] = params
+            expect(value).toEqual(messageValue)
+            next(...params)
+        })
+        //target
+        testInstance.apis('targetSendMessage',sendParams)
+        expect(producerServiceInstace.sendMessage).toHaveBeenCalledWith(sendParams)
+    })
 
 
 });

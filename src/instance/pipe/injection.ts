@@ -3,8 +3,7 @@ import PipeUser from './PipeUser/index'
 
 
 import { Provider } from '../../types/instance'
-import { catchParams } from '../../types/pipe'
-import { reportParams } from '../../types/report'
+
 
 
 
@@ -57,7 +56,7 @@ export const injection = function(scope, applyFn) {
         return false;
     }
     //cerate pipeUser and add quenen
-    const pipeUser = new PipeUser(_self.pipeUser.length,_self)
+    const pipeUser = new PipeUser(_self.pipeUser.length,_self,scope)
     _self.pipeUser[_self.pipeUser.length] = pipeUser;
     try {
         // runing apply

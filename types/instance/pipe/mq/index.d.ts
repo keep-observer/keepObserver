@@ -1,7 +1,7 @@
 declare class MessageQueue {
     private waiting;
     private messageQueue;
-    private customerMap;
+    private consumerMap;
     private noticeListener;
     sendPipeMessage: any;
     registerRecivePipeMessage: any;

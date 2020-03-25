@@ -1,4 +1,5 @@
-import { consoleTools,tool,devLog} from '@util/index'
+import { KeepObserverPublic } from '@util/index'
+import { consoleTools,tool} from '@util/index'
 
 import keepObserverPipe from '../index'
 
@@ -9,41 +10,46 @@ import { middlesFn } from '../../../types/middle'
 
 
 
-class PipeUser{
+class PipeUser extends KeepObserverPublic{
 
     readonly pipeIndex:number
-    public sendPipeMessage:(catchParams:catchParams)=>Promise<{}>
+    private handleReportData:Function           //继承属性
+    private useMiddle:Function                  //继承属性
+    private runMiddle:Function                  //继承属性
+    //provide
+    public sendMessage:(catchParams:catchParams)=>Promise<{}>
     public extendsReportParams: (params:any)=>any
-    public registerRecivePipeMessage: (fn:Function, scope?:any)=>void
-    public useMiddle: (scopeName:string,middlesFn:middlesFn)=>any
-    public runMiddle:(scopeName:string,...args:any[])=>Promise<{}>
+    public registerReciveMessage: (fn:Function, scope?:any)=>void
+    public useExtendMiddle: (scopeName:string,middlesFn:middlesFn)=>any
+    public runExtendMiddle:(scopeName:string,...args:any[])=>Promise<{}>
 
-    constructor(index:number,$pipe:keepObserverPipe){
+    constructor(index:number,$pipe:keepObserverPipe,scope:any){
+        super()
         this.pipeIndex = index;
          //register send message middle 
          //  1 -> 2 -> 3 -> 2 -> 1
         const [ sendMessage ] = $pipe._publicMiddleScopeNames
-        $pipe.useMiddle(sendMessage,(interrupt,next)=>(reportParams:reportParams)=>{
-            devLog($pipe._develop,reportParams)
-            next(reportParams)
-            return $pipe.$mq.sendPipeMessage(index, reportParams)
+        this.useMiddle(sendMessage,(interrupt,next)=>(reportParams:reportParams)=>{
+            consoleTools.devLog($pipe._develop,reportParams)
+            $pipe.$mq.sendPipeMessage(index, reportParams)
+            return next(reportParams)
         })
         // init api
-        this.sendPipeMessage= (catchParams:catchParams)=>{
+        this.sendMessage= (catchParams:catchParams)=>{
             const [ sendMessage ] = $pipe._publicMiddleScopeNames
-            const reportParams = $pipe.handleReportData(catchParams)
-            return $pipe.runMiddle(sendMessage,reportParams)
+            const reportParams = this.handleReportData(catchParams)
+            return this.runMiddle(sendMessage,reportParams)
         }
-        this.runMiddle = (scopeName:string,...args:any[]):Promise<{}>=>{
+        this.runExtendMiddle = (scopeName:string,...args:any[]):Promise<{}>=>{
             return $pipe.$keepObserver.runMiddle(scopeName,...args)
         }
-        this.useMiddle = (scopeName:string,middlesFn:middlesFn)=>{
+        this.useExtendMiddle = (scopeName:string,middlesFn:middlesFn)=>{
             return $pipe.$keepObserver.useMiddle(scopeName,middlesFn)
         }
         this.extendsReportParams=(params:any)=>{
             return $pipe.$keepObserver.extendReportParams(params)
         }
-        this.registerRecivePipeMessage = $pipe.$mq.registerRecivePipeMessage(index)
+        this.registerReciveMessage = $pipe.$mq.registerRecivePipeMessage(index,scope)
     }
 }
 

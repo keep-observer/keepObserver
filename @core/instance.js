@@ -459,7 +459,7 @@ function () {
 
     this.messageQueue = []; //消费者集合
 
-    this.customerMap = {};
+    this.consumerMap = {};
   }
 
   return MessageQueue;
@@ -479,41 +479,6 @@ exports["default"] = MessageQueue;
 "use strict";
 
 
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -521,17 +486,17 @@ Object.defineProperty(exports, "__esModule", {
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index"); //注册管道接收数据函数
 
 
-exports.registerRecivePipeMessage = function (id) {
+exports.registerRecivePipeMessage = function (id, scope) {
   var _self = this; //修正索引
 
 
-  if (_self.customerMap[id]) {
+  if (_self.consumerMap[id]) {
     index_1.consoleTools.warnError('register recive pipe index is Occupy');
     return false;
   } //返回一个闭包函数用来接收注册函数
 
 
-  return function (fn, scope) {
+  return function (fn) {
     //接收函数
     if (!fn || !index_1.tool.isFunction(fn)) {
       index_1.consoleTools.warnError('registerRecivePipeMessage method receive function is not right');
@@ -539,14 +504,10 @@ exports.registerRecivePipeMessage = function (id) {
     } //内部修改作用域调用
 
 
-    _self.customerMap[id] = function () {
+    _self.consumerMap[id] = function () {
       var agrs = index_1.tool.toArray(arguments); //向注册进来的接收函数发送数据
 
-      if (scope) {
-        return fn.apply(scope, agrs);
-      }
-
-      return fn.apply(void 0, __spread(agrs));
+      return fn.apply(scope, agrs);
     };
   };
 };
@@ -616,7 +577,7 @@ exports.noticeListener = function (queue) {
         id = _a.id,
         params = _a.params; //消息分发
 
-    index_1.tool.map(_self.customerMap, function (cb, pipeId) {
+    index_1.tool.map(_self.consumerMap, function (cb, pipeId) {
       //判断是否是正确注册接收函数
       if (!index_1.tool.isFunction(cb)) {
         return false;
@@ -652,6 +613,32 @@ exports.noticeListener = function (queue) {
 
 "use strict";
 
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 var __read = this && this.__read || function (o, n) {
   var m = typeof Symbol === "function" && o[Symbol.iterator];
@@ -694,33 +681,41 @@ Object.defineProperty(exports, "__esModule", {
 
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
+var index_2 = __webpack_require__(/*! @util/index */ "@util/index");
+
 var PipeUser =
 /** @class */
-function () {
-  function PipeUser(index, $pipe) {
-    this.pipeIndex = index; //register send message middle 
+function (_super) {
+  __extends(PipeUser, _super);
+
+  function PipeUser(index, $pipe, scope) {
+    var _this = _super.call(this) || this;
+
+    _this.pipeIndex = index; //register send message middle 
     //  1 -> 2 -> 3 -> 2 -> 1
 
     var _a = __read($pipe._publicMiddleScopeNames, 1),
         sendMessage = _a[0];
 
-    $pipe.useMiddle(sendMessage, function (interrupt, next) {
+    _this.useMiddle(sendMessage, function (interrupt, next) {
       return function (reportParams) {
-        index_1.devLog($pipe._develop, reportParams);
-        next(reportParams);
-        return $pipe.$mq.sendPipeMessage(index, reportParams);
+        index_2.consoleTools.devLog($pipe._develop, reportParams);
+        $pipe.$mq.sendPipeMessage(index, reportParams);
+        return next(reportParams);
       };
     }); // init api
 
-    this.sendPipeMessage = function (catchParams) {
+
+    _this.sendMessage = function (catchParams) {
       var _a = __read($pipe._publicMiddleScopeNames, 1),
           sendMessage = _a[0];
 
-      var reportParams = $pipe.handleReportData(catchParams);
-      return $pipe.runMiddle(sendMessage, reportParams);
+      var reportParams = _this.handleReportData(catchParams);
+
+      return _this.runMiddle(sendMessage, reportParams);
     };
 
-    this.runMiddle = function (scopeName) {
+    _this.runExtendMiddle = function (scopeName) {
       var args = [];
 
       for (var _i = 1; _i < arguments.length; _i++) {
@@ -732,19 +727,20 @@ function () {
       return (_a = $pipe.$keepObserver).runMiddle.apply(_a, __spread([scopeName], args));
     };
 
-    this.useMiddle = function (scopeName, middlesFn) {
+    _this.useExtendMiddle = function (scopeName, middlesFn) {
       return $pipe.$keepObserver.useMiddle(scopeName, middlesFn);
     };
 
-    this.extendsReportParams = function (params) {
+    _this.extendsReportParams = function (params) {
       return $pipe.$keepObserver.extendReportParams(params);
     };
 
-    this.registerRecivePipeMessage = $pipe.$mq.registerRecivePipeMessage(index);
+    _this.registerReciveMessage = $pipe.$mq.registerRecivePipeMessage(index, scope);
+    return _this;
   }
 
   return PipeUser;
-}();
+}(index_1.KeepObserverPublic);
 
 exports["default"] = PipeUser;
 
@@ -905,7 +901,7 @@ exports.injection = function (scope, applyFn) {
   } //cerate pipeUser and add quenen
 
 
-  var pipeUser = new index_2["default"](_self.pipeUser.length, _self);
+  var pipeUser = new index_2["default"](_self.pipeUser.length, _self, scope);
   _self.pipeUser[_self.pipeUser.length] = pipeUser;
 
   try {

@@ -47,7 +47,7 @@ export var noticeListener = function(queue) {
             params,
         } = queue[i];
         //消息分发
-        tool.map(_self.customerMap,(cb,pipeId)=>{
+        tool.map(_self.consumerMap,(cb,pipeId)=>{
             //判断是否是正确注册接收函数
             if (!tool.isFunction(cb)) {
                 return false;

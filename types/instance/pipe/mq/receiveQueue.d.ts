@@ -1,1 +1,1 @@
-export declare var registerRecivePipeMessage: (id: number) => false | ((fn: Function, scope?: any) => void);
+export declare var registerRecivePipeMessage: (id: number, scope: any) => false | ((fn: Function) => void);
