@@ -1,8 +1,7 @@
 
 import  KeepObserver  from '../../@core/instance'
+import  { KeepObserverPublic,KeepObserverMiddleWare }  from '@util/index'
 import { version } from '../../src/constants/index.ts';
-
-
 
 
 
@@ -13,12 +12,14 @@ describe("KeepObserver service",function(){
         //config
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000
         //init service
+        KeepObserverMiddleWare.publicMiddles = {}
+        KeepObserverPublic.extendReportParams = {}
         testInstance = new KeepObserver({
-            projectName:'test',
-            projectVersion:'test-version'
+            runTimeOut: 3000,
+            projectName: 'test',
+            projectVersion: 'test-version'
         })
     })
-
 
     it('create KeepObserver instance',function(){
         //instance
@@ -112,7 +113,7 @@ describe("KeepObserver service",function(){
                         res:'1111'
                     }
                     expect(value).toEqual(toEqualValue)
-                      //change value
+                        //change value
                     next({
                         ...value,
                         res:'2222'
@@ -148,12 +149,11 @@ describe("KeepObserver service",function(){
             expect(res).toEqual(toEqualValue)
             done()
         },e=>fail(e))
-
     })
 
 
 
-    it('ProducerService send message and consumerService receive ',function(done){
+    it('ProducerService send message and consumerService receive',function(done){
         const now = new Date().getTime()
         //create message
         const sendParams = {
@@ -220,7 +220,176 @@ describe("KeepObserver service",function(){
     })
 
 
-});
 
+    it('ProducerService throw error',function(done){
+        //is sendMessage delay 1000ms test
+        var currService = 0;
+        class ProducerService_noApply {
+        }
+        class ProducerService_applyThrowError {
+            apply(){
+                throw new Error('test apply error')
+            }
+        }
+        class ProducerService_apiThrowError {
+            throwError(){
+                throw new Error('test error')
+            }
+            apply(){
+                return {
+                    throwError:this.throwError
+                }
+            }
+        }
+        class ProducerService_sendMessageMiddleError{
+            apply(pipe){
+                const { sendMessage } = pipe
+                sendMessage({
+                    type:'custome',
+                    typeName:'test',
+                    location:'localhost://test',
+                    environment:'dev-test',
+                    reportTime:new Date().getTime(),
+                    data:{
+                        type:'test',
+                        content:'karam-test'
+                    }
+                })
+            }
+        }
+        testInstance.useMiddle('error',(interrupt,next)=>(...params)=>{
+            const [ value ] = params
+            switch(++currService){
+                case 1:
+                    expect(value).toBe('use method receive provider is not apply method')
+                    break;
+                case 2:
+                    expect(value).toBe('injection receive Provider apply is runing find error:'+'Error: test apply error')
+                    break;
+                case 3:
+                    expect(value).toBe('apiName:throwError is run find error:'+'Error: test error')
+                    break;
+                case 4:
+                    expect(value).toBe('sendMessage middles exec is error:'+'Error: test middle error')
+                    done()
+                    break;
+                case 5:
+                    fail('error repeat find')
+            }
+            next(...params)
+        })
+        Promise.resolve().then(()=>{
+            testInstance.use(ProducerService_noApply)
+            return new Promise((res)=>setTimeout(res,200))
+        }).then(()=>{
+            testInstance.use(ProducerService_applyThrowError)
+            return new Promise((res)=>setTimeout(res,200))
+        }).then(()=>{
+            testInstance.use(ProducerService_apiThrowError)
+            testInstance.apis('throwError')
+            return new Promise((res)=>setTimeout(res,200))
+        }).then(()=>{
+            const res = testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
+                throw new Error('test middle error')
+            })
+            testInstance.use(ProducerService_sendMessageMiddleError)
+        })
+    })
+
+
+
+    it('middleService timeout',function(done){
+        const scopeName = 'timeout'
+        testInstance.useMiddle(scopeName,(interrupt,next)=>(...params)=>{
+        })
+        testInstance.useMiddle('error',(interrupt,next)=>(...params)=>{
+            const [ message ] = params
+            expect(message).toBe(`${scopeName} middles exec is timeout 3000ms`)
+            done()
+        })
+        testInstance.runMiddle(scopeName)
+    })
+
+    
+
+    it('sendMessage limt ctr',function(done){
+        const now = new Date().getTime()
+        var isStopSendMessage = false
+        var sendCount = 0
+        //create message
+        const sendParams = {
+            type:'custome',
+            typeName:'test',
+            location:'localhost://test',
+            environment:'dev-test',
+            reportTime:now,
+            data:{
+                type:'test',
+                content:'karam-test'
+            }
+        }
+        const messageValue = {
+            ...sendParams,
+            //extendParams
+            projectName:'test',
+            projectVersion:'test-version',
+            version,
+        }
+        class ProducerService {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            targetSendMessage(params){ 
+                this.sendMessage(params)
+            }
+            apply(pipe,config){
+                const { sendMessage } = pipe
+                this.sendMessage = sendMessage
+                return{
+                    targetSendMessage:this.targetSendMessage,
+                }
+            }
+        }
+        class ConsumerService{
+            getMessage(message){
+                expect(message).toEqual(messageValue)
+                if(isStopSendMessage && sendCount === 25){
+                    done()
+                }
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        testInstance.useMiddle('error',(interrupt,next)=>(...params)=>{
+            const [ errorMessage ] = params
+            if(sendCount> 10 && sendCount< 20){
+                expect(errorMessage).toBe('send  Message during 1000ms in Over 10 times,maybe Anomaly')
+                next(...params)
+                return
+            }
+            if(sendCount > 20){
+                expect(errorMessage).toBe('send  Message during 1000ms in Over 20 times,maybe happend Endless loop')
+                isStopSendMessage = true
+                next(...params)
+                return
+            }
+            next(...params)
+            if(sendCount>21){
+                fail('limt ctr error than 21 count')
+            }
+        })
+        testInstance.use(ProducerService)
+        testInstance.use(ConsumerService)
+        for(var i=0; i<25; i++){
+            sendCount++
+            testInstance.apis('targetSendMessage',sendParams)
+        }
+        setTimeout(()=>testInstance.apis('targetSendMessage',sendParams),3200)
+    })
+
+
+});
 
 

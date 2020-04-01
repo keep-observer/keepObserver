@@ -391,6 +391,37 @@ export function map(obj,callback){
 
 
 
+export function throttleWrap(delay){
+    return function(Fn:Function){
+        var timeout =null;
+        return  function(...any){
+            let c=this;
+            let arg = arguments;
+            if(timeout){ clearTimeout(timeout);};
+            timeout = setTimeout(()=>{
+                Fn.apply(c,arg)
+            },delay);
+        }
+    }
+}
+
+
+export function debounceWrap(delay){
+    return function(Fn:Function){
+        var timeout =null;
+        return  function(...any){
+            let arg = arguments;
+            if(timeout !== null){ 
+                return false
+            };
+            timeout = setTimeout(()=>{
+                Fn(arg)
+                clearTimeout(timeout);
+                timeout = null;
+            },delay);
+        }
+    }
+}
  
 
 

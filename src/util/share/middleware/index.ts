@@ -1,5 +1,6 @@
-import * as tool from '../../../util/tool';
-import { warnError,devWarn } from '../../../util/console'
+import * as Tools from '../../../util/tool';
+import * as consoleTools from '../../../util/console'
+import { publicMiddleScopeNames } from '../../../constants/index'
 
 import {
     middlesFn,
@@ -12,11 +13,14 @@ class KeepObserverMiddleWare {
     public _develop :boolean;
     private _middles: middles;
     private _runMiddleBuff: any
+    private _runTimeOut: number
 
 
-    constructor({ develop=false }) {
+    constructor({ develop=false,runTimeOut=30000 }) {
         //当前是否处于开发模式
         this._develop = develop;
+        //中间件超时时间
+        this._runTimeOut = runTimeOut;
         //中间件初始化
         this._middles = {}
         //中间件执行过程中 禁止重复触发 loop
@@ -38,6 +42,7 @@ class KeepObserverMiddleWare {
     }
 
 
+
     //unshift 从前向后执行 第一个加入的中间件最后一个执行
     public use(scopeName:string,middlesFn:middlesFn):any{
         var _self = this
@@ -49,49 +54,80 @@ class KeepObserverMiddleWare {
     }
 
 
+    
     //中间件异步执行
     public run(scopeName:string,...args:any[]):Promise<{}>{
         var _self = this
         //获取到公共中间件聚合
         const publicMiddles =  (this.constructor as any).publicMiddles
         if(!_self._middles[scopeName] && !publicMiddles[scopeName]){
-            devWarn(this._develop,`${scopeName} middles function is undefined`)
-            return Promise.resolve(args)
+            if(publicMiddleScopeNames.indexOf(scopeName) > -1){
+                return new Promise((resolve)=>resolve(...args))
+            }
+            consoleTools.warnError(`${scopeName} middles function is undefined`)
+            return Promise.reject(`${scopeName} middles function is undefined`)
         }
         if(_self._runMiddleBuff[scopeName]){
-            devWarn(this._develop,`${scopeName} middles is run`)
+            consoleTools.warnError(`${scopeName} middles is run`)
             return Promise.reject(`${scopeName} middles is run`)
         }
-        _self._runMiddleBuff[scopeName] = true;
         //合并中间件队列
         const publicMiddleQueue = publicMiddles[scopeName] || []
         const middlesQueue = publicMiddleQueue.concat( (_self._middles[scopeName]||[]) )
         const len = middlesQueue.length 
         var index = 1;
+        //开始执行
+        _self._runMiddleBuff[scopeName] = true;
         return new Promise((resolve,reject)=>{
+            //设置超时
+            var runTimeout =  setTimeout(()=>{
+                index = len;
+                _self._runMiddleBuff[scopeName] = false
+                const errorMsg = `${scopeName} middles exec is timeout ${this._runTimeOut}ms`
+                consoleTools.warnError(errorMsg)
+                if(scopeName !== 'error'){
+                    _self.throwError(errorMsg)
+                }
+                reject(errorMsg)
+            },this._runTimeOut)
              // 中断方法，停止执行剩下的中间件,直接返回
             const interrupt = (...result)=>{
                 index = len;
+                clearTimeout(runTimeout)
                 _self._runMiddleBuff[scopeName] = false
                 return resolve(...result)
             }
-            //向下执行中间件
-            const runNext = (next)=>(...params)=>{
-                if(index === len){
-                    return params;
-                }
-                index++
-                return next(...params)
-            }  
-            const exec = middlesQueue.reduce((a , b)=>(...params)=>a(interrupt,runNext(b(...params))))
             try{
+                //向下执行中间件
+                const runNext = (next)=>(...params)=>{
+                    if(index === len){
+                        return params;
+                    }
+                    index++
+                    return next(...params)
+                }  
+                const exec = middlesQueue.reduce((a , b)=>(...params)=>a(interrupt,runNext(b(...params))))
                 exec(interrupt,interrupt)(...args)
             }catch(err){
-                warnError(`${scopeName} middles exec is error:`+tool.toString(err),_self._develop)
-                reject(`${scopeName} middles exec is error:`+tool.toString(err))
+                _self._runMiddleBuff[scopeName] = false
+                clearTimeout(runTimeout)
+                const errorMsg = `${scopeName} middles exec is error:`+Tools.toString(err)
+                consoleTools.warnError(errorMsg)
+                if(scopeName !== 'error'){
+                    _self.throwError(errorMsg)
+                }
+                reject(errorMsg)
             }
         })
     }
+
+    
+
+    //抛出中间件错误
+    public throwError(...err:any[]){
+        this.run('error',...err)
+    };
+    
 
 
 

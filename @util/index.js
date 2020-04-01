@@ -81,6 +81,28 @@ return /******/ (function(modules) { // webpackBootstrap
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/constants/index.ts":
+/*!********************************!*\
+  !*** ./src/constants/index.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+}); //上报数据类型
+
+exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
+
+exports.version = '2.0.0-beta.1'; //公共中间件
+
+exports.publicMiddleScopeNames = ['sendMessage', 'error'];
+
+/***/ }),
+
 /***/ "./src/util/console.ts":
 /*!*****************************!*\
   !*** ./src/util/console.ts ***!
@@ -226,7 +248,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts")); //storge-key
+var Tools = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts")); //storge-key
 
 
 var RecordKey = 'deviceId';
@@ -241,11 +263,11 @@ var storageModel = function () {
     return false;
   }
 
-  var deviceID = tool.getStorage(RecordKey);
+  var deviceID = Tools.getStorage(RecordKey);
 
   if (!deviceID) {
-    deviceID = tool.getUniqueID();
-    tool.setStorage(RecordKey, deviceID);
+    deviceID = Tools.getUniqueID();
+    Tools.setStorage(RecordKey, deviceID);
   }
 
   return deviceID;
@@ -289,9 +311,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts"));
+var Tools = __importStar(__webpack_require__(/*! ./tool */ "./src/util/tool.ts"));
 
-exports.tool = tool;
+exports.Tools = Tools;
 
 var consoleTools = __importStar(__webpack_require__(/*! ./console */ "./src/util/console.ts"));
 
@@ -364,18 +386,24 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var tool = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
+var Tools = __importStar(__webpack_require__(/*! ../../../util/tool */ "./src/util/tool.ts"));
 
-var console_1 = __webpack_require__(/*! ../../../util/console */ "./src/util/console.ts");
+var consoleTools = __importStar(__webpack_require__(/*! ../../../util/console */ "./src/util/console.ts"));
+
+var index_1 = __webpack_require__(/*! ../../../constants/index */ "./src/constants/index.ts");
 
 var KeepObserverMiddleWare =
 /** @class */
 function () {
   function KeepObserverMiddleWare(_a) {
     var _b = _a.develop,
-        develop = _b === void 0 ? false : _b; //当前是否处于开发模式
+        develop = _b === void 0 ? false : _b,
+        _c = _a.runTimeOut,
+        runTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
 
-    this._develop = develop; //中间件初始化
+    this._develop = develop; //中间件超时时间
+
+    this._runTimeOut = runTimeOut; //中间件初始化
 
     this._middles = {}; //中间件执行过程中 禁止重复触发 loop
 
@@ -412,6 +440,8 @@ function () {
 
 
   KeepObserverMiddleWare.prototype.run = function (scopeName) {
+    var _this = this;
+
     var args = [];
 
     for (var _i = 1; _i < arguments.length; _i++) {
@@ -424,23 +454,43 @@ function () {
     var publicMiddles = this.constructor.publicMiddles;
 
     if (!_self._middles[scopeName] && !publicMiddles[scopeName]) {
-      console_1.devWarn(this._develop, scopeName + " middles function is undefined");
-      return Promise.resolve(args);
+      if (index_1.publicMiddleScopeNames.indexOf(scopeName) > -1) {
+        return new Promise(function (resolve) {
+          return resolve.apply(void 0, __spread(args));
+        });
+      }
+
+      consoleTools.warnError(scopeName + " middles function is undefined");
+      return Promise.reject(scopeName + " middles function is undefined");
     }
 
     if (_self._runMiddleBuff[scopeName]) {
-      console_1.devWarn(this._develop, scopeName + " middles is run");
+      consoleTools.warnError(scopeName + " middles is run");
       return Promise.reject(scopeName + " middles is run");
-    }
+    } //合并中间件队列
 
-    _self._runMiddleBuff[scopeName] = true; //合并中间件队列
 
     var publicMiddleQueue = publicMiddles[scopeName] || [];
     var middlesQueue = publicMiddleQueue.concat(_self._middles[scopeName] || []);
     var len = middlesQueue.length;
-    var index = 1;
+    var index = 1; //开始执行
+
+    _self._runMiddleBuff[scopeName] = true;
     return new Promise(function (resolve, reject) {
-      // 中断方法，停止执行剩下的中间件,直接返回
+      //设置超时
+      var runTimeout = setTimeout(function () {
+        index = len;
+        _self._runMiddleBuff[scopeName] = false;
+        var errorMsg = scopeName + " middles exec is timeout " + _this._runTimeOut + "ms";
+        consoleTools.warnError(errorMsg);
+
+        if (scopeName !== 'error') {
+          _self.throwError(errorMsg);
+        }
+
+        reject(errorMsg);
+      }, _this._runTimeOut); // 中断方法，停止执行剩下的中间件,直接返回
+
       var interrupt = function () {
         var result = [];
 
@@ -449,49 +499,69 @@ function () {
         }
 
         index = len;
+        clearTimeout(runTimeout);
         _self._runMiddleBuff[scopeName] = false;
         return resolve.apply(void 0, __spread(result));
-      }; //向下执行中间件
-
-
-      var runNext = function (next) {
-        return function () {
-          var params = [];
-
-          for (var _i = 0; _i < arguments.length; _i++) {
-            params[_i] = arguments[_i];
-          }
-
-          if (index === len) {
-            return params;
-          }
-
-          index++;
-          return next.apply(void 0, __spread(params));
-        };
       };
 
-      var exec = middlesQueue.reduce(function (a, b) {
-        return function () {
-          var params = [];
-
-          for (var _i = 0; _i < arguments.length; _i++) {
-            params[_i] = arguments[_i];
-          }
-
-          return a(interrupt, runNext(b.apply(void 0, __spread(params))));
-        };
-      });
-
       try {
+        //向下执行中间件
+        var runNext_1 = function (next) {
+          return function () {
+            var params = [];
+
+            for (var _i = 0; _i < arguments.length; _i++) {
+              params[_i] = arguments[_i];
+            }
+
+            if (index === len) {
+              return params;
+            }
+
+            index++;
+            return next.apply(void 0, __spread(params));
+          };
+        };
+
+        var exec = middlesQueue.reduce(function (a, b) {
+          return function () {
+            var params = [];
+
+            for (var _i = 0; _i < arguments.length; _i++) {
+              params[_i] = arguments[_i];
+            }
+
+            return a(interrupt, runNext_1(b.apply(void 0, __spread(params))));
+          };
+        });
         exec(interrupt, interrupt).apply(void 0, __spread(args));
       } catch (err) {
-        console_1.warnError(scopeName + " middles exec is error:" + tool.toString(err), _self._develop);
-        reject(scopeName + " middles exec is error:" + tool.toString(err));
+        _self._runMiddleBuff[scopeName] = false;
+        clearTimeout(runTimeout);
+        var errorMsg = scopeName + " middles exec is error:" + Tools.toString(err);
+        consoleTools.warnError(errorMsg);
+
+        if (scopeName !== 'error') {
+          _self.throwError(errorMsg);
+        }
+
+        reject(errorMsg);
       }
     });
-  }; //公共方法和部分
+  }; //抛出中间件错误
 
+
+  KeepObserverMiddleWare.prototype.throwError = function () {
+    var err = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      err[_i] = arguments[_i];
+    }
+
+    this.run.apply(this, __spread(['error'], err));
+  };
+
+  ; //公共方法和部分
 
   KeepObserverMiddleWare.publicMiddles = {};
   return KeepObserverMiddleWare;
@@ -562,11 +632,23 @@ var __importDefault = this && this.__importDefault || function (mod) {
   };
 };
 
+var __importStar = this && this.__importStar || function (mod) {
+  if (mod && mod.__esModule) return mod;
+  var result = {};
+  if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+  result["default"] = mod;
+  return result;
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var index_1 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/util/share/middleware/index.ts"));
+var index_1 = __webpack_require__(/*! ../../../constants/index */ "./src/constants/index.ts");
+
+var index_2 = __importDefault(__webpack_require__(/*! ../middleware/index */ "./src/util/share/middleware/index.ts"));
+
+var Tools = __importStar(__webpack_require__(/*! ../../tool */ "./src/util/tool.ts"));
 
 var KeepObserverPublic =
 /** @class */
@@ -576,16 +658,22 @@ function () {
       config = {};
     }
 
-    var _a = config.develop,
-        develop = _a === void 0 ? false : _a; //当前是否处于开发模式
+    var _a = config,
+        _b = _a.develop,
+        develop = _b === void 0 ? false : _b,
+        _c = _a.runTimeOut,
+        runTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
 
     this._develop = develop; //由子元素继承并重载
 
     this.middleScopeNames = []; //由子元素继承
 
-    this._publicMiddleScopeNames = ['sendMessage']; //注册中间件实例
+    this._publicMiddleScopeNames = index_1.publicMiddleScopeNames; //注册中间件实例
 
-    this._middleWareInstance = new index_1.default(config);
+    this._middleWareInstance = new index_2.default(Tools.extend({
+      develop: develop,
+      runTimeOut: runTimeOut
+    }, config));
   }
 
   KeepObserverPublic.extendReport = function (params) {
@@ -1143,6 +1231,61 @@ function map(obj, callback) {
 }
 
 exports.map = map;
+
+function throttleWrap(delay) {
+  return function (Fn) {
+    var timeout = null;
+    return function () {
+      var any = [];
+
+      for (var _i = 0; _i < arguments.length; _i++) {
+        any[_i] = arguments[_i];
+      }
+
+      var c = this;
+      var arg = arguments;
+
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      ;
+      timeout = setTimeout(function () {
+        Fn.apply(c, arg);
+      }, delay);
+    };
+  };
+}
+
+exports.throttleWrap = throttleWrap;
+
+function debounceWrap(delay) {
+  return function (Fn) {
+    var timeout = null;
+    return function () {
+      var any = [];
+
+      for (var _i = 0; _i < arguments.length; _i++) {
+        any[_i] = arguments[_i];
+      }
+
+      var arg = arguments;
+
+      if (timeout !== null) {
+        return false;
+      }
+
+      ;
+      timeout = setTimeout(function () {
+        Fn(arg);
+        clearTimeout(timeout);
+        timeout = null;
+      }, delay);
+    };
+  };
+}
+
+exports.debounceWrap = debounceWrap;
 
 /***/ })
 

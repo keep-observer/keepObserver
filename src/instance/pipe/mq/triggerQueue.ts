@@ -1,4 +1,4 @@
-import { consoleTools,tool } from '@util/index'
+import { consoleTools,Tools } from '@util/index'
 
 import { catchParams } from '../../../types/pipe'
 
@@ -35,7 +35,7 @@ export var sendPipeMessage = function(id:number, params:catchParams,) {
 //通知监听
 export var noticeListener = function(queue) {
     var _self = this;
-    if (!tool.isArray(queue) || queue.length === 0) {
+    if (!Tools.isArray(queue) || queue.length === 0) {
         return false;
     }
     //接收消息进入等待状态
@@ -47,9 +47,9 @@ export var noticeListener = function(queue) {
             params,
         } = queue[i];
         //消息分发
-        tool.map(_self.consumerMap,(cb,pipeId)=>{
+        Tools.map(_self.consumerMap,(cb,pipeId)=>{
             //判断是否是正确注册接收函数
-            if (!tool.isFunction(cb)) {
+            if (!Tools.isFunction(cb)) {
                 return false;
             }
             //不允许自发自收
@@ -61,7 +61,9 @@ export var noticeListener = function(queue) {
                 //执行分发
                 var result = cb(params);
             } catch (e) {
-                consoleTools.warnError('use pipe message notice is runing error:' + e)
+                const errMsg = 'use pipe message notice is runing error:' + e
+                consoleTools.warnError(errMsg)
+                _self.$pipe.$keepObserver.runMiddle('error',errMsg)
             }
         })
     }

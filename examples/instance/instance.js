@@ -1,4 +1,4 @@
-// import KeepObserver from '../../@core/instance'
+import KeepObserver from '../../@core/instance'
 // import KeepObserverLog from '../../@core/monitor/log'
 // import KeepObserverError from '../../@core/monitor/error'
 
@@ -43,3 +43,5 @@
 //     debugger
 //     console.log('aaaaaaaa',ko,ko.useMiddle)
 // },100)
+
+

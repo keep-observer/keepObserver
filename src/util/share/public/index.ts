@@ -1,6 +1,7 @@
-import * as tool from '../../../util/tool';
-import { warnError,devLog } from '../../../util/console'
+import { publicMiddleScopeNames } from '../../../constants/index'
 import  KeepObserverMiddleWare  from '../middleware/index'
+import * as Tools from '../../tool'
+
 
 import {
     catchParams
@@ -22,15 +23,18 @@ class KeepObserverPublic {
 
 
     constructor(config={}) {
-        const { develop = false, } =config as any
+        const { develop = false,runTimeOut=30000  } =config as any
         //当前是否处于开发模式
         this._develop = develop;
         //由子元素继承并重载
         this.middleScopeNames = []
         //由子元素继承
-        this._publicMiddleScopeNames = ['sendMessage']
+        this._publicMiddleScopeNames = publicMiddleScopeNames
         //注册中间件实例
-        this._middleWareInstance = new KeepObserverMiddleWare(config)
+        this._middleWareInstance = new KeepObserverMiddleWare(Tools.extend({
+            develop,
+            runTimeOut 
+        },config))
     }
 
     static extendReportParams = {};

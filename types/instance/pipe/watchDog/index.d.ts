@@ -1,7 +1,6 @@
 declare class WatchDog {
-    private receiveLock;
-    private stackCountBuff;
-    private stackTimeFlag;
-    constructor(config: any);
+    private _config;
+    constructor(config?: {});
+    limtWatch(fn: Function, anomalyCallback: Function): (...params: any[]) => any;
 }
 export default WatchDog;

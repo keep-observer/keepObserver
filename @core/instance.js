@@ -97,7 +97,9 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-exports.version = '2.0.0-beta.1';
+exports.version = '2.0.0-beta.1'; //公共中间件
+
+exports.publicMiddleScopeNames = ['sendMessage', 'error'];
 
 /***/ }),
 
@@ -205,7 +207,7 @@ function (_super) {
       config = {};
     }
 
-    var _this = _super.call(this, config = index_1.tool.extend(defaultConfig_1["default"], config)) || this; //method
+    var _this = _super.call(this, config = index_1.Tools.extend(defaultConfig_1["default"], config)) || this; //method
 
 
     _this.updateVersionClearCache = update_1.updateVersionClearCache.bind(_this);
@@ -322,11 +324,24 @@ exports.apis = function (apiName) {
   var _self = this;
 
   if (!_self.apis[apiName]) {
-    return index_1.consoleTools.warnError("apiName:" + apiName + " is undefined");
+    var errorMsg = "apiName:" + apiName + " is undefined";
+    index_1.consoleTools.warnError(errorMsg);
+    return _self.runMiddle('error', errorMsg);
   }
 
   var callback = _self.apis[apiName];
-  return callback.apply(void 0, __spread(args));
+  var res = null;
+
+  try {
+    var res = callback.apply(void 0, __spread(args));
+  } catch (e) {
+    var errorMsg = "apiName:" + apiName + " is run find error:" + e;
+    index_1.consoleTools.warnError(errorMsg);
+
+    _self.runMiddle('error', errorMsg);
+  }
+
+  return res;
 };
 
 /***/ }),
@@ -406,7 +421,7 @@ var updateVersionRecordKey = 'versionRecord';
 var keepObserverRecordReg = /^keepObserverData/i;
 
 exports.updateVersionClearCache = function () {
-  var oldVersion = index_1.tool.getStorage(updateVersionRecordKey);
+  var oldVersion = index_1.Tools.getStorage(updateVersionRecordKey);
 
   if (!this._config.projectVersion || this._config.projectVersion === oldVersion) {
     return false;
@@ -423,7 +438,7 @@ exports.updateVersionClearCache = function () {
     }
   }
 
-  index_1.tool.setStorage(updateVersionRecordKey, this._config.projectVersion);
+  index_1.Tools.setStorage(updateVersionRecordKey, this._config.projectVersion);
 };
 
 /***/ }),
@@ -449,7 +464,7 @@ var receiveQueue_1 = __webpack_require__(/*! ./receiveQueue */ "./src/instance/p
 var MessageQueue =
 /** @class */
 function () {
-  function MessageQueue(config) {
+  function MessageQueue(config, $pipe) {
     //method
     this.noticeListener = triggerQueue_1.noticeListener.bind(this);
     this.sendPipeMessage = triggerQueue_1.sendPipeMessage.bind(this);
@@ -457,7 +472,9 @@ function () {
 
     this.waiting = false; //消息队列
 
-    this.messageQueue = []; //消费者集合
+    this.messageQueue = []; //管道实例
+
+    this.$pipe = $pipe; //消费者集合
 
     this.consumerMap = {};
   }
@@ -491,21 +508,29 @@ exports.registerRecivePipeMessage = function (id, scope) {
 
 
   if (_self.consumerMap[id]) {
-    index_1.consoleTools.warnError('register recive pipe index is Occupy');
+    var errMsg = 'register recive pipe index is Occupy';
+    index_1.consoleTools.warnError(errMsg);
+
+    _self.$pipe.$keepObserver.runMiddle('error', errMsg);
+
     return false;
   } //返回一个闭包函数用来接收注册函数
 
 
   return function (fn) {
     //接收函数
-    if (!fn || !index_1.tool.isFunction(fn)) {
-      index_1.consoleTools.warnError('registerRecivePipeMessage method receive function is not right');
+    if (!fn || !index_1.Tools.isFunction(fn)) {
+      var errMsg = 'registerRecivePipeMessage method receive function is not right';
+      index_1.consoleTools.warnError(errMsg);
+
+      _self.$pipe.$keepObserver.runMiddle('error', errMsg);
+
       return;
     } //内部修改作用域调用
 
 
     _self.consumerMap[id] = function () {
-      var agrs = index_1.tool.toArray(arguments); //向注册进来的接收函数发送数据
+      var agrs = index_1.Tools.toArray(arguments); //向注册进来的接收函数发送数据
 
       return fn.apply(scope, agrs);
     };
@@ -565,7 +590,7 @@ exports.sendPipeMessage = function (id, params) {
 exports.noticeListener = function (queue) {
   var _self = this;
 
-  if (!index_1.tool.isArray(queue) || queue.length === 0) {
+  if (!index_1.Tools.isArray(queue) || queue.length === 0) {
     return false;
   } //接收消息进入等待状态
 
@@ -577,9 +602,9 @@ exports.noticeListener = function (queue) {
         id = _a.id,
         params = _a.params; //消息分发
 
-    index_1.tool.map(_self.consumerMap, function (cb, pipeId) {
+    index_1.Tools.map(_self.consumerMap, function (cb, pipeId) {
       //判断是否是正确注册接收函数
-      if (!index_1.tool.isFunction(cb)) {
+      if (!index_1.Tools.isFunction(cb)) {
         return false;
       } //不允许自发自收
 
@@ -593,7 +618,10 @@ exports.noticeListener = function (queue) {
         //执行分发
         var result = cb(params);
       } catch (e) {
-        index_1.consoleTools.warnError('use pipe message notice is runing error:' + e);
+        var errMsg = 'use pipe message notice is runing error:' + e;
+        index_1.consoleTools.warnError(errMsg);
+
+        _self.$pipe.$keepObserver.runMiddle('error', errMsg);
       }
     });
   } //等待状态结束
@@ -675,6 +703,12 @@ var __spread = this && this.__spread || function () {
   return ar;
 };
 
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -683,37 +717,48 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 var index_2 = __webpack_require__(/*! @util/index */ "@util/index");
 
+var index_3 = __importDefault(__webpack_require__(/*! ../WatchDog/index */ "./src/instance/pipe/WatchDog/index.ts"));
+
 var PipeUser =
 /** @class */
 function (_super) {
   __extends(PipeUser, _super);
 
   function PipeUser(index, $pipe, scope) {
-    var _this = _super.call(this) || this;
-
-    _this.pipeIndex = index; //register send message middle 
-    //  1 -> 2 -> 3 -> 2 -> 1
-
-    var _a = __read($pipe._publicMiddleScopeNames, 1),
-        sendMessage = _a[0];
-
-    _this.useMiddle(sendMessage, function (interrupt, next) {
-      return function (reportParams) {
-        index_2.consoleTools.devLog($pipe._develop, reportParams);
-        $pipe.$mq.sendPipeMessage(index, reportParams);
-        return next(reportParams);
-      };
-    }); // init api
+    var _this = _super.call(this) || this; //index
 
 
-    _this.sendMessage = function (catchParams) {
+    _this.pipeIndex = index; //register watchDog
+
+    var $watchDog = new index_3["default"](); //provide sendMessage
+
+    _this.sendMessage = $watchDog.limtWatch(
+    /* watch fn */
+    function (catchParams) {
+      var isError = true;
+
       var _a = __read($pipe._publicMiddleScopeNames, 1),
           sendMessage = _a[0];
 
-      var reportParams = _this.handleReportData(catchParams);
+      var reportParams = _this.handleReportData(catchParams); //  1 -> 2 -> 3 -> 2 -> 1
 
-      return _this.runMiddle(sendMessage, reportParams);
-    };
+
+      return _this.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
+        isError = false;
+        index_2.consoleTools.devLog($pipe._develop, middleReportParams);
+        $pipe.$mq.sendPipeMessage(index, middleReportParams);
+      }) //check error
+      ["finally"](function () {
+        if (isError) {
+          index_2.consoleTools.devLog($pipe._develop, reportParams);
+          $pipe.$mq.sendPipeMessage(index, reportParams);
+        }
+      });
+    },
+    /* anomaly callback */
+    function (anomalyMessage) {
+      $pipe.$keepObserver.runMiddle('error', anomalyMessage);
+    }); //extend middle
 
     _this.runExtendMiddle = function (scopeName) {
       var args = [];
@@ -729,11 +774,13 @@ function (_super) {
 
     _this.useExtendMiddle = function (scopeName, middlesFn) {
       return $pipe.$keepObserver.useMiddle(scopeName, middlesFn);
-    };
+    }; //extend report params
+
 
     _this.extendsReportParams = function (params) {
       return $pipe.$keepObserver.extendReportParams(params);
-    };
+    }; //provide reciveMessage 
+
 
     _this.registerReciveMessage = $pipe.$mq.registerRecivePipeMessage(index, scope);
     return _this;
@@ -743,6 +790,127 @@ function (_super) {
 }(index_1.KeepObserverPublic);
 
 exports["default"] = PipeUser;
+
+/***/ }),
+
+/***/ "./src/instance/pipe/WatchDog/index.ts":
+/*!*********************************************!*\
+  !*** ./src/instance/pipe/WatchDog/index.ts ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __read = this && this.__read || function (o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
+      ar.push(r.value);
+    }
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+};
+
+var __spread = this && this.__spread || function () {
+  for (var ar = [], i = 0; i < arguments.length; i++) {
+    ar = ar.concat(__read(arguments[i]));
+  }
+
+  return ar;
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
+
+var WatchDog =
+/** @class */
+function () {
+  function WatchDog(config) {
+    if (config === void 0) {
+      config = {};
+    }
+
+    this._config = config;
+  } //api
+
+
+  WatchDog.prototype.limtWatch = function (fn, anomalyCallback) {
+    var count = 0;
+    var anomaly = false;
+    var resetCountFn = index_1.Tools.debounceWrap(1000)(function () {
+      return count = 0;
+    });
+    var resetAnomaly = index_1.Tools.throttleWrap(3000)(function () {
+      return anomaly = false;
+    });
+
+    var limtJudgeAnomaly = function limtJudgeAnomaly(count, anomalyCallback) {
+      //启动定时器每秒恢复一次计数
+      resetCountFn();
+
+      if (count === 10) {
+        var msg = 'send  Message during 1000ms in Over 10 times,maybe Anomaly';
+        index_1.consoleTools.warnError(msg);
+        anomalyCallback(msg);
+        return false;
+      }
+
+      if (count > 20) {
+        var msg = 'send  Message during 1000ms in Over 20 times,maybe happend Endless loop';
+        index_1.consoleTools.warnError(msg);
+        anomalyCallback(msg);
+        return true;
+      }
+
+      return false;
+    };
+
+    var watchWrap = function watchWrap() {
+      var params = [];
+
+      for (var _i = 0; _i < arguments.length; _i++) {
+        params[_i] = arguments[_i];
+      }
+
+      anomaly = !anomaly ? limtJudgeAnomaly(++count, anomalyCallback) : true;
+
+      if (anomaly) {
+        resetAnomaly();
+        return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
+      }
+
+      return fn.apply(void 0, __spread(params));
+    };
+
+    return watchWrap;
+  };
+
+  return WatchDog;
+}();
+
+exports["default"] = WatchDog;
 
 /***/ }),
 
@@ -815,7 +983,9 @@ function (_super) {
 
     _this.$keepObserver = keepObserver; //消息队列实例
 
-    _this.$mq = new index_2["default"](config); //管道用户
+    _this.$mq = new index_2["default"](config, _this
+    /* $pipe */
+    ); //管道用户
 
     _this.pipeUser = [];
     return _this;
@@ -860,28 +1030,32 @@ var index_2 = __importDefault(__webpack_require__(/*! ./PipeUser/index */ "./src
 
 
 exports.use = function (Provider) {
-  if (!Provider || !index_1.tool.isFunction(Provider) && !index_1.tool.isClassObject(Provider)) {
-    index_1.consoleTools.warnError('use method receive provider is not right');
-    return false;
+  var _self = this;
+
+  if (!Provider || !index_1.Tools.isFunction(Provider) && !index_1.Tools.isClassObject(Provider)) {
+    var errorMsg = "use method receive provider is not right";
+    index_1.consoleTools.warnError(errorMsg);
+    return _self.$keepObserver.runMiddle('error', errorMsg);
   } //初始化注入服务
 
 
-  var config = this._config;
-  var providerInstalcen = index_1.tool.isFunction(Provider) ? new Provider(config) : Provider; //检查注入方法是否存在存在apply,存在则加入到管道流中
+  var config = _self._config;
+  var providerInstalcen = index_1.Tools.isFunction(Provider) ? new Provider(config) : Provider; //检查注入方法是否存在存在apply,存在则加入到管道流中
   //并检查是否存在返回方法，挂载在自身中,用于对外提供
 
   var _a = providerInstalcen.apply,
       apply = _a === void 0 ? null : _a;
 
-  if (apply && index_1.tool.isFunction(apply)) {
+  if (apply && index_1.Tools.isFunction(apply)) {
     this.injection(providerInstalcen, apply);
   } else {
-    index_1.consoleTools.warnError('use method receive provider is not apply method');
-    return false;
+    var errorMsg = "use method receive provider is not apply method";
+    index_1.consoleTools.warnError(errorMsg);
+    return _self.$keepObserver.runMiddle('error', errorMsg);
   }
 };
 /*
-    注入管道
+    注入
     params
     @scope  type object
         explan:this指向
@@ -895,14 +1069,14 @@ exports.injection = function (scope, applyFn) {
 
   var config = this._config; //check data
 
-  if (!applyFn || !index_1.tool.isFunction(applyFn)) {
-    index_1.consoleTools.warnError('injection receive ApplyFn is undefined or no function');
-    return false;
+  if (!applyFn || !index_1.Tools.isFunction(applyFn)) {
+    var errorMsg = "injection receive because Provider apply is undefined or no function";
+    index_1.consoleTools.warnError(errorMsg);
+    return _self.$keepObserver.runMiddle('error', errorMsg);
   } //cerate pipeUser and add quenen
 
 
   var pipeUser = new index_2["default"](_self.pipeUser.length, _self, scope);
-  _self.pipeUser[_self.pipeUser.length] = pipeUser;
 
   try {
     // runing apply
@@ -910,17 +1084,23 @@ exports.injection = function (scope, applyFn) {
     // 1. $keepObserver.registerApi 
     // 2. userRenderMethod : {apiName:callback}
 
-    if (_self.$keepObserver.registerApi && index_1.tool.isObject(userRenderMethod) && !index_1.tool.isEmptyObject(userRenderMethod)) {
-      index_1.tool.map(userRenderMethod, function (callback, apiName) {
+    if (_self.$keepObserver.registerApi && index_1.Tools.isObject(userRenderMethod) && !index_1.Tools.isEmptyObject(userRenderMethod)) {
+      index_1.Tools.map(userRenderMethod, function (callback, apiName) {
         if (!apiName || !callback) {
-          return index_1.consoleTools.warnError("apiName is '' or callback is undefined");
+          var errorMsg = "apiName is '' or callback is undefined";
+          index_1.consoleTools.warnError(errorMsg);
+          return _self.$keepObserver.runMiddle('error', errorMsg);
         }
 
         _self.$keepObserver.registerApi(apiName, callback.bind(scope));
       });
     }
+
+    _self.pipeUser[_self.pipeUser.length] = pipeUser;
   } catch (e) {
-    index_1.consoleTools.warnError('injection receive ApplyFn is runing find error:' + e);
+    var errorMsg = 'injection receive Provider apply is runing find error:' + e;
+    index_1.consoleTools.warnError(errorMsg);
+    return _self.$keepObserver.runMiddle('error', errorMsg);
   }
 };
 

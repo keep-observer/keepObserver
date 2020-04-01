@@ -1,4 +1,4 @@
-import { tool } from '@util/index'
+import { Tools } from '@util/index'
 
 const updateVersionRecordKey = 'versionRecord';
 const keepObserverRecordReg = /^keepObserverData/i;
@@ -7,7 +7,7 @@ const keepObserverRecordReg = /^keepObserverData/i;
 
 
 export var updateVersionClearCache = function(){
-	var oldVersion = tool.getStorage(updateVersionRecordKey)
+	var oldVersion = Tools.getStorage(updateVersionRecordKey)
 	if(!this._config.projectVersion || this._config.projectVersion === oldVersion){
 		return false;
 	}
@@ -20,7 +20,7 @@ export var updateVersionClearCache = function(){
 			this.$devWarn('[keepObserver] updateVersionRecord key:'+key)
 		}
 	}
-	tool.setStorage(updateVersionRecordKey,this._config.projectVersion)
+	Tools.setStorage(updateVersionRecordKey,this._config.projectVersion)
 }
 
 

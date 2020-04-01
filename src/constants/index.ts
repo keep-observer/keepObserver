@@ -11,3 +11,6 @@ export const reportType = [
 export const version = '2.0.0-beta.1';
 
 
+//公共中间件
+export const publicMiddleScopeNames = ['sendMessage','error']
+

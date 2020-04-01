@@ -1,10 +1,12 @@
+import keepObserverPipe from '../index';
 declare class MessageQueue {
     private waiting;
     private messageQueue;
+    private $pipe;
     private consumerMap;
     private noticeListener;
     sendPipeMessage: any;
     registerRecivePipeMessage: any;
-    constructor(config: any);
+    constructor(config: any, $pipe: keepObserverPipe);
 }
 export default MessageQueue;

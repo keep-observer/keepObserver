@@ -1,4 +1,4 @@
-import * as tool from './tool';
+import * as Tools from './tool';
 
 //storge-key
 var RecordKey = 'deviceId'
@@ -17,10 +17,10 @@ var storageModel = function(){
     if(!window.localStorage){
         return false;
     }
-    var deviceID = tool.getStorage(RecordKey)
+    var deviceID = Tools.getStorage(RecordKey)
     if(!deviceID){
-        deviceID  = tool.getUniqueID()
-        tool.setStorage(RecordKey,deviceID)
+        deviceID  = Tools.getUniqueID()
+        Tools.setStorage(RecordKey,deviceID)
     }
     return  deviceID
 }

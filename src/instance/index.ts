@@ -1,6 +1,6 @@
-import { KeepObserverPublic,tool } from '@util/index'
+import { KeepObserverPublic,Tools } from '@util/index'
 import defaultConfig from './defaultConfig';
-import { Provider } from '../types/instance'
+
 
 import keepObserverPipe from './pipe/index';
 
@@ -34,7 +34,7 @@ class KeepObserver extends KeepObserverPublic{
     
 
     constructor(config={}) {
-        super(config = tool.extend(defaultConfig,config))
+        super(config = Tools.extend(defaultConfig,config))
         //获取实例配置
         this._config = config
         //管道实例

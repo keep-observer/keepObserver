@@ -1,5 +1,5 @@
 import { catchParams } from '../../../types/pipe'
-
+import keepObserverPipe from '../index'
 
 
 import { sendPipeMessage,noticeListener } from './triggerQueue'
@@ -13,6 +13,7 @@ class MessageQueue{
         id: Number,
         params: catchParams
     }[]
+    private $pipe:keepObserverPipe
     private consumerMap:{
         [propsName:number]:(...any)=>Promise<{}>
     }
@@ -22,11 +23,13 @@ class MessageQueue{
     public registerRecivePipeMessage = registerRecivePipeMessage.bind(this)
 
 
-    constructor(config) {
+    constructor(config,$pipe:keepObserverPipe) {
         //消息是否在等待
         this.waiting = false;
         //消息队列
         this.messageQueue = [];
+        //管道实例
+        this.$pipe = $pipe
         //消费者集合
         this.consumerMap = {}
     }

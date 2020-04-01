@@ -1,7 +1,8 @@
 import { KeepObserverPublic } from '@util/index'
-import { consoleTools,tool} from '@util/index'
+import { consoleTools,Tools} from '@util/index'
 
 import keepObserverPipe from '../index'
+import WatchDog from '../WatchDog/index'
 
 import { catchParams } from '../../../types/pipe'
 import { reportParams } from '../../../types/report'
@@ -25,30 +26,44 @@ class PipeUser extends KeepObserverPublic{
 
     constructor(index:number,$pipe:keepObserverPipe,scope:any){
         super()
+        //index
         this.pipeIndex = index;
-         //register send message middle 
-         //  1 -> 2 -> 3 -> 2 -> 1
-        const [ sendMessage ] = $pipe._publicMiddleScopeNames
-        this.useMiddle(sendMessage,(interrupt,next)=>(reportParams:reportParams)=>{
-            consoleTools.devLog($pipe._develop,reportParams)
-            $pipe.$mq.sendPipeMessage(index, reportParams)
-            return next(reportParams)
-        })
-        // init api
-        this.sendMessage= (catchParams:catchParams)=>{
+        //register watchDog
+        const $watchDog = new WatchDog()
+        //provide sendMessage
+        this.sendMessage = $watchDog.limtWatch(/* watch fn */(catchParams:catchParams)=>{
+            var isError = true;
             const [ sendMessage ] = $pipe._publicMiddleScopeNames
             const reportParams = this.handleReportData(catchParams)
+            //  1 -> 2 -> 3 -> 2 -> 1
             return this.runMiddle(sendMessage,reportParams)
-        }
+                        .then((middleReportParams:reportParams)=>{
+                            isError = false
+                            consoleTools.devLog($pipe._develop,middleReportParams)
+                            $pipe.$mq.sendPipeMessage(index, middleReportParams)
+                        })
+                        //check error
+                        .finally(()=>{
+                            if(isError){
+                                consoleTools.devLog($pipe._develop,reportParams)
+                                $pipe.$mq.sendPipeMessage(index, reportParams)
+                            }
+                        })
+        },/* anomaly callback */(anomalyMessage)=>{
+            $pipe.$keepObserver.runMiddle('error',anomalyMessage)
+        })
+        //extend middle
         this.runExtendMiddle = (scopeName:string,...args:any[]):Promise<{}>=>{
             return $pipe.$keepObserver.runMiddle(scopeName,...args)
         }
         this.useExtendMiddle = (scopeName:string,middlesFn:middlesFn)=>{
             return $pipe.$keepObserver.useMiddle(scopeName,middlesFn)
         }
+        //extend report params
         this.extendsReportParams=(params:any)=>{
             return $pipe.$keepObserver.extendReportParams(params)
         }
+        //provide reciveMessage 
         this.registerReciveMessage = $pipe.$mq.registerRecivePipeMessage(index,scope)
     }
 }
@@ -57,4 +72,5 @@ class PipeUser extends KeepObserverPublic{
 
 
 export default PipeUser
+
 

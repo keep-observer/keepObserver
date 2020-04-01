@@ -32,7 +32,7 @@ class keepObserverPipe extends KeepObserverPublic {
         //获取kp实例
         this.$keepObserver = keepObserver;
         //消息队列实例
-        this.$mq = new MessageQueue(config)
+        this.$mq = new MessageQueue(config,this/* $pipe */)
         //管道用户
         this.pipeUser = [];
     }
