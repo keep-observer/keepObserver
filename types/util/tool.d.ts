@@ -58,5 +58,12 @@ export declare function filter(obj: any, callback: any): any;
  * @return: new obj
  */
 export declare function map(obj: any, callback: any): any;
+/**
+ * @map:
+ * @param obj { array and object}
+ * @param call { array.filter(callback)}
+ * @return: new Array
+ */
+export declare function mapToArray(obj: any, callback: any): any;
 export declare function throttleWrap(delay: any): (Fn: Function) => (...any: any[]) => void;
 export declare function debounceWrap(delay: any): (Fn: Function) => (...any: any[]) => boolean;

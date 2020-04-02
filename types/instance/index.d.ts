@@ -9,6 +9,7 @@ declare class KeepObserver extends KeepObserverPublic {
     private registerApi;
     apis: any;
     useMiddle: any;
+    getRunMiddle: any;
     extendReportParams: any;
     use: any;
     constructor(config?: {});

@@ -476,6 +476,7 @@ function () {
     var index = 1; //开始执行
 
     _self._runMiddleBuff[scopeName] = true;
+    this.constructor.currentRunMiddle = scopeName;
     return new Promise(function (resolve, reject) {
       //设置超时
       var runTimeout = setTimeout(function () {
@@ -547,6 +548,8 @@ function () {
 
         reject(errorMsg);
       }
+    }).finally(function () {
+      _this.constructor.currentRunMiddle = false;
     });
   }; //抛出中间件错误
 
@@ -564,6 +567,7 @@ function () {
   ; //公共方法和部分
 
   KeepObserverMiddleWare.publicMiddles = {};
+  KeepObserverMiddleWare.currentRunMiddle = false;
   return KeepObserverMiddleWare;
 }();
 
@@ -1231,6 +1235,33 @@ function map(obj, callback) {
 }
 
 exports.map = map;
+/**
+ * @map:
+ * @param obj { array and object}
+ * @param call { array.filter(callback)}
+ * @return: new Array
+ */
+
+function mapToArray(obj, callback) {
+  if (!isArray(obj) && !isObject(obj) || !isFunction(callback)) {
+    return obj;
+  }
+
+  if (isArray(obj)) {
+    return obj.map(callback);
+  }
+
+  var newArray = [];
+
+  for (var key in obj) {
+    var value = obj[key];
+    newArray.push(callback(value, key));
+  }
+
+  return newArray;
+}
+
+exports.mapToArray = mapToArray;
 
 function throttleWrap(delay) {
   return function (Fn) {

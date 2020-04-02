@@ -30,6 +30,7 @@ class KeepObserverMiddleWare {
 
     //公共方法和部分
     static publicMiddles = {}
+    static currentRunMiddle = false;
     static usePublishMiddles(scopeName:string,middlesFn:middlesFn):any{
         const _staticSelf = this
         if(_staticSelf.publicMiddles[scopeName]){
@@ -78,6 +79,7 @@ class KeepObserverMiddleWare {
         var index = 1;
         //开始执行
         _self._runMiddleBuff[scopeName] = true;
+        (this.constructor as any).currentRunMiddle = scopeName
         return new Promise((resolve,reject)=>{
             //设置超时
             var runTimeout =  setTimeout(()=>{
@@ -118,6 +120,8 @@ class KeepObserverMiddleWare {
                 }
                 reject(errorMsg)
             }
+        }).finally(()=>{
+            (this.constructor as any).currentRunMiddle = false
         })
     }
 

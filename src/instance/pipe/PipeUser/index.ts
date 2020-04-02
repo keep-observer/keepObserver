@@ -32,6 +32,13 @@ class PipeUser extends KeepObserverPublic{
         const $watchDog = new WatchDog()
         //provide sendMessage
         this.sendMessage = $watchDog.limtWatch(/* watch fn */(catchParams:catchParams)=>{
+            //run middle process, message is ignore
+            if($pipe.$keepObserver.getRunMiddle()){
+                const warnMsg = `${$pipe.$keepObserver.getRunMiddle()} is runing, send message ignore`
+                consoleTools.devWarn(true,warnMsg)
+                return Promise.reject(warnMsg)
+            }
+            //send message
             var isError = true;
             const [ sendMessage ] = $pipe._publicMiddleScopeNames
             const reportParams = this.handleReportData(catchParams)

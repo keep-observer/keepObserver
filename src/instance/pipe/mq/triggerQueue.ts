@@ -10,13 +10,13 @@ export var sendPipeMessage = function(id:number, params:catchParams,) {
         id: id,
         params: params,
     };
+    //如果正在执行
+    if (_self.isRun) {
+        return false;
+    }
     //是否消息队列加锁,并且防止异常消息
     //进入消息队列
     _self.messageQueue.push(msgItem);
-    //如果正在执行
-    if (_self.waiting) {
-        return false;
-    }
     //异步执行消息队列分发
     setTimeout(function() {
         //获取消息队列数组快照
@@ -39,15 +39,15 @@ export var noticeListener = function(queue) {
         return false;
     }
     //接收消息进入等待状态
-    _self.waiting = true;
+    _self.isRun = true;
     //分发处理消息
-    for (var i = 0; i < queue.length; i++) {
+    Promise.all(queue.map((item)=>{
         var {
             id,
             params,
-        } = queue[i];
+        } = item;
         //消息分发
-        Tools.map(_self.consumerMap,(cb,pipeId)=>{
+        return Promise.all(Tools.mapToArray(_self.consumerMap,(cb,pipeId)=>{
             //判断是否是正确注册接收函数
             if (!Tools.isFunction(cb)) {
                 return false;
@@ -59,16 +59,17 @@ export var noticeListener = function(queue) {
             //分发
             try {
                 //执行分发
-                var result = cb(params);
+                return cb(params) || false;
             } catch (e) {
-                const errMsg = 'use pipe message notice is runing error:' + e
+                const errMsg = 'handle message is runing error:' + e
                 consoleTools.warnError(errMsg)
                 _self.$pipe.$keepObserver.runMiddle('error',errMsg)
             }
-        })
-    }
-    //等待状态结束
-    _self.waiting = false;
+        }))
+    })).finally(()=>{
+        //执行状态结束
+        _self.isRun = false;
+    })
 }
 
 

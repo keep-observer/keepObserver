@@ -8,7 +8,7 @@ import { registerRecivePipeMessage } from './receiveQueue'
 
 
 class MessageQueue{
-    private waiting:boolean
+    public isRun:boolean
     private messageQueue:{
         id: Number,
         params: catchParams
@@ -24,8 +24,8 @@ class MessageQueue{
 
 
     constructor(config,$pipe:keepObserverPipe) {
-        //消息是否在等待
-        this.waiting = false;
+        //消息是否在执行
+        this.isRun = false;
         //消息队列
         this.messageQueue = [];
         //管道实例

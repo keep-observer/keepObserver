@@ -389,6 +389,27 @@ export function map(obj,callback){
 }
 
 
+/**
+ * @map: 
+ * @param obj { array and object} 
+ * @param call { array.filter(callback)} 
+ * @return: new Array
+ */
+export function mapToArray(obj,callback){
+	if((!isArray(obj) && !isObject(obj)) || !isFunction(callback)){
+		return obj
+	}
+	if(isArray(obj)){
+		return obj.map(callback)
+	}
+	let newArray = []
+	for(let key in obj){
+		let value = obj[key]
+		newArray.push(callback(value,key))
+	}
+	return newArray
+}
+
 
 
 export function throttleWrap(delay){

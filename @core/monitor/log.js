@@ -228,7 +228,7 @@ exports._handleInit = function () {
       var _a; //是否处于开发模式下
 
 
-      if (_self._develop && _self.console[method] && index_1.tool.isFunction(_self.console[method])) {
+      if (_self._develop && _self.console[method] && index_1.Tools.isFunction(_self.console[method])) {
         (_a = _self.console)[method].apply(_a, __spread(args));
       } //交给拦截处理信息
 
@@ -253,7 +253,7 @@ exports._handleInit = function () {
       _self._handleMessage(type, [content]); //开发模式下打印
 
 
-      if (_self._develop && _self.console.log && index_1.tool.isFunction(_self.console.log)) {
+      if (_self._develop && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
         _self.console.log(content);
       }
     } else {
@@ -262,7 +262,7 @@ exports._handleInit = function () {
       _self._handleMessage(type, [content]); //开发模式下打印
 
 
-      if (_self._develop && _self.console.log && index_1.tool.isFunction(_self.console.log)) {
+      if (_self._develop && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
         _self.console.log(content);
       }
     }
@@ -292,10 +292,10 @@ exports._handleMessage = function (type, agrs) {
   var _self = this;
 
   var reportData = {};
-  var separate = ' , ';
-  var data = ''; //agrs不是数组 或是空数组 则不处理
+  var separate = ',';
+  var data = '['; //agrs不是数组 或是空数组 则不处理
 
-  if (!index_1.tool.isArray(agrs) || agrs.length === 0) {
+  if (!index_1.Tools.isArray(agrs) || agrs.length === 0) {
     return false;
   }
 
@@ -303,18 +303,19 @@ exports._handleMessage = function (type, agrs) {
 
   agrs.forEach(function (el, index) {
     try {
-      if (index_1.tool.isObject(el)) {
+      if (index_1.Tools.isObject(el)) {
         data += "" + (index === 0 ? '' : separate) + JSON.stringify(el);
       } else {
-        data += "" + (index === 0 ? '' : separate) + index_1.tool.toString(el).replace(/[\s\r\n\t]/g, '');
+        data += (index === 0 ? '' : separate) + "\"" + index_1.Tools.toString(el).replace(/[\s\r\n\t]/g, '') + "\"";
       }
     } catch (err) {
-      data += (index === 0 ? '' : separate) + "toString is err:" + index_1.tool.toString(err).replace(/[\s\r\n\t]/g, '');
+      data += (index === 0 ? '' : separate) + "\"toString is err:" + index_1.Tools.toString(err).replace(/[\s\r\n\t]/g, '') + "\"";
     }
   });
+  data += ']';
   reportData.data = data; //上报
 
-  _self.noticeReport({
+  _self.sendMessage({
     type: "monitor",
     typeName: 'log',
     data: reportData
@@ -406,9 +407,14 @@ function (_super) {
 
     logConfig.develop = develop; //存混合配置
 
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], logConfig); //替换window.console
+    _this._config = index_1.Tools.extend(defaultConfig_1["default"], logConfig); //替换window.console
 
-    _this.console = {}; //启动监控
+    _this.console = {}; //发送方法
+
+    _this.sendMessage = function () {
+      return null;
+    }; //启动监控
+
 
     _this.startObserver();
 
@@ -416,8 +422,9 @@ function (_super) {
   } //提供一个挂载入口
 
 
-  KeepObserverLog.prototype.apply = function (pipe) {
-    this.addReportListener(pipe.sendPipeMessage);
+  KeepObserverLog.prototype.apply = function (_a) {
+    var sendMessage = _a.sendMessage;
+    this.sendMessage = sendMessage;
     return {
       $logStop: this.stopObserver,
       $logStart: this.startObserver

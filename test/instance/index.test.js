@@ -21,6 +21,7 @@ describe("KeepObserver service",function(){
         })
     })
 
+
     it('create KeepObserver instance',function(){
         //instance
         expect(testInstance._config).toBeDefined()
@@ -221,6 +222,73 @@ describe("KeepObserver service",function(){
 
 
 
+    it('consumerService receive Message handle process sendMessage',function(done){
+        const now = new Date().getTime()
+        var sendErrorMessage = false
+        //create message
+        const sendParams = {
+            type:'custome',
+            typeName:'test',
+            location:'localhost://test',
+            environment:'dev-test',
+            reportTime:now,
+            data:{
+                type:'test',
+                content:'karam-test'
+            }
+        }
+        const messageValue = {
+            ...sendParams,
+            //extendParams
+            projectName:'test',
+            projectVersion:'test-version',
+            version,
+        }
+        class ProducerService {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            targetSendMessage(params){ 
+                this.sendMessage(params)
+            }
+            apply(pipe,config){
+                const { sendMessage } = pipe
+                this.sendMessage = sendMessage
+                return{
+                    targetSendMessage:this.targetSendMessage,
+                }
+            }
+        }
+        const producerServiceInstace = new ProducerService()
+        class ConsumerService{
+            getMessage(message){
+                if(!sendErrorMessage){
+                    expect(message).toEqual(messageValue)
+                }else{
+                    fail('receive error message')
+                    return 
+                }
+                sendErrorMessage = true
+                producerServiceInstace.targetSendMessage('error')
+                setTimeout(()=>{
+                    done()
+                },300)
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        const consumerServiceInstace = new ConsumerService()
+        testInstance.use(producerServiceInstace)
+        testInstance.use(consumerServiceInstace)
+        //target
+        testInstance.apis('targetSendMessage',sendParams)
+        
+    })
+
+
+
     it('ProducerService throw error',function(done){
         //is sendMessage delay 1000ms test
         var currService = 0;
@@ -305,9 +373,79 @@ describe("KeepObserver service",function(){
         testInstance.useMiddle('error',(interrupt,next)=>(...params)=>{
             const [ message ] = params
             expect(message).toBe(`${scopeName} middles exec is timeout 3000ms`)
+            next()
             done()
         })
         testInstance.runMiddle(scopeName)
+    })
+
+
+    
+    it('middleService run process no sendMessage',function(done){
+        const now = new Date().getTime()
+        var sendErrorMessage = false
+        //create message
+        const sendParams = {
+            type:'custome',
+            typeName:'test',
+            location:'localhost://test',
+            environment:'dev-test',
+            reportTime:now,
+            data:{
+                type:'test',
+                content:'karam-test'
+            }
+        }
+        const messageValue = {
+            ...sendParams,
+            //extendParams
+            projectName:'test',
+            projectVersion:'test-version',
+            version,
+        }
+        class ProducerService {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            targetSendMessage(params){ 
+                this.sendMessage(params)
+            }
+            apply(pipe,config){
+                const { sendMessage } = pipe
+                this.sendMessage = sendMessage
+                return{
+                    targetSendMessage:this.targetSendMessage,
+                }
+            }
+        }
+        const producerServiceInstace = new ProducerService()
+        class ConsumerService{
+            getMessage(message){
+                if(sendErrorMessage){
+                    expect(message).toEqual(messageValue)
+                }else{
+                    fail('middleService run process receive error message')
+                }
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
+            const [ value ] = params
+            expect(value).toEqual(messageValue)
+            next(...params)
+            testInstance.apis('targetSendMessage',sendParams)
+            sendErrorMessage = true;
+            setTimeout(()=>{
+                done()
+            },300)
+        })
+        testInstance.use(producerServiceInstace)
+        testInstance.use(ConsumerService)
+        //target
+        testInstance.apis('targetSendMessage',sendParams)
     })
 
     

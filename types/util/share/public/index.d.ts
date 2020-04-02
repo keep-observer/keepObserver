@@ -3,9 +3,9 @@ import { reportParams } from '../../../types/report';
 import { middlesFn } from '../../../types/middle';
 declare class KeepObserverPublic {
     private _middleWareInstance;
+    readonly _publicMiddleScopeNames: string[];
     _develop: boolean;
     middleScopeNames: string[];
-    readonly _publicMiddleScopeNames: string[];
     constructor(config?: {});
     static extendReportParams: {};
     static extendReport(params: any): any;

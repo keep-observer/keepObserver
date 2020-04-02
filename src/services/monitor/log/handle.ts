@@ -1,4 +1,4 @@
-import { consoleTools,tool } from '@util/index'
+import { Tools } from '@util/index'
 
 
 
@@ -24,7 +24,7 @@ export var _handleInit = function() {
     baseLogList.map(method => {
         window.console[method] = (...args) => {
             //是否处于开发模式下
-            if (_self._develop && _self.console[method] && tool.isFunction(_self.console[method])) {
+            if (_self._develop && _self.console[method] && Tools.isFunction(_self.console[method])) {
                 _self.console[method](...args);
             }
             //交给拦截处理信息
@@ -43,14 +43,14 @@ export var _handleInit = function() {
             var content = label + ':' + (Date.now() - pre) + 'ms';
             _self._handleMessage(type, [content]);
             //开发模式下打印
-            if (_self._develop && _self.console.log && tool.isFunction(_self.console.log)) {
+            if (_self._develop && _self.console.log && Tools.isFunction(_self.console.log)) {
                 _self.console.log(content);
             }
         } else {
             var content = label + ': 0ms';
             _self._handleMessage(type, [content]);
             //开发模式下打印
-            if (_self._develop && _self.console.log && tool.isFunction(_self.console.log)) {
+            if (_self._develop && _self.console.log && Tools.isFunction(_self.console.log)) {
                 _self.console.log(content);
             }
         }
@@ -75,28 +75,29 @@ export var _handleInit = function() {
 export var _handleMessage = function(type, agrs) {
     var _self = this;
     var reportData:any = {}
-    var separate = ' , '
-    var data = ''
+    var separate = ','
+    var data = '['
     //agrs不是数组 或是空数组 则不处理
-    if (!tool.isArray(agrs) || agrs.length === 0) {
+    if (!Tools.isArray(agrs) || agrs.length === 0) {
         return false;
     }
     reportData.type = type;
     //直接转成字符串形式
     agrs.forEach( (el,index)=>{
         try{
-            if(tool.isObject(el)){
+            if(Tools.isObject(el)){
                 data += `${index===0?'':separate}${JSON.stringify(el)}`  
             }else{
-                data += `${index===0?'':separate}${tool.toString(el).replace(/[\s\r\n\t]/g,'')}`  
+                data += `${index===0?'':separate}"${Tools.toString(el).replace(/[\s\r\n\t]/g,'')}"`  
             }
         }catch(err){
-            data += `${index===0?'':separate}toString is err:${tool.toString(err).replace(/[\s\r\n\t]/g,'')}`  
+            data += `${index===0?'':separate}"toString is err:${Tools.toString(err).replace(/[\s\r\n\t]/g,'')}"`  
         }
     })
+    data += ']'
     reportData.data = data
     //上报
-    _self.noticeReport({
+    _self.sendMessage({
         type : "monitor",
         typeName : 'log',
         data : reportData,

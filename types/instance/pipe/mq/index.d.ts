@@ -1,6 +1,6 @@
 import keepObserverPipe from '../index';
 declare class MessageQueue {
-    private waiting;
+    isRun: boolean;
     private messageQueue;
     private $pipe;
     private consumerMap;

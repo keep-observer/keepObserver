@@ -215,7 +215,8 @@ function (_super) {
 
     _this.apis = api_1.apis.bind(_this); //主实例重载中间件服务
 
-    _this.useMiddle = middle_1.useMiddle.bind(_this); //扩展上报属性
+    _this.useMiddle = middle_1.useMiddle.bind(_this);
+    _this.getRunMiddle = middle_1.getRunMiddle.bind(_this); //扩展上报属性
 
     _this.extendReportParams = base_1.extendReportParams.bind(_this); //挂载插件服务
 
@@ -397,6 +398,11 @@ exports.useMiddle = function (scopeName, middlesFn) {
   }
 
   return index_1.KeepObserverMiddleWare.usePublishMiddles(scopeName, middlesFn);
+}; //当前正在运行的中间件实例
+
+
+exports.getRunMiddle = function () {
+  return index_1.KeepObserverMiddleWare.currentRunMiddle;
 };
 
 /***/ }),
@@ -468,9 +474,9 @@ function () {
     //method
     this.noticeListener = triggerQueue_1.noticeListener.bind(this);
     this.sendPipeMessage = triggerQueue_1.sendPipeMessage.bind(this);
-    this.registerRecivePipeMessage = receiveQueue_1.registerRecivePipeMessage.bind(this); //消息是否在等待
+    this.registerRecivePipeMessage = receiveQueue_1.registerRecivePipeMessage.bind(this); //消息是否在执行
 
-    this.waiting = false; //消息队列
+    this.isRun = false; //消息队列
 
     this.messageQueue = []; //管道实例
 
@@ -562,15 +568,15 @@ exports.sendPipeMessage = function (id, params) {
   var msgItem = {
     id: id,
     params: params
-  }; //是否消息队列加锁,并且防止异常消息
+  }; //如果正在执行
+
+  if (_self.isRun) {
+    return false;
+  } //是否消息队列加锁,并且防止异常消息
   //进入消息队列
 
-  _self.messageQueue.push(msgItem); //如果正在执行
 
-
-  if (_self.waiting) {
-    return false;
-  } //异步执行消息队列分发
+  _self.messageQueue.push(msgItem); //异步执行消息队列分发
 
 
   setTimeout(function () {
@@ -595,14 +601,13 @@ exports.noticeListener = function (queue) {
   } //接收消息进入等待状态
 
 
-  _self.waiting = true; //分发处理消息
+  _self.isRun = true; //分发处理消息
 
-  for (var i = 0; i < queue.length; i++) {
-    var _a = queue[i],
-        id = _a.id,
-        params = _a.params; //消息分发
+  Promise.all(queue.map(function (item) {
+    var id = item.id,
+        params = item.params; //消息分发
 
-    index_1.Tools.map(_self.consumerMap, function (cb, pipeId) {
+    return Promise.all(index_1.Tools.mapToArray(_self.consumerMap, function (cb, pipeId) {
       //判断是否是正确注册接收函数
       if (!index_1.Tools.isFunction(cb)) {
         return false;
@@ -616,18 +621,18 @@ exports.noticeListener = function (queue) {
 
       try {
         //执行分发
-        var result = cb(params);
+        return cb(params) || false;
       } catch (e) {
-        var errMsg = 'use pipe message notice is runing error:' + e;
+        var errMsg = 'handle message is runing error:' + e;
         index_1.consoleTools.warnError(errMsg);
 
         _self.$pipe.$keepObserver.runMiddle('error', errMsg);
       }
-    });
-  } //等待状态结束
-
-
-  _self.waiting = false;
+    }));
+  }))["finally"](function () {
+    //执行状态结束
+    _self.isRun = false;
+  });
 };
 
 /***/ }),
@@ -735,6 +740,14 @@ function (_super) {
     _this.sendMessage = $watchDog.limtWatch(
     /* watch fn */
     function (catchParams) {
+      //run middle process, message is ignore
+      if ($pipe.$keepObserver.getRunMiddle()) {
+        var warnMsg = $pipe.$keepObserver.getRunMiddle() + " is runing, send message ignore";
+        index_2.consoleTools.devWarn(true, warnMsg);
+        return Promise.reject(warnMsg);
+      } //send message
+
+
       var isError = true;
 
       var _a = __read($pipe._publicMiddleScopeNames, 1),

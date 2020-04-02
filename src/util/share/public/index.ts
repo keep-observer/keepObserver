@@ -17,9 +17,9 @@ import {
 
 class KeepObserverPublic {
     private _middleWareInstance: KeepObserverMiddleWare;
+    readonly _publicMiddleScopeNames: string[]
     public _develop :boolean;
     public middleScopeNames :string[]
-    readonly _publicMiddleScopeNames: string[]
 
 
     constructor(config={}) {

@@ -6,7 +6,7 @@ import keepObserverPipe from './pipe/index';
 
 import { updateVersionClearCache} from './method/update';
 import { registerApi,apis } from './method/api'
-import { useMiddle } from './method/middle'
+import { useMiddle,getRunMiddle } from './method/middle'
 import { extendReportParams,use } from './method/base'
 
 
@@ -26,6 +26,7 @@ class KeepObserver extends KeepObserverPublic{
     public apis = apis.bind(this)
     //主实例重载中间件服务
     public useMiddle = useMiddle.bind(this)
+    public getRunMiddle = getRunMiddle.bind(this)
     //扩展上报属性
     public extendReportParams = extendReportParams.bind(this)
     //挂载插件服务

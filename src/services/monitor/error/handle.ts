@@ -145,13 +145,6 @@ export var _handleError = function(errorEvent) {
 
 
 
-//捕获promise reject 以及catch
-export var _handlePromiseCatchReject = function(errorEvent){
-    console.log(errorEvent)
-}
-
-
-
 
 //拦截addEventListener以及setTime setInterval 注入try
 //注意这个方法会对性能有影响

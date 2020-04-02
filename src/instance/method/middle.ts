@@ -17,3 +17,7 @@ export const useMiddle = function(scopeName:string,middlesFn:middlesFn){
     return KeepObserverMiddleWare.usePublishMiddles(scopeName,middlesFn)
 }
 
+//当前正在运行的中间件实例
+export const getRunMiddle = function(){
+    return KeepObserverMiddleWare.currentRunMiddle
+}

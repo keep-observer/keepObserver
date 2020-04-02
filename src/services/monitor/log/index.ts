@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,tool } from '@util/index'
+import { KeepObserverPublic,Tools } from '@util/index'
 
 
 
@@ -19,6 +19,7 @@ import {
 class KeepObserverLog extends KeepObserverPublic{
     private _config: any;
     private console: any;
+    private sendMessage:Function;
     private addReportListener:any;  //继承中属性
     //method
     private stopObserver = stopObserver.bind(this)
@@ -37,17 +38,19 @@ class KeepObserverLog extends KeepObserverPublic{
         //是否是开发模式
         logConfig.develop = develop
         //存混合配置
-        this._config = tool.extend(defaultConfig, logConfig)
+        this._config = Tools.extend(defaultConfig, logConfig)
         //替换window.console
         this.console = {};
+        //发送方法
+        this.sendMessage = ()=>null
         //启动监控
         this.startObserver();
     }
 
 
     //提供一个挂载入口
-    public apply(pipe) {
-        this.addReportListener(pipe.sendPipeMessage)
+    public apply({sendMessage}) {
+        this.sendMessage = sendMessage
         return {
             $logStop: this.stopObserver,
             $logStart: this.startObserver

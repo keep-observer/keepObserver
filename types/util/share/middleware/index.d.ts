@@ -9,6 +9,7 @@ declare class KeepObserverMiddleWare {
         runTimeOut?: number;
     });
     static publicMiddles: {};
+    static currentRunMiddle: boolean;
     static usePublishMiddles(scopeName: string, middlesFn: middlesFn): any;
     use(scopeName: string, middlesFn: middlesFn): any;
     run(scopeName: string, ...args: any[]): Promise<{}>;

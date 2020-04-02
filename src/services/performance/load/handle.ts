@@ -3,6 +3,8 @@ import { consoleTools,tool } from '@util/index'
 
 const saveFlag = 'loadRecordReportDate'
 
+
+
 //获取系统信息
 export var getSystemInfo = function() {
     const _self = this;
