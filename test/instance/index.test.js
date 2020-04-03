@@ -379,100 +379,12 @@ describe("KeepObserver service",function(){
         testInstance.runMiddle(scopeName)
     })
 
-
-    
-    it('middleService run process no sendMessage',function(done){
-        const now = new Date().getTime()
-        var sendErrorMessage = false
-        //create message
-        const sendParams = {
-            type:'custome',
-            typeName:'test',
-            location:'localhost://test',
-            environment:'dev-test',
-            reportTime:now,
-            data:{
-                type:'test',
-                content:'karam-test'
-            }
-        }
-        const messageValue = {
-            ...sendParams,
-            //extendParams
-            projectName:'test',
-            projectVersion:'test-version',
-            version,
-        }
-        class ProducerService {
-            constructor(){
-                this.sendMessage = undefined
-            }
-            targetSendMessage(params){ 
-                this.sendMessage(params)
-            }
-            apply(pipe,config){
-                const { sendMessage } = pipe
-                this.sendMessage = sendMessage
-                return{
-                    targetSendMessage:this.targetSendMessage,
-                }
-            }
-        }
-        const producerServiceInstace = new ProducerService()
-        class ConsumerService{
-            getMessage(message){
-                if(sendErrorMessage){
-                    expect(message).toEqual(messageValue)
-                }else{
-                    fail('middleService run process receive error message')
-                }
-            }
-            apply(pipe,config){
-                const { registerReciveMessage } = pipe
-                registerReciveMessage(this.getMessage)
-            }
-        }
-        testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
-            const [ value ] = params
-            expect(value).toEqual(messageValue)
-            next(...params)
-            testInstance.apis('targetSendMessage',sendParams)
-            sendErrorMessage = true;
-            setTimeout(()=>{
-                done()
-            },300)
-        })
-        testInstance.use(producerServiceInstace)
-        testInstance.use(ConsumerService)
-        //target
-        testInstance.apis('targetSendMessage',sendParams)
-    })
-
     
 
     it('sendMessage limt ctr',function(done){
         const now = new Date().getTime()
         var isStopSendMessage = false
         var sendCount = 0
-        //create message
-        const sendParams = {
-            type:'custome',
-            typeName:'test',
-            location:'localhost://test',
-            environment:'dev-test',
-            reportTime:now,
-            data:{
-                type:'test',
-                content:'karam-test'
-            }
-        }
-        const messageValue = {
-            ...sendParams,
-            //extendParams
-            projectName:'test',
-            projectVersion:'test-version',
-            version,
-        }
         class ProducerService {
             constructor(){
                 this.sendMessage = undefined
@@ -490,9 +402,8 @@ describe("KeepObserver service",function(){
         }
         class ConsumerService{
             getMessage(message){
-                expect(message).toEqual(messageValue)
-                if(isStopSendMessage && sendCount === 25){
-                    done()
+                if(isStopSendMessage){
+                    setTimeout(()=>done(),200)
                 }
             }
             apply(pipe,config){
@@ -522,11 +433,20 @@ describe("KeepObserver service",function(){
         testInstance.use(ConsumerService)
         for(var i=0; i<25; i++){
             sendCount++
-            testInstance.apis('targetSendMessage',sendParams)
+            testInstance.apis('targetSendMessage')
         }
-        setTimeout(()=>testInstance.apis('targetSendMessage',sendParams),3200)
+        for(var i=0; i<25; i++){
+            sendCount++
+            testInstance.apis('targetSendMessage',{
+                data:{
+                    sendCount
+                }
+            })
+        }
+        setTimeout(()=>testInstance.apis('targetSendMessage'),3200)
     })
 
+    
 
 });
 

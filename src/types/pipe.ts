@@ -17,6 +17,7 @@ export interface catchParams{
     environment?: string;                                                                   //捕获环境                                                           
     reportTime?: number                                                                     //捕获时间搓
     //标识项
+    isIgnoreSendRepeat?: boolean;                                                           //是否忽略发送信息重复
     isError?: boolean;                                                                      //是否是错误信息
     isPerformance?: boolean;                                                                //是否是性能信息
     isAnalyse?: boolean;                                                                    //是否是分析信息

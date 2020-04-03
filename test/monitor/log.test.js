@@ -2,6 +2,7 @@
 import  KeepObserver  from '../../@core/instance'
 import  KeepObserverLog from '../../@core/monitor/log'
 import  { KeepObserverPublic,KeepObserverMiddleWare }  from '@util/index'
+import  { consoleTools }  from '@util/index'
 import  { version } from '../../src/constants/index.ts';
 
 
@@ -37,26 +38,29 @@ describe("KeepObserverLog service",function(){
     })
 
 
-    // it('keepObserverLog  send log Message',function(done){
-    //     class ConsumerService{
-    //         getMessage(message){
-    //             console.log(message)
-    //             done()
-    //         }
-    //         apply(pipe,config){
-    //             const { registerReciveMessage } = pipe
-    //             registerReciveMessage(this.getMessage)
-    //         }
-    //     }
-    //     testInstance.useMiddle('error',(interrupt,next)=>(...params)=>{
-    //         const [message] = params
-    //     })
-    //     testInstance.use(logInstance)
-    //     testInstance.use(ConsumerService)
-
-    //     console.log('test log')
-    //     console.log({test:'test',test2:[1,2,3,4,5]})
-    // })
+    it('keepObserverLog  send log Message',function(done){
+        class ConsumerService{
+            getMessage(message){
+                consoleTools.log(message)
+                setTimeout(()=>done(),200)
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
+            const [message] = params
+            next(...params)
+        })
+        testInstance.use(logInstance)
+        testInstance.use(ConsumerService)
+        //after init is no Immediately catch message
+        setTimeout(()=>{
+            console.log('test log')
+            console.log({test:'test',test2:[1,2,3,4,5]})
+        })
+    })
 
     
     

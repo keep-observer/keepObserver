@@ -737,17 +737,10 @@ function (_super) {
 
     var $watchDog = new index_3["default"](); //provide sendMessage
 
-    _this.sendMessage = $watchDog.limtWatch(
+    _this.sendMessage = $watchDog.sendMessageLimtWatch(
     /* watch fn */
     function (catchParams) {
-      //run middle process, message is ignore
-      if ($pipe.$keepObserver.getRunMiddle()) {
-        var warnMsg = $pipe.$keepObserver.getRunMiddle() + " is runing, send message ignore";
-        index_2.consoleTools.devWarn(true, warnMsg);
-        return Promise.reject(warnMsg);
-      } //send message
-
-
+      //send message
       var isError = true;
 
       var _a = __read($pipe._publicMiddleScopeNames, 1),
@@ -816,41 +809,6 @@ exports["default"] = PipeUser;
 "use strict";
 
 
-var __read = this && this.__read || function (o, n) {
-  var m = typeof Symbol === "function" && o[Symbol.iterator];
-  if (!m) return o;
-  var i = m.call(o),
-      r,
-      ar = [],
-      e;
-
-  try {
-    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
-      ar.push(r.value);
-    }
-  } catch (error) {
-    e = {
-      error: error
-    };
-  } finally {
-    try {
-      if (r && !r.done && (m = i["return"])) m.call(i);
-    } finally {
-      if (e) throw e.error;
-    }
-  }
-
-  return ar;
-};
-
-var __spread = this && this.__spread || function () {
-  for (var ar = [], i = 0; i < arguments.length; i++) {
-    ar = ar.concat(__read(arguments[i]));
-  }
-
-  return ar;
-};
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -869,30 +827,30 @@ function () {
   } //api
 
 
-  WatchDog.prototype.limtWatch = function (fn, anomalyCallback) {
-    var count = 0;
+  WatchDog.prototype.sendMessageLimtWatch = function (fn, anomalyCallback) {
     var anomaly = false;
+    var countBuff = {};
     var resetCountFn = index_1.Tools.debounceWrap(1000)(function () {
-      return count = 0;
+      return countBuff = {};
     });
     var resetAnomaly = index_1.Tools.throttleWrap(3000)(function () {
       return anomaly = false;
     });
 
-    var limtJudgeAnomaly = function limtJudgeAnomaly(count, anomalyCallback) {
+    var limtJudgeAnomaly = function limtJudgeAnomaly(count, catchParams, anomalyCallback) {
       //启动定时器每秒恢复一次计数
       resetCountFn();
 
       if (count === 10) {
         var msg = 'send  Message during 1000ms in Over 10 times,maybe Anomaly';
-        index_1.consoleTools.warnError(msg);
+        index_1.consoleTools.warnError(msg, catchParams);
         anomalyCallback(msg);
         return false;
       }
 
       if (count > 20) {
         var msg = 'send  Message during 1000ms in Over 20 times,maybe happend Endless loop';
-        index_1.consoleTools.warnError(msg);
+        index_1.consoleTools.warnError(msg, catchParams);
         anomalyCallback(msg);
         return true;
       }
@@ -900,21 +858,27 @@ function () {
       return false;
     };
 
-    var watchWrap = function watchWrap() {
-      var params = [];
+    var watchWrap = function watchWrap(catchParams) {
+      var _a = catchParams || {},
+          _b = _a.isIgnoreSendRepeat,
+          isIgnoreSendRepeat = _b === void 0 ? false : _b,
+          _c = _a.type,
+          type = _c === void 0 ? "undefined" : _c,
+          _d = _a.typeName,
+          typeName = _d === void 0 ? "undefined" : _d,
+          _e = _a.data,
+          data = _e === void 0 ? {} : _e;
 
-      for (var _i = 0; _i < arguments.length; _i++) {
-        params[_i] = arguments[_i];
-      }
-
-      anomaly = !anomaly ? limtJudgeAnomaly(++count, anomalyCallback) : true;
+      var key = isIgnoreSendRepeat ? 'ignore' : type + "_" + typeName + "_" + index_1.Tools.getHashCode(data);
+      var count = countBuff[key] ? ++countBuff[key] : countBuff[key] = 1;
+      anomaly = !anomaly ? limtJudgeAnomaly(count, catchParams, anomalyCallback) : true;
 
       if (anomaly) {
         resetAnomaly();
         return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
       }
 
-      return fn.apply(void 0, __spread(params));
+      return fn(catchParams);
     };
 
     return watchWrap;

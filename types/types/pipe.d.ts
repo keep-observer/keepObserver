@@ -9,6 +9,7 @@ export interface catchParams {
     location?: string;
     environment?: string;
     reportTime?: number;
+    isIgnoreSendRepeat?: boolean;
     isError?: boolean;
     isPerformance?: boolean;
     isAnalyse?: boolean;

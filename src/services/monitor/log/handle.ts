@@ -1,7 +1,6 @@
 import { Tools } from '@util/index'
 
 
-
 /*
 	初始化替换相关信息
 */
@@ -86,7 +85,7 @@ export var _handleMessage = function(type, agrs) {
     agrs.forEach( (el,index)=>{
         try{
             if(Tools.isObject(el)){
-                data += `${index===0?'':separate}${JSON.stringify(el)}`  
+                data += `${index===0?'':separate}${Tools.objectStringify(el)}`  
             }else{
                 data += `${index===0?'':separate}"${Tools.toString(el).replace(/[\s\r\n\t]/g,'')}"`  
             }

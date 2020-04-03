@@ -304,7 +304,7 @@ exports._handleMessage = function (type, agrs) {
   agrs.forEach(function (el, index) {
     try {
       if (index_1.Tools.isObject(el)) {
-        data += "" + (index === 0 ? '' : separate) + JSON.stringify(el);
+        data += "" + (index === 0 ? '' : separate) + index_1.Tools.objectStringify(el);
       } else {
         data += (index === 0 ? '' : separate) + "\"" + index_1.Tools.toString(el).replace(/[\s\r\n\t]/g, '') + "\"";
       }

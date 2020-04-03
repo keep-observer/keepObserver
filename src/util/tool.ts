@@ -1,5 +1,6 @@
 import { warnError } from './console'
-
+import md5 from 'md5'
+import safeStringify from 'fast-safe-stringify'
 
 /**
  * 根据时间搓 返回时间
@@ -114,6 +115,7 @@ export function isWindow(value) {
     var toString = Object.prototype.toString.call(value);
     return toString == '[object global]' || toString == '[object Window]' || toString == '[object DOMWindow]';
 }
+
 /**
  * 检查是否是普通空对象
  * @param object obj
@@ -443,6 +445,28 @@ export function debounceWrap(delay){
         }
     }
 }
- 
+
+
+export function objectStringify(object:any):string{
+    return safeStringify(object,(key, value)=>{
+        if(isWindow(value)){
+            return '[Window]'
+        }
+        if(isElement(value)){
+            return '[DomElement]'
+        }
+        return value
+    })
+}
+
+
+export function getHashCode(object:any):string{
+    try{
+        const hash = md5(objectStringify(object))
+        return hash
+    }catch(err){
+        return md5(toString(err))
+    }
+}
 
 

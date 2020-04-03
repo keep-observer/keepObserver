@@ -1,6 +1,7 @@
+import { catchParams } from '../../../types/pipe';
 declare class WatchDog {
     private _config;
     constructor(config?: {});
-    limtWatch(fn: Function, anomalyCallback: Function): (...params: any[]) => any;
+    sendMessageLimtWatch(fn: Function, anomalyCallback: Function): (catchParams: catchParams) => any;
 }
 export default WatchDog;
