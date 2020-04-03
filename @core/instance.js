@@ -630,8 +630,10 @@ exports.noticeListener = function (queue) {
       }
     }));
   }))["finally"](function () {
-    //执行状态结束
-    _self.isRun = false;
+    //执行状态结束，放到下个阶段，屏蔽处理阶段立即发起的消息
+    setTimeout(function () {
+      _self.isRun = false;
+    });
   });
 };
 

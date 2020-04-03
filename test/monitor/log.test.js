@@ -3,7 +3,6 @@ import  KeepObserver  from '../../@core/instance'
 import  KeepObserverLog from '../../@core/monitor/log'
 import  { KeepObserverPublic,KeepObserverMiddleWare }  from '@util/index'
 import  { consoleTools }  from '@util/index'
-import  { version } from '../../src/constants/index.ts';
 
 
 describe("KeepObserverLog service",function(){
@@ -39,26 +38,56 @@ describe("KeepObserverLog service",function(){
 
 
     it('keepObserverLog  send log Message',function(done){
+        var receiveCount = 0;
         class ConsumerService{
             getMessage(message){
-                consoleTools.log(message)
-                setTimeout(()=>done(),200)
+                switch(++receiveCount){
+                    case 1:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`log`)
+                        expect(message.data).toEqual({
+                            type:'log',
+                            data:'["testlog",{"test":"test","test2":[1,2,3,4,5]}]'
+                        })
+                        expect(message.testAdd).toBe(1)
+                        return
+                    case 2:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`log`)
+                        expect(message.data).toEqual({
+                            type:'error',
+                            data:'["[Window]",{"a":1,"b":"2","d":"[DomElement]","c":"[Circular]"}]'
+                        })
+                        expect(message.testAdd).toBe(1)
+                        console.error('send error message')
+                        setTimeout(()=>done(),200)
+                        return
+                    default:
+                        consoleTools.log(message)
+                        fail('receive error message')
+                }
             }
             apply(pipe,config){
                 const { registerReciveMessage } = pipe
                 registerReciveMessage(this.getMessage)
             }
         }
-        testInstance.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
-            const [message] = params
-            next(...params)
+        testInstance.useMiddle('sendMessage',(interrupt,next)=>(message)=>{
+            message['testAdd'] = 1;
+            next(message)
         })
         testInstance.use(logInstance)
         testInstance.use(ConsumerService)
         //after init is no Immediately catch message
         setTimeout(()=>{
-            console.log('test log')
-            console.log({test:'test',test2:[1,2,3,4,5]})
+            console.log('test log',{"test":"test","test2":[1,2,3,4,5]})
+            let loop = {
+                a:1,
+                b:'2',
+                d:document.createElement('div')
+            }
+            loop.c = loop
+            console.error(window,loop)
         })
     })
 
