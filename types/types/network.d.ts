@@ -4,17 +4,18 @@ export declare type networkType = {
     requestHead: any;
     responseHead: any;
     params: any;
-    data: any;
+    body: string;
     status: number;
     startTime: number;
     endTime: number;
     costTime: number;
     response: any;
+    statusType: 'request' | 'response';
     responseType: string;
-    isTimeout?: boolean;
     timeout?: number;
-    isError?: boolean;
     errorContent?: any;
+    isTimeout?: boolean;
+    isError?: boolean;
 };
 export interface networkRecordType {
     type: 'ajax' | 'fetch';

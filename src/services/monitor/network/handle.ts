@@ -1,4 +1,4 @@
-import { consoleTools,tool } from '@util/index'
+import { consoleTools,Tools } from '@util/index'
 import * as networkTool from './tool';
 
 
@@ -33,11 +33,11 @@ export var _patchXMLAjax = function() {
     //拦截原生open
     (<any>window).XMLHttpRequest.prototype.open = function(method,url) {
         var XML = this;
-        var args = tool.toArray(arguments);
+        var args = Tools.toArray(arguments);
         //定时器
         var timer = null;
         //获取请求唯一ID
-        var id = tool.getUniqueID();
+        var id = Tools.getUniqueID();
         //获取方法
         var method = args[0];
         //获取url
@@ -61,10 +61,10 @@ export var _patchXMLAjax = function() {
                 item = {}
                     //保存请求方法
                 item.method = method
-                var {
+                let {
                     url,
                     params
-                } = networkTool.handleReqUrl(url);
+                } = networkTool.handleReqUrl(XML._url);
                 //处理请求url和params
                 item.url = url;
                 item.params = params;
@@ -111,7 +111,7 @@ export var _patchXMLAjax = function() {
                 //完成
                 clearInterval(timer);
                 item.endTime = +new Date(),
-                    item.costTime = (item.endTime - (item.startTime || item.endTime)) + 'ms';
+                item.costTime = (item.endTime - (item.startTime || item.endTime));
                 item.response = isCatchResponseContent?XML.response:'no-catch-responseContent';
                 //请求结束完成
                 setTimeout(function() {
@@ -145,7 +145,7 @@ export var _patchXMLAjax = function() {
     //拦截原始设置请求头
     (<any>window).XMLHttpRequest.prototype.setRequestHeader = function(header) {
         var XML = this;
-        var args = tool.toArray(arguments);
+        var args = Tools.toArray(arguments);
         if (XML._id && XML._setHead) {
             var setHead = XML._setHead[XML._id];
             var key = args[0] ? args[0] : 'unkownRequestHead';
@@ -182,16 +182,18 @@ export var _patchXMLAjax = function() {
         _self.networkList[id].params = params;
         //保存自定义请求头
         if (requestHead) {
-            _self.networkList[id].requestHead = tool.extend({}, requestHead);
+            _self.networkList[id].requestHead = Tools.extend({}, requestHead);
             delete XML._setHead[id];
         }
         //如果是post数据保存
         if (method === 'POST') {
-            if (tool.isString(data)) {
+            if (Tools.isString(data)) {
                 saveData = data;
             }
         }
-        _self.networkList[id].data = saveData;
+        _self.networkList[id].body = saveData;
+        //发送
+        _self._handleSendXML(id)
         //开启定时器 判断接口是否超时
         _self._handleTimeout(id);
         return _self._send.apply(XML, args);
@@ -214,7 +216,7 @@ export var _patchFetch = function(){
     window.fetch = function (input, init=undefined) {
         var fetchSelf = this
         var args = arguments
-        var id = tool.getUniqueID();
+        var id = Tools.getUniqueID();
         if (!_self.networkList[id]) {
             _self.networkList[id] = {}
         }
@@ -226,24 +228,25 @@ export var _patchFetch = function(){
         _self.networkList[id].type = 'fetch'
         _self.networkList[id].url = url;
         _self.networkList[id].params = params;
-        if(init && !tool.isEmptyObject(init)){
+        if(init && !Tools.isEmptyObject(init)){
             _self.networkList[id].method = init.method?init.method:'get';
-            _self.networkList[id].data = init.body?init.body:'';
+            _self.networkList[id].body = init.body?Tools.objectStringify(init.body):'';
             _self.networkList[id].requestHead = init.headers?init.headers:undefined
         }else{
             _self.networkList[id].method = 'get';
-            _self.networkList[id].data = '';
+            _self.networkList[id].body = '';
             _self.networkList[id].requestHead = undefined
         }
+        _self._handleSendXML(id)
         return new Promise(function (resolve, reject) {
             var promise
             var startTime = new Date().getTime()
             var handleResponse = (response,content)=>{
-                _self.networkList[id].costTime = new Date().getTime() - startTime +'ms'
+                _self.networkList[id].costTime = new Date().getTime() - startTime
                 _self.networkList[id].response = isCatchResponseContent? content:'no-catch-responseContent'
-                _self.networkList[id].status = response.status;
-                var headers = tool.toArray(response.headers.keys())
-                if(!tool.isEmptyArray(headers)){
+                _self.networkList[id].status = response? response.status: 0 || 0;
+                var headers = Tools.toArray(response.headers.keys())
+                if(!Tools.isEmptyArray(headers)){
                     _self.networkList[id].responseHead = {};
                     headers.forEach( key =>{
                         _self.networkList[id].responseHead[key] = response.headers.get(key)
@@ -265,7 +268,7 @@ export var _patchFetch = function(){
                 _self._handleTimeout(id);
                 promise = _self._fetch.apply(fetchSelf, args)
             } catch (error) {
-                _self.networkList[id].costTime = new Date().getTime() - startTime +'ms'
+                _self.networkList[id].costTime = new Date().getTime() - startTime
                 _self.networkList[id].response = 'fetch error:'+error
                 _self.networkList[id].status = 0;
                 _self.networkList[id].responseHead = '';
@@ -295,7 +298,7 @@ export var _patchFetch = function(){
                 function (error) {
                     //结束超时捕获
                     _self._handleTimeout(id);
-                    _self.networkList[id].costTime = new Date().getTime() - startTime +'ms'
+                    _self.networkList[id].costTime = new Date().getTime() - startTime
                     _self.networkList[id].response = 'fetch error:'+error
                     _self.networkList[id].status = 0;
                     _self.networkList[id].responseHead = '';
@@ -354,25 +357,26 @@ export var _handleTimeout = function(id) {
  */
 export var _handleDoneXML = function(id) {
     var _self = this;
-    var ajaxItem = tool.extend({}, _self.networkList[id]);
+    var ajaxItem = Tools.extend({}, _self.networkList[id]);
     //空的对象不做处理
-    if (tool.isEmptyObject(ajaxItem)) {
+    if (Tools.isEmptyObject(ajaxItem)) {
         return false;
     }
+    ajaxItem.statusType = 'response';
     /******   这里开始处理数据  *****/
     //判断当前请求数据url是否需要屏蔽
     if (!_self._handleJudgeDisbale(ajaxItem)) {
-        _self.networkList[id];
+        delete _self.networkList[id];
         return false;
     }
     //判断状态码是否出错
     var status = ajaxItem.status;
     if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
         ajaxItem.isError = true;
-        ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
+        ajaxItem.errorContent = 'ajax request error! error statusCode:' + ( status || 0 );
     }
     //通知上传
-    _self.noticeReport({
+    _self.sendMessage({
         type : "monitor",
         typeName : 'network',
         data:ajaxItem,
@@ -380,6 +384,33 @@ export var _handleDoneXML = function(id) {
     })
     //上报后删除记录
     delete _self.networkList[id];
+}
+
+
+
+/*
+	处理发送的请求
+	@id:拦截请求唯一ID
+ */
+export var _handleSendXML = function(id){
+    var _self = this;
+    var ajaxItem = Tools.extend({}, _self.networkList[id]);
+    //空的对象不做处理
+    if (Tools.isEmptyObject(ajaxItem)) {
+        return false;
+    }
+    ajaxItem.statusType = 'request';
+    //判断当前请求数据url是否需要屏蔽
+    if (!_self._handleJudgeDisbale(ajaxItem)) {
+        delete _self.networkList[id];
+        return false;
+    }
+    //通知上传
+    _self.sendMessage({
+        type : "monitor",
+        typeName : 'network',
+        data:ajaxItem,
+    })
 }
 
 
@@ -397,7 +428,7 @@ export var _handleJudgeDisbale = function(ajaxInfo) {
         ignoreRequestList
     } = this._config;
     //判断是否是是屏蔽url
-    if (ignoreRequestList && !tool.isEmptyArray(ignoreRequestList)) {
+    if (ignoreRequestList && !Tools.isEmptyArray(ignoreRequestList)) {
         var url = ajaxInfo.url
         var unReport = false;
         ignoreRequestList.forEach(function(item) {

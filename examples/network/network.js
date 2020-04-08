@@ -1,87 +1,58 @@
-// import axios from 'axios'
+import axios from 'axios'
 
-// import KeepObserver from '../../@core/instance'
-// import KeepObserverNetwork from '../../@core/monitor/network'
-
-
-// const tesrRequest = 'http://localhost:9003/report'
-// const testTimeout = 'http://localhost:9003/timeout'
-// const test404 = 'http://localhost:9003/404'
-// const test500 = 'http://localhost:9003/500'
-
-// debugger;
-// //实例
-// const ko = new KeepObserver({ develop:true })
+import KeepObserver from '../../@core/instance'
+import KeepObserverNetwork from '../../@core/monitor/network'
 
 
+const tesrRequest = 'http://localhost:9003/report?time=2000'
+const testTimeout = 'http://localhost:9003/timeout'
+const test404 = 'http://localhost:9003/404'
+const test500 = 'http://localhost:9003/500'
 
-// /*
-//     simple
-//     ------------
-//     ko.use(KeepObserverError)
-//  */
-// ko.use(KeepObserverNetwork)
-// //注册一个log服务插件
-// // const error = new KeepObserverError({ develop:true })
+debugger;
+//实例
+const ko = new KeepObserver()
+class ConsumerService{
+    getMessage(message){
+        console.log(message,11111)
+    }
+    apply(pipe,config){
+        const { registerReciveMessage } = pipe
+        registerReciveMessage(this.getMessage)
+    }
+}
 
-
-
-// //中间件劫持   ko的中间件将在插件之前执行， 实例的中间件是全部插件共享的
-// ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
-//     debugger
-//     const [ reportParams ] = params
-//     reportParams.test = 'aaaaaa'
-//     next(reportParams)
-// })
+ko.use(KeepObserverNetwork)
+ko.use(ConsumerService)
 
 
 
-// //发出请求
-// debugger
-// axios.get(tesrRequest).then(res=>{
-//     console.log('ajax',res)
-//     return axios.get(testTimeout)
-// }).then((res)=>{
-//     console.log('ajax timeout resolve',res)
-// },(err)=>{
-//     console.log('ajax timeout reject',err)
-// })
-
-// axios.get(test404).then((res)=>{
-//     console.log('ajax 404 resolve',res)
-// },(err)=>{
-//     console.log('ajax 404 reject',err)
-// })
+//中间件劫持   ko的中间件将在插件之前执行， 实例的中间件是全部插件共享的
+ko.useMiddle('sendMessage',(interrupt,next)=>(reportParams)=>{
+    reportParams.test = 'aaaaaa'
+    next(reportParams)
+})
 
 
-// axios.get(test500).then((res)=>{
-//     console.log('ajax 500 resolve',res)
-// },(err)=>{
-//     console.log('ajax 500 reject',err)
-// })
+
+//发出请求
+debugger
+axios.post(tesrRequest,{test:111,params:{type:'post'}})
+.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test404).finally(res),200)))
+.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test500).finally(res),200)))
+.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(testTimeout).finally(res),200)))
 
 
 
 
-// fetch(tesrRequest).then(  function(response) {
-//     if(response.ok){
-//         response.text().then((text)=>console.log('fetch resolve', text),err=>console.log('fetch reject', err))
-//     }
-//     return fetch(testTimeout)
-// }).then((res)=>{
-//     if(res.ok){
-//         res.text().then((text)=>console.log('fetch timeout resolve', text),err=>console.log('fetch timeout reject', err))
-//     }
-// },(err)=>{
-//     console.log('fetch timeout reject',err)
-// })
-// fetch(test404).then((res)=>{
-//     console.log('fetch 404 resolve',res)
-// },(err)=>{
-//     console.log('fetch 404 reject',err)
-// })
-// fetch(test500).then((res)=>{
-//     console.log('fetch 500 resolve',res)
-// },(err)=>{
-//     console.log('fetch 500 reject',err)
-// })
+
+// setTimeout(()=>{
+//     fetch(tesrRequest,{method:'post'}).then(  function(response) {
+//         if(response.ok){
+//             response.text().then((text)=>console.log('fetch resolve', text))
+//         }
+//     })
+//     fetch(testTimeout)
+//     fetch(test404)
+//     fetch(test500)
+// },1000)

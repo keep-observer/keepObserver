@@ -1,2 +1,2 @@
-export declare var stopObserver: () => void;
+export declare var stopObserver: () => any;
 export declare var startObserver: () => void;

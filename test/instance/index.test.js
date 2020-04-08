@@ -15,7 +15,7 @@ describe("KeepObserver service",function(){
         KeepObserverMiddleWare.publicMiddles = {}
         KeepObserverPublic.extendReportParams = {}
         testInstance = new KeepObserver({
-            runTimeOut: 3000,
+            runMiddleTimeOut: 3000,
             projectName: 'test',
             projectVersion: 'test-version'
         })

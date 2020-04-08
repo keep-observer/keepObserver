@@ -22,11 +22,10 @@ class KeepObserverLog extends KeepObserverPublic{
     private sendMessage:Function;
     private addReportListener:any;  //继承中属性
     //method
-    private stopObserver = stopObserver.bind(this)
-    private startObserver = startObserver.bind(this)
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)
-
+    public stopObserver = stopObserver.bind(this)
+    public startObserver = startObserver.bind(this)
 
 
     //构造函数
@@ -40,7 +39,7 @@ class KeepObserverLog extends KeepObserverPublic{
         //存混合配置
         this._config = Tools.extend(defaultConfig, logConfig)
         //替换window.console
-        this.console = {};
+        this.console = null;
         //发送方法
         this.sendMessage = ()=>null
         //启动监控

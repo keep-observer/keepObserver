@@ -23,7 +23,7 @@ class KeepObserverPublic {
 
 
     constructor(config={}) {
-        const { develop = false,runTimeOut=30000  } =config as any
+        const { develop = false,runMiddleTimeOut=30000  } =config as any
         //当前是否处于开发模式
         this._develop = develop;
         //由子元素继承并重载
@@ -33,7 +33,7 @@ class KeepObserverPublic {
         //注册中间件实例
         this._middleWareInstance = new KeepObserverMiddleWare(Tools.extend({
             develop,
-            runTimeOut 
+            runMiddleTimeOut 
         },config))
     }
 

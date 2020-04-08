@@ -65,7 +65,7 @@ export declare function map(obj: any, callback: any): any;
  * @return: new Array
  */
 export declare function mapToArray(obj: any, callback: any): any;
-export declare function throttleWrap(delay: any): (Fn: Function) => (...any: any[]) => void;
+export declare function throttleWrap(delay: any): (Fn: Function) => () => void;
 export declare function debounceWrap(delay: any): (Fn: Function) => (...any: any[]) => boolean;
 export declare function objectStringify(object: any): string;
 export declare function getHashCode(object: any): string;

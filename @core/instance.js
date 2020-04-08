@@ -631,9 +631,7 @@ exports.noticeListener = function (queue) {
     }));
   }))["finally"](function () {
     //执行状态结束，放到下个阶段，屏蔽处理阶段立即发起的消息
-    setTimeout(function () {
-      _self.isRun = false;
-    });
+    _self.isRun = false;
   });
 };
 
@@ -742,7 +740,9 @@ function (_super) {
     _this.sendMessage = $watchDog.sendMessageLimtWatch(
     /* watch fn */
     function (catchParams) {
-      //send message
+      //mq handle message ignore
+      if ($pipe.$mq.isRun) return; //send message
+
       var isError = true;
 
       var _a = __read($pipe._publicMiddleScopeNames, 1),

@@ -8,7 +8,8 @@ export var _handleInit = function() {
     var _self = this;
     //替换window.console变量
     var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
-
+    _self.console = {};
+    
     if (!(<any>window).console) {
         (<any>window).console = {};
     }
@@ -87,7 +88,7 @@ export var _handleMessage = function(type, agrs) {
             if(Tools.isObject(el)){
                 data += `${index===0?'':separate}${Tools.objectStringify(el)}`  
             }else{
-                data += `${index===0?'':separate}"${Tools.toString(el).replace(/[\s\r\n\t]/g,'')}"`  
+                data += `${index===0?'':separate}"${Tools.toString(el)}"`  
             }
         }catch(err){
             data += `${index===0?'':separate}"toString is err:${Tools.toString(err).replace(/[\s\r\n\t]/g,'')}"`  

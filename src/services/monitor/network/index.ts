@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,tool } from '@util/index'
+import { KeepObserverPublic,Tools } from '@util/index'
 
 import { networkListType } from '../../../types/network'
 
@@ -13,6 +13,7 @@ import {
     _patchFetch,
     _handleTimeout,
     _handleDoneXML,
+    _handleSendXML,
     _handleJudgeDisbale
 } from './handle';
 
@@ -29,8 +30,15 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private timeout: any;
     private timeoutRequest: any;
     private networkList: networkListType;
+    private sendMessage: Function; 
+    //这种方式会和angular 6的zone 等polyfills.js产生冲突
+    // (<any>window).XMLHttpRequest.prototype.open = this._open
+    // (<any>window).XMLHttpRequest.prototype.send = this._send
+    // (<any>window).XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader
+    // this._open = false
+    // this._send = false
+    // this._setRequestHeader = false
     private isCatch: boolean;
-    private addReportListener: any; //继承中属性
     //method
     private stopObserver = stopObserver.bind(this);
     private startObserver = startObserver.bind(this);
@@ -39,6 +47,7 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private _patchFetch = _patchFetch.bind(this);
     private _handleTimeout = _handleTimeout.bind(this);
     private _handleDoneXML = _handleDoneXML.bind(this);
+    private _handleSendXML = _handleSendXML.bind(this);
     private _handleJudgeDisbale = _handleJudgeDisbale.bind(this);
 
 
@@ -48,8 +57,8 @@ class KeepObserverNetwork extends KeepObserverPublic{
         //存混合配置
         const { networkCustom=false ,reportCustom=false } = config as any
         const reportUrl = (reportCustom && reportCustom.reportUrl)? reportCustom.reportUrl:[]
-        var networkConfig = tool.extend({ reportUrl }, networkCustom || config)
-        this._config = tool.extend(defaultConfig, networkConfig)
+        var networkConfig = Tools.extend({ reportUrl }, networkCustom || config)
+        this._config = Tools.extend(defaultConfig, networkConfig)
         this._config.ignoreRequestList = this._config.ignoreRequestList.concat(reportUrl)
         //kabanaApm serverUrl
         if(this._config.serverUrl){
@@ -62,14 +71,16 @@ class KeepObserverNetwork extends KeepObserverPublic{
         //辅助捕获超时
         this.timeout = {};
         this.timeoutRequest = {};
+        // 发送消息
+        this.sendMessage = ()=>null
         // 开启网络拦截监控
         this._init();
     }
 
 
     //提供一个挂载入口
-    public apply(pipe) {
-        this.addReportListener(pipe.sendPipeMessage)
+    public apply({sendMessage}) {
+        this.sendMessage = sendMessage
         return {
             $networkStop: this.stopObserver,
             $networkStart: this.startObserver

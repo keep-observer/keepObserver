@@ -911,12 +911,12 @@ function () {
   function KeepObserverMiddleWare(_a) {
     var _b = _a.develop,
         develop = _b === void 0 ? false : _b,
-        _c = _a.runTimeOut,
-        runTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
+        _c = _a.runMiddleTimeOut,
+        runMiddleTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
 
     this._develop = develop; //中间件超时时间
 
-    this._runTimeOut = runTimeOut; //中间件初始化
+    this._runMiddleTimeOut = runMiddleTimeOut; //中间件初始化
 
     this._middles = {}; //中间件执行过程中 禁止重复触发 loop
 
@@ -995,7 +995,7 @@ function () {
       var runTimeout = setTimeout(function () {
         index = len;
         _self._runMiddleBuff[scopeName] = false;
-        var errorMsg = scopeName + " middles exec is timeout " + _this._runTimeOut + "ms";
+        var errorMsg = scopeName + " middles exec is timeout " + _this._runMiddleTimeOut + "ms";
         consoleTools.warnError(errorMsg);
 
         if (scopeName !== 'error') {
@@ -1003,7 +1003,7 @@ function () {
         }
 
         reject(errorMsg);
-      }, _this._runTimeOut); // 中断方法，停止执行剩下的中间件,直接返回
+      }, _this._runMiddleTimeOut); // 中断方法，停止执行剩下的中间件,直接返回
 
       var interrupt = function () {
         var result = [];
@@ -1178,8 +1178,8 @@ function () {
     var _a = config,
         _b = _a.develop,
         develop = _b === void 0 ? false : _b,
-        _c = _a.runTimeOut,
-        runTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
+        _c = _a.runMiddleTimeOut,
+        runMiddleTimeOut = _c === void 0 ? 30000 : _c; //当前是否处于开发模式
 
     this._develop = develop; //由子元素继承并重载
 
@@ -1189,7 +1189,7 @@ function () {
 
     this._middleWareInstance = new index_2.default(Tools.extend({
       develop: develop,
-      runTimeOut: runTimeOut
+      runMiddleTimeOut: runMiddleTimeOut
     }, config));
   }
 
@@ -1790,13 +1790,6 @@ function throttleWrap(delay) {
   return function (Fn) {
     var timeout = null;
     return function () {
-      var any = [];
-
-      for (var _i = 0; _i < arguments.length; _i++) {
-        any[_i] = arguments[_i];
-      }
-
-      var c = this;
       var arg = arguments;
 
       if (timeout) {
@@ -1805,7 +1798,7 @@ function throttleWrap(delay) {
 
       ;
       timeout = setTimeout(function () {
-        Fn.apply(c, arg);
+        Fn(arg);
       }, delay);
     };
   };

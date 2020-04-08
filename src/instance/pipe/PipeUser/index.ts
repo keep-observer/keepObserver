@@ -32,6 +32,8 @@ class PipeUser extends KeepObserverPublic{
         const $watchDog = new WatchDog()
         //provide sendMessage
         this.sendMessage = $watchDog.sendMessageLimtWatch(/* watch fn */(catchParams:catchParams)=>{
+            //mq handle process message ignore
+            if($pipe.$mq.isRun) return
             //send message
             var isError = true;
             const [ sendMessage ] = $pipe._publicMiddleScopeNames

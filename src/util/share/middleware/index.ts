@@ -13,14 +13,14 @@ class KeepObserverMiddleWare {
     public _develop :boolean;
     private _middles: middles;
     private _runMiddleBuff: any
-    private _runTimeOut: number
+    private _runMiddleTimeOut: number
 
 
-    constructor({ develop=false,runTimeOut=30000 }) {
+    constructor({ develop=false,runMiddleTimeOut=30000 }) {
         //当前是否处于开发模式
         this._develop = develop;
         //中间件超时时间
-        this._runTimeOut = runTimeOut;
+        this._runMiddleTimeOut = runMiddleTimeOut;
         //中间件初始化
         this._middles = {}
         //中间件执行过程中 禁止重复触发 loop
@@ -85,13 +85,13 @@ class KeepObserverMiddleWare {
             var runTimeout =  setTimeout(()=>{
                 index = len;
                 _self._runMiddleBuff[scopeName] = false
-                const errorMsg = `${scopeName} middles exec is timeout ${this._runTimeOut}ms`
+                const errorMsg = `${scopeName} middles exec is timeout ${this._runMiddleTimeOut}ms`
                 consoleTools.warnError(errorMsg)
                 if(scopeName !== 'error'){
                     _self.throwError(errorMsg)
                 }
                 reject(errorMsg)
-            },this._runTimeOut)
+            },this._runMiddleTimeOut)
              // 中断方法，停止执行剩下的中间件,直接返回
             const interrupt = (...result)=>{
                 index = len;

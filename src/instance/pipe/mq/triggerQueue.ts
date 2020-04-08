@@ -68,9 +68,7 @@ export var noticeListener = function(queue) {
         }))
     })).finally(()=>{
         //执行状态结束，放到下个阶段，屏蔽处理阶段立即发起的消息
-        setTimeout(()=>{
-            _self.isRun = false;
-        })
+        _self.isRun = false;
     })
 }
 

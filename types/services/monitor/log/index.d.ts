@@ -4,10 +4,10 @@ declare class KeepObserverLog extends KeepObserverPublic {
     private console;
     private sendMessage;
     private addReportListener;
-    private stopObserver;
-    private startObserver;
     private _handleInit;
     private _handleMessage;
+    stopObserver: any;
+    startObserver: any;
     constructor(config?: {});
     apply({ sendMessage }: {
         sendMessage: any;

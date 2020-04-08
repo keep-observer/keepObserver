@@ -94,11 +94,18 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 /*
     停止监听
  */
 
+
 exports.stopObserver = function () {
+  if (!this.console || this.console && index_1.Tools.isEmptyObject(this.console)) {
+    return this.console = null;
+  }
+
   window.console.log = this.console.log;
   window.console.error = this.console.error;
   window.console.info = this.console.info;
@@ -107,7 +114,7 @@ exports.stopObserver = function () {
   window.console.time = this.console.time;
   window.console.timeEnd = this.console.timeEnd;
   window.console.clear = this.console.clear;
-  this.console = {};
+  this.console = null;
 };
 /*
     开始监听
@@ -115,11 +122,20 @@ exports.stopObserver = function () {
 
 
 exports.startObserver = function () {
-  //启动监听
-  var _self = this;
+  var _this = this;
 
+  if (this.console) {
+    return;
+  }
+
+  this.console = {};
   setTimeout(function () {
-    _self._handleInit();
+    //启动监听
+    if (!index_1.Tools.isEmptyObject(_this.console) || !_this.console) {
+      return;
+    }
+
+    _this._handleInit();
   });
 };
 
@@ -206,6 +222,7 @@ exports._handleInit = function () {
 
 
   var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
+  _self.console = {};
 
   if (!window.console) {
     window.console = {};
@@ -306,7 +323,7 @@ exports._handleMessage = function (type, agrs) {
       if (index_1.Tools.isObject(el)) {
         data += "" + (index === 0 ? '' : separate) + index_1.Tools.objectStringify(el);
       } else {
-        data += (index === 0 ? '' : separate) + "\"" + index_1.Tools.toString(el).replace(/[\s\r\n\t]/g, '') + "\"";
+        data += (index === 0 ? '' : separate) + "\"" + index_1.Tools.toString(el) + "\"";
       }
     } catch (err) {
       data += (index === 0 ? '' : separate) + "\"toString is err:" + index_1.Tools.toString(err).replace(/[\s\r\n\t]/g, '') + "\"";
@@ -393,10 +410,10 @@ function (_super) {
     var _this = _super.call(this, config) || this; //method
 
 
-    _this.stopObserver = api_1.stopObserver.bind(_this);
-    _this.startObserver = api_1.startObserver.bind(_this);
     _this._handleInit = handle_1._handleInit.bind(_this);
-    _this._handleMessage = handle_1._handleMessage.bind(_this); //初始化上传相关实例
+    _this._handleMessage = handle_1._handleMessage.bind(_this);
+    _this.stopObserver = api_1.stopObserver.bind(_this);
+    _this.startObserver = api_1.startObserver.bind(_this); //初始化上传相关实例
 
     var _a = config,
         _b = _a.logCustom,
@@ -409,7 +426,7 @@ function (_super) {
 
     _this._config = index_1.Tools.extend(defaultConfig_1["default"], logConfig); //替换window.console
 
-    _this.console = {}; //发送方法
+    _this.console = null; //发送方法
 
     _this.sendMessage = function () {
       return null;

@@ -33,9 +33,12 @@ export function handleReqUrl(url) {
     }
 }
 
+
+
 /*
 	检查状态码是否正确
  */
 export function validateStatus(status) {
     return status >= 200 && status < 300;
 }
+

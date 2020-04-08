@@ -3,10 +3,10 @@ declare class KeepObserverMiddleWare {
     _develop: boolean;
     private _middles;
     private _runMiddleBuff;
-    private _runTimeOut;
-    constructor({ develop, runTimeOut }: {
+    private _runMiddleTimeOut;
+    constructor({ develop, runMiddleTimeOut }: {
         develop?: boolean;
-        runTimeOut?: number;
+        runMiddleTimeOut?: number;
     });
     static publicMiddles: {};
     static currentRunMiddle: boolean;

@@ -40,7 +40,7 @@ import KeepObserverLog from '../../@core/monitor/log'
 
 
 var testInstance = new KeepObserver({
-    runTimeOut: 3000,
+    runMiddleTimeOut: 3000,
     projectName: 'test',
     projectVersion: 'test-version'
 })
@@ -56,10 +56,10 @@ class ConsumerService{
         registerReciveMessage(this.getMessage)
     }
 }
-testInstance.use(KeepObserverLog)
+testInstance.use(logInstance)
 testInstance.use(ConsumerService)
-
-
+// testInstance.apis('$logStart')
+// testInstance.apis('$logStop')
 
 setTimeout(()=>{
     debugger

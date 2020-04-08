@@ -417,12 +417,11 @@ export function mapToArray(obj,callback){
 export function throttleWrap(delay){
     return function(Fn:Function){
         var timeout =null;
-        return  function(...any){
-            let c=this;
-            let arg = arguments;
+        return  function(){
+            var arg = arguments
             if(timeout){ clearTimeout(timeout);};
             timeout = setTimeout(()=>{
-                Fn.apply(c,arg)
+                Fn(arg)
             },delay);
         }
     }

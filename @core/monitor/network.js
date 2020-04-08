@@ -207,11 +207,11 @@ exports._patchXMLAjax = function () {
 
   window.XMLHttpRequest.prototype.open = function (method, url) {
     var XML = this;
-    var args = index_1.tool.toArray(arguments); //定时器
+    var args = index_1.Tools.toArray(arguments); //定时器
 
     var timer = null; //获取请求唯一ID
 
-    var id = index_1.tool.getUniqueID(); //获取方法
+    var id = index_1.Tools.getUniqueID(); //获取方法
 
     var method = args[0]; //获取url
 
@@ -235,12 +235,12 @@ exports._patchXMLAjax = function () {
 
         item.method = method;
 
-        var _a = networkTool.handleReqUrl(url),
-            url = _a.url,
+        var _a = networkTool.handleReqUrl(XML._url),
+            url_1 = _a.url,
             params = _a.params; //处理请求url和params
 
 
-        item.url = url;
+        item.url = url_1;
         item.params = params;
       } //更新状态
 
@@ -289,7 +289,7 @@ exports._patchXMLAjax = function () {
 
 
         clearInterval(timer);
-        item.endTime = +new Date(), item.costTime = item.endTime - (item.startTime || item.endTime) + 'ms';
+        item.endTime = +new Date(), item.costTime = item.endTime - (item.startTime || item.endTime);
         item.response = isCatchResponseContent ? XML.response : 'no-catch-responseContent'; //请求结束完成
 
         setTimeout(function () {
@@ -327,7 +327,7 @@ exports._patchXMLAjax = function () {
 
   window.XMLHttpRequest.prototype.setRequestHeader = function (header) {
     var XML = this;
-    var args = index_1.tool.toArray(arguments);
+    var args = index_1.Tools.toArray(arguments);
 
     if (XML._id && XML._setHead) {
       var setHead = XML._setHead[XML._id];
@@ -371,18 +371,21 @@ exports._patchXMLAjax = function () {
     _self.networkList[id].params = params; //保存自定义请求头
 
     if (requestHead) {
-      _self.networkList[id].requestHead = index_1.tool.extend({}, requestHead);
+      _self.networkList[id].requestHead = index_1.Tools.extend({}, requestHead);
       delete XML._setHead[id];
     } //如果是post数据保存
 
 
     if (method === 'POST') {
-      if (index_1.tool.isString(data)) {
+      if (index_1.Tools.isString(data)) {
         saveData = data;
       }
     }
 
-    _self.networkList[id].data = saveData; //开启定时器 判断接口是否超时
+    _self.networkList[id].body = saveData; //发送
+
+    _self._handleSendXML(id); //开启定时器 判断接口是否超时
+
 
     _self._handleTimeout(id);
 
@@ -411,7 +414,7 @@ exports._patchFetch = function () {
 
     var fetchSelf = this;
     var args = arguments;
-    var id = index_1.tool.getUniqueID();
+    var id = index_1.Tools.getUniqueID();
 
     if (!_self.networkList[id]) {
       _self.networkList[id] = {};
@@ -426,27 +429,29 @@ exports._patchFetch = function () {
     _self.networkList[id].url = url;
     _self.networkList[id].params = params;
 
-    if (init && !index_1.tool.isEmptyObject(init)) {
+    if (init && !index_1.Tools.isEmptyObject(init)) {
       _self.networkList[id].method = init.method ? init.method : 'get';
-      _self.networkList[id].data = init.body ? init.body : '';
+      _self.networkList[id].body = init.body ? index_1.Tools.objectStringify(init.body) : '';
       _self.networkList[id].requestHead = init.headers ? init.headers : undefined;
     } else {
       _self.networkList[id].method = 'get';
-      _self.networkList[id].data = '';
+      _self.networkList[id].body = '';
       _self.networkList[id].requestHead = undefined;
     }
+
+    _self._handleSendXML(id);
 
     return new Promise(function (resolve, reject) {
       var promise;
       var startTime = new Date().getTime();
 
       var handleResponse = function handleResponse(response, content) {
-        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].costTime = new Date().getTime() - startTime;
         _self.networkList[id].response = isCatchResponseContent ? content : 'no-catch-responseContent';
-        _self.networkList[id].status = response.status;
-        var headers = index_1.tool.toArray(response.headers.keys());
+        _self.networkList[id].status = response ? response.status : 0 || 0;
+        var headers = index_1.Tools.toArray(response.headers.keys());
 
-        if (!index_1.tool.isEmptyArray(headers)) {
+        if (!index_1.Tools.isEmptyArray(headers)) {
           _self.networkList[id].responseHead = {};
           headers.forEach(function (key) {
             _self.networkList[id].responseHead[key] = response.headers.get(key);
@@ -471,7 +476,7 @@ exports._patchFetch = function () {
 
         promise = _self._fetch.apply(fetchSelf, args);
       } catch (error) {
-        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].costTime = new Date().getTime() - startTime;
         _self.networkList[id].response = 'fetch error:' + error;
         _self.networkList[id].status = 0;
         _self.networkList[id].responseHead = '';
@@ -502,7 +507,7 @@ exports._patchFetch = function () {
         //结束超时捕获
         _self._handleTimeout(id);
 
-        _self.networkList[id].costTime = new Date().getTime() - startTime + 'ms';
+        _self.networkList[id].costTime = new Date().getTime() - startTime;
         _self.networkList[id].response = 'fetch error:' + error;
         _self.networkList[id].status = 0;
         _self.networkList[id].responseHead = '';
@@ -562,17 +567,18 @@ exports._handleTimeout = function (id) {
 exports._handleDoneXML = function (id) {
   var _self = this;
 
-  var ajaxItem = index_1.tool.extend({}, _self.networkList[id]); //空的对象不做处理
+  var ajaxItem = index_1.Tools.extend({}, _self.networkList[id]); //空的对象不做处理
 
-  if (index_1.tool.isEmptyObject(ajaxItem)) {
+  if (index_1.Tools.isEmptyObject(ajaxItem)) {
     return false;
   }
+
+  ajaxItem.statusType = 'response';
   /******   这里开始处理数据  *****/
   //判断当前请求数据url是否需要屏蔽
 
-
   if (!_self._handleJudgeDisbale(ajaxItem)) {
-    _self.networkList[id];
+    delete _self.networkList[id];
     return false;
   } //判断状态码是否出错
 
@@ -581,11 +587,11 @@ exports._handleDoneXML = function (id) {
 
   if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
     ajaxItem.isError = true;
-    ajaxItem.errorContent = 'ajax request error! error statusCode:' + status;
+    ajaxItem.errorContent = 'ajax request error! error statusCode:' + (status || 0);
   } //通知上传
 
 
-  _self.noticeReport({
+  _self.sendMessage({
     type: "monitor",
     typeName: 'network',
     data: ajaxItem,
@@ -594,6 +600,35 @@ exports._handleDoneXML = function (id) {
 
 
   delete _self.networkList[id];
+};
+/*
+    处理发送的请求
+    @id:拦截请求唯一ID
+ */
+
+
+exports._handleSendXML = function (id) {
+  var _self = this;
+
+  var ajaxItem = index_1.Tools.extend({}, _self.networkList[id]); //空的对象不做处理
+
+  if (index_1.Tools.isEmptyObject(ajaxItem)) {
+    return false;
+  }
+
+  ajaxItem.statusType = 'request'; //判断当前请求数据url是否需要屏蔽
+
+  if (!_self._handleJudgeDisbale(ajaxItem)) {
+    delete _self.networkList[id];
+    return false;
+  } //通知上传
+
+
+  _self.sendMessage({
+    type: "monitor",
+    typeName: 'network',
+    data: ajaxItem
+  });
 };
 /*
     判断该请求是否是屏蔽请求
@@ -608,7 +643,7 @@ exports._handleDoneXML = function (id) {
 exports._handleJudgeDisbale = function (ajaxInfo) {
   var ignoreRequestList = this._config.ignoreRequestList; //判断是否是是屏蔽url
 
-  if (ignoreRequestList && !index_1.tool.isEmptyArray(ignoreRequestList)) {
+  if (ignoreRequestList && !index_1.Tools.isEmptyArray(ignoreRequestList)) {
     var url = ajaxInfo.url;
     var unReport = false;
     ignoreRequestList.forEach(function (item) {
@@ -704,6 +739,7 @@ function (_super) {
     _this._patchFetch = handle_1._patchFetch.bind(_this);
     _this._handleTimeout = handle_1._handleTimeout.bind(_this);
     _this._handleDoneXML = handle_1._handleDoneXML.bind(_this);
+    _this._handleSendXML = handle_1._handleSendXML.bind(_this);
     _this._handleJudgeDisbale = handle_1._handleJudgeDisbale.bind(_this); //存混合配置
 
     var _a = config,
@@ -712,10 +748,10 @@ function (_super) {
         _c = _a.reportCustom,
         reportCustom = _c === void 0 ? false : _c;
     var reportUrl = reportCustom && reportCustom.reportUrl ? reportCustom.reportUrl : [];
-    var networkConfig = index_1.tool.extend({
+    var networkConfig = index_1.Tools.extend({
       reportUrl: reportUrl
     }, networkCustom || config);
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], networkConfig);
+    _this._config = index_1.Tools.extend(defaultConfig_1["default"], networkConfig);
     _this._config.ignoreRequestList = _this._config.ignoreRequestList.concat(reportUrl); //kabanaApm serverUrl
 
     if (_this._config.serverUrl) {
@@ -728,7 +764,12 @@ function (_super) {
     _this.networkList = {}; //辅助捕获超时
 
     _this.timeout = {};
-    _this.timeoutRequest = {}; // 开启网络拦截监控
+    _this.timeoutRequest = {}; // 发送消息
+
+    _this.sendMessage = function () {
+      return null;
+    }; // 开启网络拦截监控
+
 
     _this._init();
 
@@ -736,8 +777,9 @@ function (_super) {
   } //提供一个挂载入口
 
 
-  KeepObserverNetwork.prototype.apply = function (pipe) {
-    this.addReportListener(pipe.sendPipeMessage);
+  KeepObserverNetwork.prototype.apply = function (_a) {
+    var sendMessage = _a.sendMessage;
+    this.sendMessage = sendMessage;
     return {
       $networkStop: this.stopObserver,
       $networkStart: this.startObserver

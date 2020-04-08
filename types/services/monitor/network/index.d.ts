@@ -8,8 +8,8 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private timeout;
     private timeoutRequest;
     private networkList;
+    private sendMessage;
     private isCatch;
-    private addReportListener;
     private stopObserver;
     private startObserver;
     private _init;
@@ -17,9 +17,12 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private _patchFetch;
     private _handleTimeout;
     private _handleDoneXML;
+    private _handleSendXML;
     private _handleJudgeDisbale;
     constructor(config?: {});
-    apply(pipe: any): {
+    apply({ sendMessage }: {
+        sendMessage: any;
+    }): {
         $networkStop: any;
         $networkStart: any;
     };

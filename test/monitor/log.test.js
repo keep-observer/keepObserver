@@ -7,8 +7,8 @@ import  { consoleTools }  from '@util/index'
 
 describe("KeepObserverLog service",function(){
     //init service
-    var testInstance 
-    var logInstance
+    var testInstance = null
+    var logInstance =  new KeepObserverLog()
     beforeEach(function () {
         //config
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000
@@ -16,22 +16,21 @@ describe("KeepObserverLog service",function(){
         KeepObserverMiddleWare.publicMiddles = {}
         KeepObserverPublic.extendReportParams = {}
         testInstance = new KeepObserver({
-            runTimeOut: 3000,
+            develop:true,
+            runMiddleTimeOut: 3000,
             projectName: 'test',
             projectVersion: 'test-version'
         })
-        logInstance = new KeepObserverLog()
+        logInstance.startObserver()
     })
 
 
     it('KeepObserverLog api',function(){
-        spyOn(logInstance,'stopObserver').and.callThrough();
-        spyOn(logInstance,'startObserver').and.callThrough();
-
+        spyOn(logInstance,'stopObserver');
+        spyOn(logInstance,'startObserver');
         testInstance.use(logInstance)
         testInstance.apis('$logStart')
         testInstance.apis('$logStop')
-
         expect(logInstance.startObserver).toHaveBeenCalled()
         expect(logInstance.stopObserver).toHaveBeenCalled()
     })
@@ -47,7 +46,7 @@ describe("KeepObserverLog service",function(){
                         expect(message.typeName).toBe(`log`)
                         expect(message.data).toEqual({
                             type:'log',
-                            data:'["testlog",{"test":"test","test2":[1,2,3,4,5]}]'
+                            data:'["test log",{"test":"test","test2":[1,2,3,4,5]}]'
                         })
                         expect(message.testAdd).toBe(1)
                         return
@@ -60,7 +59,10 @@ describe("KeepObserverLog service",function(){
                         })
                         expect(message.testAdd).toBe(1)
                         console.error('send error message')
-                        setTimeout(()=>done(),200)
+                        setTimeout(()=>{
+                            testInstance.apis('$logStop')
+                            done()
+                        },200)
                         return
                     default:
                         consoleTools.log(message)
@@ -88,7 +90,7 @@ describe("KeepObserverLog service",function(){
             }
             loop.c = loop
             console.error(window,loop)
-        })
+        },100)
     })
 
     
