@@ -740,7 +740,7 @@ function (_super) {
     _this.sendMessage = $watchDog.sendMessageLimtWatch(
     /* watch fn */
     function (catchParams) {
-      //mq handle message ignore
+      //mq handle process message ignore
       if ($pipe.$mq.isRun) return; //send message
 
       var isError = true;

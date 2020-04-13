@@ -37,11 +37,16 @@ ko.useMiddle('sendMessage',(interrupt,next)=>(reportParams)=>{
 
 //发出请求
 debugger
-axios.post(tesrRequest,{test:111,params:{type:'post'}})
-.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test404).finally(res),200)))
-.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test500).finally(res),200)))
-.finally(()=>new Promise((res)=>setTimeout(()=>axios.get(testTimeout).finally(res),200)))
+// axios.post(tesrRequest,{test:111,params:{type:'post'}})
+// .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test404).finally(res),200)))
+// .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test500).finally(res),200)))
+// .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(testTimeout).finally(res),200)))
 
+
+fetch(tesrRequest,{method:'post',body:{test:111,params:{type:'post'}}})
+.finally(()=>new Promise((res)=>setTimeout(()=>fetch(test404).finally(res),200)))
+.finally(()=>new Promise((res)=>setTimeout(()=>fetch(test500).finally(res),200)))
+.finally(()=>new Promise((res)=>setTimeout(()=>fetch(testTimeout).finally(res),200)))
 
 
 

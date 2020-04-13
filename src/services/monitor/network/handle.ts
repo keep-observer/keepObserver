@@ -339,6 +339,7 @@ export var _handleTimeout = function(id) {
             item.timeout = timeout;
             item.isError = true;
             item.errorContent = 'ajax request timeout，time:' + timeout + '(ms)';
+            item.response =  item.response || 'ajax request timeout，time:' + timeout + '(ms)';
             //这里直接完成添加到超时列表 停止后续处理
             _self._handleDoneXML(id)
             _self.timeoutRequest[id] = true
@@ -373,6 +374,7 @@ export var _handleDoneXML = function(id) {
     var status = ajaxItem.status;
     if (!networkTool.validateStatus(status) && !ajaxItem.isError) {
         ajaxItem.isError = true;
+        ajaxItem.response = ajaxItem.response || 'ajax request error! error statusCode:' + ( status || 0 );
         ajaxItem.errorContent = 'ajax request error! error statusCode:' + ( status || 0 );
     }
     //通知上传

@@ -1,6 +1,7 @@
 // Karma configuration
 // Generated on Thu Mar 19 2020 14:12:26 GMT+0800 (China Standard Time)
-
+var networkServer = require('./dev/network.service')
+networkServer()
 
 module.exports = function(config) {
   config.set({

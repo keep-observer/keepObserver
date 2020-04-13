@@ -1,5 +1,6 @@
 import { warnError } from './console'
 import md5 from 'md5'
+import hash from 'hash-string'
 import safeStringify from 'fast-safe-stringify'
 
 /**
@@ -460,11 +461,12 @@ export function objectStringify(object:any):string{
 
 
 export function getHashCode(object:any):string{
+    //Times33
     try{
-        const hash = md5(objectStringify(object))
-        return hash
+        const hashCode = hash(objectStringify(object))               //md5(objectStringify(object))
+        return toString(hashCode)
     }catch(err){
-        return md5(toString(err))
+        return toString(hash(toString(err)))                        //md5(toString(err))
     }
 }
 
