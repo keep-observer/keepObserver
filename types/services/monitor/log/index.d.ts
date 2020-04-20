@@ -3,7 +3,6 @@ declare class KeepObserverLog extends KeepObserverPublic {
     private _config;
     private console;
     private sendMessage;
-    private addReportListener;
     private _handleInit;
     private _handleMessage;
     stopObserver: any;

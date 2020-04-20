@@ -8,7 +8,7 @@ module.exports = function(config) {
     client: {
         jasmine: {
             random: false,
-        }
+        },
     },
     
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -43,8 +43,12 @@ module.exports = function(config) {
 					test: /\.js$/,
 					exclude: /node_modules/,
 					use:[
-						{loader:'babel-loader'},
-					]
+						{	loader:'babel-loader'	},
+						{
+							loader: 'istanbul-instrumenter-loader',
+							options: { esModules: true }
+						},
+					],
 				},
 			]
 		},
@@ -55,13 +59,35 @@ module.exports = function(config) {
 		'karma-webpack',
 		'karma-jasmine',
 		'karma-chrome-launcher',
+		'karma-spec-reporter',
+		'karma-coverage'
 	],
 
+	// karma-coverage 插件
+    // coverageReporter: {
+    //   type : 'html',
+    //   dir : 'coverage/'
+    // },
+	coverageReporter: {
+		dir: 'coverage',
+		  reporters: [{
+			type: 'json',
+			subdir: '.',
+			file: 'coverage.json', // ./coverage目录下生成此文件
+		  }, {
+			type: 'lcov', // lcov 格式
+			subdir: '.' // ./coverage目录下生成 lcov.info文件
+		  }, {
+			type: 'text-summary' // 终端输出文字总结
+		  }]
+	},
+  
 
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+	// test results reporter to use
+	// possible values: 'dots', 'progress'
+	// available reporters: https://npmjs.org/browse/keyword/karma-reporter
+	//reporters: ['progress'],
+	reporters: ['spec','coverage'],
 
 
     // web server port

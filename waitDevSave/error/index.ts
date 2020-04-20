@@ -20,7 +20,7 @@ class KeepObserverError extends KeepObserverPublic{
     private _config: any;
     private console: any;
     private $createElement : any|boolean;
-    private addReportListener:any; //继承中属性
+    private sendMessage: Function; 
     //method
     private stopObserver = stopObserver.bind(this)
     private startObserver = startObserver.bind(this)
@@ -41,14 +41,16 @@ class KeepObserverError extends KeepObserverPublic{
         this._config = tool.extend(defaultConfig, errorConfig)
         //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
         this.$createElement = false;
+         // 发送消息
+         this.sendMessage = ()=>null
         //启动监控
         this.startObserver();
     }
 
 
     //提供一个挂载入口
-    public apply(pipe) {
-        this.addReportListener(pipe.sendPipeMessage)
+    public apply({sendMessage}) {
+        this.sendMessage = sendMessage
         return {
             $errorStop: this.stopObserver,
             $errorStart: this.startObserver

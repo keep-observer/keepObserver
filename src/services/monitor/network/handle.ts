@@ -227,13 +227,14 @@ export var _patchFetch = function(){
         //处理请求url和params
         _self.networkList[id].type = 'fetch'
         _self.networkList[id].url = url;
+        _self.networkList[id].status = 0;
         _self.networkList[id].params = params;
         if(init && !Tools.isEmptyObject(init)){
-            _self.networkList[id].method = init.method?init.method:'get';
+            _self.networkList[id].method = init.method?init.method.toUpperCase():'GET';
             _self.networkList[id].body = init.body?Tools.objectStringify(init.body):'';
             _self.networkList[id].requestHead = init.headers?init.headers:undefined
         }else{
-            _self.networkList[id].method = 'get';
+            _self.networkList[id].method = 'GET';
             _self.networkList[id].body = '';
             _self.networkList[id].requestHead = undefined
         }
@@ -270,7 +271,6 @@ export var _patchFetch = function(){
             } catch (error) {
                 _self.networkList[id].costTime = new Date().getTime() - startTime
                 _self.networkList[id].response = 'fetch error:'+error
-                _self.networkList[id].status = 0;
                 _self.networkList[id].responseHead = '';
                 _self.networkList[id].responseType = 'error';
                 setTimeout(function() {
@@ -300,7 +300,6 @@ export var _patchFetch = function(){
                     _self._handleTimeout(id);
                     _self.networkList[id].costTime = new Date().getTime() - startTime
                     _self.networkList[id].response = 'fetch error:'+error
-                    _self.networkList[id].status = 0;
                     _self.networkList[id].responseHead = '';
                     _self.networkList[id].responseType = 'error';
                     setTimeout(function() {

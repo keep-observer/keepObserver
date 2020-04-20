@@ -20,7 +20,6 @@ class KeepObserverLog extends KeepObserverPublic{
     private _config: any;
     private console: any;
     private sendMessage:Function;
-    private addReportListener:any;  //继承中属性
     //method
     private _handleInit = _handleInit.bind(this)
     private _handleMessage = _handleMessage.bind(this)

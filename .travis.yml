@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - 'stable'
+install:
+  - npm install
+  - npm install coveralls
+script:
+  - npm run test
+cache:
+  directories:
+  - node_modules # NPM packages
+
+#上传覆盖率结果到coveralls，只需要安装coveralls库，然后获取lcov.info上传给Coveralls
+after_script: 'cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js'

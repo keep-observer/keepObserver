@@ -60,7 +60,7 @@ export var _handleMessage = function(type, agrs) {
     reportData.type = type;
     reportData.data = data || {}
     //上报
-    _self.noticeReport({
+    _self.sendMessage({
         type : "monitor",
         typeName : 'error',
         data:reportData,
