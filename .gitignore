@@ -48,5 +48,5 @@ Temporary Items
 node_modules/*
 testProject/*
 nodeServer/*
-
+.coveralls.ym
 
