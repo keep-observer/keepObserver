@@ -1,6 +1,8 @@
 # Keep-observer
 
+
 [![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver)
+[![Coverage Status](https://coveralls.io/repos/github/keep-observer/keepObserver/badge.svg)](https://coveralls.io/github/keep-observer/keepObserver)
 
 [中文说明](https://github.com/keep-observer/keepObserver/blob/master/README-cn.md)
 
