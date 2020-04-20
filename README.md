@@ -1,5 +1,7 @@
 # Keep-observer
 
+[![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver)
+
 [中文说明](https://github.com/keep-observer/keepObserver/blob/master/README-cn.md)
 
 ##### **This is a monitor service using for javascript web application** 
