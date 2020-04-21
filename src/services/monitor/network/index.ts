@@ -58,7 +58,7 @@ class KeepObserverNetwork extends KeepObserverPublic{
         const { networkCustom=false ,reportCustom=false } = config as any
         const reportUrl = (reportCustom && reportCustom.reportUrl)? reportCustom.reportUrl:[]
         var networkConfig = Tools.extend({ reportUrl }, networkCustom || config)
-        this._config = Tools.extend(defaultConfig, networkConfig)
+        this._config = Tools.extend({...defaultConfig}, networkConfig)
         this._config.ignoreRequestList = this._config.ignoreRequestList.concat(reportUrl)
         //kabanaApm serverUrl
         if(this._config.serverUrl){

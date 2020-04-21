@@ -35,7 +35,7 @@ class KeepObserver extends KeepObserverPublic{
     
 
     constructor(config={}) {
-        super(config = Tools.extend(defaultConfig,config))
+        super(config = Tools.extend({...defaultConfig},config))
         //获取实例配置
         this._config = config
         //管道实例

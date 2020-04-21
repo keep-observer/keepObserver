@@ -99,6 +99,7 @@ Object.defineProperty(exports, "__esModule", {
  */
 
 exports.stopObserver = function () {
+  this.isObserver = false;
   document.removeEventListener('click', this.handleElementEvent);
   document.removeEventListener('change', this.handleElementEvent);
 };
@@ -108,6 +109,8 @@ exports.stopObserver = function () {
 
 
 exports.startObserver = function () {
+  if (this.isObserver) return;
+  this.isObserver = true;
   document.addEventListener('click', this.handleElementEvent);
   document.addEventListener('change', this.handleElementEvent);
 };
@@ -133,7 +136,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = {
   attrSelectFlag: 'KO_tracer_xPathFlag',
-  elementActionTaslFalg: 'KO-mon-flag',
+  elementActionTaslFalg: 'KO-tracer-flag',
   isGlobalElementActionCatch: false
 };
 
@@ -166,7 +169,28 @@ exports.queryFlagElement = function (el) {
   }
 
   var flag = el.getAttribute(elementActionTaslFalg);
-  return flag ? el : el.parentNode ? exports.queryFlagElement(el.parentNode) : false;
+  return index_1.Tools.isExist(flag) ? el : el.parentNode ? this.queryFlagElement(el.parentNode) : false;
+};
+
+exports.filterRepeat = function (elementActiveInfo) {
+  if (!this.previouActiveElement) {
+    this.previouActiveElement = elementActiveInfo;
+    return true;
+  }
+
+  var type = elementActiveInfo.type,
+      xPath = elementActiveInfo.xPath; //repeate click
+
+  var preType = this.previouActiveElement.type;
+  var preXpath = this.previouActiveElement.xPath;
+
+  if (type === 'click' && type === preType && preXpath === xPath) {
+    this.previouActiveElement = elementActiveInfo;
+    return false;
+  }
+
+  this.previouActiveElement = elementActiveInfo;
+  return true;
 };
 
 exports.createXPath = function (element) {
@@ -221,7 +245,12 @@ exports.createTitle = function (el) {
 exports.createSendMessage = function (type, element) {
   var title = this.createTitle(element);
   var xPath = this.createXPath(element);
-  var value = type === 'change' ? element.value : '';
+  var value = type === 'change' ? element.value : ''; //change input checkbox radio 
+
+  if (element.nodeName.toLowerCase() === 'input' && (element.type === 'checkbox' || element.type === 'radio')) {
+    value = element.checked;
+  }
+
   return {
     type: type,
     title: title,
@@ -233,28 +262,17 @@ exports.createSendMessage = function (type, element) {
 exports.handleElementEvent = function (event) {
   var target = event.target,
       type = event.type;
-  var isGlobalElementActionCatch = this._config.isGlobalElementActionCatch; //是否全量捕获
+  var isGlobalElementActionCatch = this._config.isGlobalElementActionCatch;
+  var flag = isGlobalElementActionCatch ? true : this.queryFlagElement(target);
+  if (!flag) return; //create message info
 
-  if (isGlobalElementActionCatch) {
-    this.sendMessage({
-      type: "monitor",
-      typeName: 'htmlElementActive',
-      data: this.createSendMessage(type, target)
-    });
-    return;
-  } //标记捕获
+  var elementActiveInfo = this.createSendMessage(type, target); //filter repeate  click
 
-
-  var flag = exports.queryFlagElement(target);
-
-  if (!flag) {
-    return false;
-  }
-
+  if (!this.filterRepeat(elementActiveInfo)) return;
   this.sendMessage({
     type: "monitor",
     typeName: 'htmlElementActive',
-    data: this.createSendMessage(type, target)
+    data: elementActiveInfo
   });
 };
 
@@ -296,6 +314,22 @@ var __extends = this && this.__extends || function () {
   };
 }();
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
@@ -329,6 +363,7 @@ function (_super) {
 
 
     _this.queryFlagElement = handle_1.queryFlagElement.bind(_this);
+    _this.filterRepeat = handle_1.filterRepeat.bind(_this);
     _this.createXPath = handle_1.createXPath.bind(_this);
     _this.createTitle = handle_1.createTitle.bind(_this);
     _this.createSendMessage = handle_1.createSendMessage.bind(_this);
@@ -345,7 +380,9 @@ function (_super) {
 
     htmlElementConfig.develop = develop; //存混合配置
 
-    _this._config = index_1.Tools.extend(defaultConfig_1["default"], htmlElementConfig); //发送方法
+    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), htmlElementConfig); //是否开始监听
+
+    _this.isObserver = false; //发送方法
 
     _this.sendMessage = function () {
       return null;

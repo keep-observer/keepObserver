@@ -1,4 +1,5 @@
 import { Tools } from '@util/index'
+import { elementActiveInfoType } from '../../../types/htmlElementActive'
 
 var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
 var Clear_CN_CodeReg = /[^\u4e00-\u9fa5\w]/ig;
@@ -11,7 +12,25 @@ export const  queryFlagElement = function(el){
         return false;
     }
     var flag = el.getAttribute(elementActionTaslFalg)
-    return flag?el:(el.parentNode?queryFlagElement(el.parentNode):false)
+    return Tools.isExist(flag)?el:(el.parentNode?this.queryFlagElement(el.parentNode):false)
+}
+
+
+export const filterRepeat = function(elementActiveInfo:elementActiveInfoType):boolean{
+    if(!this.previouActiveElement){
+        this.previouActiveElement = elementActiveInfo
+        return true
+    }
+    const { type,xPath } = elementActiveInfo
+    //repeate click
+    const preType = this.previouActiveElement.type
+    const preXpath = this.previouActiveElement.xPath
+    if( type==='click' && type === preType && preXpath===xPath ){
+        this.previouActiveElement = elementActiveInfo
+        return false
+    }
+    this.previouActiveElement = elementActiveInfo
+    return true;
 }
 
 
@@ -60,10 +79,14 @@ export const createTitle = function(el){
 }   
 
 
-export const createSendMessage = function(type,element){
+export const createSendMessage = function(type,element):elementActiveInfoType{
     let title = this.createTitle(element);
     let xPath = this.createXPath(element);
     let value = type ==='change'? element.value:'';
+    //change input checkbox radio 
+    if(element.nodeName.toLowerCase()=== 'input' && (element.type === 'checkbox' || element.type ==='radio') ){
+        value = element.checked
+    }
     return {
         type,
         title,
@@ -76,24 +99,16 @@ export const createSendMessage = function(type,element){
 export const handleElementEvent = function(event){
     const { target ,type } = event
     const { isGlobalElementActionCatch } = this._config
-    //是否全量捕获
-    if(isGlobalElementActionCatch){
-        this.sendMessage({
-            type : "monitor",
-            typeName : 'htmlElementActive',
-            data: this.createSendMessage(type,target) ,
-        })
-        return 
-    }
-    //标记捕获
-    var flag = queryFlagElement(target)
-    if(!flag){
-        return false;
-    }
+    var flag = isGlobalElementActionCatch? true: this.queryFlagElement(target)
+    if(!flag) return;
+    //create message info
+    const elementActiveInfo = this.createSendMessage(type,target)
+    //filter repeate  click
+    if(!this.filterRepeat(elementActiveInfo)) return;
     this.sendMessage({
         type : "monitor",
         typeName : 'htmlElementActive',
-        data: this.createSendMessage(type,target) ,
+        data: elementActiveInfo,
     })
 }
 

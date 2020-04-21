@@ -36,7 +36,7 @@ class KeepObserverLog extends KeepObserverPublic{
         //是否是开发模式
         logConfig.develop = develop
         //存混合配置
-        this._config = Tools.extend(defaultConfig, logConfig)
+        this._config = Tools.extend({...defaultConfig}, logConfig)
         //替换window.console
         this.console = null;
         //发送方法

@@ -1,14 +1,13 @@
 import defaultConfig from './defaultConfig';
 import { KeepObserverPublic,Tools } from '@util/index'
 
-
-
 import {
     stopObserver,
     startObserver
 } from './api'
 import {
     queryFlagElement,
+    filterRepeat,
     createXPath,
     createTitle,
     createSendMessage,
@@ -16,12 +15,17 @@ import {
 } from './handle'
 
 
+import { elementActiveInfoType } from '../../../types/htmlElementActive'
+
 
 class KeepObserverHtmlElementActive extends KeepObserverPublic{
     private _config: any;
     private sendMessage:Function;
+    private previouActiveElement:elementActiveInfoType;
+    private isObserver:boolean;
     //method
     private queryFlagElement = queryFlagElement.bind(this)
+    private filterRepeat = filterRepeat.bind(this)
     private createXPath = createXPath.bind(this)
     private createTitle = createTitle.bind(this)
     private createSendMessage = createSendMessage.bind(this)
@@ -41,7 +45,9 @@ class KeepObserverHtmlElementActive extends KeepObserverPublic{
         //是否是开发模式
         htmlElementConfig.develop = develop
         //存混合配置
-        this._config = Tools.extend(defaultConfig, htmlElementConfig)
+        this._config = Tools.extend({...defaultConfig}, htmlElementConfig)
+        //是否开始监听
+        this.isObserver = false;
         //发送方法
         this.sendMessage = ()=>null
         //开始

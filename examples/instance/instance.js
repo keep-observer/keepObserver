@@ -9,7 +9,7 @@ import KeepObserver from '../../@core/instance'
 // //注册一个log服务插件
 // const log = new KeepObserverLog({ develop:true })
 // //二次劫持,插件的劫持无法插件内共享，只能自己的notice中使用
-// log.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
+// log.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
 //     debugger
 //     const [ reportParams ] = params
 //     reportParams.testdwawdw = 'aaaaaa'
@@ -29,7 +29,7 @@ import KeepObserver from '../../@core/instance'
 
 
 // //中间件劫持   ko的中间件将在log之前执行， 实例的中间件是全部插件共享的
-// ko.useMiddle('noticeReport',(interrupt,next)=>(...params)=>{
+// ko.useMiddle('sendMessage',(interrupt,next)=>(...params)=>{
 //     debugger
 //     const [ reportParams ] = params
 //     reportParams.test = 'aaaaaa'

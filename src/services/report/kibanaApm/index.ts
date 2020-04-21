@@ -37,7 +37,7 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
         //是否是开发模式
         reportConfig.develop = develop
         //混合默认配置
-        this._config = tool.extend(defaultConfig, reportConfig);
+        this._config = tool.extend({...defaultConfig}, reportConfig);
         //重载中间件命名空间
         this.middleScopeNames = []
         //init
