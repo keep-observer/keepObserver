@@ -37,8 +37,8 @@ describe("KeepObserverNetwork service",function(){
         spyOn(network,'stopObserver').and.callThrough();
         spyOn(network,'startObserver').and.callThrough();
         testInstance.use(network)
-        testInstance.apis('$networkStart')
-        testInstance.apis('$networkStop')
+        testInstance.apis('networkStart')
+        testInstance.apis('networkStop')
         expect(network.startObserver).toHaveBeenCalled()
         expect(network.stopObserver).toHaveBeenCalled()
     })
@@ -129,7 +129,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.response).toBe('ajax request timeout，time:20000(ms)')
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
                         setTimeout(()=>{
-                            testInstance.apis('$networkStop')
+                            testInstance.apis('networkStop')
                             done()
                         },200)
                         return 
@@ -242,7 +242,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.response).toBe('ajax request timeout，time:20000(ms)')
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
                         setTimeout(()=>{
-                            testInstance.apis('$networkStop')
+                            testInstance.apis('networkStop')
                             done()
                         },200)
                         return 

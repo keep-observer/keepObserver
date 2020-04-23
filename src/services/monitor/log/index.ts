@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,Tools } from '@util/index'
+import { KeepObserverPublic,Tools,consoleTools } from '@util/index'
 
 
 
@@ -40,18 +40,18 @@ class KeepObserverLog extends KeepObserverPublic{
         //替换window.console
         this.console = null;
         //发送方法
-        this.sendMessage = ()=>null
-        //启动监控
-        this.startObserver();
+        this.sendMessage =  ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
     }
 
 
     //提供一个挂载入口
     public apply({sendMessage}) {
         this.sendMessage = sendMessage
+        //启动监控
+        this.startObserver();
         return {
-            $logStop: this.stopObserver,
-            $logStart: this.startObserver
+            logStop: this.stopObserver,
+            logStart: this.startObserver
         }
     }   
 }

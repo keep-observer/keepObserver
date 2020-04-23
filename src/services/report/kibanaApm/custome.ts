@@ -6,7 +6,7 @@ import {
 
 
 
-export const _handleCustome = function(params:reportParams){
+export const _handleCustome = function(params:reportParams<any>){
 }
 
 

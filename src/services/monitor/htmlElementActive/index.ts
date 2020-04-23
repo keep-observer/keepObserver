@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,Tools } from '@util/index'
+import { KeepObserverPublic,Tools,consoleTools } from '@util/index'
 
 import {
     stopObserver,
@@ -49,18 +49,18 @@ class KeepObserverHtmlElementActive extends KeepObserverPublic{
         //是否开始监听
         this.isObserver = false;
         //发送方法
-        this.sendMessage = ()=>null
-        //开始
-        this.startObserver()
+        this.sendMessage = ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
     }
 
 
     //提供一个挂载入口
     public apply({sendMessage}) {
         this.sendMessage = sendMessage
+        //开始
+        this.startObserver()
         return {
-            $htmlElementActiveStop: this.stopObserver,
-            $htmlElementActiveStart: this.startObserver
+            htmlElementActiveStop: this.stopObserver,
+            htmlElementActiveStart: this.startObserver
         }
     }   
 }

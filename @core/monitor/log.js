@@ -308,7 +308,10 @@ exports._handleInit = function () {
 exports._handleMessage = function (type, agrs) {
   var _self = this;
 
-  var reportData = {};
+  var reportData = {
+    type: '',
+    data: ''
+  };
   var separate = ',';
   var data = '['; //agrs不是数组 或是空数组 则不处理
 
@@ -320,7 +323,7 @@ exports._handleMessage = function (type, agrs) {
 
   agrs.forEach(function (el, index) {
     try {
-      if (index_1.Tools.isObject(el)) {
+      if (index_1.Tools.isObject(el) || index_1.Tools.isArray(el)) {
         data += "" + (index === 0 ? '' : separate) + index_1.Tools.objectStringify(el);
       } else {
         data += (index === 0 ? '' : separate) + "\"" + index_1.Tools.toString(el) + "\"";
@@ -445,11 +448,8 @@ function (_super) {
     _this.console = null; //发送方法
 
     _this.sendMessage = function () {
-      return null;
-    }; //启动监控
-
-
-    _this.startObserver();
+      return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
+    };
 
     return _this;
   } //提供一个挂载入口
@@ -457,10 +457,12 @@ function (_super) {
 
   KeepObserverLog.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
-    this.sendMessage = sendMessage;
+    this.sendMessage = sendMessage; //启动监控
+
+    this.startObserver();
     return {
-      $logStop: this.stopObserver,
-      $logStart: this.startObserver
+      logStop: this.stopObserver,
+      logStart: this.startObserver
     };
   };
 

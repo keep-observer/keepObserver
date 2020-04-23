@@ -3,10 +3,10 @@ export declare type userInfo = {
     email?: string;
     name?: string;
 };
-export declare type reportParams = {
-    type: string;
+export declare type reportParams<T> = {
+    type: 'monitor' | 'performance' | 'analyse' | 'report' | 'custome' | 'undefined';
     typeName: string;
-    data: any;
+    data: T;
     location: string;
     reportTime: number;
     environment: string;

@@ -23,8 +23,8 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     apply({ sendMessage }: {
         sendMessage: any;
     }): {
-        $networkStop: any;
-        $networkStart: any;
+        networkStop: any;
+        networkStart: any;
     };
 }
 export default KeepObserverNetwork;

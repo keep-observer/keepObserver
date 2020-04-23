@@ -385,11 +385,8 @@ function (_super) {
     _this.isObserver = false; //发送方法
 
     _this.sendMessage = function () {
-      return null;
-    }; //开始
-
-
-    _this.startObserver();
+      return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
+    };
 
     return _this;
   } //提供一个挂载入口
@@ -397,10 +394,12 @@ function (_super) {
 
   KeepObserverHtmlElementActive.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
-    this.sendMessage = sendMessage;
+    this.sendMessage = sendMessage; //开始
+
+    this.startObserver();
     return {
-      $htmlElementActiveStop: this.stopObserver,
-      $htmlElementActiveStart: this.startObserver
+      htmlElementActiveStop: this.stopObserver,
+      htmlElementActiveStart: this.startObserver
     };
   };
 

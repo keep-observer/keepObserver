@@ -1,4 +1,4 @@
-import { consoleTools,tool } from '@util/index'
+import { consoleTools,Tools } from '@util/index'
 import  errorStackParser  from 'error-stack-parser'
 
 
@@ -53,17 +53,18 @@ export var _handleMessage = function(type, agrs) {
     var _self = this;
     var reportData:any = {}
     //agrs不是数组 或是空数组 则不处理
-    if (!tool.isArray(agrs) || agrs.length === 0) {
+    if (!Tools.isArray(agrs) || agrs.length === 0) {
         return false;
     }
     var  [ data ] = agrs
-    reportData.type = type;
-    reportData.data = data || {}
     //上报
     _self.sendMessage({
         type : "monitor",
         typeName : 'error',
-        data:reportData,
+        data:{
+            ...data,
+            type,
+        },
         isError: true
     })
 }
@@ -100,7 +101,7 @@ export var _handleError = function(errorEvent) {
     //可能是跨域资源JS出现错误 这获取不到详细信息
     if ( (!message || message.indexOf('Script error') > -1 ) && !filename) {
         //有可能是资源加载错误被捕获
-        if(errorEvent.target && !tool.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src){
+        if(errorEvent.target && !Tools.isWindow(errorEvent.target) && errorEvent.target.nodeName && errorEvent.target.src){
             message = `loadError! web request Resource load error -> ${errorEvent.target.nodeName}` ;
             filename = errorEvent.target.src;
             type = 'loadError'

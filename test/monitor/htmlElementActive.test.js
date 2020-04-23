@@ -28,8 +28,8 @@ describe("KeepObserverHtmlElementActive service",function(){
         spyOn(serviceInstance,'stopObserver').and.callThrough();
         spyOn(serviceInstance,'startObserver').and.callThrough();
         testInstance.use(serviceInstance)
-        testInstance.apis('$htmlElementActiveStart')
-        testInstance.apis('$htmlElementActiveStop')
+        testInstance.apis('htmlElementActiveStart')
+        testInstance.apis('htmlElementActiveStop')
         expect(serviceInstance.startObserver).toHaveBeenCalled()
         expect(serviceInstance.stopObserver).toHaveBeenCalled()
         serviceInstance = null
@@ -109,7 +109,7 @@ describe("KeepObserverHtmlElementActive service",function(){
                             value: ""
                         })
                         setTimeout(()=>{
-                            testInstance.apis('$htmlElementActiveStop')
+                            testInstance.apis('htmlElementActiveStop')
                             serviceInstance = null
                             done()
                         },200)
@@ -221,7 +221,7 @@ describe("KeepObserverHtmlElementActive service",function(){
                             value: ""
                         })
                         setTimeout(()=>{
-                            testInstance.apis('$htmlElementActiveStop')
+                            testInstance.apis('htmlElementActiveStop')
                             done()
                         },200)
                         break;

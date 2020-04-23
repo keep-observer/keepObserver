@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,tool } from '@util/index'
+import { KeepObserverPublic,Tools,consoleTools } from '@util/index'
 
 
 import {
@@ -38,11 +38,11 @@ class KeepObserverError extends KeepObserverPublic{
         //是否是开发模式
         errorConfig.develop = develop
         //存混合配置
-        this._config = tool.extend(defaultConfig, errorConfig)
+        this._config = Tools.extend(defaultConfig, errorConfig)
         //替换 doucment.createElement 插入script .crossOrigin = 'anonymous';
         this.$createElement = false;
          // 发送消息
-         this.sendMessage = ()=>null
+         this.sendMessage = ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
         //启动监控
         this.startObserver();
     }

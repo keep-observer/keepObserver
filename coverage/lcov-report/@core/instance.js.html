@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80.81% </span>
+                <span class="strong">80.56% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>341/422</span>
+                <span class='fraction'>344/427</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">68.58% </span>
+                <span class="strong">68.1% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>155/226</span>
+                <span class='fraction'>158/232</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">83.13% </span>
+                <span class="strong">82.85% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>340/409</span>
+                <span class='fraction'>343/414</span>
             </div>
         
             
@@ -1172,7 +1172,19 @@
 <a name='L1113'></a><a href='#L1113'>1113</a>
 <a name='L1114'></a><a href='#L1114'>1114</a>
 <a name='L1115'></a><a href='#L1115'>1115</a>
-<a name='L1116'></a><a href='#L1116'>1116</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
+<a name='L1116'></a><a href='#L1116'>1116</a>
+<a name='L1117'></a><a href='#L1117'>1117</a>
+<a name='L1118'></a><a href='#L1118'>1118</a>
+<a name='L1119'></a><a href='#L1119'>1119</a>
+<a name='L1120'></a><a href='#L1120'>1120</a>
+<a name='L1121'></a><a href='#L1121'>1121</a>
+<a name='L1122'></a><a href='#L1122'>1122</a>
+<a name='L1123'></a><a href='#L1123'>1123</a>
+<a name='L1124'></a><a href='#L1124'>1124</a>
+<a name='L1125'></a><a href='#L1125'>1125</a>
+<a name='L1126'></a><a href='#L1126'>1126</a>
+<a name='L1127'></a><a href='#L1127'>1127</a>
+<a name='L1128'></a><a href='#L1128'>1128</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -1800,6 +1812,13 @@
 <span class="cline-any cline-yes">54x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -1943,6 +1962,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">54x</span>
 <span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">53x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -2913,7 +2937,14 @@ exports.noticeListener = function (queue) {
         params = item.params; //消息分发
 &nbsp;
     return Promise.all(index_1.Tools.mapToArray(_self.consumerMap, function (cb, pipeId) {
-      //判断是否是正确注册接收函数
+      //id修正
+      pipeId = !index_1.Tools.isNumber(pipeId) ? parseInt(pipeId) : <span class="branch-1 cbranch-no" title="branch not covered" >false;</span>
+&nbsp;
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (!index_1.Tools.isNumber(pipeId)) {
+<span class="cstat-no" title="statement not covered" >        return false;</span>
+      } //判断是否是正确注册接收函数
+&nbsp;
+&nbsp;
       <span class="missing-if-branch" title="if path not taken" >I</span>if (!index_1.Tools.isFunction(cb)) {
 <span class="cstat-no" title="statement not covered" >        return false;</span>
       } //不允许自发自收
@@ -3058,9 +3089,14 @@ function (_super) {
 &nbsp;
       return _this.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
         isError = false;
+&nbsp;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!middleReportParams) {
+<span class="cstat-no" title="statement not covered" >          return false;</span>
+        }
+&nbsp;
         index_2.consoleTools.devLog($pipe._develop, middleReportParams);
         $pipe.$mq.sendPipeMessage(index, middleReportParams);
-      }) //check error
+      }) //check middle exec error
       ["finally"](function () {
         if (isError) {
           index_2.consoleTools.devLog($pipe._develop, reportParams);
@@ -3409,7 +3445,7 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__util_index__;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Tue Apr 21 2020 19:03:43 GMT+0800 (China Standard Time)
+                at Thu Apr 23 2020 17:18:37 GMT+0800 (China Standard Time)
             </div>
         </div>
         <script src="../prettify.js"></script>

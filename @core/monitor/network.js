@@ -776,7 +776,7 @@ function (_super) {
     } //是否开启捕获
 
 
-    _this.isCatch = true; //监控的数据列表
+    _this.isCatch = false; //监控的数据列表
 
     _this.networkList = {}; //辅助捕获超时
 
@@ -784,7 +784,7 @@ function (_super) {
     _this.timeoutRequest = {}; // 发送消息
 
     _this.sendMessage = function () {
-      return null;
+      return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
     }; // 开启网络拦截监控
 
 
@@ -796,10 +796,12 @@ function (_super) {
 
   KeepObserverNetwork.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
-    this.sendMessage = sendMessage;
+    this.sendMessage = sendMessage; //开启捕获
+
+    this.stopObserver();
     return {
-      $networkStop: this.stopObserver,
-      $networkStart: this.startObserver
+      networkStop: this.stopObserver,
+      networkStart: this.startObserver
     };
   };
 

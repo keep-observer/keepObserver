@@ -40,12 +40,15 @@ class PipeUser extends KeepObserverPublic{
             const reportParams = this.handleReportData(catchParams)
             //  1 -> 2 -> 3 -> 2 -> 1
             return this.runMiddle(sendMessage,reportParams)
-                        .then((middleReportParams:reportParams)=>{
+                        .then((middleReportParams:reportParams<any>)=>{
                             isError = false
+                            if(!middleReportParams){
+                                return false;
+                            }
                             consoleTools.devLog($pipe._develop,middleReportParams)
                             $pipe.$mq.sendPipeMessage(index, middleReportParams)
                         })
-                        //check error
+                        //check middle exec error
                         .finally(()=>{
                             if(isError){
                                 consoleTools.devLog($pipe._develop,reportParams)

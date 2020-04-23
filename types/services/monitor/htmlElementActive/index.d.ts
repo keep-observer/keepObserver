@@ -16,8 +16,8 @@ declare class KeepObserverHtmlElementActive extends KeepObserverPublic {
     apply({ sendMessage }: {
         sendMessage: any;
     }): {
-        $htmlElementActiveStop: any;
-        $htmlElementActiveStart: any;
+        htmlElementActiveStop: any;
+        htmlElementActiveStart: any;
     };
 }
 export default KeepObserverHtmlElementActive;

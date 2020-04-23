@@ -48,6 +48,11 @@ export var noticeListener = function(queue) {
         } = item;
         //消息分发
         return Promise.all(Tools.mapToArray(_self.consumerMap,(cb,pipeId)=>{
+            //id修正
+            pipeId = !Tools.isNumber(pipeId)? parseInt(pipeId):false
+            if(!Tools.isNumber(pipeId)){
+                return false;
+            }
             //判断是否是正确注册接收函数
             if (!Tools.isFunction(cb)) {
                 return false;

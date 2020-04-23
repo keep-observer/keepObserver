@@ -1,5 +1,5 @@
 import { Tools } from '@util/index'
-
+import { logType } from '../../../types/log'
 
 /*
 	初始化替换相关信息
@@ -74,7 +74,10 @@ export var _handleInit = function() {
  */
 export var _handleMessage = function(type, agrs) {
     var _self = this;
-    var reportData:any = {}
+    var reportData:logType = {
+        type:'',
+        data:'',
+    }
     var separate = ','
     var data = '['
     //agrs不是数组 或是空数组 则不处理
@@ -85,7 +88,7 @@ export var _handleMessage = function(type, agrs) {
     //直接转成字符串形式
     agrs.forEach( (el,index)=>{
         try{
-            if(Tools.isObject(el)){
+            if(Tools.isObject(el) || Tools.isArray(el)){
                 data += `${index===0?'':separate}${Tools.objectStringify(el)}`  
             }else{
                 data += `${index===0?'':separate}"${Tools.toString(el)}"`  

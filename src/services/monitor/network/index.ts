@@ -1,5 +1,5 @@
 import defaultConfig from './defaultConfig';
-import { KeepObserverPublic,Tools } from '@util/index'
+import { KeepObserverPublic,Tools,consoleTools } from '@util/index'
 
 import { networkListType } from '../../../types/network'
 
@@ -65,14 +65,14 @@ class KeepObserverNetwork extends KeepObserverPublic{
             this._config.ignoreRequestList.push(this._config.serverUrl)
         }
         //是否开启捕获
-        this.isCatch = true
+        this.isCatch = false
         //监控的数据列表
         this.networkList = {};
         //辅助捕获超时
         this.timeout = {};
         this.timeoutRequest = {};
         // 发送消息
-        this.sendMessage = ()=>null
+        this.sendMessage = ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
         // 开启网络拦截监控
         this._init();
     }
@@ -81,9 +81,11 @@ class KeepObserverNetwork extends KeepObserverPublic{
     //提供一个挂载入口
     public apply({sendMessage}) {
         this.sendMessage = sendMessage
+        //开启捕获
+        this.stopObserver()
         return {
-            $networkStop: this.stopObserver,
-            $networkStart: this.startObserver
+            networkStop: this.stopObserver,
+            networkStart: this.startObserver
         }
     }
 }

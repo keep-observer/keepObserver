@@ -11,8 +11,8 @@ declare class KeepObserverLog extends KeepObserverPublic {
     apply({ sendMessage }: {
         sendMessage: any;
     }): {
-        $logStop: any;
-        $logStart: any;
+        logStop: any;
+        logStart: any;
     };
 }
 export default KeepObserverLog;

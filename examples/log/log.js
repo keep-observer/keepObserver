@@ -58,8 +58,8 @@ class ConsumerService{
 }
 testInstance.use(logInstance)
 testInstance.use(ConsumerService)
-// testInstance.apis('$logStart')
-// testInstance.apis('$logStop')
+// testInstance.apis('logStart')
+// testInstance.apis('logStop')
 
 setTimeout(()=>{
     debugger

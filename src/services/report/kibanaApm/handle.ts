@@ -1,16 +1,21 @@
 import { consoleTools,tool } from '@util/index'
+
+
 import {
     reportParams,
 } from '../../../types/report'
+import {
+    errorType
+} from '../../../types/error'
 
 
 
-export const _getReportContent = function(params:reportParams){
+export const _getReportContent = function(params:reportParams<any>){
     const _self = this
     const { develop } = _self._config
     //判断数据合法性
     if (!params || !params.type || !params.typeName || !params.data) {
-        consoleTools.devLog(develop,'[keepObserver] reportServer receive reportData is not right : typeName and type and data is undefined ')
+        consoleTools.warnError('reportServer receive reportData is not right : typeName and type and data is undefined ')
         return false;
     }
     //处理上报
@@ -30,6 +35,18 @@ export const _getReportContent = function(params:reportParams){
     }
 }
 
+
+export const _handleCatchError = function(){
+    var _self = this
+    this.tracerTransaction.watchCatchError((errorMessage:errorType)=>{
+        //通知发送错误
+        _self.sendMessage({
+            type : "monitor",
+            typeName : 'error',
+            data: errorMessage,
+        })
+    })
+}
 
 
 

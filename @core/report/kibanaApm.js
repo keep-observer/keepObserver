@@ -4330,6 +4330,45 @@ if (getRandomValues) {
 
 /***/ }),
 
+/***/ "./src/services/report/kibanaApm/api.ts":
+/*!**********************************************!*\
+  !*** ./src/services/report/kibanaApm/api.ts ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function setUserInfo(userContext) {
+  this.tracerTransaction.setUserInfo(userContext);
+}
+
+exports.setUserInfo = setUserInfo;
+;
+
+function captureError(error) {
+  return this.tracerTransaction.captureError(error);
+}
+
+exports.captureError = captureError;
+
+function createCustomLog(name, type, options) {
+  if (type === void 0) {
+    type = 'custome';
+  }
+
+  return this.tracerTransaction.createCustomEventTransaction(name, type, options);
+}
+
+exports.createCustomLog = createCustomLog;
+
+/***/ }),
+
 /***/ "./src/services/report/kibanaApm/custome.ts":
 /*!**************************************************!*\
   !*** ./src/services/report/kibanaApm/custome.ts ***!
@@ -4367,7 +4406,18 @@ exports["default"] = {
   //服务名
   serviceName: 'undefined',
   //版本
-  agentVersion: 'undefined'
+  agentVersion: 'undefined',
+  //是否自动启动
+  automaticStart: true,
+  //是否启动pageload检测
+  isCatchPageload: true,
+  //是否启动错误捕获
+  isCatchError: true,
+  //上传相关配置
+  transactionDurationThreshold: 999999999999999999999,
+  flushInterval: 0,
+  errorThrottleInterval: 0,
+  transactionThrottleInterval: 0
 };
 
 /***/ }),
@@ -4394,7 +4444,7 @@ exports._getReportContent = function (params) {
   var develop = _self._config.develop; //判断数据合法性
 
   if (!params || !params.type || !params.typeName || !params.data) {
-    index_1.consoleTools.devLog(develop, '[keepObserver] reportServer receive reportData is not right : typeName and type and data is undefined ');
+    index_1.consoleTools.warnError('reportServer receive reportData is not right : typeName and type and data is undefined ');
     return false;
   } //处理上报
 
@@ -4417,6 +4467,19 @@ exports._getReportContent = function (params) {
     default:
       index_1.consoleTools.warnError(params.type + 'is no handle type');
   }
+};
+
+exports._handleCatchError = function () {
+  var _self = this;
+
+  this.tracerTransaction.watchCatchError(function (errorMessage) {
+    //通知发送错误
+    _self.sendMessage({
+      type: "monitor",
+      typeName: 'error',
+      data: errorMessage
+    });
+  });
 };
 
 /***/ }),
@@ -4457,6 +4520,22 @@ var __extends = this && this.__extends || function () {
   };
 }();
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
@@ -4474,6 +4553,8 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 var transaction_1 = __importDefault(__webpack_require__(/*! ./transaction */ "./src/services/report/kibanaApm/transaction.ts"));
 
 var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/report/kibanaApm/handle.ts");
+
+var api_1 = __webpack_require__(/*! ./api */ "./src/services/report/kibanaApm/api.ts");
 
 var custome_1 = __webpack_require__(/*! ./custome */ "./src/services/report/kibanaApm/custome.ts");
 
@@ -4495,9 +4576,16 @@ function (_super) {
 
 
     _this._getReportContent = handle_1._getReportContent.bind(_this);
+    _this._handleCatchError = handle_1._handleCatchError.bind(_this);
     _this._handleCustome = custome_1._handleCustome.bind(_this);
     _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
     _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
+    _this._handleMonitorNetwork = monitor_1._handleMonitorNetwork.bind(_this);
+    _this._handleHtmlElementActive = monitor_1._handleHtmlElementActive.bind(_this); //api
+
+    _this.setUserInfo = api_1.setUserInfo.bind(_this);
+    _this.captureError = api_1.captureError.bind(_this);
+    _this.createCustomLog = api_1.createCustomLog.bind(_this);
     var _a = config,
         _b = _a.reportCustom,
         reportCustom = _b === void 0 ? false : _b,
@@ -4508,9 +4596,12 @@ function (_super) {
 
     reportConfig.develop = develop; //混合默认配置
 
-    _this._config = index_1.tool.extend(defaultConfig_1["default"], reportConfig); //重载中间件命名空间
+    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), reportConfig); //发送方法
 
-    _this.middleScopeNames = []; //init
+    _this.sendMessage = function () {
+      return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
+    }; //init
+
 
     _this.tracerTransaction = new transaction_1["default"](_this._config);
     return _this;
@@ -4520,15 +4611,31 @@ function (_super) {
    */
 
 
-  KeepObserverKibanaApmReport.prototype.apply = function (pipe) {
-    var _self = this;
+  KeepObserverKibanaApmReport.prototype.apply = function (_a) {
+    var registerReciveMessage = _a.registerReciveMessage,
+        sendMessage = _a.sendMessage;
+    registerReciveMessage(this._getReportContent, this);
+    this.sendMessage = sendMessage; //start
 
-    pipe.registerRecivePipeMessage(_self._getReportContent, _self);
-    pipe.registerMiddleScopeName(_self.middleScopeNames);
+    var _b = this._config,
+        isCatchPageload = _b.isCatchPageload,
+        isCatchError = _b.isCatchError;
 
-    _self.addReportListener(pipe.sendPipeMessage);
+    if (isCatchPageload) {
+      this.tracerTransaction.pageLoad();
+    }
 
-    return {};
+    if (isCatchError) {
+      this.tracerTransaction.catchError();
+
+      this._handleCatchError();
+    }
+
+    return {
+      setUserInfo: this.setUserInfo,
+      captureError: this.captureError,
+      createCustomLog: this.createCustomLog
+    };
   };
 
   return KeepObserverKibanaApmReport;
@@ -4567,6 +4674,12 @@ exports._handleMonitor = function (params) {
     case 'log':
       return _self._handleMonitorLog(params, task);
 
+    case 'network':
+      return _self._handleMonitorNetwork(params, task);
+
+    case 'htmlElementActive':
+      return _self._handleHtmlElementActive(params, task);
+
     case 'error':
       return index_1.consoleTools.warnError('kibanaAPM has a error is monitor of self, is not handle monitor error report');
 
@@ -4576,19 +4689,93 @@ exports._handleMonitor = function (params) {
 };
 
 exports._handleMonitorLog = function (params, task) {
-  var data = params.data;
-  task.addTags(data);
+  var _a = params.data,
+      _b = _a.type,
+      type = _b === void 0 ? '' : _b,
+      _c = _a.data,
+      data = _c === void 0 ? '' : _c; //tag index limt key
+
+  task.addTags({
+    type: type,
+    data: data
+  });
   task.end();
 };
 
-exports._handleMonitorNetwork = function (params, task) {
-  var data = params.data;
+exports._handleMonitorNetwork = function (reportParams, task) {
+  var _a = reportParams.data,
+      _b = _a.method,
+      method = _b === void 0 ? '' : _b,
+      _c = _a.statusType,
+      statusType = _c === void 0 ? '' : _c,
+      _d = _a.type,
+      type = _d === void 0 ? '' : _d,
+      _e = _a.url,
+      url = _e === void 0 ? '' : _e,
+      _f = _a.requestHead,
+      requestHead = _f === void 0 ? null : _f,
+      _g = _a.responseHead,
+      responseHead = _g === void 0 ? null : _g,
+      _h = _a.params,
+      params = _h === void 0 ? null : _h,
+      _j = _a.body,
+      body = _j === void 0 ? '' : _j,
+      _k = _a.status,
+      status = _k === void 0 ? 0 : _k,
+      _l = _a.startTime,
+      startTime = _l === void 0 ? 0 : _l,
+      _m = _a.endTime,
+      endTime = _m === void 0 ? 0 : _m,
+      _o = _a.costTime,
+      costTime = _o === void 0 ? 0 : _o,
+      _p = _a.response,
+      response = _p === void 0 ? '' : _p,
+      _q = _a.responseType,
+      responseType = _q === void 0 ? '' : _q,
+      _r = _a.timeout,
+      timeout = _r === void 0 ? 0 : _r,
+      _s = _a.errorContent,
+      errorContent = _s === void 0 ? '' : _s,
+      _t = _a.isTimeout,
+      isTimeout = _t === void 0 ? false : _t,
+      _u = _a.isError,
+      isError = _u === void 0 ? false : _u; //tag index limt key
 
-  for (var key in data) {
-    task.startSpan(data[key], key);
-  }
+  task.addTags({
+    method: method,
+    url: url,
+    statusType: statusType,
+    type: type,
+    requestHead: index_1.Tools.objectStringify(requestHead),
+    responseHead: index_1.Tools.objectStringify(responseHead),
+    params: index_1.Tools.objectStringify(params),
+    body: body,
+    status: status,
+    startTime: startTime,
+    endTime: endTime,
+    costTime: costTime,
+    response: response,
+    responseType: responseType,
+    timeout: timeout,
+    errorContent: errorContent,
+    isTimeout: isTimeout,
+    isError: isError
+  });
+  task.end();
+};
 
-  task.addTags(data);
+exports._handleHtmlElementActive = function (params, task) {
+  var _a = params.data,
+      type = _a.type,
+      title = _a.title,
+      xPath = _a.xPath,
+      value = _a.value;
+  task.addTags({
+    type: type,
+    title: title,
+    xPath: xPath,
+    value: value
+  });
   task.end();
 };
 
@@ -4628,36 +4815,42 @@ function () {
     var _this = this; //part
 
 
-    this.Initialized = false;
+    this.Initialized = false; // custom transcation
+
+    this.initCustomTransaction = function (config) {
+      _this.customServiceFactory = elastic_apm_js_core_1.createServiceFactory();
+
+      var ConfigService = _this.customServiceFactory.getService("ConfigService");
+
+      ConfigService.setConfig(config);
+
+      _this.customServiceFactory.init();
+
+      _this.Customonitoring = _this.customServiceFactory.getService("PerformanceMonitoring");
+
+      _this.Customonitoring.init();
+
+      _this.Customonitoring.cancelPatchSub();
+
+      _this.ApmServer = _this.serviceFactory.getService('ApmServer');
+      _this.Initialized = true;
+    }; // api
+
 
     this.createTransaction = function (name, type) {
       var transactionService = _this.serviceFactory.getService("TransactionService");
 
       return transactionService.startTransaction(name, type);
-    }; // custom transcation
-
-
-    this.initCustomTransaction = function (config) {
-      var ConfigService = _this.serviceFactory.getService("ConfigService");
-
-      ConfigService.setConfig(config);
-
-      _this.serviceFactory.init();
-
-      _this.PerformanceMonitoring = _this.serviceFactory.getService("PerformanceMonitoring");
-
-      _this.PerformanceMonitoring.init();
-
-      _this.PerformanceMonitoring.cancelPatchSub();
-
-      _this.ApmServer = _this.serviceFactory.getService('ApmServer');
-      _this.Initialized = true;
     };
 
-    this.setCustomTransactionUserInfo = function (userInfo) {
+    this.setUserInfo = function (userInfo) {
       var configService = _this.serviceFactory.getService("ConfigService");
 
       configService.setUserContext(userInfo);
+
+      var customConfigService = _this.customServiceFactory.getService("ConfigService");
+
+      customConfigService.setUserContext(userInfo);
     };
 
     this.createCustomEventTransaction = function (name, type, options) {
@@ -4667,7 +4860,7 @@ function () {
         return false;
       }
 
-      var _option = index_1.tool.extend({
+      var _option = index_1.Tools.extend({
         transactionSampleRate: 1
       }, options);
 
@@ -4679,8 +4872,8 @@ function () {
         writable: false,
         value: function value() {
           if (this instanceof transaction_1["default"]) {
-            self.PerformanceMonitoring.prepareTransaction(this);
-            var payload = self.PerformanceMonitoring.createTransactionDataModel(this);
+            self.Customonitoring.prepareTransaction(this);
+            var payload = self.Customonitoring.createTransactionDataModel(this);
             self.ApmServer.addTransaction(payload);
           }
         }
@@ -4689,8 +4882,61 @@ function () {
     };
 
     this.serviceFactory = elastic_apm_js_core_1.createServiceFactory();
+    this.configService = this.serviceFactory.getService("ConfigService");
+    this.configService.setConfig(config);
+    this.serviceFactory.init(); //customTransaction
+
     this.initCustomTransaction(config);
   }
+
+  TracerTransaction.prototype.pageLoad = function () {
+    //加载load监听
+    //挂载第一次pageload
+    var performanceMonitoring = this.serviceFactory.getService("PerformanceMonitoring");
+    performanceMonitoring.init(); //send page load
+
+    if (this.configService.get("sendPageLoadTransaction")) {
+      var transactionService = this.serviceFactory.getService("TransactionService");
+      var tr = transactionService.startTransaction(this.configService.get("pageLoadTransactionName"), "page-load");
+
+      var sendPageLoadMetrics = function sendPageLoadMetrics() {
+        // to make sure PerformanceTiming.loadEventEnd has a value
+        setTimeout(function () {
+          if (tr) {
+            tr.detectFinish(); //取消elastic-apm自带的log以及xhr相关patch
+
+            performanceMonitoring.cancelPatchSub();
+          }
+        });
+      };
+
+      if (document.readyState === "complete") {
+        sendPageLoadMetrics();
+      } else {
+        window.addEventListener("load", sendPageLoadMetrics.bind(this));
+      }
+    }
+  };
+
+  TracerTransaction.prototype.catchError = function () {
+    var errorLogging = this.serviceFactory.getService("ErrorLogging");
+    errorLogging.registerGlobalEventListener();
+  };
+
+  TracerTransaction.prototype.captureError = function (error) {
+    var errorLogging = this.serviceFactory.getService('ErrorLogging');
+    return errorLogging.logError(error);
+  };
+
+  TracerTransaction.prototype.watchCatchError = function (callback) {
+    var errorLogging = this.serviceFactory.getService("ErrorLogging");
+    var logErrorEventPatch = errorLogging.logErrorEvent;
+
+    errorLogging.logErrorEvent = function (errorEvent, sendImmediately) {
+      callback(errorEvent);
+      return logErrorEventPatch.apply(errorLogging, errorEvent, sendImmediately);
+    };
+  };
 
   return TracerTransaction;
 }();

@@ -68,7 +68,7 @@ class KeepObserverPublic {
         }
         //获取到公共中间件聚合
         const extendParams =  (this.constructor as any).extendReportParams
-        var reportParams:reportParams = {
+        var reportParams:reportParams<any> = {
             ...defaultParams,
             location : window.location.href,
             environment : window.navigator.userAgent,

@@ -11,6 +11,6 @@ declare class KeepObserverPublic {
     static extendReport(params: any): any;
     useMiddle(scopeName: string, middlesFn: middlesFn): any;
     runMiddle(scopeName: string, ...args: any[]): Promise<{}>;
-    handleReportData(params: catchParams): reportParams;
+    handleReportData(params: catchParams): reportParams<any>;
 }
 export default KeepObserverPublic;

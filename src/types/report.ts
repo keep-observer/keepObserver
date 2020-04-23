@@ -10,10 +10,10 @@ export type userInfo = {
 
 
 
-export type reportParams = {
-    type: string;
+export type reportParams<T> = {
+    type: 'monitor'|'performance'|'analyse'|'report'|'custome'|'undefined'; 
     typeName: string;
-    data: any;
+    data: T;
     location: string;
     reportTime: number;
     environment: string;

@@ -76,15 +76,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/services/monitor/vue/index.ts");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/services/middleware/kibanaApmTrack/index.ts");
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/services/monitor/vue/api.ts":
-/*!*****************************************!*\
-  !*** ./src/services/monitor/vue/api.ts ***!
-  \*****************************************/
+/***/ "./src/services/middleware/kibanaApmTrack/defaultConfig.ts":
+/*!*****************************************************************!*\
+  !*** ./src/services/middleware/kibanaApmTrack/defaultConfig.ts ***!
+  \*****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -94,36 +94,14 @@ return /******/ (function(modules) { // webpackBootstrap
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-/*
-        停止监听
-*/
-
-exports.stopObserver = function () {
-  if (this._vue.config) {
-    if (this._originErrorHandle) {
-      this._vue.config.errorHandler = this._originErrorHandle;
-      this._originErrorHandle = false;
-    } else {
-      this._vue.config.errorHandler = null;
-    }
-  }
-};
-/*
-    开始监听
- */
-
-
-exports.startObserver = function () {
-  //开启vue错误监听
-  this._handleInit();
-};
+exports["default"] = {};
 
 /***/ }),
 
-/***/ "./src/services/monitor/vue/handle.ts":
-/*!********************************************!*\
-  !*** ./src/services/monitor/vue/handle.ts ***!
-  \********************************************/
+/***/ "./src/services/middleware/kibanaApmTrack/handleMiddle.ts":
+/*!****************************************************************!*\
+  !*** ./src/services/middleware/kibanaApmTrack/handleMiddle.ts ***!
+  \****************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -170,69 +148,82 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
-/*
-        开始监控vue
- */
 
+exports._handleReciceReportMessage = function (interrupt, next) {
+  var _this = this;
 
-exports._handleInit = function () {
-  var _self = this;
+  return function () {
+    var params = [];
 
-  if (_self._vue.config) {
-    if (_self._vue.config.errorHandler && index_1.tool.isFunction(_self._vue.config.errorHandler)) {
-      _self._originErrorHandle = _self._vue.config.errorHandler;
+    for (var _i = 0; _i < arguments.length; _i++) {
+      params[_i] = arguments[_i];
     }
 
-    _self._vue.config.errorHandler = function () {
-      var args = [];
+    var _a = __read(params, 1),
+        _b = _a[0],
+        message = _b === void 0 ? {} : _b;
 
-      for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-      }
+    var _c = message.type,
+        type = _c === void 0 ? false : _c,
+        typeName = message.typeName; //valid message
 
-      _self._handleVueError.apply(_self, __spread(args));
+    if (!type || !index_1.Tools.isString(type) || type !== 'monitor') {
+      next.apply(void 0, __spread(params));
+      return;
+    } //handle message
 
-      if (_self._originErrorHandle) {
-        try {
-          _self._originErrorHandle.apply(_self, __spread(args));
-        } catch (e) {}
-      }
-    };
-  }
+
+    switch (typeName) {
+      case 'log':
+        _this._handleTrackLog(message);
+
+        break;
+
+      case 'network':
+        _this._handleTrackNetwork(message);
+
+        break;
+
+      case 'htmlElementActive':
+        _this._handleTrackHtmlElementActive(message);
+
+        break;
+
+      case 'error':
+        _this._handleTrackError(message);
+
+        break;
+
+      default:
+        index_1.consoleTools.warnError("is no support track typeName:" + typeName);
+    }
+
+    next.apply(void 0, __spread(params));
+  };
 };
-/*
-    处理监控vue错误信息
- */
 
+exports._handleTrackLog = function (params) {
+  index_1.consoleTools.log(params);
+};
 
-exports._handleVueError = function (err, vm, info) {
-  var _self = this;
+exports._handleTrackNetwork = function (params) {
+  index_1.consoleTools.log(params);
+};
 
-  var errInfo = {};
-  errInfo.infoMsg = index_1.tool.toString(info); //是否存在堆栈信息
+exports._handleTrackHtmlElementActive = function (params) {
+  index_1.consoleTools.log(params);
+};
 
-  if (index_1.tool.isObject(err) && err.stack && err.message) {
-    errInfo.errMsg = index_1.tool.toString(err.message);
-    errInfo.stackMsg = index_1.tool.toString(err.stack);
-  } else {
-    errInfo.errMsg = index_1.tool.toString(err);
-  } //上报
-
-
-  _self.noticeReport({
-    type: "monitor",
-    typeName: 'vue',
-    data: errInfo,
-    isError: true
-  });
+exports._handleTrackError = function (params) {
+  index_1.consoleTools.log(params);
 };
 
 /***/ }),
 
-/***/ "./src/services/monitor/vue/index.ts":
-/*!*******************************************!*\
-  !*** ./src/services/monitor/vue/index.ts ***!
-  \*******************************************/
+/***/ "./src/services/middleware/kibanaApmTrack/index.ts":
+/*!*********************************************************!*\
+  !*** ./src/services/middleware/kibanaApmTrack/index.ts ***!
+  \*********************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -265,24 +256,46 @@ var __extends = this && this.__extends || function () {
   };
 }();
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var defaultConfig_1 = __importDefault(__webpack_require__(/*! ./defaultConfig */ "./src/services/middleware/kibanaApmTrack/defaultConfig.ts"));
+
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
-var api_1 = __webpack_require__(/*! ./api */ "./src/services/monitor/vue/api.ts");
-
-var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/monitor/vue/handle.ts"); // 获取系统信息
+var handleMiddle_1 = __webpack_require__(/*! ./handleMiddle */ "./src/services/middleware/kibanaApmTrack/handleMiddle.ts"); // 获取系统信息
 
 
-var KeepObserverVue =
+var KeepObserverMiddlewareKibanaApmTrack =
 /** @class */
 function (_super) {
-  __extends(KeepObserverVue, _super); //构造函数
+  __extends(KeepObserverMiddlewareKibanaApmTrack, _super); //构造函数
 
 
-  function KeepObserverVue(config) {
+  function KeepObserverMiddlewareKibanaApmTrack(config) {
     if (config === void 0) {
       config = {};
     }
@@ -290,46 +303,34 @@ function (_super) {
     var _this = _super.call(this, config) || this; //method
 
 
-    _this.stopObserver = api_1.stopObserver.bind(_this);
-    _this.startObserver = api_1.startObserver.bind(_this);
-    _this._handleInit = handle_1._handleInit.bind(_this);
-    _this._handleVueError = handle_1._handleVueError.bind(_this); //初始化上传相关实例
+    _this._handleReciceReportMessage = handleMiddle_1._handleReciceReportMessage.bind(_this);
+    _this._handleTrackLog = handleMiddle_1._handleTrackLog.bind(_this);
+    _this._handleTrackNetwork = handleMiddle_1._handleTrackNetwork.bind(_this);
+    _this._handleTrackHtmlElementActive = handleMiddle_1._handleTrackHtmlElementActive.bind(_this);
+    _this._handleTrackError = handleMiddle_1._handleTrackError.bind(_this); //存混合配置
 
-    var _a = config,
-        _b = _a.vueCustom,
-        vueCustom = _b === void 0 ? false : _b,
-        _c = _a.Vue,
-        Vue = _c === void 0 ? false : _c;
-    var vueConfig = vueCustom || config;
-    vueConfig.vueInstance = Vue; //判断是否存在实例
+    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), config); //发送方法
 
-    if (!vueConfig.vueInstance) {
-      return _this;
-    } //存混合配置
-
-
-    _this._config = index_1.tool.extend({}, vueConfig); //vue实例
-
-    _this._vue = _this._config.vueInstance; // 开启vue拦截
-
-    _this.startObserver();
+    _this.sendMessage = function () {
+      return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
+    };
 
     return _this;
   } //提供一个挂载入口
 
 
-  KeepObserverVue.prototype.apply = function (pipe) {
-    this.addReportListener(pipe.sendPipeMessage);
-    return {
-      $vueStop: this.stopObserver,
-      $vueStart: this.startObserver
-    };
+  KeepObserverMiddlewareKibanaApmTrack.prototype.apply = function (_a) {
+    var sendMessage = _a.sendMessage,
+        useExtendMiddle = _a.useExtendMiddle;
+    this.sendMessage = sendMessage; //receive message
+
+    useExtendMiddle('sendMessage', this._handleReciceReportMessage);
   };
 
-  return KeepObserverVue;
+  return KeepObserverMiddlewareKibanaApmTrack;
 }(index_1.KeepObserverPublic);
 
-exports["default"] = KeepObserverVue;
+exports["default"] = KeepObserverMiddlewareKibanaApmTrack;
 
 /***/ }),
 

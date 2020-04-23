@@ -29,8 +29,8 @@ describe("KeepObserverLog service",function(){
         spyOn(logInstance,'stopObserver');
         spyOn(logInstance,'startObserver');
         testInstance.use(logInstance)
-        testInstance.apis('$logStart')
-        testInstance.apis('$logStop')
+        testInstance.apis('logStart')
+        testInstance.apis('logStop')
         expect(logInstance.startObserver).toHaveBeenCalled()
         expect(logInstance.stopObserver).toHaveBeenCalled()
     })
@@ -60,7 +60,7 @@ describe("KeepObserverLog service",function(){
                         expect(message.testAdd).toBe(1)
                         console.error('send error message')
                         setTimeout(()=>{
-                            testInstance.apis('$logStop')
+                            testInstance.apis('logStop')
                             done()
                         },200)
                         return

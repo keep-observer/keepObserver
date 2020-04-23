@@ -624,7 +624,14 @@ exports.noticeListener = function (queue) {
         params = item.params; //消息分发
 
     return Promise.all(index_1.Tools.mapToArray(_self.consumerMap, function (cb, pipeId) {
-      //判断是否是正确注册接收函数
+      //id修正
+      pipeId = !index_1.Tools.isNumber(pipeId) ? parseInt(pipeId) : false;
+
+      if (!index_1.Tools.isNumber(pipeId)) {
+        return false;
+      } //判断是否是正确注册接收函数
+
+
       if (!index_1.Tools.isFunction(cb)) {
         return false;
       } //不允许自发自收
@@ -769,9 +776,14 @@ function (_super) {
 
       return _this.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
         isError = false;
+
+        if (!middleReportParams) {
+          return false;
+        }
+
         index_2.consoleTools.devLog($pipe._develop, middleReportParams);
         $pipe.$mq.sendPipeMessage(index, middleReportParams);
-      }) //check error
+      }) //check middle exec error
       ["finally"](function () {
         if (isError) {
           index_2.consoleTools.devLog($pipe._develop, reportParams);
