@@ -69,3 +69,4 @@ export declare function throttleWrap(delay: any): (Fn: Function) => () => void;
 export declare function debounceWrap(delay: any): (Fn: Function) => (...any: any[]) => boolean;
 export declare function objectStringify(object: any): string;
 export declare function getHashCode(object: any): string;
+export declare function substringLimt(text: string, limt?: number, flag?: boolean): string;

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title ng-bind="title">test</title>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+        <meta name="viewport" content="width=device-width,height=device-height, user-scalable=no,initial-scale=1, minimum-scale=1, maximum-scale=1,target-densitydpi=device-dpi ">  
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    </head>
+    <body>
+        <div>请打开控制台console查看数据</div>
+        <div id="app">
+            <div>
+                KeepObserverHtmlElementActive test input active catch
+                <input type="text">
+            </div>
+            <button class="log">log</button>
+            <button class="network-ajax">network ajax</button>
+            <button class="network-fetch">network fetch</button>
+            <button class="throwError">throwError</button>
+            <div>
+                <h4>setUserInfo:</h4>
+                <p>userName<input class="userName" type="text" /></p>
+                <p>userId<input class="userId" type="text" /></p>
+                <p>userEmail<input class="userEmail" type="text" /></p>
+                <button class="setUserInfo">set</button>
+            </div>
+            <div>
+                <h4>captureError:</h4>
+                <p>inputErrorMessage<input class="inputErrorMessage" type="text" /></p>
+                <button class="captureError">captureError</button>
+            </div>
+            <div>
+                <h4>changeHash:</h4>
+                <p>inputHash<input class="inputHash" type="text" /></p>
+                <button class="changeHash">changeHash</button>
+                <button class="pushState">pushState</button>
+            </div>
+        </div>
+    </body>
+</html>
+
+
+
+
+    

@@ -13,6 +13,7 @@ class keepObserverPipe extends KeepObserverPublic {
     public $keepObserver:any
     public $mq:MessageQueue
     private pipeUser: PipeUser[]
+    private pipeMap: {[propName: string]:true} = {};
     //继承属性
     readonly _publicMiddleScopeNames: string[]      //继承属性
     public useMiddle:Function                       //继承属性

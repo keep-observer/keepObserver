@@ -3,12 +3,24 @@ import defaultConfig from './defaultConfig';
 
 
 import keepObserverPipe from './pipe/index';
+import PipeUser from './pipe/PipeUser/index'
+import WatchDog from './pipe/WatchDog/index'
+import MessageQueue from './pipe/MQ/index'
 
 import { updateVersionClearCache} from './method/update';
 import { registerApi,apis } from './method/api'
 import { useMiddle,getRunMiddle } from './method/middle'
 import { extendReportParams,use } from './method/base'
 
+
+
+
+export {
+    keepObserverPipe,
+    PipeUser,
+    WatchDog,
+    MessageQueue
+}
 
 
 class KeepObserver extends KeepObserverPublic{

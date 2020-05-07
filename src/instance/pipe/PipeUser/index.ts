@@ -21,8 +21,22 @@ class PipeUser extends KeepObserverPublic{
     public sendMessage:(catchParams:catchParams)=>Promise<{}>
     public extendsReportParams: (params:any)=>any
     public registerReciveMessage: (fn:Function, scope?:any)=>void
+    public registerSendDoneCallback: (fn:Function)=>void
     public useExtendMiddle: (scopeName:string,middlesFn:middlesFn)=>any
     public runExtendMiddle:(scopeName:string,...args:any[])=>Promise<{}>
+
+
+    static onSendDoneCallbackMap = []
+    static emitSendDoneCallback = function(){
+        this.onSendDoneCallbackMap.forEach(fn => {
+            try{
+                fn()
+            }catch(e){
+                consoleTools.warnError(`emitSendDoneCallback find error:${e}`)
+            }
+        });
+    }
+    
 
     constructor(index:number,$pipe:keepObserverPipe,scope:any){
         super()
@@ -31,32 +45,40 @@ class PipeUser extends KeepObserverPublic{
         //register watchDog
         const $watchDog = new WatchDog()
         //provide sendMessage
-        this.sendMessage = $watchDog.sendMessageLimtWatch(/* watch fn */(catchParams:catchParams)=>{
+        this.sendMessage = $watchDog.sendMessageLimtWatch(/* watch fn */(catchParams:catchParams,contendHashCode:string)=>{
             //mq handle process message ignore
-            if($pipe.$mq.isRun) return
+            if($pipe.$mq.isRun) return Promise.reject('mq handle process message ignore')
             //send message
             var isError = true;
             const [ sendMessage ] = $pipe._publicMiddleScopeNames
-            const reportParams = this.handleReportData(catchParams)
+            const reportParams = this.handleReportData({
+                ...catchParams,
+                contendHashCode
+            })
             //  1 -> 2 -> 3 -> 2 -> 1
             return this.runMiddle(sendMessage,reportParams)
                         .then((middleReportParams:reportParams<any>)=>{
                             isError = false
                             if(!middleReportParams){
+                                (this.constructor as any).emitSendDoneCallback()
                                 return false;
                             }
                             consoleTools.devLog($pipe._develop,middleReportParams)
-                            $pipe.$mq.sendPipeMessage(index, middleReportParams)
+                            $pipe.$mq.sendPipeMessage(index, middleReportParams).then(()=>{
+                                (this.constructor as any).emitSendDoneCallback()
+                            })
                         })
                         //check middle exec error
                         .finally(()=>{
                             if(isError){
                                 consoleTools.devLog($pipe._develop,reportParams)
-                                $pipe.$mq.sendPipeMessage(index, reportParams)
+                                $pipe.$mq.sendPipeMessage(index, reportParams).then(()=>{
+                                    (this.constructor as any).emitSendDoneCallback()
+                                })
                             }
                         })
         },/* anomaly callback */(anomalyMessage)=>{
-            $pipe.$keepObserver.runMiddle('error',anomalyMessage)
+            return $pipe.$keepObserver.runMiddle('error',anomalyMessage)
         })
         //extend middle
         this.runExtendMiddle = (scopeName:string,...args:any[]):Promise<{}>=>{
@@ -71,6 +93,10 @@ class PipeUser extends KeepObserverPublic{
         }
         //provide reciveMessage 
         this.registerReciveMessage = $pipe.$mq.registerRecivePipeMessage(index,scope)
+        //register send done callback
+        this.registerSendDoneCallback = (callback:Function)=>{
+            (this.constructor as any).onSendDoneCallbackMap.push(callback)
+        }
     }
 }
 

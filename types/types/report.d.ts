@@ -10,6 +10,7 @@ export declare type reportParams<T> = {
     location: string;
     reportTime: number;
     environment: string;
+    contendHashCode: string;
     projectName?: string;
     projectVersion?: string;
     version?: string;

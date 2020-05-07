@@ -34,7 +34,7 @@ const networkServer = function(){
     app.get('/timeout', (req, res) => {
         setTimeout(()=>{
             return res.send('timeout')
-        },40000)
+        },26000)
     })
 
     app.get('/404', (req, res) => {

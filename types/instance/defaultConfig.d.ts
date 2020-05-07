@@ -4,5 +4,6 @@ declare const _default: {
     projectVersion: string;
     version: string;
     deviceID: any;
+    isCheckRepeatUse: boolean;
 };
 export default _default;

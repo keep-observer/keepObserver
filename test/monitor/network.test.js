@@ -16,7 +16,7 @@ const test500 = 'http://localhost:9003/500'
 describe("KeepObserverNetwork service",function(){
     //init service
     var testInstance = null
-    var network = new KeepObserverNetwork()
+    var network  = null
     beforeEach(function () {
         //config
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 50000
@@ -25,9 +25,11 @@ describe("KeepObserverNetwork service",function(){
         KeepObserverPublic.extendReportParams = {}
         testInstance = new KeepObserver({
             runMiddleTimeOut: 3000,
+            isCheckRepeatUse:false,
             projectName: 'test',
             projectVersion: 'test-version'
         })
+        network = new KeepObserverNetwork()
         network.startObserver()
     })
 
@@ -36,11 +38,14 @@ describe("KeepObserverNetwork service",function(){
     it('KeepObserverNetwork api',function(){
         spyOn(network,'stopObserver').and.callThrough();
         spyOn(network,'startObserver').and.callThrough();
+        spyOn(network,'cancelPatch').and.callThrough();
         testInstance.use(network)
         testInstance.apis('networkStart')
         testInstance.apis('networkStop')
+        testInstance.apis('networkCancelPatch')
         expect(network.startObserver).toHaveBeenCalled()
         expect(network.stopObserver).toHaveBeenCalled()
+        expect(network.cancelPatch).toHaveBeenCalled()
     })
 
 
@@ -68,7 +73,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.method).toBe("POST")
                         expect(message.data.params).toEqual({time:'2000'})
                         expect(message.data.statusType).toBe("response")
-                        expect(message.data.costTime).toBeGreaterThan(10)
+                        expect(message.data.costTime).toBeGreaterThan(1)
                         expect(message.data.url).toBe("http://localhost:9003/report")
                         expect(message.data.body).toBe('{"test":111,"params":{"type":"post"}}')
                         expect(message.data.response).toBe('{"code":2000,"data":{"test":111}}')
@@ -130,6 +135,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
                         setTimeout(()=>{
                             testInstance.apis('networkStop')
+                            testInstance.apis('networkCancelPatch')
                             done()
                         },200)
                         return 
@@ -179,7 +185,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.method).toBe("POST")
                         expect(message.data.params).toEqual({time:'2000'})
                         expect(message.data.statusType).toBe("response")
-                        expect(message.data.costTime).toBeGreaterThan(5)
+                        expect(message.data.costTime).toBeGreaterThan(1)
                         expect(message.data.url).toBe("http://localhost:9003/report")
                         expect(message.data.body).toBe('{"test":111,"params":{"type":"post"}}')
                         expect(message.data.response).toBe('{"code":2000,"data":{"test":111}}')
@@ -243,6 +249,7 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
                         setTimeout(()=>{
                             testInstance.apis('networkStop')
+                            testInstance.apis('networkCancelPatch')
                             done()
                         },200)
                         return 

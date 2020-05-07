@@ -4439,9 +4439,8 @@ Object.defineProperty(exports, "__esModule", {
 var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 exports._getReportContent = function (params) {
-  var _self = this;
+  var _self = this; //判断数据合法性
 
-  var develop = _self._config.develop; //判断数据合法性
 
   if (!params || !params.type || !params.typeName || !params.data) {
     index_1.consoleTools.warnError('reportServer receive reportData is not right : typeName and type and data is undefined ');
@@ -4581,7 +4580,8 @@ function (_super) {
     _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
     _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
     _this._handleMonitorNetwork = monitor_1._handleMonitorNetwork.bind(_this);
-    _this._handleHtmlElementActive = monitor_1._handleHtmlElementActive.bind(_this); //api
+    _this._handleHtmlElementActive = monitor_1._handleHtmlElementActive.bind(_this);
+    _this._handleKibanaApmTrack = monitor_1._handleKibanaApmTrack.bind(_this); //api
 
     _this.setUserInfo = api_1.setUserInfo.bind(_this);
     _this.captureError = api_1.captureError.bind(_this);
@@ -4655,6 +4655,22 @@ exports["default"] = KeepObserverKibanaApmReport;
 "use strict";
 
 
+var __assign = this && this.__assign || function () {
+  __assign = Object.assign || function (t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) {
+        if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
@@ -4664,21 +4680,18 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 exports._handleMonitor = function (params) {
   var _self = this;
 
-  var type = params.type,
-      typeName = params.typeName;
-  var taskName = type + "-" + typeName;
-
-  var task = _self.tracerTransaction.createCustomEventTransaction(taskName, typeName);
-
   switch (params.typeName) {
     case 'log':
-      return _self._handleMonitorLog(params, task);
+      return _self._handleMonitorLog(params);
 
     case 'network':
-      return _self._handleMonitorNetwork(params, task);
+      return _self._handleMonitorNetwork(params);
 
     case 'htmlElementActive':
-      return _self._handleHtmlElementActive(params, task);
+      return _self._handleHtmlElementActive(params);
+
+    case 'kibanaApmTrack':
+      return _self._handleKibanaApmTrack(params);
 
     case 'error':
       return index_1.consoleTools.warnError('kibanaAPM has a error is monitor of self, is not handle monitor error report');
@@ -4688,12 +4701,14 @@ exports._handleMonitor = function (params) {
   }
 };
 
-exports._handleMonitorLog = function (params, task) {
-  var _a = params.data,
+exports._handleMonitorLog = function (reportParams) {
+  var _a = reportParams.data,
       _b = _a.type,
       type = _b === void 0 ? '' : _b,
       _c = _a.data,
-      data = _c === void 0 ? '' : _c; //tag index limt key
+      data = _c === void 0 ? '' : _c;
+  var taskName = reportParams.type + "-" + reportParams.typeName;
+  var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName); //tag index limt key
 
   task.addTags({
     type: type,
@@ -4702,7 +4717,7 @@ exports._handleMonitorLog = function (params, task) {
   task.end();
 };
 
-exports._handleMonitorNetwork = function (reportParams, task) {
+exports._handleMonitorNetwork = function (reportParams) {
   var _a = reportParams.data,
       _b = _a.method,
       method = _b === void 0 ? '' : _b,
@@ -4739,7 +4754,14 @@ exports._handleMonitorNetwork = function (reportParams, task) {
       _t = _a.isTimeout,
       isTimeout = _t === void 0 ? false : _t,
       _u = _a.isError,
-      isError = _u === void 0 ? false : _u; //tag index limt key
+      isError = _u === void 0 ? false : _u; // request no report 
+
+  if (statusType === 'request') {
+    return;
+  }
+
+  var taskName = reportParams.type + "-" + reportParams.typeName;
+  var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName); //tag index limt key
 
   task.addTags({
     method: method,
@@ -4764,8 +4786,10 @@ exports._handleMonitorNetwork = function (reportParams, task) {
   task.end();
 };
 
-exports._handleHtmlElementActive = function (params, task) {
-  var _a = params.data,
+exports._handleHtmlElementActive = function (reportParams) {
+  var taskName = reportParams.type + "-" + reportParams.typeName;
+  var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName);
+  var _a = reportParams.data,
       type = _a.type,
       title = _a.title,
       xPath = _a.xPath,
@@ -4775,6 +4799,24 @@ exports._handleHtmlElementActive = function (params, task) {
     title: title,
     xPath: xPath,
     value: value
+  });
+  task.end();
+};
+
+exports._handleKibanaApmTrack = function (reportParams) {
+  var taskName = reportParams.type + "-" + reportParams.typeName;
+  var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName);
+  var _a = reportParams.data,
+      tags = _a.tags,
+      spans = _a.spans,
+      type = _a.type,
+      url = _a.url;
+  task.addTags(__assign({}, tags, {
+    type: type,
+    url: url
+  }));
+  spans.forEach(function (span) {
+    task.startSpan(span.name, span.type);
   });
   task.end();
 };
@@ -4897,7 +4939,7 @@ function () {
 
     if (this.configService.get("sendPageLoadTransaction")) {
       var transactionService = this.serviceFactory.getService("TransactionService");
-      var tr = transactionService.startTransaction(this.configService.get("pageLoadTransactionName"), "page-load");
+      var tr = transactionService.startTransaction(window.location.href, "page-load");
 
       var sendPageLoadMetrics = function sendPageLoadMetrics() {
         // to make sure PerformanceTiming.loadEventEnd has a value

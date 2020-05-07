@@ -10,21 +10,23 @@ export var sendPipeMessage = function(id:number, params:catchParams,) {
         id: id,
         params: params,
     };
-    //如果正在执行
-    if (_self.isRun) {
-        return false;
-    }
-    //是否消息队列加锁,并且防止异常消息
-    //进入消息队列
-    _self.messageQueue.push(msgItem);
-    //异步执行消息队列分发
-    setTimeout(function() {
-        //获取消息队列数组快照
-        var queue = _self.messageQueue.map(e=>e);
-        //清空队列
-        _self.messageQueue = [];
-        //通知监听
-        noticeListener.call(_self, queue)
+    return new Promise((res,rej)=>{
+        //如果正在执行
+        if (_self.isRun) {
+            return rej(false);
+        }
+        //是否消息队列加锁,并且防止异常消息
+        //进入消息队列
+        _self.messageQueue.push(msgItem);
+        //异步执行消息队列分发
+        setTimeout(function() {
+            //获取消息队列数组快照
+            var queue = _self.messageQueue.map(e=>e);
+            //清空队列
+            _self.messageQueue = [];
+            //通知监听
+            _self.noticeListener(queue).then(res,res)
+        })
     })
 }
 
@@ -36,12 +38,12 @@ export var sendPipeMessage = function(id:number, params:catchParams,) {
 export var noticeListener = function(queue) {
     var _self = this;
     if (!Tools.isArray(queue) || queue.length === 0) {
-        return false;
+        return Promise.reject();
     }
     //接收消息进入等待状态
     _self.isRun = true;
     //分发处理消息
-    Promise.all(queue.map((item)=>{
+    return Promise.all(queue.map((item)=>{
         var {
             id,
             params,
@@ -64,7 +66,7 @@ export var noticeListener = function(queue) {
             //分发
             try {
                 //执行分发
-                return cb(params) || false;
+                return cb(params) || Promise.resolve()
             } catch (e) {
                 const errMsg = 'handle message is runing error:' + e
                 consoleTools.warnError(errMsg)

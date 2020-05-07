@@ -18,6 +18,7 @@ describe("KeepObserverLog service",function(){
         testInstance = new KeepObserver({
             develop:true,
             runMiddleTimeOut: 3000,
+            isCheckRepeatUse:false,
             projectName: 'test',
             projectVersion: 'test-version'
         })
@@ -65,7 +66,6 @@ describe("KeepObserverLog service",function(){
                         },200)
                         return
                     default:
-                        consoleTools.log(message)
                         fail('receive error message')
                 }
             }

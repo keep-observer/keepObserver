@@ -17,6 +17,7 @@ export type reportParams<T> = {
     location: string;
     reportTime: number;
     environment: string;
+    contendHashCode:string;
     //扩展项
     projectName?: string;
     projectVersion?: string;

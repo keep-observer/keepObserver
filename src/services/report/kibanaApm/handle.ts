@@ -12,7 +12,6 @@ import {
 
 export const _getReportContent = function(params:reportParams<any>){
     const _self = this
-    const { develop } = _self._config
     //判断数据合法性
     if (!params || !params.type || !params.typeName || !params.data) {
         consoleTools.warnError('reportServer receive reportData is not right : typeName and type and data is undefined ')

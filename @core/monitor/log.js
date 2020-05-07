@@ -158,7 +158,12 @@ exports.startObserver = function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = {};
+exports["default"] = {
+  //是否打印输出
+  isPrint: true,
+  //是否自动开始上报
+  automaticStart: true
+};
 
 /***/ }),
 
@@ -218,8 +223,9 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 
 
 exports._handleInit = function () {
-  var _self = this; //替换window.console变量
+  var _self = this;
 
+  var isPrint = this._config.isPrint; //替换window.console变量
 
   var baseLogList = ['log', 'info', 'warn', 'debug', 'error'];
   _self.console = {};
@@ -242,10 +248,10 @@ exports._handleInit = function () {
         args[_i] = arguments[_i];
       }
 
-      var _a; //是否处于开发模式下
+      var _a; //是否打印
 
 
-      if (_self._develop && _self.console[method] && index_1.Tools.isFunction(_self.console[method])) {
+      if (isPrint && _self.console[method] && index_1.Tools.isFunction(_self.console[method])) {
         (_a = _self.console)[method].apply(_a, __spread(args));
       } //交给拦截处理信息
 
@@ -267,19 +273,19 @@ exports._handleInit = function () {
     if (pre) {
       var content = label + ':' + (Date.now() - pre) + 'ms';
 
-      _self._handleMessage(type, [content]); //开发模式下打印
+      _self._handleMessage(type, [content]); //是否打印
 
 
-      if (_self._develop && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
+      if (isPrint && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
         _self.console.log(content);
       }
     } else {
       var content = label + ': 0ms';
 
-      _self._handleMessage(type, [content]); //开发模式下打印
+      _self._handleMessage(type, [content]); //是否打印
 
 
-      if (_self._develop && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
+      if (isPrint && _self.console.log && index_1.Tools.isFunction(_self.console.log)) {
         _self.console.log(content);
       }
     }
@@ -439,11 +445,11 @@ function (_super) {
         logCustom = _b === void 0 ? false : _b,
         _c = _a.develop,
         develop = _c === void 0 ? false : _c;
-    var logConfig = logCustom || config; //是否是开发模式
+    var logConfig = logCustom || config; //存混合配置
 
-    logConfig.develop = develop; //存混合配置
-
-    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), logConfig); //替换window.console
+    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), __assign({}, logConfig, {
+      develop: develop
+    })); //替换window.console
 
     _this.console = null; //发送方法
 
@@ -457,9 +463,13 @@ function (_super) {
 
   KeepObserverLog.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
+    var automaticStart = this._config.automaticStart;
     this.sendMessage = sendMessage; //启动监控
 
-    this.startObserver();
+    if (automaticStart) {
+      this.startObserver();
+    }
+
     return {
       logStop: this.stopObserver,
       logStart: this.startObserver

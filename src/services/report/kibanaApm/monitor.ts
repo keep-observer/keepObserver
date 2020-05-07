@@ -8,6 +8,7 @@ import {
 import { networkType } from '../../../types/network'
 import { logType } from '../../../types/log'
 import { elementActiveInfoType } from '../../../types/htmlElementActive'
+import { trackInfoType } from '../../../types/kibanaApmTrack'
 
 
 
@@ -20,6 +21,8 @@ export const _handleMonitor = function(params:reportParams<any>){
             return _self._handleMonitorNetwork(params)
         case 'htmlElementActive':
             return _self._handleHtmlElementActive(params)
+        case 'kibanaApmTrack':
+            return _self._handleKibanaApmTrack(params)
         case 'error':
             return consoleTools.warnError('kibanaAPM has a error is monitor of self, is not handle monitor error report')
         default:
@@ -40,9 +43,6 @@ export const _handleMonitorLog = function(reportParams:reportParams<logType>){
     })
     task.end();
 }
-
-
-
 export const _handleMonitorNetwork = function(reportParams:reportParams<networkType>){
     const {  
         method='',
@@ -93,9 +93,6 @@ export const _handleMonitorNetwork = function(reportParams:reportParams<networkT
     })
     task.end();
 }
-
-
-
 export const _handleHtmlElementActive = function(reportParams:reportParams<elementActiveInfoType>){
     const taskName = `${reportParams.type}-${reportParams.typeName}`
     const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)
@@ -110,6 +107,25 @@ export const _handleHtmlElementActive = function(reportParams:reportParams<eleme
         title,
         xPath,
         value,
+    })
+    task.end();
+}
+export const _handleKibanaApmTrack = function(reportParams:reportParams<trackInfoType>){
+    const taskName = `${reportParams.type}-${reportParams.typeName}`
+    const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)
+    const { 
+        tags,
+        spans,
+        type,
+        url,
+    } = reportParams.data
+    task.addTags({
+        ...tags,
+        type,
+        url,
+    })
+    spans.forEach( span=>{
+        task.startSpan(span.name,span.type)
     })
     task.end();
 }

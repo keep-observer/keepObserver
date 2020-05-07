@@ -6,6 +6,7 @@ declare class keepObserverPipe extends KeepObserverPublic {
     $keepObserver: any;
     $mq: MessageQueue;
     private pipeUser;
+    private pipeMap;
     readonly _publicMiddleScopeNames: string[];
     useMiddle: Function;
     runMiddle: Function;

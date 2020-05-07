@@ -10,8 +10,9 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     private networkList;
     private sendMessage;
     private isCatch;
-    private stopObserver;
-    private startObserver;
+    stopObserver: any;
+    startObserver: any;
+    cancelPatch: any;
     private _init;
     private _patchXMLAjax;
     private _patchFetch;
@@ -25,6 +26,7 @@ declare class KeepObserverNetwork extends KeepObserverPublic {
     }): {
         networkStop: any;
         networkStart: any;
+        networkCancelPatch: any;
     };
 }
 export default KeepObserverNetwork;

@@ -1,6 +1,6 @@
 
-import  KeepObserver  from '../../@core/instance'
-import  { KeepObserverPublic,KeepObserverMiddleWare }  from '@util/index'
+import  KeepObserver,{PipeUser}  from '../../@core/instance'
+import  { KeepObserverPublic,KeepObserverMiddleWare,Tools }  from '@util/index'
 import { version } from '../../src/constants/index.ts';
 
 
@@ -14,11 +14,21 @@ describe("KeepObserver service",function(){
         //init service
         KeepObserverMiddleWare.publicMiddles = {}
         KeepObserverPublic.extendReportParams = {}
+        PipeUser.onSendDoneCallbackMap = []
         testInstance = new KeepObserver({
             runMiddleTimeOut: 3000,
+            isCheckRepeatUse:false,
             projectName: 'test',
             projectVersion: 'test-version'
         })
+    })
+    afterEach(function () {
+        testInstance._pipe.pipeMap = {}
+    })
+    afterAll(function(){
+        KeepObserverMiddleWare.publicMiddles = {}
+        KeepObserverPublic.extendReportParams = {}
+        PipeUser.onSendDoneCallbackMap = []
     })
 
 
@@ -90,6 +100,35 @@ describe("KeepObserver service",function(){
 
     })
 
+
+    it('repeat register server or error params',function(done){
+        testInstance = new KeepObserver({
+            runMiddleTimeOut: 3000,
+            projectName: 'test',
+            projectVersion: 'test-version'
+        })
+        var receiveCount = 0
+        var errorParams = function(){}
+        class RepeatServer {
+            apply(){}
+        }
+        testInstance.useMiddle('error',(interrupt,next)=>(message)=>{
+            switch(++receiveCount){
+                case 1:
+                    expect(message).toBe('Provider.constructor is undefined')
+                    break;
+                case 2:
+                    expect(message).toBe(`${new RepeatServer().constructor.name} already injection server`)
+                    done();
+                    break;
+            }
+            next(message)
+        })
+        testInstance.use(errorParams)
+        //repeat register server
+        testInstance.use(RepeatServer)
+        testInstance.use(RepeatServer)
+    })
 
 
     it('service use MiddleService',function(done){
@@ -168,8 +207,10 @@ describe("KeepObserver service",function(){
                 content:'karam-test'
             }
         }
+        const contendHashCode = Tools.getHashCode(sendParams.data)
         const messageValue = {
             ...sendParams,
+            contendHashCode,
             //extendParams
             projectName:'test',
             projectVersion:'test-version',
@@ -237,8 +278,10 @@ describe("KeepObserver service",function(){
                 content:'karam-test'
             }
         }
+        const contendHashCode = Tools.getHashCode(sendParams.data)
         const messageValue = {
             ...sendParams,
+            contendHashCode,
             //extendParams
             projectName:'test',
             projectVersion:'test-version',
@@ -446,7 +489,101 @@ describe("KeepObserver service",function(){
         setTimeout(()=>testInstance.apis('targetSendMessage'),3200)
     })
 
+
     
+    it('middle server sendDone callback',function(done){
+        var isCallbackSendMessage = false
+        var isDone = false;
+        var sendCount = 0
+        class MiddlewareService_1 {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            targetSendMessage(params){ 
+                this.sendMessage(params)
+            }
+            sendDoneCallback(){
+                if(!isCallbackSendMessage){
+                    this.sendMessage({ data:{sendCount:++sendCount} })
+                }
+            }
+            apply(pipe,config){
+                const { sendMessage,registerSendDoneCallback,useExtendMiddle } = pipe
+                this.sendMessage = sendMessage
+                //receive message
+                useExtendMiddle('sendMessage',(interrupt,next)=>(params)=>{
+                    const { sendCount } = params.data
+                    next({
+                        ...params,
+                        data:{
+                            sendCount: sendCount+1
+                        }
+                    })
+                })
+                registerSendDoneCallback(this.sendDoneCallback.bind(this))
+                return{
+                    targetSendMessage:this.targetSendMessage,
+                }
+            }
+        }
+        class MiddlewareService_2 {
+            constructor(){
+                this.sendMessage = undefined
+            }
+            sendDoneCallback(){
+                if(!isCallbackSendMessage){
+                    isCallbackSendMessage = true
+                    this.sendMessage({ data:{sendCount:++sendCount} })
+                }
+            }
+            apply(pipe,config){
+                const { sendMessage,registerSendDoneCallback,useExtendMiddle } = pipe
+                this.sendMessage = sendMessage
+                //receive message
+                useExtendMiddle('sendMessage',(interrupt,next)=>(params)=>{
+                    const { sendCount } = params.data
+                    next({
+                        ...params,
+                        data:{
+                            sendCount:sendCount+1
+                        }
+                    })
+                })
+                registerSendDoneCallback(this.sendDoneCallback.bind(this))
+            }
+        }
+        class ConsumerService{
+            getMessage(message){
+                const { sendCount } = message.data
+                if(isCallbackSendMessage){
+                    if(!isDone){
+                        isDone = true
+                        expect(sendCount).toBe(4)
+                    }else{
+                        expect(sendCount).toBe(5)
+                    }
+                    setTimeout(()=>{
+                        done()
+                    },200)
+                }else{
+                    expect(sendCount).toBe(3)
+                }
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        testInstance.useMiddle('error',(interrupt,next)=>(message)=>{
+            fail(`middleware send find error: ${message}`)
+            next(message)
+        })
+        testInstance.use(MiddlewareService_1)
+        testInstance.use(MiddlewareService_2)
+        testInstance.use(ConsumerService)
+        testInstance.apis('targetSendMessage',{ data:{sendCount:++sendCount} })
+    })
+
 
 });
 

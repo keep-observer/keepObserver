@@ -159,9 +159,6 @@ export function toArray(array) {
     return Array.prototype.slice.call(array)
 }
 export function toString(content) {
-    if (!content) {
-        return '';
-    }
     if (typeof content === 'string') {
         return content
     }
@@ -460,6 +457,7 @@ export function objectStringify(object:any):string{
 }
 
 
+
 export function getHashCode(object:any):string{
     //Times33
     try{
@@ -468,6 +466,13 @@ export function getHashCode(object:any):string{
     }catch(err){
         return toString(hash(toString(err)))                        //md5(toString(err))
     }
+}
+
+
+
+export function substringLimt(text:string,limt=200,flag=true):string{
+    text = isString(text)?text:toString(text)
+    return text.substring(0,text.length>limt?limt:text.length)+(text.length>limt&&flag?'...':'');
 }
 
 

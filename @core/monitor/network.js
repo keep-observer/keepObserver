@@ -99,13 +99,6 @@ Object.defineProperty(exports, "__esModule", {
 */
 
 exports.stopObserver = function () {
-  //这种方式会和angular 6的zone 等polyfills.js产生冲突
-  // (<any>window).XMLHttpRequest.prototype.open = this._open
-  // (<any>window).XMLHttpRequest.prototype.send = this._send
-  // (<any>window).XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader
-  // this._open = null;
-  // this._send = null
-  // this.__setRequestHeader = null;
   this.isCatch = false;
 };
 /*
@@ -115,6 +108,22 @@ exports.stopObserver = function () {
 
 exports.startObserver = function () {
   this.isCatch = true;
+};
+/*
+    取消拦截
+*/
+
+
+exports.cancelPatch = function () {
+  //这种方式会和angular 6的zone 等polyfills.js产生冲突
+  window.XMLHttpRequest.prototype.open = this._open;
+  window.XMLHttpRequest.prototype.send = this._send;
+  window.XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader;
+  window.fetch = this._fetch;
+  this._open = null;
+  this._send = null;
+  this._setRequestHeader = null;
+  this._fetch = null;
 };
 
 /***/ }),
@@ -142,7 +151,9 @@ exports["default"] = {
   //屏蔽URL
   ignoreRequestList: [],
   //是否捕获响应内容
-  isCatchResponseContent: true
+  isCatchResponseContent: true,
+  //是否自动开始上报
+  automaticStart: true
 };
 
 /***/ }),
@@ -577,7 +588,7 @@ exports._handleDoneXML = function (id) {
   /******   这里开始处理数据  *****/
   //判断当前请求数据url是否需要屏蔽
 
-  if (!_self._handleJudgeDisbale(ajaxItem)) {
+  if (!this.isCatch || !_self._handleJudgeDisbale(ajaxItem)) {
     delete _self.networkList[id];
     return false;
   } //判断状态码是否出错
@@ -619,7 +630,7 @@ exports._handleSendXML = function (id) {
 
   ajaxItem.statusType = 'request'; //判断当前请求数据url是否需要屏蔽
 
-  if (!_self._handleJudgeDisbale(ajaxItem)) {
+  if (!this.isCatch || !_self._handleJudgeDisbale(ajaxItem)) {
     delete _self.networkList[id];
     return false;
   } //通知上传
@@ -751,6 +762,7 @@ function (_super) {
 
     _this.stopObserver = api_1.stopObserver.bind(_this);
     _this.startObserver = api_1.startObserver.bind(_this);
+    _this.cancelPatch = api_1.cancelPatch.bind(_this);
     _this._init = handle_1._init.bind(_this);
     _this._patchXMLAjax = handle_1._patchXMLAjax.bind(_this);
     _this._patchFetch = handle_1._patchFetch.bind(_this);
@@ -796,12 +808,17 @@ function (_super) {
 
   KeepObserverNetwork.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
+    var automaticStart = this._config.automaticStart;
     this.sendMessage = sendMessage; //开启捕获
 
-    this.stopObserver();
+    if (automaticStart) {
+      this.startObserver();
+    }
+
     return {
       networkStop: this.stopObserver,
-      networkStart: this.startObserver
+      networkStart: this.startObserver,
+      networkCancelPatch: this.cancelPatch
     };
   };
 

@@ -3,7 +3,7 @@ import KeepObserverLog from '../../@core/monitor/log'
 import KeepObserverNetwork from '../../@core/monitor/network'
 import KeepObserverHtmlElementActive from '../../@core/monitor/htmlElementActive'
 import KeepObserverKibanaApmReport from '../../@core/report/kibanaApm'
-import KeepObserverMiddlewareKibanaApmTrack from '../../@core/middleware/kibanaApmTrack'
+
 
 
 import axios from 'axios'
@@ -20,7 +20,7 @@ const test500 = 'http://localhost:9003/500'
 
 //实例
 const ko = new KeepObserver({ 
-    develop:true,
+    // develop:true,
     isGlobalElementActionCatch:true,
     serverUrl:reportReceive,
     serviceName: "dev-test",
@@ -31,8 +31,7 @@ ko.use(KeepObserverKibanaApmReport)
 ko.use(KeepObserverLog)
 ko.use(KeepObserverNetwork)
 ko.use(KeepObserverHtmlElementActive)
-//注册中间件时间轴追踪服务
-ko.use(KeepObserverMiddlewareKibanaApmTrack)
+
 
 
 
@@ -98,6 +97,11 @@ document.querySelector('.captureError').addEventListener('click',function(e){
 
 
 
+
+
 document.querySelector('.throwError').addEventListener('click',function(e){
     throw new Error('test throwError')
 })
+
+
+

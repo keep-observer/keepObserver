@@ -22,8 +22,10 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+		// './test/instance/instance.test.js',
+		// './test/middleware/kibanaApmTrack.test.js',
+		// './test/monitor/network.test.js',
 		'./test/**/*.test.js'
-		// './test/monitor/htmlElementActive.test.js'
 	],
 	
 	// preprocess matching files before serving them to the browser

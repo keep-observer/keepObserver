@@ -16,6 +16,7 @@ describe("KeepObserverHtmlElementActive service",function(){
         KeepObserverPublic.extendReportParams = {}
         testInstance = new KeepObserver({
             runMiddleTimeOut: 3000,
+            isCheckRepeatUse:false,
             projectName: 'test',
             projectVersion: 'test-version'
         })
@@ -24,7 +25,6 @@ describe("KeepObserverHtmlElementActive service",function(){
 
     it('KeepObserverHtmlElementActive api',function(){
         var serviceInstance =  new KeepObserverHtmlElementActive()
-        console.log(serviceInstance)
         spyOn(serviceInstance,'stopObserver').and.callThrough();
         spyOn(serviceInstance,'startObserver').and.callThrough();
         testInstance.use(serviceInstance)

@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "1.2.0-beta.5",
+  "version": "2.0.0-beta.1",
   "description": "web -- watch  is JS-error netWork  console..log  observer  web-monitor",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "node dev/dev.js",
     "build:util": "node build/build-util.js",
     "build": "npm run build:util && node build/build.js",
-    "link": "npm run build && npm unlink && npm link"
+    "link": "npm unlink && npm link"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

@@ -20,7 +20,8 @@ import {
     _handleMonitor,
     _handleMonitorLog,
     _handleMonitorNetwork,
-    _handleHtmlElementActive
+    _handleHtmlElementActive,
+    _handleKibanaApmTrack
 } from './monitor'
 
 
@@ -40,6 +41,7 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
     private _handleMonitorLog = _handleMonitorLog.bind(this)
     private _handleMonitorNetwork = _handleMonitorNetwork.bind(this)
     private _handleHtmlElementActive = _handleHtmlElementActive.bind(this)
+    private _handleKibanaApmTrack = _handleKibanaApmTrack.bind(this)
     //api
     public setUserInfo = setUserInfo.bind(this)
     public captureError = captureError.bind(this)

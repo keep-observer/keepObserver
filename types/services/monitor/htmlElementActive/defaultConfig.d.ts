@@ -1,6 +1,7 @@
 declare const _default: {
-    attrSelectFlag: string;
-    elementActionTaslFalg: string;
+    xpathFlag: string;
+    elementTrackFlag: string;
     isGlobalElementActionCatch: boolean;
+    automaticStart: boolean;
 };
 export default _default;

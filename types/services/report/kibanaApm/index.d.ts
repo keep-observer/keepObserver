@@ -10,6 +10,7 @@ declare class KeepObserverKibanaApmReport extends KeepObserverPublic {
     private _handleMonitorLog;
     private _handleMonitorNetwork;
     private _handleHtmlElementActive;
+    private _handleKibanaApmTrack;
     setUserInfo: any;
     captureError: any;
     createCustomLog: any;

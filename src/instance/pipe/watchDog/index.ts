@@ -9,14 +9,22 @@ class WatchDog  {
     }
 
     //api
-    public sendMessageLimtWatch(fn:Function,anomalyCallback:Function){
+    public sendMessageLimtWatch(fn:(catchParams:catchParams,contendHashCode:string)=>Promise<any>,anomalyCallback:(msg:string)=>Promise<any>){
         var anomaly = false
+        var receiveCount = 1
         var countBuff = {}
-        var resetCountFn = Tools.debounceWrap(1000)(()=>countBuff = {})
-        var resetAnomaly = Tools.throttleWrap(3000)(()=>anomaly = false)
+        var resetCountFn = Tools.debounceWrap(1000)(()=>{countBuff = {},receiveCount=1;})
+        var resetAnomaly = Tools.throttleWrap(3000)(()=>{anomaly = false})
         const limtJudgeAnomaly = (count:number,catchParams:catchParams,anomalyCallback:Function)=>{
             //启动定时器每秒恢复一次计数
             resetCountFn()
+            if(++receiveCount>50){
+                const msg = 'send  Message during 1000ms in Over 50 times,maybe Anomaly'
+                consoleTools.warnError(msg,catchParams)
+                anomalyCallback(msg)
+                return false
+            }
+            //重复技术统计
             if (count === 10) {
                 const msg = 'send  Message during 1000ms in Over 10 times,maybe Anomaly'
                 consoleTools.warnError(msg,catchParams)
@@ -32,15 +40,17 @@ class WatchDog  {
             return false;
         }
         const watchWrap = (catchParams:catchParams)=>{
-            const { isIgnoreSendRepeat=false,type="undefined",typeName="undefined",data={} } = catchParams || {}
-            const key = isIgnoreSendRepeat?'ignore':`${type}_${typeName}_${Tools.getHashCode(data)}`
+            const { isIgnoreSendRepeat=false,type="undefined",typeName="undefined",data={}, } = catchParams || {}
+            //contendHashCode 本来不放这里的，但是因为要做校验，所以在这里生产 后面就不生成了
+            const contendHashCode = Tools.getHashCode(data)
+            const key = isIgnoreSendRepeat?'ignore':`${type}_${typeName}_${contendHashCode}`
             const count = countBuff[key]?++countBuff[key]:countBuff[key]=1;
             anomaly = !anomaly?limtJudgeAnomaly(count,catchParams,anomalyCallback):true
             if(anomaly){
                 resetAnomaly()
                 return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
             }
-            return fn(catchParams)
+            return fn(catchParams,contendHashCode)
         }
         return watchWrap
     }

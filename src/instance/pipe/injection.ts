@@ -14,8 +14,9 @@ import { Provider } from '../../types/instance'
     @Provider  type es6 class  or classInstance 
     explan: Provider class render apply function ,apply runing return method object ,on mounted is keepObsever class 
  */
-export const use = function(Provider:Provider) {
+export const use = function(Provider:Provider):Promise<{}>{
     var _self = this;
+    const { isCheckRepeatUse } = _self._config
     if (!Provider || (!Tools.isFunction(Provider) && !Tools.isClassObject(Provider)) ) {
         const errorMsg = `use method receive provider is not right`
         consoleTools.warnError(errorMsg)
@@ -24,6 +25,18 @@ export const use = function(Provider:Provider) {
     //初始化注入服务
     var config = _self._config
     var providerInstalcen = Tools.isFunction(Provider)? new Provider(config) : Provider
+    //校验重复注入
+    //mind UglifyJS  class = n o a b c ...
+    if(isCheckRepeatUse){
+        const providerName = Tools.isObject(providerInstalcen)&&providerInstalcen.constructor?providerInstalcen.constructor.name:undefined
+        const serverId = providerName+'-'+Tools.getHashCode(providerInstalcen)
+        if(!providerName || this.pipeMap[serverId]){
+            const errorMsg = !providerName?`Provider.constructor is undefined`:`${providerName} already injection server`
+            consoleTools.warnError(errorMsg)
+            return _self.$keepObserver.runMiddle('error',errorMsg)
+        }
+        this.pipeMap[serverId] = true
+    }
     //检查注入方法是否存在存在apply,存在则加入到管道流中
     //并检查是否存在返回方法，挂载在自身中,用于对外提供
     var {
@@ -31,6 +44,7 @@ export const use = function(Provider:Provider) {
     } = providerInstalcen
     if (apply && Tools.isFunction(apply)) {
         this.injection(providerInstalcen, apply)
+        return Promise.resolve(providerInstalcen)
     } else {
         const errorMsg = `use method receive provider is not apply method`
         consoleTools.warnError(errorMsg)

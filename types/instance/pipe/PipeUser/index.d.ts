@@ -10,8 +10,11 @@ declare class PipeUser extends KeepObserverPublic {
     sendMessage: (catchParams: catchParams) => Promise<{}>;
     extendsReportParams: (params: any) => any;
     registerReciveMessage: (fn: Function, scope?: any) => void;
+    registerSendDoneCallback: (fn: Function) => void;
     useExtendMiddle: (scopeName: string, middlesFn: middlesFn) => any;
     runExtendMiddle: (scopeName: string, ...args: any[]) => Promise<{}>;
+    static onSendDoneCallbackMap: any[];
+    static emitSendDoneCallback: () => void;
     constructor(index: number, $pipe: keepObserverPipe, scope: any);
 }
 export default PipeUser;

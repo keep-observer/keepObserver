@@ -42,10 +42,11 @@ class KeepObserverHtmlElementActive extends KeepObserverPublic{
         //初始化上传相关实例
         const { htmlElementCustom=false,develop=false } = config as any
         var htmlElementConfig:any = htmlElementCustom || config;
-        //是否是开发模式
-        htmlElementConfig.develop = develop
         //存混合配置
-        this._config = Tools.extend({...defaultConfig}, htmlElementConfig)
+        this._config = Tools.extend({...defaultConfig}, {
+            ...htmlElementConfig,
+            develop
+        })
         //是否开始监听
         this.isObserver = false;
         //发送方法
@@ -55,9 +56,12 @@ class KeepObserverHtmlElementActive extends KeepObserverPublic{
 
     //提供一个挂载入口
     public apply({sendMessage}) {
+        const { automaticStart } = this._config
         this.sendMessage = sendMessage
         //开始
-        this.startObserver()
+        if(automaticStart){
+            this.startObserver()
+        }
         return {
             htmlElementActiveStop: this.stopObserver,
             htmlElementActiveStart: this.startObserver

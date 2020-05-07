@@ -365,7 +365,7 @@ export var _handleDoneXML = function(id) {
     ajaxItem.statusType = 'response';
     /******   这里开始处理数据  *****/
     //判断当前请求数据url是否需要屏蔽
-    if (!_self._handleJudgeDisbale(ajaxItem)) {
+    if (!this.isCatch || !_self._handleJudgeDisbale(ajaxItem)) {
         delete _self.networkList[id];
         return false;
     }
@@ -402,7 +402,7 @@ export var _handleSendXML = function(id){
     }
     ajaxItem.statusType = 'request';
     //判断当前请求数据url是否需要屏蔽
-    if (!_self._handleJudgeDisbale(ajaxItem)) {
+    if (!this.isCatch || !_self._handleJudgeDisbale(ajaxItem)) {
         delete _self.networkList[id];
         return false;
     }

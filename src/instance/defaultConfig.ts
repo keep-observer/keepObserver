@@ -13,6 +13,9 @@ export default {
     projectVersion:"",
     version,
     //唯一设备id
-    deviceID: getDeviceId()
+    deviceID: getDeviceId(),
+    //是否检查重复注入
+    //这个主要用在jasmine spyOn 以及UglifyJS  class = n o a b c ..可能出现的问题
+    isCheckRepeatUse:true,
 }
 

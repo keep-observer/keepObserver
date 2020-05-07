@@ -28,7 +28,6 @@ export const devWarn = function(develop = true,...arg:any[]){
     if(!develop) return 
     return wran(`[keepObserver] wran message:`,...arg)
 }
-export const warnError = function(msg:string,develop = true){
-    if(!develop) return 
-    return error(`[keepObserver] find error! message: ${msg}`)
+export const warnError = function(...msg:any[]){
+    return error(`[keepObserver] find error! message:`,...msg)
 }

@@ -5,7 +5,8 @@ import { networkListType } from '../../../types/network'
 
 import { 
     stopObserver,
-    startObserver
+    startObserver,
+    cancelPatch
 } from './api';
 import {
     _init,
@@ -31,17 +32,11 @@ class KeepObserverNetwork extends KeepObserverPublic{
     private timeoutRequest: any;
     private networkList: networkListType;
     private sendMessage: Function; 
-    //这种方式会和angular 6的zone 等polyfills.js产生冲突
-    // (<any>window).XMLHttpRequest.prototype.open = this._open
-    // (<any>window).XMLHttpRequest.prototype.send = this._send
-    // (<any>window).XMLHttpRequest.prototype.setRequestHeader = this._setRequestHeader
-    // this._open = false
-    // this._send = false
-    // this._setRequestHeader = false
     private isCatch: boolean;
     //method
-    private stopObserver = stopObserver.bind(this);
-    private startObserver = startObserver.bind(this);
+    public stopObserver = stopObserver.bind(this);
+    public startObserver = startObserver.bind(this);
+    public cancelPatch = cancelPatch.bind(this)
     private _init = _init.bind(this);
     private _patchXMLAjax = _patchXMLAjax.bind(this);
     private _patchFetch = _patchFetch.bind(this);
@@ -80,12 +75,16 @@ class KeepObserverNetwork extends KeepObserverPublic{
 
     //提供一个挂载入口
     public apply({sendMessage}) {
+        const { automaticStart } = this._config
         this.sendMessage = sendMessage
         //开启捕获
-        this.stopObserver()
+        if(automaticStart){
+            this.startObserver()
+        }
         return {
             networkStop: this.stopObserver,
-            networkStart: this.startObserver
+            networkStart: this.startObserver,
+            networkCancelPatch:this.cancelPatch
         }
     }
 }

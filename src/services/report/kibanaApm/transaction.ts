@@ -4,7 +4,7 @@
 import Transaction  from 'elastic-apm-js-core/src/performance-monitoring/transaction'
 import { createServiceFactory } from "elastic-apm-js-core";
 import { kibanaApmUserContext } from '../../../types/report'
-import { Tools } from '@util/index'
+import { Tools,consoleTools } from '@util/index'
 
 
 
@@ -61,7 +61,7 @@ class TracerTransaction {
                 "TransactionService"
             );
             var tr = transactionService.startTransaction(
-                this.configService.get("pageLoadTransactionName"),
+                (<any>window).location.href,
                 "page-load"
             );
             var sendPageLoadMetrics = function() {

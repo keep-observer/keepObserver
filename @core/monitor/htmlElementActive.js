@@ -135,9 +135,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = {
-  attrSelectFlag: 'KO_tracer_xPathFlag',
-  elementActionTaslFalg: 'KO-tracer-flag',
-  isGlobalElementActionCatch: false
+  //xpath
+  xpathFlag: 'KO_tracer_xPathFlag',
+  //开启追踪
+  elementTrackFlag: 'KO-tracer-flag',
+  //全量捕获
+  isGlobalElementActionCatch: false,
+  //是否自动开始上报
+  automaticStart: true
 };
 
 /***/ }),
@@ -162,13 +167,13 @@ var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
 var Clear_CN_CodeReg = /[^\u4e00-\u9fa5\w]/ig;
 
 exports.queryFlagElement = function (el) {
-  var elementActionTaslFalg = this._config.elementActionTaslFalg;
+  var elementTrackFlag = this._config.elementTrackFlag;
 
   if (!index_1.Tools.isElement(el) || el.tagName.toLowerCase() === 'body') {
     return false;
   }
 
-  var flag = el.getAttribute(elementActionTaslFalg);
+  var flag = el.getAttribute(elementTrackFlag);
   return index_1.Tools.isExist(flag) ? el : el.parentNode ? this.queryFlagElement(el.parentNode) : false;
 };
 
@@ -194,7 +199,7 @@ exports.filterRepeat = function (elementActiveInfo) {
 };
 
 exports.createXPath = function (element) {
-  var attrSelectFlag = this._config.attrSelectFlag; //id
+  var xpathFlag = this._config.xpathFlag; //id
 
   if (element.id) {
     return "//*[@id=\"" + element.id + "\"]";
@@ -211,13 +216,13 @@ exports.createXPath = function (element) {
 
   var index = 1;
   var brotherList = element.parentNode.children;
-  element.setAttribute(attrSelectFlag, true);
+  element.setAttribute(xpathFlag, true);
 
   for (var i = 0, len = brotherList.length; i < len; i++) {
     var item = brotherList[i];
 
-    if (item.getAttribute(attrSelectFlag)) {
-      element.removeAttribute(attrSelectFlag);
+    if (item.getAttribute(xpathFlag)) {
+      element.removeAttribute(xpathFlag);
       return this.createXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
     } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
       index++;
@@ -238,7 +243,7 @@ exports.createTitle = function (el) {
     content = '.' + el.className;
   }
 
-  content = content.length > 30 ? content.substring(0, 20) + '...' : content;
+  content = content.length > 30 ? content.substring(0, 30) + '...' : content;
   return type + ':' + content;
 };
 
@@ -376,11 +381,11 @@ function (_super) {
         htmlElementCustom = _b === void 0 ? false : _b,
         _c = _a.develop,
         develop = _c === void 0 ? false : _c;
-    var htmlElementConfig = htmlElementCustom || config; //是否是开发模式
+    var htmlElementConfig = htmlElementCustom || config; //存混合配置
 
-    htmlElementConfig.develop = develop; //存混合配置
-
-    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), htmlElementConfig); //是否开始监听
+    _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), __assign({}, htmlElementConfig, {
+      develop: develop
+    })); //是否开始监听
 
     _this.isObserver = false; //发送方法
 
@@ -394,9 +399,13 @@ function (_super) {
 
   KeepObserverHtmlElementActive.prototype.apply = function (_a) {
     var sendMessage = _a.sendMessage;
+    var automaticStart = this._config.automaticStart;
     this.sendMessage = sendMessage; //开始
 
-    this.startObserver();
+    if (automaticStart) {
+      this.startObserver();
+    }
+
     return {
       htmlElementActiveStop: this.stopObserver,
       htmlElementActiveStart: this.startObserver

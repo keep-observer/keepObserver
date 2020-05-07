@@ -33,10 +33,11 @@ class KeepObserverLog extends KeepObserverPublic{
         //初始化上传相关实例
         const { logCustom=false,develop=false } = config as any
         var logConfig:any = logCustom || config;
-        //是否是开发模式
-        logConfig.develop = develop
         //存混合配置
-        this._config = Tools.extend({...defaultConfig}, logConfig)
+        this._config = Tools.extend({...defaultConfig}, {
+            ...logConfig,
+            develop
+        })
         //替换window.console
         this.console = null;
         //发送方法
@@ -46,9 +47,12 @@ class KeepObserverLog extends KeepObserverPublic{
 
     //提供一个挂载入口
     public apply({sendMessage}) {
+        const { automaticStart } = this._config
         this.sendMessage = sendMessage
         //启动监控
-        this.startObserver();
+        if(automaticStart){
+            this.startObserver()
+        }
         return {
             logStop: this.stopObserver,
             logStart: this.startObserver

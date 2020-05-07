@@ -455,13 +455,14 @@ exports.devWarn = function (develop) {
   return exports.wran.apply(void 0, __spread(["[keepObserver] wran message:"], arg));
 };
 
-exports.warnError = function (msg, develop) {
-  if (develop === void 0) {
-    develop = true;
+exports.warnError = function () {
+  var msg = [];
+
+  for (var _i = 0; _i < arguments.length; _i++) {
+    msg[_i] = arguments[_i];
   }
 
-  if (!develop) return;
-  return exports.error("[keepObserver] find error! message: " + msg);
+  return exports.error.apply(void 0, __spread(["[keepObserver] find error! message:"], msg));
 };
 
 /***/ }),
@@ -1213,10 +1214,6 @@ function toArray(array) {
 exports.toArray = toArray;
 
 function toString(content) {
-  if (!content) {
-    return '';
-  }
-
   if (typeof content === 'string') {
     return content;
   }
@@ -1589,6 +1586,21 @@ function getHashCode(object) {
 }
 
 exports.getHashCode = getHashCode;
+
+function substringLimt(text, limt, flag) {
+  if (limt === void 0) {
+    limt = 200;
+  }
+
+  if (flag === void 0) {
+    flag = true;
+  }
+
+  text = isString(text) ? text : toString(text);
+  return text.substring(0, text.length > limt ? limt : text.length) + (text.length > limt && flag ? '...' : '');
+}
+
+exports.substringLimt = substringLimt;
 
 /***/ })
 

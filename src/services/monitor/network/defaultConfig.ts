@@ -12,6 +12,8 @@ export default {
 	ignoreRequestList:[],
 	//是否捕获响应内容
 	isCatchResponseContent:true,
+	//是否自动开始上报
+	automaticStart:true,
 }
 
 
