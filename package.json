@@ -8,6 +8,8 @@
     "dev": "node dev/dev.js",
     "build:util": "node build/build-util.js",
     "build": "npm run build:util && node build/build.js",
+    "build:all": "npm run build  && node build/build.all.js",
+    "build:prod": "npm run build && npm run test && node build/build.all.js",
     "link": "npm unlink && npm link"
   },
   "devDependencies": {

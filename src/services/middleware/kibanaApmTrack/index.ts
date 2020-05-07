@@ -44,7 +44,8 @@ class KeepObserverMiddlewareKibanaApmTrack extends KeepObserverPublic{
     private isPageChangeHandle:boolean = false;
     private isCancelTrack:boolean = true;
     private trackInfo: trackInfoType = undefined
-    private pageInfo: pageChangeInfoType = { startUrl:'',startDate:0,nextUrl:'',nextDate:0 }
+    private pageInfo: pageChangeInfoType = null
+    private errorContent: string = ''
     private trackList: reportParams<any>[] = [];
     //pageHashChange
     private _pushState: Function;
@@ -78,6 +79,8 @@ class KeepObserverMiddlewareKibanaApmTrack extends KeepObserverPublic{
             ...config,
             develop
         })
+        const { reportDateFormat } =  this._config
+        this.pageInfo = { startUrl:'', startDate:Tools.dateFormat(new Date().getTime(),reportDateFormat), nextUrl:'', nextDate:0 }
         //发送方法
         this.sendMessage = ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
         //注册pageHashChange事件

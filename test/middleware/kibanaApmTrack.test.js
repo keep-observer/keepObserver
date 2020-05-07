@@ -449,7 +449,7 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
                         expect(message.data.type).toBe(`pageHashChange`)
                         expect(message.data.url).toBe(window.location.origin + window.location.pathname)
                         expect(message.data.tags.startUrl).toBe(window.location.origin + window.location.pathname)
-                        expect(message.data.tags.stateDate).toBe(startTime)
+                        expect(message.data.tags.startDate).toBe(startTime)
                         expect(message.data.tags.nextUrl).toBe(window.location.origin + window.location.pathname + '#hasChange')
                         expect(message.data.tags.nextDate).toBe(nextTime)
                         expect(message.data.tags.errorContent).toBeUndefined()

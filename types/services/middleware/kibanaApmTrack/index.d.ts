@@ -8,6 +8,7 @@ declare class KeepObserverMiddlewareKibanaApmTrack extends KeepObserverPublic {
     private isCancelTrack;
     private trackInfo;
     private pageInfo;
+    private errorContent;
     private trackList;
     private _pushState;
     private _replaceState;

@@ -6,75 +6,69 @@
 
 [中文说明](https://github.com/keep-observer/keepObserver/blob/master/README-cn.md)
 
-##### **This is a monitor service using for javascript web application** 
+##### **This is a monitoring service applied to the javascript web side** 
 
-- **about keep-observer:**    
-  - this is a monitor service based on javascript, using for monitoring product envoriment application, which applies to web, pc and mobile application with imperceptible inset and capture.
-  - use combination way of slot service, to capture report data of corresponding service that circulates in message pipe and reported by report service which receives captured message and report to server optionally
-  - in favor of combining monitored content freely and extending monitor capture service, custom report service etc.
-- **function:**  
-  - keepObserverLog related service
-    - intercept and capture global ***console*** related log, including(error,log,warn,time,timeEnd,clear,info,debug) etc.
-    - capture javascript global error during the application is running: ***JSerror*** and other error message
-  - keepObserverNetwork related service
-    - capture global ***XMLHttpRequest*** request
-  - keepObserverVue related service
-    - capture ***vue project*** related error
-  - keepObserverLoad related service
-    - capture performance analysis ***first loading performance analysis and other performance analyses*** 
-  - keepObserverReport related service
-    - apply to intercept data packet and report to the corresponding background server
-    - read the following for more detailed information: **about reporting service**
-- **compatibility and support:**   compatible with all main current frames of running version, **vue angular react** and other frames. **IE 678 have not been tested yet**
-
-
-
-## Use and report MonitorData
-
-#### About using keepObserver:
-
-- keepObserver supports custom configuration monitoring services and loads all services by default without custom configuration services,contains keep(keepObserverLog，keepObserverNetwork， keepObserverVue，keepObserverLoad，keepObserverReport）etc.
-- after keepObserver create an instance new keepObserver() : **start running monitoring。trying to read system screen load information, embed the methods related to intercepting window.console and window.XMLHttpRequest to monitor log and ajax network request **
-- Noted that during the keepObserver run, **if you do not set develop = true,it defaults in production environment **, the interface printing message related to window.console will be intercepted by keepObserver, **and will not display in  the console**
-- in the meanwhile, the interface printing message related to window.console and each request of the window.XMLHttpRequest method, will be intercepted and recorded in the localStorage, which is packaged and reported as needed when it is reported.
+- **About keep-observer:**    
+  - This is a javascript-based tool written for online environment monitoring, for web:PC and mobile embedded capture and continuous tracking of user interactions，
+  - Support Elasticsearch+kibana data visualization background display to provide quick private docker deployment
+  - Provides fine-grained time dimension analysis and key field index search
+  - Provide single user tracking record, continuous tracking of a series of events
+  - Provides PageLoad first screen load analysis, time dimension, multi-version comparison
+  - The middleware extension interface is provided by means of plug-in service composition
+  - Support can freely combine the monitoring content, and allow custom extension control capture service, custom escalation service, etc。
+  
+- **Function:**  
+  - keepObserverLog
+    - Intercept capture global ***console*** Related log, including (the error log, warn, time, timeEnd, clear, info, the debug), etc
+    - See configuration information and API details [keepObserverLog]()
+  - keepObserverNetwork
+    - Global ***XMLHttpRequest*** and ***fetch*** requests
+    - See configuration information and API details [keepObserverNetwork]()
+  - KeepObserverHtmlElementActive
+    - Capture user dom interaction (click,change) events and provide xPath path tracing
+    - See configuration information and API details [KeepObserverHtmlElementActive]()
+  - KeepObserverKibanaApmReport
+    - This service is required using Elasticsearch+kibana. Rely on kibana APM to report data 
+    - See configuration information and API details 见[KeepObserverKibanaApmReport]()
+  - KeepObserverMiddlewareKibanaApmTrack
+    - Middleware extension service to provide kibana timeline trace logging
+    - See configuration information and API details [KeepObserverKibanaApmReport]()
+    
+- **Compatibility and Support :** compatibility with all the current mainstream framework running version, **vue angular react** and other frameworks. **IE 678 has not been tested yet **
 
 
 
-#### About Reporting Server：
+## Use And reportMonitorData
 
-##### keepObserverReport  will report to server in the following situations:
+#### 	About keepObserver:
+KeepObserver itself only maintains one **pipeMQ** and the related **middlewareServer** service. All the monitoring and capture services and escalation services are provided by plug-ins, and the middleware extension interface and the extended information channel are provided
+#####  The structural design is as follows
+- **ProducerServer**:  Provide capture data. For example, log network error is related to catch
+- **ConsumerServer**:  Processing received data. Check in to the background server kibanaAPM above
+- **MiddlerwareServer**:   When ProducerServer initiates a message, it is processed by MiddlerwareServerArray before finally reaching ConsumerServer. MiddlerwareServer has the properties of interrupt and next and controls whether the message reaches the next MiddlerwareServer or is interrupted
 
-##### Monitor Type：(while merging errors, it will merging the few normal related request and window.console information ahead, which is used to provide forward tracking errors)
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/keepObserver.png)
 
-```javascript
-			： intercept js error:  script Error
-            
-        	： console.error(): called and print out error message	
-            
-			： ajax request timeout:  network timeout
+The MiddlerwareServer is constructed as follows</br>
 
-			： ajax request occur error:  status !== 200
-			
-			: if you configure the custom judgment Ajax request onHandleJudgeResponse Hook,it is judged that the Ajax request is incorrect when the hook return does not equal false
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/keepObserver_middleService.png)
 
-			： if you need to monitor vue, after vue intercepts the error message
-```
+####  About Elasticsearch+kibana
+Data storage stage, the core of usage scenario is that different data dimension of flexible query, analysis step by step in each dimension data quickly to the positioning problem, which can use elasticsearch retrieval features, even for a minimal set of elasticsearch cluster, also can more easily implement every day must level of log volume of storage and query, and supporting kibana complete data visualization, and query search related log content, as well as provide rapid privatization deployment docker
 
-**Performance Type： the following contents will be uploaded directly without merging trace information**
+The simplest log query, providing a fine-grained time dimension and search for related fields索</br>
 
-```javascript
-			: related information about first screen load performance, will be reported daily for the first time
-```
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/kibana.jpg)</br>
 
-------
+Detailed single user behavior tracking</br>
 
-**For more configuration information and report parameters, please refer to Documentation.**
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/track.jpg)</br>
+
+Query analysis for page-load</br>
+
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpgg)
 
 ## Installation
-
-```
-install related package
-```
 
 ```
 	npm install keep-observers
@@ -84,66 +78,123 @@ install related package
 
 ## Examples
 
-#### a simple example 
+#### 	A simple example of use
 
 ```javascript
-import KeepObserver from 'keep-observers';
-//start
-var keepObserver = new KeepObserver({
-	project:'netcar',
-	develop:true,
-	//network monitor configuration
-	networkCustom:{
-		timeout:30000,
-	},
-	//data upload configuration
-	reportCustom:{
-		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
-	}
-});
+import KeepObserver,{
+    KeepObserverLog,
+    KeepObserverNetwork,
+    KeepObserverHtmlElementActive,
+    KeepObserverMiddlewareKibanaApmTrack,
+    KeepObserverKibanaApmReport,
+} from 'keep-observers'
+//The instance
+const ko = new KeepObserver({ 
+    isInterruptNormal:true,
+    isGlobalElementActionCatch:true,
+    serverUrl:'http://localhost:8200',
+    serviceName: "push-test",
+    agentVersion: "step_1",
+})
+// sign up for monitoring services
+ko.use(KeepObserverLog)
+ko.use(KeepObserverNetwork)
+ko.use(KeepObserverHtmlElementActive)
+// register with kibanaApm to report
+ko.use(KeepObserverKibanaApmReport)
+// register middleware timeline tracking service
+ko.use(KeepObserverMiddlewareKibanaApmTrack)
 ```
 
-#### example of custom service
+#### Custom service examples
 
 ```javascript
-import keepObserver from 'keep-observers/dist/keepObserver.js'
-import keepObserverReport from 'keep-observers/dist/keepObserverReport.js'
-import KeepObserverLog from 'keep-observers/dist/KeepObserverLog.js'
-import KeepObserverNetwork from 'keep-observers/dist/KeepObserverNetwork.js'
-//import KeepObserverVue from 'keep-observers/dist/KeepObserverVue.js'
-import KeepObserverLoad from 'keep-observers/dist/KeepObserverLoad.js'
+import KeepObserver,{
+    KeepObserverLog,
+    KeepObserverNetwork,
+    KeepObserverHtmlElementActive,
+    KeepObserverMiddlewareKibanaApmTrack,
+    KeepObserverKibanaApmReport,
+} from 'keep-observers'
 
-var keepObserver = new KeepObserver({
-	project:'netcar',
-	develop:true,
-	//network monitor configuration
-	networkCustom:{
-		timeout:30000,
-	},
-	//data upload configuration
-	reportCustom:{
-		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
-	}
-});
-// not Monitor vue
-keepObserver.use(keepObserverReport)
-keepObserver.use(KeepObserverLog)
-keepObserver.use(KeepObserverNetwork)
-//keepObserver.use(KeepObserverVue)
-keepObserver.use(KeepObserverLoad)
+//A simple local storage plug-in
+/*
+    This captures the extended middleware services
+    Ps: note that the middleware services thus acquired cannot be Shared with other plug-ins
+    
+    import { KeepObserverPublic } from 'keep-observers/@util/index'
+    class LocalstorageMiddlewareServer extends KeepObserverPublic{
+        apply(){
+            
+        }
+    }
+    const server = new LocalstorageMiddlewareServer()
+    server.useMiddle //register
+    server.runMiddle //exec
+*/
+class LocalstorageMiddlewareServer {
+    constructor(config) {
+        /*
+        config={
+            isInterruptNormal:true,
+            isGlobalElementActionCatch:true,
+            serverUrl:'http://localhost:8200',
+            serviceName: "push-test",
+            agentVersion: "step_1"
+        }
+        */
+    }
+    apply({
+        //See Documentation for more parameters
+        sendMessage,                //Send message method
+        useExtendMiddle,            //Registration middleware extension, equivalent ko.usemiddle ()
+        registerSendDoneCallback    //Register the send end idle callback
+    }) {
+        const [sendMessageName] = ko_publicMiddleScopeNames
+        //Registry middleware service
+        useExtendMiddle(sendMessageNamem,(interrupt,next)=>(message)=>{
+            //This is just a simple example of using an example
+            var value = JSON.stringify(message)
+            localStorage.setItem('message', value);
+            // move on to the next middleware
+            // interrupt(message) simply bypasses the processing of the subordinate middleware and enters the kibanaApm escalation
+            // interrupt(false) will simply skip the processing of the subordinate middleware and ignore the message
+            next(message)
+            /*
+                If there is a return
+                return {
+                    remove:(key)=>localStorage.removeItem(key)
+                }
+                This return method can be called through  ko.Api('remove','message')
+            */
+        })
+    }
+}
+
+//The instance
+const ko = new KeepObserver({ 
+    isInterruptNormal:true,
+    isGlobalElementActionCatch:true,
+    serverUrl:'http://localhost:8200',
+    serviceName: "push-test",
+    agentVersion: "step_1",
+})
+// sign up for monitoring services
+ko.use(KeepObserverLog)
+ko.use(KeepObserverNetwork)
+ko.use(KeepObserverHtmlElementActive)
+// register with kibanaApm to report
+ko.use(KeepObserverKibanaApmReport)
+// register middleware timeline tracking service
+ko.use(KeepObserverMiddlewareKibanaApmTrack)
+// sign up for custom services
+// You can also  ko.use(new LocalstorageMiddlewareServer ())
+ko.use(LocalstorageMiddlewareServer)
 ```
-
-##### For more details on config configuration and related API, please refer to Documentation.
+##### 	For more config configuration details, and related apis, please refer to Documentation.
 
 
 
 ## Documentation
 
-#### instruction of related documents
-
-- **related custom plug-in service and keepObserver instance**   **[keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserver.md)**
-- **reporting service:**   **[keepObserverReport](https://github.com/keep-observer/keepObserver/blob/master/document/report.md)**
-- **related monitoring service about window.console and jsError:**   **[KeepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document/log.md)**
-- **related monitoring service about XMLHttpRequest**   **[KeepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document/network.md)**
-- **related intercepting service about vue error:**   **[KeepObserverVue](https://github.com/keep-observer/keepObserver/blob/master/document/vue.md)**
-- **related onload service about first screen loading analysis:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document/load.md)**
+#### 	Related documentation

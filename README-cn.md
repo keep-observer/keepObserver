@@ -1,72 +1,69 @@
 # Keep-observer
 
+[![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver)
+[![Coverage Status](https://coveralls.io/repos/github/keep-observer/keepObserver/badge.svg)](https://coveralls.io/github/keep-observer/keepObserver)
+
 ##### **这是一个应用于 javascript web端中的监控服务** 
 
 - **关于keep-observer:**    
-  - 这是一个基于javascript编写的用于线上生产环境监控，适用于web:PC端以及移动端的无感嵌入捕获，
-  - 采用插槽服务组合方式，各捕获相关服务上报数据在消息管道中流通，由上报服务在管道消息中接收捕获信息选择性上报服务端后台
-  - 支持可自由组合监控内容，并且允许自定义监扩充控捕获服务，自定义上报服务等。
+  - 这是一个基于javascript编写用于线上环境监控，适用于web:PC端以及移动端的无感嵌入捕获，并持续追踪用户交互行为，
+  - 支持Elasticsearch+kibana数据可视化后台显示,提供docker快速私有化部署
+  - 提供细粒度时间维度分析以及关键字段索引搜索
+  - 提供单用户追踪记录，一连串事件持续追踪
+  - 提供pageLoad首屏加载分析,时间维度,多版本对比
+  - 采用插件服务组合方式，提供中间件扩展接口
+  - 支持可自由组合监控内容，并且允许自定义扩充控捕获服务，自定义上报服务等。
 - **功能:**  
-  - keepObserverLog相关服务
+  - keepObserverLog
     - 拦截捕获全局 ***console*** 相关日志,包括(error,log,warn,time,timeEnd,clear,info,debug)等
-    - 捕获javascript 允行期间全局错误: ***JSerror***等错误信息
-  - keepObserverNetwork相关服务
-    - 捕获全局 ***XMLHttpRequest*** 请求
-  - keepObserverVue相关服务
-    - ***vue项目*** 捕获相关错误 
-  - keepObserverLoad相关服务
-    - 性能捕获分析 ***项目首屏加载等性能分析***
-  - keepObserverReport相关服务
-    - 应用于将拦截数据包上报相关后台服务器
-    - 详细信息见下方：**关于上报服务**
+    - 配置信息以及API详细信息见 [keepObserverLog]()
+  - keepObserverNetwork
+    - 捕获全局 ***XMLHttpRequest***以及***fetch***请求
+    - 配置信息以及API详细信息见[keepObserverNetwork]()
+  - KeepObserverHtmlElementActive
+    - 捕获用户dom交互(click,change)事件，并提供xPath路径追踪
+    - 配置信息以及API详细信息见[KeepObserverHtmlElementActive]()
+  - KeepObserverKibanaApmReport
+    - 使用Elasticsearch+kibana需要这个服务。依靠kibana APM上报数据 
+    - 配置信息以及API详细信息见[KeepObserverKibanaApmReport]()
+  - KeepObserverMiddlewareKibanaApmTrack
+    - 中间件扩展服务，提供kibana时间轴追踪日志记录
+    - 配置信息以及API详细信息见[KeepObserverKibanaApmReport]()
 - **兼容与支持:**   兼容目前所有主流框架运行版本, **vue angular  react**等框架。**IE 678暂未测试**
 
 
 
 ## Use And reportMonitorData
 
-#### 	关于keepObserver使用:
+#### 	关于keepObserver:
+keepObserver本身只维护一个**pipeMQ**以及相关**middlewareServer**服务,所有的监控捕获服务以及上报服务均由插件提供,并提供中间件扩展接口,扩展信息通道,
+#####  结构设计如下
+- **ProducerServer**:  提供捕获数据。如log  network error 相关catch
+- **ConsumerServer**:  处理接收到的数据。如上报到后台服务器 kibanaAPM
+- **MiddlerwareServer**:   在ProducerServer发起一个消息时,将经过MiddlerwareServerArray的处理才最终达到ConsumerServer，MiddlerwareServer具有interrupt和next的特性,将控制消息是否达到下一个MiddlerwareServer处理或被中断
 
-- 	keepObserver支持自定义配置监控服务,在不自定义配置服务的情况,默认加载全部服务，包括(keepObserverLog，keepObserverNetwork， keepObserverVue，keepObserverLoad，keepObserverReport）等
--        keepObserver 在 new keepObserver()后 : **开始运行监控。首先尝试读取系统首屏加载信息， 在嵌入拦截window.console相关的方法以及window.XMLHttpRequest方法，进行监控log和ajax网络请求**，
-- 	注意在keepObserver运行期间 **如果不设置develop = true 将默认生产环境**，在生产环境中.window.console相关的接口打印信息，将被keepObserver拦截，**并不显示在控制台console中**
--         同时 window.console相关的方法的打印信息，以及window.XMLHttpRequest方法的每一次请求，也被拦截并记录在localStorage缓存中，在上报的时候按需要打包合并上报。	
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/keepObserver.png)
 
+MiddlerwareServer结构如下</br>
 
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/keepObserver_middleService.png)
 
-#### 	关于上报服务器：
+#### 	关于Elasticsearch+kibana
+数据存储阶段，核心的使用场景在于 不同数据维度的灵活查询，逐层分析对比各个维度的数据快速定位到问题，而这恰好可以利用elasticsearch的检索特性，即使对于一个最小集合的elasticsearch集群，也可以比较轻松实现每天千万级别的日志量的存储和查询,并且配套kibana完成数据可视化，以及查询搜索相关日志内容,以及提供快速私有化部署docker
 
-##### 		keepObserverReport 在遇到以下几种情况下,将进行上报服务器操作
+最简单的一个日志查询，提供细粒度的时间维度以及相关字段的搜索</br>
 
-##### 		Monitor类型：（并且合并发生错误时，前几条正常的request和window.console相关信息，用于提供向前追踪错误）
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/kibana.jpg)</br>
 
-```javascript
-			： 捕获到js错误  script Error
-            
-        	： console.error() 被调用输出错误信息	
-            
-			： ajax请求响应超时  network timeout
+详细的单用户行为追踪</br>
 
-			： ajax请求出现错误  status !== 200
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/track.jpg)</br>
 
-			:  如果配置自定义判断ajax请求onHandleJudgeResponse钩子, 在钩子返回不等于false时，判断为ajax请求不正确
+page-load的查询分析</br>
 
-			： 如果需要监控vue，在vue拦截到错误信息后
-```
-
-**Performance类型：以下内容将会直接上传并且无合并追踪信息**
-
-```javascript
-			: 首屏load相关信息,每天首次打开将上报
-```
-
-**更多配置信息，以及上报参数，请参考Documentation**
-
-
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpgg)
 
 ## Installation
-
-	请使用 npm安装包
 
 ```
 	npm install keep-observers
@@ -79,52 +76,115 @@
 #### 	一个简单的使用例子
 
 ```javascript
-import KeepObserver from 'keep-observers';
-//启动
-var keepObserver = new KeepObserver({
-	project:'netcar',
-	develop:true,
-	//网络监控配置
-	networkCustom:{
-		timeout:30000,
-	},
-	//数据上传相关配置
-	reportCustom:{
-		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
-	}
-});
+import KeepObserver,{
+    KeepObserverLog,
+    KeepObserverNetwork,
+    KeepObserverHtmlElementActive,
+    KeepObserverMiddlewareKibanaApmTrack,
+    KeepObserverKibanaApmReport,
+} from 'keep-observers'
+//实例
+const ko = new KeepObserver({ 
+    isInterruptNormal:true,
+    isGlobalElementActionCatch:true,
+    serverUrl:'http://localhost:8200',
+    serviceName: "push-test",
+    agentVersion: "step_1",
+})
+//注册监控服务
+ko.use(KeepObserverLog)
+ko.use(KeepObserverNetwork)
+ko.use(KeepObserverHtmlElementActive)
+//注册kibanaApm上报
+ko.use(KeepObserverKibanaApmReport)
+//注册中间件时间轴追踪服务
+ko.use(KeepObserverMiddlewareKibanaApmTrack)
 ```
 
 #### 自定义服务例子
 
 ```javascript
-import keepObserver from 'keep-observers/dist/keepObserver.js'
-import keepObserverReport from 'keep-observers/dist/keepObserverReport.js'
-import KeepObserverLog from 'keep-observers/dist/KeepObserverLog.js'
-import KeepObserverNetwork from 'keep-observers/dist/KeepObserverNetwork.js'
-//import KeepObserverVue from 'keep-observers/dist/KeepObserverVue.js'
-import KeepObserverLoad from 'keep-observers/dist/KeepObserverLoad.js'
+import KeepObserver,{
+    KeepObserverLog,
+    KeepObserverNetwork,
+    KeepObserverHtmlElementActive,
+    KeepObserverMiddlewareKibanaApmTrack,
+    KeepObserverKibanaApmReport,
+} from 'keep-observers'
 
-var keepObserver = new KeepObserver({
-	project:'netcar',
-	develop:true,
-	//网络监控配置
-	networkCustom:{
-		timeout:30000,
-	},
-	//数据上传相关配置
-	reportCustom:{
-		reportUrl:['http://localhost:3000/api/v1/keepObserver/report'],
-	}
-});
-// not Monitor vue
-keepObserver.use(keepObserverReport)
-keepObserver.use(KeepObserverLog)
-keepObserver.use(KeepObserverNetwork)
-//keepObserver.use(KeepObserverVue)
-keepObserver.use(KeepObserverLoad)
+//简单的一个本地存储插件
+/*
+    这样可以获取扩展中间件服务
+    ps:注意这样获取的中间件服务无法和其他插件共享
+    import { KeepObserverPublic } from 'keep-observers/@util/index'
+    class LocalstorageMiddlewareServer extends KeepObserverPublic{
+        apply(){
+            
+        }
+    }
+    const server = new LocalstorageMiddlewareServer()
+    server.useMiddle //注册
+    server.runMiddle //执行
+*/
+class LocalstorageMiddlewareServer {
+    constructor(config) {
+        /*
+        config={
+            isInterruptNormal:true,
+            isGlobalElementActionCatch:true,
+            serverUrl:'http://localhost:8200',
+            serviceName: "push-test",
+            agentVersion: "step_1"
+        }
+        */
+    }
+    apply({
+        //更多参数请查看Documentation
+        sendMessage,                //发送消息方法
+        useExtendMiddle,            //注册中间件扩展,等效ko.useMiddle()
+        registerSendDoneCallback    //注册发送结束空闲回调
+    }) {
+        const [sendMessageName] = ko_publicMiddleScopeNames
+        //注册中间件服务
+        useExtendMiddle(sendMessageNamem,(interrupt,next)=>(message)=>{
+            //这只是一个简单的例子，举例使用 
+            var value = JSON.stringify(message)
+            localStorage.setItem('message', value);
+            //转入下一个中间件
+            //interrupt(message) 将直接跳过下级中间件处理进入kibanaApm上报
+            //interrupt(false) 将直接跳过下级中间件处理并忽略本次消息
+            next(message)
+            /*
+                如果存在返回
+                return {
+                    remove:(key)=>localStorage.removeItem(key)
+                }
+                可以通过ko.apis('remove','message')调用到此返回方法
+            */
+        })
+    }
+}
+
+//实例
+const ko = new KeepObserver({ 
+    isInterruptNormal:true,
+    isGlobalElementActionCatch:true,
+    serverUrl:'http://localhost:8200',
+    serviceName: "push-test",
+    agentVersion: "step_1",
+})
+//注册监控服务
+ko.use(KeepObserverLog)
+ko.use(KeepObserverNetwork)
+ko.use(KeepObserverHtmlElementActive)
+//注册kibanaApm上报
+ko.use(KeepObserverKibanaApmReport)
+//注册中间件时间轴追踪服务
+ko.use(KeepObserverMiddlewareKibanaApmTrack)
+//注册自定义服务
+//也可以这样 ko.use(new LocalstorageMiddlewareServer())
+ko.use(LocalstorageMiddlewareServer)
 ```
-
 ##### 	更多config配置详情，以及相关api等，请参考Documentation。
 
 
@@ -132,13 +192,3 @@ keepObserver.use(KeepObserverLoad)
 ## Documentation
 
 #### 	相关文档说明
-
-- **keepObserver实例和自定义插件服务**   **[keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document-cn/keepObserver.md)**
-
-- **上报服务:**   **[keepObserverReport](https://github.com/keep-observer/keepObserver/blob/master/document-cn/report.md)**
-- **window.console以及jsError相关监控服务:**   **[KeepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document-cn/log.md)**
-
-- **XMLHttpRequest相关监控服务**   **[KeepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document-cn/network.md)**
-- **vue错误相关拦截服务:**   **[KeepObserverVue](https://github.com/keep-observer/keepObserver/blob/master/document-cn/vue.md)**
-
-- **首屏加载分析onload服务:**   **[KeepObserverLoad](https://github.com/keep-observer/keepObserver/blob/master/document-cn/load.md)**

@@ -69,11 +69,11 @@ export const _handleHashPageChange = function(event){
 export const _pageStart = function(){
     const  { reportDateFormat } = this._config
     const startUrl = window.location.href
-    const stateDate = Tools.dateFormat(new Date().getTime(),reportDateFormat)
+    const startDate = Tools.dateFormat(new Date().getTime(),reportDateFormat)
     this.pageInfo = {
         ...this.pageInfo,
         startUrl,
-        stateDate
+        startDate
     }
 }
 export const _pageHashNext = function(nextHash:string){

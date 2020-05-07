@@ -254,6 +254,7 @@ exports._handleTrackLog = function (params) {
 
   if (type === 'error') {
     this.isWaitSend = 'pageError';
+    this.errorContent = index_1.Tools.objectStringify(params.data);
 
     this._handleSendTrackMessage();
   }
@@ -266,6 +267,7 @@ exports._handleTrackNetwork = function (params) {
 
   if (isError) {
     this.isWaitSend = 'pageError';
+    this.errorContent = index_1.Tools.objectStringify(params.data);
 
     this._handleSendTrackMessage();
   }
@@ -278,6 +280,7 @@ exports._handleTrackHtmlElementActive = function (params) {
 exports._handleTrackError = function (params) {
   this.trackList.push(params);
   this.isWaitSend = 'pageError';
+  this.errorContent = index_1.Tools.objectStringify(params.data);
 
   this._handleSendTrackMessage();
 }; //send 
@@ -292,6 +295,7 @@ exports._handleSendTrackMessage = function () {
       if (this.isSendlock) return;
       this.isWaitSend = false;
       reportData = this._handleCreateReport('pageError');
+      this.errorContent = '';
       break;
 
     case 'pageHashChange':
@@ -332,12 +336,11 @@ exports._handleCreateReport = function (type) {
       break;
 
     case 'pageError':
-      var errorSpan = this.trackList[this.trackList.length - 1];
       trackInfo['tags'] = {
         startUrl: this.pageInfo.startUrl,
         startDate: this.pageInfo.startDate,
         findErrorDate: index_1.Tools.dateFormat(now, reportDateFormat),
-        errorContent: index_1.Tools.objectStringify(errorSpan.data)
+        errorContent: this.errorContent
       };
       break;
 
@@ -476,12 +479,8 @@ function (_super) {
     _this.isPageChangeHandle = false;
     _this.isCancelTrack = true;
     _this.trackInfo = undefined;
-    _this.pageInfo = {
-      startUrl: '',
-      startDate: 0,
-      nextUrl: '',
-      nextDate: 0
-    };
+    _this.pageInfo = null;
+    _this.errorContent = '';
     _this.trackList = [];
     _this.resgisterPageHashChangeEventListener = pageHashChange_1.resgisterPageHashChangeEventListener.bind(_this);
     _this.checkPageHashUrlChange = pageHashChange_1.checkPageHashUrlChange.bind(_this);
@@ -506,7 +505,14 @@ function (_super) {
 
     _this._config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), __assign({}, config, {
       develop: develop
-    })); //发送方法
+    }));
+    var reportDateFormat = _this._config.reportDateFormat;
+    _this.pageInfo = {
+      startUrl: '',
+      startDate: index_1.Tools.dateFormat(new Date().getTime(), reportDateFormat),
+      nextUrl: '',
+      nextDate: 0
+    }; //发送方法
 
     _this.sendMessage = function () {
       return index_1.consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ');
@@ -667,10 +673,10 @@ exports._handleHashPageChange = function (event) {
 exports._pageStart = function () {
   var reportDateFormat = this._config.reportDateFormat;
   var startUrl = window.location.href;
-  var stateDate = index_1.Tools.dateFormat(new Date().getTime(), reportDateFormat);
+  var startDate = index_1.Tools.dateFormat(new Date().getTime(), reportDateFormat);
   this.pageInfo = __assign({}, this.pageInfo, {
     startUrl: startUrl,
-    stateDate: stateDate
+    startDate: startDate
   });
 };
 

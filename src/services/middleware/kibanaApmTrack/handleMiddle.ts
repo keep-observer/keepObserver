@@ -47,6 +47,7 @@ export const _handleTrackLog = function(params:reportParams<logType>){
     const { type } = params.data
     if(type === 'error'){
         this.isWaitSend = 'pageError'
+        this.errorContent = Tools.objectStringify(params.data)
         this._handleSendTrackMessage()
     }
 }
@@ -56,6 +57,7 @@ export const _handleTrackNetwork = function(params:reportParams<networkType>){
     const { isError } = params.data
     if(isError){
         this.isWaitSend = 'pageError'
+        this.errorContent = Tools.objectStringify(params.data)
         this._handleSendTrackMessage()
     }
 }
@@ -65,6 +67,7 @@ export const _handleTrackHtmlElementActive = function(params:reportParams<elemen
 export const _handleTrackError = function(params:reportParams<errorType>){ 
     this.trackList.push(params)
     this.isWaitSend = 'pageError'
+    this.errorContent = Tools.objectStringify(params.data)
     this._handleSendTrackMessage()
 }
 
@@ -79,6 +82,7 @@ export const _handleSendTrackMessage = function(){
             if(this.isSendlock) return
             this.isWaitSend = false;
             reportData = this._handleCreateReport('pageError')
+            this.errorContent = ''
             break;
         case 'pageHashChange':
             if(this.isSendlock) return 
@@ -109,12 +113,11 @@ export const _handleCreateReport = function(type:'pageHashChange'|'pageError'){
             trackInfo['tags'] = this.pageInfo
             break;
         case 'pageError':
-            const errorSpan = this.trackList[this.trackList.length-1]
             trackInfo['tags'] = {
                 startUrl: this.pageInfo.startUrl,
                 startDate: this.pageInfo.startDate,
                 findErrorDate: Tools.dateFormat(now,reportDateFormat),
-                errorContent: Tools.objectStringify(errorSpan.data)
+                errorContent: this.errorContent,
             }
             break;
         default:

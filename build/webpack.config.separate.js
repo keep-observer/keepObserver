@@ -3,7 +3,6 @@ var fs = require('fs');
 var webpack = require('webpack')
 var baseWebpackConfig = require('./webpack.config.base.js')
 var ProgressBarPlugin = require('progress-bar-webpack-plugin');
-var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 var merge = require('webpack-merge')
 
 var separate = require('./separate.js');
@@ -27,6 +26,5 @@ module.exports = merge(baseWebpackConfig, {
     ],
     plugins: [
         new ProgressBarPlugin(),
-        new BundleAnalyzerPlugin(),
     ]
 })
