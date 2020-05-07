@@ -154,14 +154,14 @@ class LocalstorageMiddlewareServer {
             //interrupt(message) 将直接跳过下级中间件处理进入kibanaApm上报
             //interrupt(false) 将直接跳过下级中间件处理并忽略本次消息
             next(message)
-            /*
-                如果存在返回
-                return {
-                    remove:(key)=>localStorage.removeItem(key)
-                }
-                可以通过ko.apis('remove','message')调用到此返回方法
-            */
         })
+        /*
+            如果存在返回
+            return {
+                remove:(key)=>localStorage.removeItem(key)
+            }
+            可以通过ko.apis('remove','message')调用到此返回方法
+        */
     }
 }
 

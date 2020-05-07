@@ -56,7 +56,7 @@ The MiddlerwareServer is constructed as follows</br>
 ####  About Elasticsearch+kibana
 Data storage stage, the core of usage scenario is that different data dimension of flexible query, analysis step by step in each dimension data quickly to the positioning problem, which can use elasticsearch retrieval features, even for a minimal set of elasticsearch cluster, also can more easily implement every day must level of log volume of storage and query, and supporting kibana complete data visualization, and query search related log content, as well as provide rapid privatization deployment docker
 
-The simplest log query, providing a fine-grained time dimension and search for related fields索</br>
+The simplest log query, providing a fine-grained time dimension and search for related fields</br>
 
 ![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/kibana.jpg)</br>
 
@@ -160,14 +160,14 @@ class LocalstorageMiddlewareServer {
             // interrupt(message) simply bypasses the processing of the subordinate middleware and enters the kibanaApm escalation
             // interrupt(false) will simply skip the processing of the subordinate middleware and ignore the message
             next(message)
-            /*
-                If there is a return
-                return {
-                    remove:(key)=>localStorage.removeItem(key)
-                }
-                This return method can be called through  ko.Api('remove','message')
-            */
         })
+        /*
+            If there is a return
+            return {
+                remove:(key)=>localStorage.removeItem(key)
+            }
+            This return method can be called through  ko.Api('remove','message')
+        */
     }
 }
 
