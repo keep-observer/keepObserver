@@ -19,7 +19,7 @@
   
 - **Function:**  
   - keepObserverLog
-    - Intercept capture global ***console*** Related log, including (the error log, warn, time, timeEnd, clear, info, the debug), etc
+    - Intercept capture global ***console*** Related log, including (error, log, warn, time, timeEnd, clear, info, debug), etc
     - See configuration information and API details [keepObserverLog]()
   - keepObserverNetwork
     - Global ***XMLHttpRequest*** and ***fetch*** requests
@@ -29,10 +29,10 @@
     - See configuration information and API details [KeepObserverHtmlElementActive]()
   - KeepObserverKibanaApmReport
     - This service is required using Elasticsearch+kibana. Rely on kibana APM to report data 
-    - See configuration information and API details 见[KeepObserverKibanaApmReport]()
+    - See configuration information and API details [KeepObserverKibanaApmReport]()
   - KeepObserverMiddlewareKibanaApmTrack
     - Middleware extension service to provide kibana timeline trace logging
-    - See configuration information and API details [KeepObserverKibanaApmReport]()
+    - See configuration information and API details [KeepObserverMiddlewareKibanaApmTrack]()
     
 - **Compatibility and Support :** compatibility with all the current mainstream framework running version, **vue angular react** and other frameworks. **IE 678 has not been tested yet **
 
@@ -66,7 +66,7 @@ Detailed single user behavior tracking</br>
 
 Query analysis for page-load</br>
 
-![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpgg)
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpg)
 
 ## Installation
 
@@ -198,3 +198,4 @@ ko.use(LocalstorageMiddlewareServer)
 ## Documentation
 
 #### 	Related documentation
+

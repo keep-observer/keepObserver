@@ -61,7 +61,7 @@ MiddlerwareServer结构如下</br>
 
 page-load的查询分析</br>
 
-![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpgg)
+![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/page-load.jpg)
 
 ## Installation
 
