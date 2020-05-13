@@ -800,9 +800,10 @@ function () {
 
     for (var _i = 0; _i < arguments.length; _i++) {
       err[_i] = arguments[_i];
-    }
+    } //catch resolve Uncaught (in promise) error
 
-    this.run.apply(this, __spread(['error'], err));
+
+    this.run.apply(this, __spread(['error'], err)).catch(function (e) {});
   };
 
   ; //公共方法和部分
@@ -947,9 +948,10 @@ function () {
 
     var _a;
 
-    var _self = this;
+    var _self = this; //use catch resolve Uncaught (in promise) error
 
-    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
+
+    return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args)).catch(function (e) {});
   }; //整理上报数据
 
 

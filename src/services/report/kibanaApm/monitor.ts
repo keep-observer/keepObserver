@@ -8,7 +8,7 @@ import {
 import { networkType } from '../../../types/network'
 import { logType } from '../../../types/log'
 import { elementActiveInfoType } from '../../../types/htmlElementActive'
-import { trackInfoType } from '../../../types/kibanaApmTrack'
+import { trackInfoType,spansTagNetworkType,spansTagLogType,spansTagElementActiveType,spansTagErrorType } from '../../../types/kibanaApmTrack'
 
 
 
@@ -125,7 +125,68 @@ export const _handleKibanaApmTrack = function(reportParams:reportParams<trackInf
         url,
     })
     spans.forEach( span=>{
-        task.startSpan(span.name,span.type)
+        const { name,type,tags=null} = span
+        let spanItem =task.startSpan(name,type)
+        if(tags){
+            switch(tags.type){
+                case 'log':
+                    const { content } = tags
+                    spanItem.addTags({
+                        type: (content as spansTagLogType).type,
+                        data: (content as spansTagLogType).data
+                    })
+                    return 
+                case 'error':
+                    const { 
+                        message,
+                        filename = 'Unknown'
+                    } = tags.content as spansTagErrorType
+                    spanItem.addTags({
+                        message,
+                        filename,
+                    }) 
+                case 'network':
+                    const {  
+                        method='',			            
+                        url='',    			           
+                        params=null,  			               
+                        body='',      		            
+                        status=0,      	               
+                        startTime=0,     	                
+                        endTime=0,       	           
+                        costTime=0,      	            
+                        response='',			                  	            
+                        timeout=0,  
+                    } = tags.content as spansTagNetworkType
+                    spanItem.addTags({
+                        method,
+                        url,
+                        params,
+                        body,
+                        status,
+                        startTime,
+                        endTime,
+                        costTime,
+                        response,
+                        timeout
+                    })
+                    return
+                case 'htmlElementActive':
+                    const { 
+                        type,
+                        title,
+                        xPath,
+                        value,
+                    } = tags.content as spansTagElementActiveType
+                    spanItem.addTags({
+                        type,
+                        title,
+                        xPath,
+                        value,
+                    })
+                    return
+            }
+        }
     })
     task.end();
 }

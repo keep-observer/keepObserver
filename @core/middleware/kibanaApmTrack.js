@@ -294,14 +294,18 @@ exports._handleSendTrackMessage = function () {
     case 'pageError':
       if (this.isSendlock) return;
       this.isWaitSend = false;
-      reportData = this._handleCreateReport('pageError');
+      reportData = this._handleCreateReport('pageError'); //clear
+
       this.errorContent = '';
       break;
 
     case 'pageHashChange':
       if (this.isSendlock) return;
       this.isWaitSend = false;
-      reportData = this._handleCreateReport('pageHashChange');
+      reportData = this._handleCreateReport('pageHashChange'); //update url
+
+      this._pageStart();
+
       break;
   }
 
@@ -318,16 +322,21 @@ exports._handleSendTrackMessage = function () {
   }
 
   this.sendMessage(reportData);
-};
+}; //create Data
+
 
 exports._handleCreateReport = function (type) {
   var _this = this;
 
-  var reportDateFormat = this._config.reportDateFormat;
+  var _a = this._config,
+      reportDateFormat = _a.reportDateFormat,
+      isInterruptNormal = _a.isInterruptNormal;
   var now = new Date().getTime();
   var trackInfo = {
     type: type,
-    url: window.location.href
+    url: window.location.href,
+    tags: null,
+    spans: []
   };
 
   switch (type) {
@@ -355,28 +364,80 @@ exports._handleCreateReport = function (type) {
         data = span.data;
     var name = 'undefined';
     var type = span.type + "-" + typeName + ":" + index_1.Tools.dateFormat(reportTime, reportDateFormat);
+    var tags = null;
 
     switch (typeName) {
       case 'log':
         name = data.type + "->" + index_1.Tools.substringLimt(data.data);
+        tags = {
+          type: typeName,
+          content: data
+        };
         break;
 
       case 'network':
-        name = data.type + "->" + data.method + ":" + data.url + "(" + data.statusType + ":" + data.status + (data.response ? "->" + index_1.Tools.substringLimt(data.response) + ")" : ')');
+        var _a = data.method,
+            method = _a === void 0 ? "" : _a,
+            _b = data.url,
+            url = _b === void 0 ? "" : _b,
+            _c = data.params,
+            params = _c === void 0 ? null : _c,
+            _d = data.status,
+            status_1 = _d === void 0 ? 0 : _d,
+            _e = data.response,
+            response = _e === void 0 ? "" : _e,
+            _f = data.body,
+            body = _f === void 0 ? "" : _f,
+            _g = data.startTime,
+            startTime = _g === void 0 ? 0 : _g,
+            _h = data.endTime,
+            endTime = _h === void 0 ? 0 : _h,
+            _j = data.costTime,
+            costTime = _j === void 0 ? 0 : _j,
+            _k = data.timeout,
+            timeout = _k === void 0 ? undefined : _k;
+        name = data.type + "->" + method + ":" + url + "(" + data.statusType + ":" + status_1 + (response ? "->" + index_1.Tools.substringLimt(response) + ")" : ')');
+        tags = {
+          type: typeName,
+          content: {
+            method: method,
+            url: url,
+            params: params ? index_1.Tools.objectStringify(params) : '',
+            body: body,
+            status: status_1,
+            startTime: startTime,
+            endTime: endTime,
+            costTime: costTime,
+            response: response,
+            timeout: timeout
+          }
+        };
         break;
 
       case 'htmlElementActive':
         name = data.type + "->" + data.title + "(xpath:" + data.xPath + ")" + (data.type === 'change' ? '->' + index_1.Tools.substringLimt(data.value) : '');
+        tags = {
+          type: typeName,
+          content: data
+        };
         break;
 
       case 'error':
         name = "Error->" + data.message + (data.filename ? '(' + data.filename + ')' : '');
+        tags = {
+          type: typeName,
+          content: {
+            message: data.message,
+            filename: data.filename
+          }
+        };
         break;
     }
 
     return {
       name: name,
-      type: type
+      type: type,
+      tags: isInterruptNormal ? tags : null
     };
   });
   return {

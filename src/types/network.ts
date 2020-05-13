@@ -12,10 +12,10 @@ export type networkType = {
     startTime?:number;     	                //请求开始时间
     endTime?: number;       	            //请求结束时间
     costTime?: number;      	            //请求耗时
-    response?: string;			                //请求原始响应数据
+    response?: string;			            //请求原始响应数据
     responseType?: string;   	            //请求响应类型
     timeout?: number;                       //如果超时 这里是设置的超时时间
-    errorContent?: string;                     //错误信息
+    errorContent?: string;                  //错误信息
     //状态
     isTimeout?: boolean;                    //是否超时 如果存在这个字段 则说明已经上报,忽略处理
     isError?: boolean;                      //这个请求是否出现错误

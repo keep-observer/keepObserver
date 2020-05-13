@@ -60,7 +60,6 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
         this._config = Tools.extend({...defaultConfig}, reportConfig);
         //发送方法
         this.sendMessage = ()=>consoleTools.warnError('sendMessage is not active, apply receive sendPipeMessage fail ')
-        
         //init
         this.tracerTransaction = new TracerTransaction(this._config)
     }

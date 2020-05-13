@@ -1040,9 +1040,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
             for (var _i = 0; _i < arguments.length; _i++) {
               err[_i] = arguments[_i];
-            }
+            } //catch resolve Uncaught (in promise) error
 
-            this.run.apply(this, __spread(['error'], err));
+
+            this.run.apply(this, __spread(['error'], err)).catch(function (e) {});
           };
 
           ; //公共方法和部分
@@ -1195,9 +1196,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
             var _a;
 
-            var _self = this;
+            var _self = this; //use catch resolve Uncaught (in promise) error
 
-            return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args));
+
+            return (_a = _self._middleWareInstance).run.apply(_a, __spread([scopeName], args)).catch(function (e) {});
           }; //整理上报数据
 
 
@@ -7303,7 +7305,83 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             url: url
           }));
           spans.forEach(function (span) {
-            task.startSpan(span.name, span.type);
+            var name = span.name,
+                type = span.type,
+                _a = span.tags,
+                tags = _a === void 0 ? null : _a;
+            var spanItem = task.startSpan(name, type);
+
+            if (tags) {
+              switch (tags.type) {
+                case 'log':
+                  var content = tags.content;
+                  spanItem.addTags({
+                    type: content.type,
+                    data: content.data
+                  });
+                  return;
+
+                case 'error':
+                  var _b = tags.content,
+                      message = _b.message,
+                      _c = _b.filename,
+                      filename = _c === void 0 ? 'Unknown' : _c;
+                  spanItem.addTags({
+                    message: message,
+                    filename: filename
+                  });
+
+                case 'network':
+                  var _d = tags.content,
+                      _e = _d.method,
+                      method = _e === void 0 ? '' : _e,
+                      _f = _d.url,
+                      url_1 = _f === void 0 ? '' : _f,
+                      _g = _d.params,
+                      params = _g === void 0 ? null : _g,
+                      _h = _d.body,
+                      body = _h === void 0 ? '' : _h,
+                      _j = _d.status,
+                      status_1 = _j === void 0 ? 0 : _j,
+                      _k = _d.startTime,
+                      startTime = _k === void 0 ? 0 : _k,
+                      _l = _d.endTime,
+                      endTime = _l === void 0 ? 0 : _l,
+                      _m = _d.costTime,
+                      costTime = _m === void 0 ? 0 : _m,
+                      _o = _d.response,
+                      response = _o === void 0 ? '' : _o,
+                      _p = _d.timeout,
+                      timeout = _p === void 0 ? 0 : _p;
+                  spanItem.addTags({
+                    method: method,
+                    url: url_1,
+                    params: params,
+                    body: body,
+                    status: status_1,
+                    startTime: startTime,
+                    endTime: endTime,
+                    costTime: costTime,
+                    response: response,
+                    timeout: timeout
+                  });
+                  return;
+
+                case 'htmlElementActive':
+                  var _q = tags.content,
+                      type_1 = _q.type,
+                      title = _q.title,
+                      xPath = _q.xPath,
+                      value = _q.value;
+                  spanItem.addTags({
+                    type: type_1,
+                    title: title,
+                    xPath: xPath,
+                    value: value
+                  });
+                  return;
+              }
+            }
           });
           task.end();
         };
@@ -7936,14 +8014,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             case 'pageError':
               if (this.isSendlock) return;
               this.isWaitSend = false;
-              reportData = this._handleCreateReport('pageError');
+              reportData = this._handleCreateReport('pageError'); //clear
+
               this.errorContent = '';
               break;
 
             case 'pageHashChange':
               if (this.isSendlock) return;
               this.isWaitSend = false;
-              reportData = this._handleCreateReport('pageHashChange');
+              reportData = this._handleCreateReport('pageHashChange'); //update url
+
+              this._pageStart();
+
               break;
           }
 
@@ -7960,16 +8042,21 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           this.sendMessage(reportData);
-        };
+        }; //create Data
+
 
         exports._handleCreateReport = function (type) {
           var _this = this;
 
-          var reportDateFormat = this._config.reportDateFormat;
+          var _a = this._config,
+              reportDateFormat = _a.reportDateFormat,
+              isInterruptNormal = _a.isInterruptNormal;
           var now = new Date().getTime();
           var trackInfo = {
             type: type,
-            url: window.location.href
+            url: window.location.href,
+            tags: null,
+            spans: []
           };
 
           switch (type) {
@@ -7997,28 +8084,80 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 data = span.data;
             var name = 'undefined';
             var type = span.type + "-" + typeName + ":" + index_1.Tools.dateFormat(reportTime, reportDateFormat);
+            var tags = null;
 
             switch (typeName) {
               case 'log':
                 name = data.type + "->" + index_1.Tools.substringLimt(data.data);
+                tags = {
+                  type: typeName,
+                  content: data
+                };
                 break;
 
               case 'network':
-                name = data.type + "->" + data.method + ":" + data.url + "(" + data.statusType + ":" + data.status + (data.response ? "->" + index_1.Tools.substringLimt(data.response) + ")" : ')');
+                var _a = data.method,
+                    method = _a === void 0 ? "" : _a,
+                    _b = data.url,
+                    url = _b === void 0 ? "" : _b,
+                    _c = data.params,
+                    params = _c === void 0 ? null : _c,
+                    _d = data.status,
+                    status_1 = _d === void 0 ? 0 : _d,
+                    _e = data.response,
+                    response = _e === void 0 ? "" : _e,
+                    _f = data.body,
+                    body = _f === void 0 ? "" : _f,
+                    _g = data.startTime,
+                    startTime = _g === void 0 ? 0 : _g,
+                    _h = data.endTime,
+                    endTime = _h === void 0 ? 0 : _h,
+                    _j = data.costTime,
+                    costTime = _j === void 0 ? 0 : _j,
+                    _k = data.timeout,
+                    timeout = _k === void 0 ? undefined : _k;
+                name = data.type + "->" + method + ":" + url + "(" + data.statusType + ":" + status_1 + (response ? "->" + index_1.Tools.substringLimt(response) + ")" : ')');
+                tags = {
+                  type: typeName,
+                  content: {
+                    method: method,
+                    url: url,
+                    params: params ? index_1.Tools.objectStringify(params) : '',
+                    body: body,
+                    status: status_1,
+                    startTime: startTime,
+                    endTime: endTime,
+                    costTime: costTime,
+                    response: response,
+                    timeout: timeout
+                  }
+                };
                 break;
 
               case 'htmlElementActive':
                 name = data.type + "->" + data.title + "(xpath:" + data.xPath + ")" + (data.type === 'change' ? '->' + index_1.Tools.substringLimt(data.value) : '');
+                tags = {
+                  type: typeName,
+                  content: data
+                };
                 break;
 
               case 'error':
                 name = "Error->" + data.message + (data.filename ? '(' + data.filename + ')' : '');
+                tags = {
+                  type: typeName,
+                  content: {
+                    message: data.message,
+                    filename: data.filename
+                  }
+                };
                 break;
             }
 
             return {
               name: name,
-              type: type
+              type: type,
+              tags: isInterruptNormal ? tags : null
             };
           });
           return {
@@ -11901,11 +12040,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               anomaly = !anomaly ? limtJudgeAnomaly(count, catchParams, anomalyCallback) : true;
 
               if (anomaly) {
-                resetAnomaly();
-                return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
-              }
+                resetAnomaly(); //catch resolve Uncaught (in promise) error
 
-              return fn(catchParams, contendHashCode);
+                return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop')["catch"](function (e) {
+                  return e;
+                });
+              } //catch resolve Uncaught (in promise) error
+
+
+              return fn(catchParams, contendHashCode)["catch"](function (e) {
+                return e;
+              });
             };
 
             return watchWrap;

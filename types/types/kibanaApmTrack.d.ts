@@ -1,3 +1,29 @@
+export declare type spansTagNetworkType = {
+    method: string;
+    url: string;
+    params: any;
+    body: string;
+    status: number;
+    startTime: number;
+    endTime: number;
+    costTime: number;
+    response: string;
+    timeout?: number;
+};
+export declare type spansTagLogType = {
+    type: string;
+    data: string;
+};
+export declare type spansTagElementActiveType = {
+    type: 'click' | 'change';
+    title: string;
+    xPath: string;
+    value: string | number | boolean;
+};
+export declare type spansTagErrorType = {
+    message: string;
+    filename?: string;
+};
 export declare type trackInfoType = {
     type: 'pageHashChange' | 'PageError';
     url: string;
@@ -5,6 +31,10 @@ export declare type trackInfoType = {
     spans: {
         name: string;
         type: string;
+        tags?: {
+            type: 'log' | 'network' | 'htmlElementActive' | 'error';
+            content: spansTagNetworkType | spansTagLogType | spansTagElementActiveType | spansTagErrorType;
+        };
     }[];
 };
 export declare type pageChangeInfoType = {

@@ -4816,7 +4816,83 @@ exports._handleKibanaApmTrack = function (reportParams) {
     url: url
   }));
   spans.forEach(function (span) {
-    task.startSpan(span.name, span.type);
+    var name = span.name,
+        type = span.type,
+        _a = span.tags,
+        tags = _a === void 0 ? null : _a;
+    var spanItem = task.startSpan(name, type);
+
+    if (tags) {
+      switch (tags.type) {
+        case 'log':
+          var content = tags.content;
+          spanItem.addTags({
+            type: content.type,
+            data: content.data
+          });
+          return;
+
+        case 'error':
+          var _b = tags.content,
+              message = _b.message,
+              _c = _b.filename,
+              filename = _c === void 0 ? 'Unknown' : _c;
+          spanItem.addTags({
+            message: message,
+            filename: filename
+          });
+
+        case 'network':
+          var _d = tags.content,
+              _e = _d.method,
+              method = _e === void 0 ? '' : _e,
+              _f = _d.url,
+              url_1 = _f === void 0 ? '' : _f,
+              _g = _d.params,
+              params = _g === void 0 ? null : _g,
+              _h = _d.body,
+              body = _h === void 0 ? '' : _h,
+              _j = _d.status,
+              status_1 = _j === void 0 ? 0 : _j,
+              _k = _d.startTime,
+              startTime = _k === void 0 ? 0 : _k,
+              _l = _d.endTime,
+              endTime = _l === void 0 ? 0 : _l,
+              _m = _d.costTime,
+              costTime = _m === void 0 ? 0 : _m,
+              _o = _d.response,
+              response = _o === void 0 ? '' : _o,
+              _p = _d.timeout,
+              timeout = _p === void 0 ? 0 : _p;
+          spanItem.addTags({
+            method: method,
+            url: url_1,
+            params: params,
+            body: body,
+            status: status_1,
+            startTime: startTime,
+            endTime: endTime,
+            costTime: costTime,
+            response: response,
+            timeout: timeout
+          });
+          return;
+
+        case 'htmlElementActive':
+          var _q = tags.content,
+              type_1 = _q.type,
+              title = _q.title,
+              xPath = _q.xPath,
+              value = _q.value;
+          spanItem.addTags({
+            type: type_1,
+            title: title,
+            xPath: xPath,
+            value: value
+          });
+          return;
+      }
+    }
   });
   task.end();
 };

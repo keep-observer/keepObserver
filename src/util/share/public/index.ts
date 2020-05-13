@@ -55,9 +55,10 @@ class KeepObserverPublic {
         return _self
     }
     //执行中间件逻辑
-    public runMiddle(scopeName:string,...args:any[]):Promise<{}>{
+    public runMiddle(scopeName:string,...args:any[]):Promise<any>{
         var _self = this;
-        return _self._middleWareInstance.run(scopeName,...args)
+        //use catch resolve Uncaught (in promise) error
+        return _self._middleWareInstance.run(scopeName,...args).catch((e)=>{})
     }
     //整理上报数据
     public handleReportData(params:catchParams){

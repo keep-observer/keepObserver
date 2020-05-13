@@ -975,11 +975,17 @@ function () {
       anomaly = !anomaly ? limtJudgeAnomaly(count, catchParams, anomalyCallback) : true;
 
       if (anomaly) {
-        resetAnomaly();
-        return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
-      }
+        resetAnomaly(); //catch resolve Uncaught (in promise) error
 
-      return fn(catchParams, contendHashCode);
+        return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop')["catch"](function (e) {
+          return e;
+        });
+      } //catch resolve Uncaught (in promise) error
+
+
+      return fn(catchParams, contendHashCode)["catch"](function (e) {
+        return e;
+      });
     };
 
     return watchWrap;

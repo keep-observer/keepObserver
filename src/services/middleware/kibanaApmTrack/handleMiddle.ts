@@ -5,6 +5,7 @@ import { reportParams} from '../../../types/report'
 import { networkType } from '../../../types/network'
 import { logType } from '../../../types/log'
 import { elementActiveInfoType } from '../../../types/htmlElementActive'
+import { trackInfoType } from '../../../types/kibanaApmTrack'
 import { errorType } from '../../../types/error'
 
 
@@ -82,12 +83,15 @@ export const _handleSendTrackMessage = function(){
             if(this.isSendlock) return
             this.isWaitSend = false;
             reportData = this._handleCreateReport('pageError')
+            //clear
             this.errorContent = ''
             break;
         case 'pageHashChange':
             if(this.isSendlock) return 
             this.isWaitSend = false;
             reportData = this._handleCreateReport('pageHashChange')
+            //update url
+            this._pageStart()
             break;
     }
     if(!reportData) return
@@ -101,12 +105,15 @@ export const _handleSendTrackMessage = function(){
     }
     this.sendMessage(reportData)   
 }
+//create Data
 export const _handleCreateReport = function(type:'pageHashChange'|'pageError'){
-    const  { reportDateFormat } = this._config
+    const  { reportDateFormat,isInterruptNormal } = this._config
     let now = new Date().getTime()
-    let trackInfo = {
-        type,
+    let trackInfo:trackInfoType = {
+        type: type as any,
         url: window.location.href,
+        tags:null,
+        spans:[]
     }
     switch(type){
         case 'pageHashChange':
@@ -128,23 +135,56 @@ export const _handleCreateReport = function(type:'pageHashChange'|'pageError'){
         const { typeName,reportTime,data } = span
         let name= 'undefined'
         let type= `${span.type}-${typeName}:${Tools.dateFormat(reportTime,reportDateFormat)}`
+        let tags = null
         switch(typeName){
             case 'log':
                 name = `${data.type}->${Tools.substringLimt(data.data)}`
+                tags = {
+                    type:typeName,
+                    content:data
+                }
                 break;
             case 'network':
-                name = `${data.type}->${data.method}:${data.url}(${data.statusType}:${data.status}${data.response?`->${Tools.substringLimt(data.response)})`:')'}`
+                let { method="",url="",params=null,status=0,response="",body="",startTime=0,endTime=0,costTime=0,timeout=undefined } = data
+                name = `${data.type}->${method}:${url}(${data.statusType}:${status}${response?`->${Tools.substringLimt(response)})`:')'}`
+                tags = {
+                    type:typeName,
+                    content:{
+                        method,   			           
+                        url,     			            
+                        params:params?Tools.objectStringify(params):'',  			                
+                        body,      		            
+                        status,       	                
+                        startTime,     	                
+                        endTime,       	            
+                        costTime,      	           
+                        response,			            
+                        timeout                      
+                    }
+                }
                 break;
             case 'htmlElementActive':
                 name = `${data.type}->${data.title}(xpath:${data.xPath})${data.type==='change'?('->'+Tools.substringLimt(data.value)):''}`
+                tags = {
+                    type:typeName,
+                    content:data
+                }
                 break;
             case 'error':
                 name = `Error->${data.message}${data.filename?('('+data.filename+')'):''}`
+                tags = {
+                    type:typeName,
+                    content:{
+                        message:data.message,
+                        filename:data.filename
+                    }
+                }
                 break;
         }
         return {
             name,
             type,
+            tags:isInterruptNormal?tags:null
         }
     })
     return {

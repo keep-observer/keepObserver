@@ -48,9 +48,11 @@ class WatchDog  {
             anomaly = !anomaly?limtJudgeAnomaly(count,catchParams,anomalyCallback):true
             if(anomaly){
                 resetAnomaly()
-                return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop');
+                 //catch resolve Uncaught (in promise) error
+                return Promise.reject('send  Message during 1000ms in Over 20 times,maybe happend Endless loop').catch(e=>e);
             }
-            return fn(catchParams,contendHashCode)
+             //catch resolve Uncaught (in promise) error
+            return fn(catchParams,contendHashCode).catch(e=>e)
         }
         return watchWrap
     }

@@ -129,7 +129,8 @@ class KeepObserverMiddleWare {
 
     //抛出中间件错误
     public throwError(...err:any[]){
-        this.run('error',...err)
+        //catch resolve Uncaught (in promise) error
+        this.run('error',...err).catch((e)=>{})
     };
     
 
