@@ -6,7 +6,7 @@
 
 [中文说明](https://github.com/keep-observer/keepObserver/blob/master/README-cn.md)
 
-##### **This is a monitoring service applied to the javascript web side** 
+##### **This is a monitoring service applied to the web side** 
 
 - **About keep-observer:**    
   - This is a javascript-based tool written for online environment monitoring, for web:PC and mobile embedded capture and continuous tracking of user interactions，
@@ -16,23 +16,32 @@
   - Provides PageLoad first screen load analysis, time dimension, multi-version comparison
   - The middleware extension interface is provided by means of plug-in service composition
   - Support can freely combine the monitoring content, and allow custom extension control capture service, custom escalation service, etc。
+  -  Configuration information and apis as well as custom services, see [keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserver.md)
+- **Why do you need a keep-observer?**
+    - Your business needs: **business monitoring, abnormal alarm, error tracking**
+    - Your business needs: **analyze the performance information of the first screen, and provide data analysis of the results of grayscale tests such as ABtest**
+    - You need: **log fine-grained searches as well as queries, and provide visual data reports**
+    - You need: **user behavior action trace, exception error backtrace query**
+    - Your team: **no back-end resources are provided, completely operated by the front-end team**
+    - **can provide fast access monitoring, rapid deployment of back-end services, no complex server operations, front-end technicians can install deployment**
+    - **high degree of custom extension, allowing custom extension of other services**
   
 - **Function:**  
   - keepObserverLog
     - Intercept capture global ***console*** Related log, including (error, log, warn, time, timeEnd, clear, info, debug), etc
-    - See configuration information and API details [keepObserverLog]()
+    - See configuration information and API details [keepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserverLog.md)
   - keepObserverNetwork
     - Global ***XMLHttpRequest*** and ***fetch*** requests
-    - See configuration information and API details [keepObserverNetwork]()
+    - See configuration information and API details [keepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserverNetwork.md)
   - KeepObserverHtmlElementActive
     - Capture user dom interaction (click,change) events and provide xPath path tracing
-    - See configuration information and API details [KeepObserverHtmlElementActive]()
+    - See configuration information and API details [KeepObserverHtmlElementActive](https://github.com/keep-observer/keepObserver/blob/master/document/KeepObserverHtmlElementActive.md)
   - KeepObserverKibanaApmReport
     - This service is required using Elasticsearch+kibana. Rely on kibana APM to report data 
-    - See configuration information and API details [KeepObserverKibanaApmReport]()
+    - See configuration information and API details [KeepObserverKibanaApmReport](https://github.com/keep-observer/keepObserver/blob/master/document/KeepObserverKibanaApmReport.md)
   - KeepObserverMiddlewareKibanaApmTrack
     - Middleware extension service to provide kibana timeline trace logging
-    - See configuration information and API details [KeepObserverMiddlewareKibanaApmTrack]()
+    - See configuration information and API details [KeepObserverMiddlewareKibanaApmTrack](https://github.com/keep-observer/keepObserver/blob/master/document/KeepObserverMiddlewareKibanaApmTrack.md)
     
 - **Compatibility and Support :** compatibility with all the current mainstream framework running version, **vue angular react** and other frameworks. **IE 678 has not been tested yet **
 
@@ -90,11 +99,11 @@ import KeepObserver,{
 } from 'keep-observers'
 //The instance
 const ko = new KeepObserver({ 
-    isInterruptNormal:true,
-    isGlobalElementActionCatch:true,
-    serverUrl:'http://localhost:8200',
-    serviceName: "push-test",
-    agentVersion: "step_1",
+    isInterruptNormal:true,         //KeepObserverMiddlewareKibanaApmTrack use
+    isGlobalElementActionCatch:true, //KeepObserverHtmlElementActive use
+    serverUrl:'http://localhost:8200', //KeepObserverKibanaApmReport use
+    serviceName: "push-test", //KeepObserverKibanaApmReport use
+    agentVersion: "step_1",   //KeepObserverKibanaApmReport use
 })
 // sign up for monitoring services
 ko.use(KeepObserverLog)
@@ -148,9 +157,10 @@ class LocalstorageMiddlewareServer {
         //See Documentation for more parameters
         sendMessage,                //Send message method
         useExtendMiddle,            //Registration middleware extension, equivalent ko.usemiddle ()
+        middleScopeNames,           //middleScopeNames
         registerSendDoneCallback    //Register the send end idle callback
     }) {
-        const [sendMessageName] = ko_publicMiddleScopeNames
+        const [sendMessageName] = middleScopeNames
         //Registry middleware service
         useExtendMiddle(sendMessageNamem,(interrupt,next)=>(message)=>{
             //This is just a simple example of using an example
@@ -166,7 +176,7 @@ class LocalstorageMiddlewareServer {
             return {
                 remove:(key)=>localStorage.removeItem(key)
             }
-            This return method can be called through  ko.Api('remove','message')
+            This return method can be called through  ko.apis('remove','message')
         */
     }
 }
@@ -192,10 +202,4 @@ ko.use(KeepObserverMiddlewareKibanaApmTrack)
 ko.use(LocalstorageMiddlewareServer)
 ```
 ##### 	For more config configuration details, and related apis, please refer to Documentation.
-
-
-
-## Documentation
-
-#### 	Related documentation
 

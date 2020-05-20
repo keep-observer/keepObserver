@@ -3,33 +3,43 @@
 [![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver)
 [![Coverage Status](https://coveralls.io/repos/github/keep-observer/keepObserver/badge.svg)](https://coveralls.io/github/keep-observer/keepObserver)
 
-##### **这是一个应用于 javascript web端中的监控服务** 
+##### **这是一个应用于web端中的监控服务** 
 
 - **关于keep-observer:**    
-  - 这是一个基于javascript编写用于线上环境监控，适用于web:PC端以及移动端的无感嵌入捕获，并持续追踪用户交互行为，
+  - 这是一个基于纯javascript编写用于线上环境监控，适用于web:PC端以及移动端的无感嵌入捕获，并持续追踪用户交互行为，
   - 支持Elasticsearch+kibana数据可视化后台显示,提供docker快速私有化部署
   - 提供细粒度时间维度分析以及关键字段索引搜索
-  - 提供单用户追踪记录，一连串事件持续追踪
+  - 提供单用户追踪记录，一连串事件持续追踪,并提供错误回溯
   - 提供pageLoad首屏加载分析,时间维度,多版本对比
   - 采用插件服务组合方式，提供中间件扩展接口
   - 支持可自由组合监控内容，并且允许自定义扩充控捕获服务，自定义上报服务等。
+  - 配置信息和API以及自定义服务,详细信息见 [keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document-cn/keepObserver-cn.md)
+- **你为什么需要keep-observer?**
+    - 你的业务需要: **业务监控，异常报警，错误追踪**
+    - 你的业务需要: **分析首屏性能信息,需要提供ABtest等灰度测试的结果数据分析**
+    - 你需要: **日志细粒度的搜索以及查询，并提供可视化数据报表**
+    - 你需要: **用户行为操作追踪,异常错误回溯查询**
+    - 你的团队: **没有后端资源提供，完全由前端团队操作**
+    - **可提供快速接入监控，快速部署后端服务，无复杂的服务端操作，前端技术人员即可安装部署**
+    - **高自定义扩展度，允许自定义扩展其他服务**
 - **功能:**  
   - keepObserverLog
     - 拦截捕获全局 ***console*** 相关日志,包括(error,log,warn,time,timeEnd,clear,info,debug)等
-    - 配置信息以及API详细信息见 [keepObserverLog]()
+    - 配置信息以及API详细信息见 [keepObserverLog](https://github.com/keep-observer/keepObserver/blob/master/document-cn/keepObserverLog-cn.md)
   - keepObserverNetwork
     - 捕获全局 ***XMLHttpRequest***以及***fetch***请求
-    - 配置信息以及API详细信息见[keepObserverNetwork]()
+    - 配置信息以及API详细信息见[keepObserverNetwork](https://github.com/keep-observer/keepObserver/blob/master/document-cn/keepObserverNetwork-cn.md)
   - KeepObserverHtmlElementActive
     - 捕获用户dom交互(click,change)事件，并提供xPath路径追踪
-    - 配置信息以及API详细信息见[KeepObserverHtmlElementActive]()
+    - 配置信息以及API详细信息见[KeepObserverHtmlElementActive](https://github.com/keep-observer/keepObserver/blob/master/document-cn/KeepObserverHtmlElementActive-cn.md)
   - KeepObserverKibanaApmReport
     - 使用Elasticsearch+kibana需要这个服务。依靠kibana APM上报数据 
-    - 配置信息以及API详细信息见[KeepObserverKibanaApmReport]()
+    - 配置信息以及API详细信息见[KeepObserverKibanaApmReport](https://github.com/keep-observer/keepObserver/blob/master/document-cn/KeepObserverKibanaApmReport-cn.md)
   - KeepObserverMiddlewareKibanaApmTrack
     - 中间件扩展服务，提供kibana时间轴追踪日志记录
-    - 配置信息以及API详细信息见[KeepObserverKibanaApmReport]()
-- **兼容与支持:**   兼容目前所有主流框架运行版本, **vue angular  react**等框架。**IE 678暂未测试**
+    - 配置信息以及API详细信息见[KeepObserverMiddlewareKibanaApmTrack](https://github.com/keep-observer/keepObserver/blob/master/document-cn/KeepObserverMiddlewareKibanaApmTrack-cn.md)
+- **兼容与支持:**   
+    - 兼容目前所有主流框架运行版本, **vue angular  react**等框架。**IE 678暂未测试**
 
 
 
@@ -85,11 +95,11 @@ import KeepObserver,{
 } from 'keep-observers'
 //实例
 const ko = new KeepObserver({ 
-    isInterruptNormal:true,
-    isGlobalElementActionCatch:true,
-    serverUrl:'http://localhost:8200',
-    serviceName: "push-test",
-    agentVersion: "step_1",
+    isInterruptNormal:true,         //KeepObserverMiddlewareKibanaApmTrack use
+    isGlobalElementActionCatch:true, //KeepObserverHtmlElementActive use
+    serverUrl:'http://localhost:8200', //KeepObserverKibanaApmReport use
+    serviceName: "push-test", //KeepObserverKibanaApmReport use
+    agentVersion: "step_1",   //KeepObserverKibanaApmReport use
 })
 //注册监控服务
 ko.use(KeepObserverLog)
@@ -141,10 +151,11 @@ class LocalstorageMiddlewareServer {
     apply({
         //更多参数请查看Documentation
         sendMessage,                //发送消息方法
-        useExtendMiddle,            //注册中间件扩展,等效ko.useMiddle()
+        useExtendMiddle,    //注册中间件扩展,等效ko.useMiddle()
+        middleScopeNames,   //中间件命名
         registerSendDoneCallback    //注册发送结束空闲回调
     }) {
-        const [sendMessageName] = ko_publicMiddleScopeNames
+        const [sendMessageName] = middleScopeNames
         //注册中间件服务
         useExtendMiddle(sendMessageNamem,(interrupt,next)=>(message)=>{
             //这只是一个简单的例子，举例使用 
@@ -188,7 +199,3 @@ ko.use(LocalstorageMiddlewareServer)
 ##### 	更多config配置详情，以及相关api等，请参考Documentation。
 
 
-
-## Documentation
-
-#### 	相关文档说明
