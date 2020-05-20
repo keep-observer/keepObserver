@@ -5,7 +5,6 @@ declare class KeepObserverKibanaApmReport extends KeepObserverPublic {
     private sendMessage;
     private _getReportContent;
     private _handleCatchError;
-    private _handleCustome;
     private _handleMonitor;
     private _handleMonitorLog;
     private _handleMonitorNetwork;

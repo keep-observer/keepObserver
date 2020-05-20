@@ -4369,24 +4369,6 @@ exports.createCustomLog = createCustomLog;
 
 /***/ }),
 
-/***/ "./src/services/report/kibanaApm/custome.ts":
-/*!**************************************************!*\
-  !*** ./src/services/report/kibanaApm/custome.ts ***!
-  \**************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-exports._handleCustome = function (params) {};
-
-/***/ }),
-
 /***/ "./src/services/report/kibanaApm/defaultConfig.ts":
 /*!********************************************************!*\
   !*** ./src/services/report/kibanaApm/defaultConfig.ts ***!
@@ -4453,13 +4435,9 @@ exports._getReportContent = function (params) {
       this._handleMonitor(params);
 
       break;
-
-    case 'custome':
-      this._handleCustome(params);
-
-      break;
     //以下暂缺，kibanaApm暂时不处理
 
+    case 'custome':
     case 'analyse':
     case 'performance':
     case 'undefined':
@@ -4476,7 +4454,8 @@ exports._handleCatchError = function () {
     _self.sendMessage({
       type: "monitor",
       typeName: 'error',
-      data: errorMessage
+      data: errorMessage,
+      isError: true
     });
   });
 };
@@ -4555,8 +4534,6 @@ var handle_1 = __webpack_require__(/*! ./handle */ "./src/services/report/kibana
 
 var api_1 = __webpack_require__(/*! ./api */ "./src/services/report/kibanaApm/api.ts");
 
-var custome_1 = __webpack_require__(/*! ./custome */ "./src/services/report/kibanaApm/custome.ts");
-
 var monitor_1 = __webpack_require__(/*! ./monitor */ "./src/services/report/kibanaApm/monitor.ts"); // report Server 
 
 
@@ -4576,7 +4553,6 @@ function (_super) {
 
     _this._getReportContent = handle_1._getReportContent.bind(_this);
     _this._handleCatchError = handle_1._handleCatchError.bind(_this);
-    _this._handleCustome = custome_1._handleCustome.bind(_this);
     _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
     _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
     _this._handleMonitorNetwork = monitor_1._handleMonitorNetwork.bind(_this);
@@ -4587,12 +4563,12 @@ function (_super) {
     _this.captureError = api_1.captureError.bind(_this);
     _this.createCustomLog = api_1.createCustomLog.bind(_this);
     var _a = config,
-        _b = _a.reportCustom,
-        reportCustom = _b === void 0 ? false : _b,
+        _b = _a.kibanaApmConfig,
+        kibanaApmConfig = _b === void 0 ? false : _b,
         _c = _a.develop,
         develop = _c === void 0 ? false : _c; //存混合配置
 
-    var reportConfig = reportCustom || config; //是否是开发模式
+    var reportConfig = kibanaApmConfig || config; //是否是开发模式
 
     reportConfig.develop = develop; //混合默认配置
 

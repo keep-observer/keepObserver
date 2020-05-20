@@ -13,11 +13,10 @@ import { middlesFn } from '../../../types/middle'
 
 class PipeUser extends KeepObserverPublic{
 
-    readonly pipeIndex:number
     private handleReportData:Function           //继承属性
-    private useMiddle:Function                  //继承属性
-    private runMiddle:Function                  //继承属性
     //provide
+    readonly pipeIndex:number
+    readonly middleScopeNames: string[]
     public sendMessage:(catchParams:catchParams)=>Promise<{}>
     public extendsReportParams: (params:any)=>any
     public registerReciveMessage: (fn:Function, scope?:any)=>void
@@ -56,7 +55,7 @@ class PipeUser extends KeepObserverPublic{
                 contendHashCode
             })
             //  1 -> 2 -> 3 -> 2 -> 1
-            return this.runMiddle(sendMessage,reportParams)
+            return $pipe.$keepObserver.runMiddle(sendMessage,reportParams)
                         .then((middleReportParams:reportParams<any>)=>{
                             isError = false
                             if(!middleReportParams){
@@ -97,6 +96,8 @@ class PipeUser extends KeepObserverPublic{
         this.registerSendDoneCallback = (callback:Function)=>{
             (this.constructor as any).onSendDoneCallbackMap.push(callback)
         }
+        // middleScopeNames
+        this.middleScopeNames = $pipe.$keepObserver.middleScopeNames.map(e=>e)
     }
 }
 

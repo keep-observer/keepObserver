@@ -204,7 +204,9 @@ exports._handleReciceReportMessage = function (interrupt, next) {
 
     var _c = message.type,
         type = _c === void 0 ? false : _c,
-        typeName = message.typeName; //中间件执行中会屏蔽发起的sendMessage
+        typeName = message.typeName,
+        _d = message.isError,
+        isError = _d === void 0 ? false : _d; //中间件执行中会屏蔽发起的sendMessage
 
     _this.isSendlock = true; //valid message
 
@@ -243,7 +245,7 @@ exports._handleReciceReportMessage = function (interrupt, next) {
         return next.apply(void 0, __spread(params));
     }
 
-    return isInterruptNormal ? interrupt(false) : next.apply(void 0, __spread(params));
+    return isInterruptNormal && !isError ? interrupt(false) : next.apply(void 0, __spread(params));
   };
 };
 
@@ -502,6 +504,33 @@ var __assign = this && this.__assign || function () {
   return __assign.apply(this, arguments);
 };
 
+var __read = this && this.__read || function (o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o),
+      r,
+      ar = [],
+      e;
+
+  try {
+    while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
+      ar.push(r.value);
+    }
+  } catch (error) {
+    e = {
+      error: error
+    };
+  } finally {
+    try {
+      if (r && !r.done && (m = i["return"])) m.call(i);
+    } finally {
+      if (e) throw e.error;
+    }
+  }
+
+  return ar;
+};
+
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
     "default": mod
@@ -595,7 +624,10 @@ function (_super) {
     var automaticStart = this._config.automaticStart;
     this.sendMessage = sendMessage; //receive message
 
-    useExtendMiddle('sendMessage', this._handleReciceReportMessage); //send wait
+    var _b = __read(this._publicMiddleScopeNames, 1),
+        sendMessageName = _b[0];
+
+    useExtendMiddle(sendMessageName, this._handleReciceReportMessage); //send wait
 
     registerSendDoneCallback(function () {
       _this.isSendlock = false;

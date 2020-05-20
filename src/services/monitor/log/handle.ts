@@ -105,6 +105,7 @@ export var _handleMessage = function(type, agrs) {
         type : "monitor",
         typeName : 'log',
         data : reportData,
+        isError: reportData.type ==='error'?true:false
     })
 }
 

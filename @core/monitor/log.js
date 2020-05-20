@@ -344,7 +344,8 @@ exports._handleMessage = function (type, agrs) {
   _self.sendMessage({
     type: "monitor",
     typeName: 'log',
-    data: reportData
+    data: reportData,
+    isError: reportData.type === 'error' ? true : false
   });
 };
 

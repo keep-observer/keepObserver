@@ -47,6 +47,7 @@ class KeepObserverMiddlewareKibanaApmTrack extends KeepObserverPublic{
     private pageInfo: pageChangeInfoType = null
     private errorContent: string = ''
     private trackList: reportParams<any>[] = [];
+    readonly _publicMiddleScopeNames: string[];         //继承的属性
     //pageHashChange
     private _pushState: Function;
     private _replaceState: Function;
@@ -93,7 +94,8 @@ class KeepObserverMiddlewareKibanaApmTrack extends KeepObserverPublic{
         const { automaticStart } = this._config
         this.sendMessage = sendMessage
         //receive message
-        useExtendMiddle('sendMessage',this._handleReciceReportMessage)
+        const [sendMessageName] = this._publicMiddleScopeNames
+        useExtendMiddle(sendMessageName,this._handleReciceReportMessage)
         //send wait
         registerSendDoneCallback(()=>{
             this.isSendlock = false;

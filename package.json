@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-alpha.4",
   "description": "web -- watch  is JS-error netWork  console..log  observer  web-monitor",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
     "@babel/preset-env": "^7.4.1",
     "@babel/preset-react": "^7.0.0",
+    "@util/index": "file:@util",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
     "babel-preset-es2015": "^6.24.1",
@@ -35,6 +36,7 @@
     "http-proxy-middleware": "^0.17.3",
     "iosselect": "^1.1.4",
     "jasmine-core": "^3.5.0",
+    "json-loader": "^0.5.7",
     "karma-chrome-launcher": "^3.1.0",
     "karma-jasmine": "^3.1.1",
     "karma-sourcemap-loader": "^0.3.7",
@@ -89,7 +91,6 @@
   "homepage": "https://github.com/keep-observer/keepObserver#readme",
   "dependencies": {
     "@types/node": "^12.0.8",
-    "@util/index": "file:@util",
     "axios": "^0.19.0",
     "core-js": "^2.6.10",
     "css-loader": "^2.1.1",

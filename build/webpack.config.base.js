@@ -15,6 +15,12 @@ module.exports = {
                 use:['babel-loader'],
             },
             {
+                test: /\.json$/,
+                use:['json-loader'],
+                type: "javascript/auto",
+                exclude:/node_modules/
+            },
+            {
                 test: /\.(scss|css)$/,
                 use: ['to-string-loader', 'css-loader','sass-loader'],
             }

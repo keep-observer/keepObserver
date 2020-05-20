@@ -8,6 +8,7 @@
 		"outDir": "./types",
 		"noImplicitThis": false,
 		"downlevelIteration": true,
+		"resolveJsonModule":true,
 		"types": [
 			"node",
 		],
@@ -23,6 +24,7 @@
 		},
 	},
 	"include": [
+		"./package.json",
 		"./src/**/*",
 		"./types"
 	],

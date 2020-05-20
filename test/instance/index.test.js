@@ -53,6 +53,51 @@ describe("KeepObserver service",function(){
     })
 
 
+    it('register server pipe method',function(done){
+        const extendScopeName = 'test_11'
+        const targetParams = {test:'no_1'}
+        class ProducerService {
+            apply(pipe,config){
+                expect(config).toEqual(testInstance._config)
+                expect(pipe.pipeIndex).toBe(0)
+                expect(pipe.middleScopeNames).toEqual(testInstance._publicMiddleScopeNames.concat([extendScopeName]))
+                //api
+                spyOn(pipe,'registerSendDoneCallback').and.callThrough();
+                spyOn(pipe,'sendMessage').and.callThrough();
+                spyOn(pipe,'extendsReportParams').and.callThrough();
+                spyOn(pipe,'useExtendMiddle').and.callThrough();
+                spyOn(pipe,'runExtendMiddle').and.callThrough();
+                //extendsReportParams
+                var extendTestParams ={addTest:111}
+                pipe.extendsReportParams(extendTestParams)
+                expect(pipe.extendsReportParams).toHaveBeenCalledWith(extendTestParams)
+                //useExtendMiddle
+                const handleMiddle = (interrupt,next)=>(value)=>{
+                    expect(value).toEqual({start:'ok'})
+                    //change value
+                    next({...value,...targetParams,res:'1111'})
+                }
+                pipe.useExtendMiddle(extendScopeName,handleMiddle)
+                expect(pipe.useExtendMiddle).toHaveBeenCalledWith(extendScopeName,handleMiddle)
+                //runExtendMiddle
+                pipe.runExtendMiddle(extendScopeName,{start:'ok'})
+                expect(pipe.runExtendMiddle).toHaveBeenCalledWith(extendScopeName,{start:'ok'})
+                
+            }
+        }
+        testInstance.useMiddle(extendScopeName,(interrupt,next)=>(value)=>{
+            expect(value).toEqual({
+                ...targetParams,
+                res:'1111',
+                start:'ok'
+            })
+            //change value
+            next(value)
+            done()
+        })
+        testInstance.use(ProducerService)
+    })
+
 
     it('ProducerService register api',function(){
         class ProducerService {

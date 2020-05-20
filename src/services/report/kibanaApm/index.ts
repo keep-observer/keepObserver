@@ -14,9 +14,6 @@ import {
     createCustomLog
 } from './api'
 import {
-    _handleCustome
-} from './custome'
-import {
     _handleMonitor,
     _handleMonitorLog,
     _handleMonitorNetwork,
@@ -36,7 +33,6 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
     //method
     private _getReportContent = _getReportContent.bind(this)
     private _handleCatchError = _handleCatchError.bind(this)
-    private _handleCustome = _handleCustome.bind(this)
     private _handleMonitor = _handleMonitor.bind(this)
     private _handleMonitorLog = _handleMonitorLog.bind(this)
     private _handleMonitorNetwork = _handleMonitorNetwork.bind(this)
@@ -51,9 +47,9 @@ class KeepObserverKibanaApmReport  extends KeepObserverPublic  {
     //constructor
     constructor(config = {}){
         super(config)
-        const { reportCustom=false,develop=false } = config as any
+        const { kibanaApmConfig=false,develop=false } = config as any
         //存混合配置
-        var reportConfig:any = reportCustom || config;
+        var reportConfig:any = kibanaApmConfig || config;
         //是否是开发模式
         reportConfig.develop = develop
         //混合默认配置

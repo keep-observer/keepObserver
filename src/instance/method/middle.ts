@@ -10,7 +10,9 @@ import {
 
 
 //主实例重载中间件服务
-export const useMiddle = function(scopeName:string,middlesFn:middlesFn){
+export const useMiddle = function(scopeName:string,middlesFn:middlesFn):{
+    [propName: string]:middlesFn[]
+}{
     if(this.middleScopeNames.indexOf(scopeName)=== -1){
         this.middleScopeNames.push(scopeName)
     }

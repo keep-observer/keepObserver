@@ -3,10 +3,9 @@ import keepObserverPipe from '../index';
 import { catchParams } from '../../../types/pipe';
 import { middlesFn } from '../../../types/middle';
 declare class PipeUser extends KeepObserverPublic {
-    readonly pipeIndex: number;
     private handleReportData;
-    private useMiddle;
-    private runMiddle;
+    readonly pipeIndex: number;
+    readonly middleScopeNames: string[];
     sendMessage: (catchParams: catchParams) => Promise<{}>;
     extendsReportParams: (params: any) => any;
     registerReciveMessage: (fn: Function, scope?: any) => void;

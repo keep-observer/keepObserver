@@ -97,7 +97,7 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-exports.version = '2.0.0-beta.1'; //公共中间件
+exports.version = '2.0.0-alpha.3'; //公共中间件
 
 exports.publicMiddleScopeNames = ['sendMessage', 'error'];
 
@@ -125,11 +125,8 @@ var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
 var index_2 = __webpack_require__(/*! ../constants/index */ "./src/constants/index.ts");
 
 exports["default"] = {
-  //更新版本是否清除缓存
-  updateVersionClearCache: false,
-  //kibana apm
-  projectName: "",
-  projectVersion: "",
+  projectName: '',
+  projectVersion: '',
   version: index_2.version,
   //唯一设备id
   deviceID: index_1.getDeviceId(),
@@ -222,8 +219,6 @@ var index_5 = __importDefault(__webpack_require__(/*! ./pipe/MQ/index */ "./src/
 
 exports.MessageQueue = index_5["default"];
 
-var update_1 = __webpack_require__(/*! ./method/update */ "./src/instance/method/update.ts");
-
 var api_1 = __webpack_require__(/*! ./method/api */ "./src/instance/method/api.ts");
 
 var middle_1 = __webpack_require__(/*! ./method/middle */ "./src/instance/method/middle.ts");
@@ -243,7 +238,6 @@ function (_super) {
     var _this = _super.call(this, config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), config)) || this; //method
 
 
-    _this.updateVersionClearCache = update_1.updateVersionClearCache.bind(_this);
     _this.registerApi = api_1.registerApi.bind(_this); //api
 
     _this.apis = api_1.apis.bind(_this); //主实例重载中间件服务
@@ -271,12 +265,7 @@ function (_super) {
     }); //扩展中间件
 
 
-    _this.middleScopeNames = _this.middleScopeNames.concat(_this._publicMiddleScopeNames); //是否需要更新版本清除缓存
-
-    if (_this._config.projectVersion && _this._config.updateVersionClearCache) {
-      _this.updateVersionClearCache();
-    }
-
+    _this.middleScopeNames = _this.middleScopeNames.concat(_this._publicMiddleScopeNames);
     return _this;
   }
 
@@ -342,7 +331,7 @@ exports.registerApi = function (apiName, cb) {
   var _self = this;
 
   if (_self.apis[apiName]) {
-    return index_1.consoleTools.warnError("apiName:" + apiName + " is defined");
+    index_1.consoleTools.warnError("apiName:" + apiName + " is defined");
   }
 
   _self.apis[apiName] = cb;
@@ -436,48 +425,6 @@ exports.useMiddle = function (scopeName, middlesFn) {
 
 exports.getRunMiddle = function () {
   return index_1.KeepObserverMiddleWare.currentRunMiddle;
-};
-
-/***/ }),
-
-/***/ "./src/instance/method/update.ts":
-/*!***************************************!*\
-  !*** ./src/instance/method/update.ts ***!
-  \***************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var index_1 = __webpack_require__(/*! @util/index */ "@util/index");
-
-var updateVersionRecordKey = 'versionRecord';
-var keepObserverRecordReg = /^keepObserverData/i;
-
-exports.updateVersionClearCache = function () {
-  var oldVersion = index_1.Tools.getStorage(updateVersionRecordKey);
-
-  if (!this._config.projectVersion || this._config.projectVersion === oldVersion) {
-    return false;
-  }
-
-  if (!window.localStorage) {
-    return false;
-  }
-
-  for (var key in window.localStorage) {
-    if (keepObserverRecordReg.test(key)) {
-      localStorage.removeItem(key);
-      this.$devWarn('[keepObserver] updateVersionRecord key:' + key);
-    }
-  }
-
-  index_1.Tools.setStorage(updateVersionRecordKey, this._config.projectVersion);
 };
 
 /***/ }),
@@ -811,7 +758,7 @@ function (_super) {
       })); //  1 -> 2 -> 3 -> 2 -> 1
 
 
-      return _this.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
+      return $pipe.$keepObserver.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
         isError = false;
 
         if (!middleReportParams) {
@@ -865,8 +812,12 @@ function (_super) {
 
     _this.registerSendDoneCallback = function (callback) {
       _this.constructor.onSendDoneCallbackMap.push(callback);
-    };
+    }; // middleScopeNames
 
+
+    _this.middleScopeNames = $pipe.$keepObserver.middleScopeNames.map(function (e) {
+      return e;
+    });
     return _this;
   }
 

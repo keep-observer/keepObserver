@@ -550,7 +550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
         exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-        exports.version = '2.0.0-beta.1'; //公共中间件
+        exports.version = '2.0.0-alpha.3'; //公共中间件
 
         exports.publicMiddleScopeNames = ['sendMessage', 'error'];
         /***/
@@ -946,7 +946,7 @@ return /******/ (function(modules) { // webpackBootstrap
             }
 
             if (_self._runMiddleBuff[scopeName]) {
-              consoleTools.warnError(scopeName + " middles is run");
+              _self._develop && consoleTools.warnError(scopeName + " middles is run");
               return Promise.reject(scopeName + " middles is run");
             } //合并中间件队列
 
@@ -6829,27 +6829,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       },
 
       /***/
-      "./src/services/report/kibanaApm/custome.ts":
-      /*!**************************************************!*\
-        !*** ./src/services/report/kibanaApm/custome.ts ***!
-        \**************************************************/
-
-      /*! no static exports found */
-
-      /***/
-      function srcServicesReportKibanaApmCustomeTs(module, exports, __webpack_require__) {
-        "use strict";
-
-        Object.defineProperty(exports, "__esModule", {
-          value: true
-        });
-
-        exports._handleCustome = function (params) {};
-        /***/
-
-      },
-
-      /***/
       "./src/services/report/kibanaApm/defaultConfig.ts":
       /*!********************************************************!*\
         !*** ./src/services/report/kibanaApm/defaultConfig.ts ***!
@@ -6921,13 +6900,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               this._handleMonitor(params);
 
               break;
-
-            case 'custome':
-              this._handleCustome(params);
-
-              break;
             //以下暂缺，kibanaApm暂时不处理
 
+            case 'custome':
             case 'analyse':
             case 'performance':
             case 'undefined':
@@ -6944,7 +6919,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             _self.sendMessage({
               type: "monitor",
               typeName: 'error',
-              data: errorMessage
+              data: errorMessage,
+              isError: true
             });
           });
         };
@@ -7036,10 +7012,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         /*! ./api */
         "./src/services/report/kibanaApm/api.ts");
 
-        var custome_1 = __webpack_require__(
-        /*! ./custome */
-        "./src/services/report/kibanaApm/custome.ts");
-
         var monitor_1 = __webpack_require__(
         /*! ./monitor */
         "./src/services/report/kibanaApm/monitor.ts"); // report Server 
@@ -7061,7 +7033,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             _this._getReportContent = handle_1._getReportContent.bind(_this);
             _this._handleCatchError = handle_1._handleCatchError.bind(_this);
-            _this._handleCustome = custome_1._handleCustome.bind(_this);
             _this._handleMonitor = monitor_1._handleMonitor.bind(_this);
             _this._handleMonitorLog = monitor_1._handleMonitorLog.bind(_this);
             _this._handleMonitorNetwork = monitor_1._handleMonitorNetwork.bind(_this);
@@ -7072,12 +7043,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             _this.captureError = api_1.captureError.bind(_this);
             _this.createCustomLog = api_1.createCustomLog.bind(_this);
             var _a = config,
-                _b = _a.reportCustom,
-                reportCustom = _b === void 0 ? false : _b,
+                _b = _a.kibanaApmConfig,
+                kibanaApmConfig = _b === void 0 ? false : _b,
                 _c = _a.develop,
                 develop = _c === void 0 ? false : _c; //存混合配置
 
-            var reportConfig = reportCustom || config; //是否是开发模式
+            var reportConfig = kibanaApmConfig || config; //是否是开发模式
 
             reportConfig.develop = develop; //混合默认配置
 
@@ -7924,7 +7895,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             var _c = message.type,
                 type = _c === void 0 ? false : _c,
-                typeName = message.typeName; //中间件执行中会屏蔽发起的sendMessage
+                typeName = message.typeName,
+                _d = message.isError,
+                isError = _d === void 0 ? false : _d; //中间件执行中会屏蔽发起的sendMessage
 
             _this.isSendlock = true; //valid message
 
@@ -7963,7 +7936,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 return next.apply(void 0, __spread(params));
             }
 
-            return isInterruptNormal ? interrupt(false) : next.apply(void 0, __spread(params));
+            return isInterruptNormal && !isError ? interrupt(false) : next.apply(void 0, __spread(params));
           };
         };
 
@@ -8225,6 +8198,33 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           return __assign.apply(this, arguments);
         };
 
+        var __read = this && this.__read || function (o, n) {
+          var m = typeof Symbol === "function" && o[Symbol.iterator];
+          if (!m) return o;
+          var i = m.call(o),
+              r,
+              ar = [],
+              e;
+
+          try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) {
+              ar.push(r.value);
+            }
+          } catch (error) {
+            e = {
+              error: error
+            };
+          } finally {
+            try {
+              if (r && !r.done && (m = i["return"])) m.call(i);
+            } finally {
+              if (e) throw e.error;
+            }
+          }
+
+          return ar;
+        };
+
         var __importDefault = this && this.__importDefault || function (mod) {
           return mod && mod.__esModule ? mod : {
             "default": mod
@@ -8328,7 +8328,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             var automaticStart = this._config.automaticStart;
             this.sendMessage = sendMessage; //receive message
 
-            useExtendMiddle('sendMessage', this._handleReciceReportMessage); //send wait
+            var _b = __read(this._publicMiddleScopeNames, 1),
+                sendMessageName = _b[0];
+
+            useExtendMiddle(sendMessageName, this._handleReciceReportMessage); //send wait
 
             registerSendDoneCallback(function () {
               _this.isSendlock = false;
@@ -10687,7 +10690,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           _self.sendMessage({
             type: "monitor",
             typeName: 'log',
-            data: reportData
+            data: reportData,
+            isError: reportData.type === 'error' ? true : false
           });
         };
         /***/
@@ -11086,7 +11090,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-        exports.version = '2.0.0-beta.1'; //公共中间件
+        exports.version = '2.0.0-alpha.3'; //公共中间件
 
         exports.publicMiddleScopeNames = ['sendMessage', 'error'];
         /***/
@@ -11120,11 +11124,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         "./src/constants/index.ts");
 
         exports["default"] = {
-          //更新版本是否清除缓存
-          updateVersionClearCache: false,
-          //kibana apm
-          projectName: "",
-          projectVersion: "",
+          projectName: '',
+          projectVersion: '',
           version: index_2.version,
           //唯一设备id
           deviceID: index_1.getDeviceId(),
@@ -11231,10 +11232,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports.MessageQueue = index_5["default"];
 
-        var update_1 = __webpack_require__(
-        /*! ./method/update */
-        "./src/instance/method/update.ts");
-
         var api_1 = __webpack_require__(
         /*! ./method/api */
         "./src/instance/method/api.ts");
@@ -11260,7 +11257,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             var _this = _super.call(this, config = index_1.Tools.extend(__assign({}, defaultConfig_1["default"]), config)) || this; //method
 
 
-            _this.updateVersionClearCache = update_1.updateVersionClearCache.bind(_this);
             _this.registerApi = api_1.registerApi.bind(_this); //api
 
             _this.apis = api_1.apis.bind(_this); //主实例重载中间件服务
@@ -11288,12 +11284,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             }); //扩展中间件
 
 
-            _this.middleScopeNames = _this.middleScopeNames.concat(_this._publicMiddleScopeNames); //是否需要更新版本清除缓存
-
-            if (_this._config.projectVersion && _this._config.updateVersionClearCache) {
-              _this.updateVersionClearCache();
-            }
-
+            _this.middleScopeNames = _this.middleScopeNames.concat(_this._publicMiddleScopeNames);
             return _this;
           }
 
@@ -11363,7 +11354,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           var _self = this;
 
           if (_self.apis[apiName]) {
-            return index_1.consoleTools.warnError("apiName:" + apiName + " is defined");
+            index_1.consoleTools.warnError("apiName:" + apiName + " is defined");
           }
 
           _self.apis[apiName] = cb;
@@ -11467,53 +11458,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports.getRunMiddle = function () {
           return index_1.KeepObserverMiddleWare.currentRunMiddle;
-        };
-        /***/
-
-      },
-
-      /***/
-      "./src/instance/method/update.ts":
-      /*!***************************************!*\
-        !*** ./src/instance/method/update.ts ***!
-        \***************************************/
-
-      /*! no static exports found */
-
-      /***/
-      function srcInstanceMethodUpdateTs(module, exports, __webpack_require__) {
-        "use strict";
-
-        Object.defineProperty(exports, "__esModule", {
-          value: true
-        });
-
-        var index_1 = __webpack_require__(
-        /*! @util/index */
-        "@util/index");
-
-        var updateVersionRecordKey = 'versionRecord';
-        var keepObserverRecordReg = /^keepObserverData/i;
-
-        exports.updateVersionClearCache = function () {
-          var oldVersion = index_1.Tools.getStorage(updateVersionRecordKey);
-
-          if (!this._config.projectVersion || this._config.projectVersion === oldVersion) {
-            return false;
-          }
-
-          if (!window.localStorage) {
-            return false;
-          }
-
-          for (var key in window.localStorage) {
-            if (keepObserverRecordReg.test(key)) {
-              localStorage.removeItem(key);
-              this.$devWarn('[keepObserver] updateVersionRecord key:' + key);
-            }
-          }
-
-          index_1.Tools.setStorage(updateVersionRecordKey, this._config.projectVersion);
         };
         /***/
 
@@ -11872,7 +11816,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               })); //  1 -> 2 -> 3 -> 2 -> 1
 
 
-              return _this.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
+              return $pipe.$keepObserver.runMiddle(sendMessage, reportParams).then(function (middleReportParams) {
                 isError = false;
 
                 if (!middleReportParams) {
@@ -11926,8 +11870,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             _this.registerSendDoneCallback = function (callback) {
               _this.constructor.onSendDoneCallbackMap.push(callback);
-            };
+            }; // middleScopeNames
 
+
+            _this.middleScopeNames = $pipe.$keepObserver.middleScopeNames.map(function (e) {
+              return e;
+            });
             return _this;
           }
 

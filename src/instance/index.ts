@@ -7,7 +7,6 @@ import PipeUser from './pipe/PipeUser/index'
 import WatchDog from './pipe/WatchDog/index'
 import MessageQueue from './pipe/MQ/index'
 
-import { updateVersionClearCache} from './method/update';
 import { registerApi,apis } from './method/api'
 import { useMiddle,getRunMiddle } from './method/middle'
 import { extendReportParams,use } from './method/base'
@@ -26,13 +25,9 @@ export {
 class KeepObserver extends KeepObserverPublic{
     private _config: any
     private _pipe: any
-    private _apis: {
-        [propName: string]:(...args:any[])=>any
-    }
     private middleScopeNames: string[]           //继承属性
     readonly _publicMiddleScopeNames: string[]   //继承属性
     //method
-    private updateVersionClearCache = updateVersionClearCache.bind(this);
     private registerApi = registerApi.bind(this)
     //api
     public apis = apis.bind(this)
@@ -61,10 +56,6 @@ class KeepObserver extends KeepObserverPublic{
         })
         //扩展中间件
         this.middleScopeNames = this.middleScopeNames.concat(this._publicMiddleScopeNames)
-        //是否需要更新版本清除缓存
-        if(this._config.projectVersion && this._config.updateVersionClearCache){
-            this.updateVersionClearCache();
-        }
     }
     
 

@@ -337,7 +337,7 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-exports.version = '2.0.0-beta.1'; //公共中间件
+exports.version = '2.0.0-alpha.3'; //公共中间件
 
 exports.publicMiddleScopeNames = ['sendMessage', 'error'];
 
@@ -706,7 +706,7 @@ function () {
     }
 
     if (_self._runMiddleBuff[scopeName]) {
-      consoleTools.warnError(scopeName + " middles is run");
+      _self._develop && consoleTools.warnError(scopeName + " middles is run");
       return Promise.reject(scopeName + " middles is run");
     } //合并中间件队列
 

@@ -22,10 +22,8 @@ export const _getReportContent = function(params:reportParams<any>){
         case 'monitor':
             this._handleMonitor(params)
             break;
-        case 'custome':
-            this._handleCustome(params)
-            break;
         //以下暂缺，kibanaApm暂时不处理
+        case 'custome':
         case 'analyse':
         case 'performance':
         case 'undefined':
@@ -43,6 +41,7 @@ export const _handleCatchError = function(){
             type : "monitor",
             typeName : 'error',
             data: errorMessage,
+            isError:true
         })
     })
 }

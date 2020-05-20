@@ -13,7 +13,7 @@ import { errorType } from '../../../types/error'
 export const _handleReciceReportMessage = function (interrupt:Function,next:Function){return(...params)=>{
     const { isInterruptNormal } = this._config
     const [ message={} ] = params
-    const { type =false,typeName } = message
+    const { type =false,typeName,isError=false } = message
     //中间件执行中会屏蔽发起的sendMessage
     this.isSendlock = true;
     //valid message
@@ -40,7 +40,7 @@ export const _handleReciceReportMessage = function (interrupt:Function,next:Func
             consoleTools.warnError(`is no support track typeName:${typeName}`)
             return next(...params)
     }
-    return isInterruptNormal?interrupt(false):next(...params)
+    return isInterruptNormal && !isError?interrupt(false):next(...params)
 }}
 export const _handleTrackLog = function(params:reportParams<logType>){ 
     this.trackList.push(params)

@@ -1,4 +1,5 @@
 
+
 //上报数据类型
 export const reportType = [
     'unKownType',
@@ -8,9 +9,10 @@ export const reportType = [
 ];
 
 //版本号
-export const version = '2.0.0-beta.1';
+export const version = '2.0.0-alpha.4';
 
 
 //公共中间件
 export const publicMiddleScopeNames = ['sendMessage','error']
+
 

@@ -31,7 +31,9 @@ class KeepObserverMiddleWare {
     //公共方法和部分
     static publicMiddles = {}
     static currentRunMiddle = false;
-    static usePublishMiddles(scopeName:string,middlesFn:middlesFn):any{
+    static usePublishMiddles(scopeName:string,middlesFn:middlesFn):{
+        [propName: string]:middlesFn[]
+    }{
         const _staticSelf = this
         if(_staticSelf.publicMiddles[scopeName]){
             _staticSelf.publicMiddles[scopeName].unshift(middlesFn)
@@ -69,7 +71,7 @@ class KeepObserverMiddleWare {
             return Promise.reject(`${scopeName} middles function is undefined`)
         }
         if(_self._runMiddleBuff[scopeName]){
-            consoleTools.warnError(`${scopeName} middles is run`)
+            _self._develop && consoleTools.warnError(`${scopeName} middles is run`)
             return Promise.reject(`${scopeName} middles is run`)
         }
         //合并中间件队列

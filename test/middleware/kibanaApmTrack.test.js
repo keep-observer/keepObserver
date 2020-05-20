@@ -68,11 +68,18 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
         var time
         class ConsumerService{
             getMessage(message){
-                if(testHashChange) teturn
-                expect(message.type).toBe(`monitor`)
-                expect(message.typeName).toBe(`kibanaApmTrack`)    
+                if(testHashChange) return  
                 switch(++receiveCount){
                     case 1:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`log`)  
+                        expect(message.data.type).toBe(`error`)
+                        expect(message.data.data).toBe(`["errorTest"]`)
+                        expect(message.isError).toBeTrue()
+                        break;
+                    case 2:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`kibanaApmTrack`)  
                         expect(message.data.type).toBe(`pageError`)
                         expect(message.data.tags.errorContent).toBe('{"type":"error","data":"[\\"errorTest\\"]"}')
                         expect(message.data.tags.findErrorDate).toBe(time)
@@ -138,6 +145,7 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
                         expect(message.type).toBe(`monitor`)
                         expect(message.typeName).toBe(`log`)
                         expect(message.data).toEqual({type: 'error', data: '["errorTest"]'})
+                        expect(message.isError).toBeTrue()
                         break;
                     case 4:
                         expect(message.type).toBe(`monitor`)
@@ -205,10 +213,21 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
         var time_Timeout
         class ConsumerService{
             getMessage(message){
-                expect(message.type).toBe(`monitor`)
-                expect(message.typeName).toBe(`kibanaApmTrack`)           
                 switch(++receiveCount){
                     case 1:
+                        expect(message.data.status).toBe(404)
+                        expect(message.data.method).toBe("GET")
+                        expect(message.data.params).toBe('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.url).toBe("http://localhost:9003/404")
+                        expect(message.data.body).toBe('')
+                        expect(message.data.isError).toBeTrue()
+                        expect(message.data.response).toBe('ajax request error! error statusCode:404')
+                        expect(message.isError).toBeTrue()
+                        break;
+                    case 2:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`kibanaApmTrack`) 
                         expect(message.data.type).toBe(`pageError`)
                         expect(message.data.tags.errorContent).toEqual(jasmine.stringMatching(`"method":"GET","url":"http://localhost:9003/404","params":"","status":404`))
                         expect(message.data.tags.findErrorDate).toBe(time_404)
@@ -254,7 +273,19 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
                             },
                         ])
                         break;
-                    case 2:
+                    case 3:
+                        expect(message.data.status).toBe(500)
+                        expect(message.data.method).toBe("GET")
+                        expect(message.data.params).toBe('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.url).toBe("http://localhost:9003/500")
+                        expect(message.data.isError).toBeTrue()
+                        expect(message.data.body).toBe('')
+                        expect(message.data.response).toBe('ajax request error! error statusCode:500')
+                        break;
+                    case 4:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`kibanaApmTrack`) 
                         expect(message.data.type).toBe(`pageError`)
                         expect(message.data.tags.errorContent).toEqual(jasmine.stringMatching(`"method":"GET","url":"http://localhost:9003/500","params":"","status":500`))
                         expect(message.data.tags.findErrorDate).toBe(time_500)
@@ -320,7 +351,21 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
                             },
                         ])
                         break;
-                    case 3:
+                    case 5:
+                        expect(message.data.status).toBe(0)
+                        expect(message.data.method).toBe("GET")
+                        expect(message.data.params).toBe('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.url).toBe("http://localhost:9003/timeout")
+                        expect(message.data.body).toBe('')
+                        expect(message.data.isError).toBeTrue()
+                        expect(message.data.timeout).toBe(25000)                                    //default timeout 20000 ms
+                        expect(message.data.response).toBe('ajax request timeout，time:25000(ms)')
+                        expect(message.data.errorContent).toBe('ajax request timeout，time:25000(ms)')
+                        break;
+                    case 6:
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`kibanaApmTrack`) 
                         let time_Timeout_Done = Tools.dateFormat(new Date(  (new Date(time_Timeout).getTime()+20000)  ),'yyyy-MM-dd hh')
                         expect(message.data.type).toBe(`pageError`)
                         expect(message.data.tags.errorContent).toEqual(jasmine.stringMatching(`"method":"GET","url":"http://localhost:9003/timeout","params":"","status":0`))
@@ -465,6 +510,12 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
             getMessage(message){    
                 switch(++receiveCount){
                     case 1:
+                        console.log(message,111111)
+                        expect(message.type).toBe(`monitor`)
+                        expect(message.typeName).toBe(`error`)   
+                        expect(message.isError).toBeTrue()
+                        break;
+                    case 2:
                         expect(message.type).toBe(`monitor`)
                         expect(message.typeName).toBe(`kibanaApmTrack`)    
                         expect(message.data.type).toBe(`pageError`)
@@ -564,6 +615,7 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
                         message,
                         filename
                     },
+                    isError:true
                 })
             }
             apply(pipe,config){
