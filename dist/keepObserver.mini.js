@@ -13,7 +13,7 @@ function(e,t,r){var n,i,o;i=[],void 0===(o="function"==typeof(n=function(){retur
         !*** ./src/constants/index.ts ***!
         \********************************/
 /*! no static exports found */
-function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.reportType=["unKownType","log","network","vue"],t.version="2.0.0-alpha.3",t.publicMiddleScopeNames=["sendMessage","error"]},"./src/util/console.ts":
+function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.reportType=["unKownType","log","network","vue"],t.version="2.0.0-alpha.4",t.publicMiddleScopeNames=["sendMessage","error"]},"./src/util/console.ts":
 /*!*****************************!*\
         !*** ./src/util/console.ts ***!
         \*****************************/
@@ -540,7 +540,7 @@ function(t,r){t.exports=e}})})}).call(this,r(1)(e))},function(e,t,r){(function(e
         !*** ./src/constants/index.ts ***!
         \********************************/
 /*! no static exports found */
-function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.reportType=["unKownType","log","network","vue"],t.version="2.0.0-alpha.3",t.publicMiddleScopeNames=["sendMessage","error"]},"./src/instance/defaultConfig.ts":
+function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.reportType=["unKownType","log","network","vue"],t.version="2.0.0-alpha.4",t.publicMiddleScopeNames=["sendMessage","error"]},"./src/instance/defaultConfig.ts":
 /*!***************************************!*\
         !*** ./src/instance/defaultConfig.ts ***!
         \***************************************/

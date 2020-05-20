@@ -97,7 +97,7 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-exports.version = '2.0.0-alpha.3'; //公共中间件
+exports.version = '2.0.0-alpha.4'; //公共中间件
 
 exports.publicMiddleScopeNames = ['sendMessage', 'error'];
 

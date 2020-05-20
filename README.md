@@ -16,7 +16,7 @@
   - Provides PageLoad first screen load analysis, time dimension, multi-version comparison
   - The middleware extension interface is provided by means of plug-in service composition
   - Support can freely combine the monitoring content, and allow custom extension control capture service, custom escalation service, etc。
-  -  Configuration information and apis as well as custom services, see [keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/keepObserver.md)
+  -  Configuration information and apis as well as custom services, see [keepObserver](https://github.com/keep-observer/keepObserver/blob/master/document/KeepObserver.md)
 - **Why do you need a keep-observer?**
     - Your business needs: **business monitoring, abnormal alarm, error tracking**
     - Your business needs: **analyze the performance information of the first screen, and provide data analysis of the results of grayscale tests such as ABtest**

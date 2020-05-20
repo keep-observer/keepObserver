@@ -550,7 +550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
         exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-        exports.version = '2.0.0-alpha.3'; //公共中间件
+        exports.version = '2.0.0-alpha.4'; //公共中间件
 
         exports.publicMiddleScopeNames = ['sendMessage', 'error'];
         /***/
@@ -11090,7 +11090,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-        exports.version = '2.0.0-alpha.3'; //公共中间件
+        exports.version = '2.0.0-alpha.4'; //公共中间件
 
         exports.publicMiddleScopeNames = ['sendMessage', 'error'];
         /***/
