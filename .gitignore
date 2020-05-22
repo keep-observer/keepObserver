@@ -48,7 +48,7 @@ Temporary Items
 node_modules/*
 testProject/*
 nodeServer/*
-coverage
+coverage/*
 .DS_Store
 *.log
 .coveralls.ym

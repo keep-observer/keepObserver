@@ -7,7 +7,7 @@
 		var a = typeof exports === 'object' ? factory(require("@util/index")) : factory(root["@util/index"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
-})(window, function(__WEBPACK_EXTERNAL_MODULE__util_index__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE__util_index__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -97,7 +97,7 @@ Object.defineProperty(exports, "__esModule", {
 
 exports.reportType = ['unKownType', 'log', 'network', 'vue']; //版本号
 
-exports.version = '2.0.0-alpha.4'; //公共中间件
+exports.version = '2.0.0-alpha.5'; //公共中间件
 
 exports.publicMiddleScopeNames = ['sendMessage', 'error'];
 
