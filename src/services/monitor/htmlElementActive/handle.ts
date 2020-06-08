@@ -1,4 +1,4 @@
-import { Tools } from '@util/index'
+import { Tools,consoleTools } from '@util/index'
 import { elementActiveInfoType } from '../../../types/htmlElementActive'
 
 var CN_CodeReg = /[\u4e00-\u9fa5\w]/ig;
@@ -34,7 +34,7 @@ export const filterRepeat = function(elementActiveInfo:elementActiveInfoType):bo
 }
 
 
-export const createXPath = function(element){
+export const createXPath = function(element,init?){
     const { xpathFlag } = this._config;
     //id
     if(element.id){
@@ -54,8 +54,8 @@ export const createXPath = function(element){
         var item = brotherList[i]
         if(item.getAttribute(xpathFlag)){
             element.removeAttribute(xpathFlag)
-            return `${this.createXPath(element.parentNode)}/${element.nodeName.toLowerCase()}${index>1?'['+index+']':''}`
-        }else if(item.nodeName.toLowerCase() === element.nodeName.toLowerCase()){
+            return `${this.createXPath(element.parentNode)}/${element.nodeName.toLowerCase()}${index>1 || (!init&& len>1 && index===1) ?'['+index+']':''}`
+        }else if( item.nodeType == 1 && item.nodeName.toLowerCase() === element.nodeName.toLowerCase()){
             index++
         }
     }
@@ -81,7 +81,7 @@ export const createTitle = function(el){
 
 export const createSendMessage = function(type,element):elementActiveInfoType{
     let title = this.createTitle(element);
-    let xPath = this.createXPath(element);
+    let xPath = this.createXPath(element,true/*init*/);
     let value = type ==='change'? element.value:'';
     //change input checkbox radio 
     if(element.nodeName.toLowerCase()=== 'input' && (element.type === 'checkbox' || element.type ==='radio') ){

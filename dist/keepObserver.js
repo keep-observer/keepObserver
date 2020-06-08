@@ -7281,6 +7281,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 _a = span.tags,
                 tags = _a === void 0 ? null : _a;
             var spanItem = task.startSpan(name, type);
+            spanItem.addTags({
+              typeName: taskName
+            });
 
             if (tags) {
               switch (tags.type) {
@@ -7521,7 +7524,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             errorLogging.logErrorEvent = function (errorEvent, sendImmediately) {
               callback(errorEvent);
-              return logErrorEventPatch.apply(errorLogging, errorEvent, sendImmediately);
+              return logErrorEventPatch.call(errorLogging, errorEvent, sendImmediately);
             };
           };
 
@@ -8858,7 +8861,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           return true;
         };
 
-        exports.createXPath = function (element) {
+        exports.createXPath = function (element, init) {
           var xpathFlag = this._config.xpathFlag; //id
 
           if (element.id) {
@@ -8883,8 +8886,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             if (item.getAttribute(xpathFlag)) {
               element.removeAttribute(xpathFlag);
-              return this.createXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
-            } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
+              return this.createXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + (index > 1 || !init && len > 1 && index === 1 ? '[' + index + ']' : '');
+            } else if (item.nodeType == 1 && item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
               index++;
             }
           }
@@ -8909,7 +8912,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports.createSendMessage = function (type, element) {
           var title = this.createTitle(element);
-          var xPath = this.createXPath(element);
+          var xPath = this.createXPath(element, true
+          /*init*/
+          );
           var value = type === 'change' ? element.value : ''; //change input checkbox radio 
 
           if (element.nodeName.toLowerCase() === 'input' && (element.type === 'checkbox' || element.type === 'radio')) {

@@ -198,7 +198,7 @@ exports.filterRepeat = function (elementActiveInfo) {
   return true;
 };
 
-exports.createXPath = function (element) {
+exports.createXPath = function (element, init) {
   var xpathFlag = this._config.xpathFlag; //id
 
   if (element.id) {
@@ -223,8 +223,8 @@ exports.createXPath = function (element) {
 
     if (item.getAttribute(xpathFlag)) {
       element.removeAttribute(xpathFlag);
-      return this.createXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + (index > 1 ? '[' + index + ']' : '');
-    } else if (item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
+      return this.createXPath(element.parentNode) + "/" + element.nodeName.toLowerCase() + (index > 1 || !init && len > 1 && index === 1 ? '[' + index + ']' : '');
+    } else if (item.nodeType == 1 && item.nodeName.toLowerCase() === element.nodeName.toLowerCase()) {
       index++;
     }
   }
@@ -249,7 +249,9 @@ exports.createTitle = function (el) {
 
 exports.createSendMessage = function (type, element) {
   var title = this.createTitle(element);
-  var xPath = this.createXPath(element);
+  var xPath = this.createXPath(element, true
+  /*init*/
+  );
   var value = type === 'change' ? element.value : ''; //change input checkbox radio 
 
   if (element.nodeName.toLowerCase() === 'input' && (element.type === 'checkbox' || element.type === 'radio')) {

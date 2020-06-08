@@ -103,7 +103,7 @@ class TracerTransaction {
         const logErrorEventPatch = errorLogging.logErrorEvent
         errorLogging.logErrorEvent = function(errorEvent,sendImmediately){
             callback(errorEvent)
-            return logErrorEventPatch.apply(errorLogging,errorEvent,sendImmediately)
+            return logErrorEventPatch.call(errorLogging,errorEvent,sendImmediately)
         }
     }
     public createCustomEventTransaction = (name:string,type:string,options?:any):Transaction => {

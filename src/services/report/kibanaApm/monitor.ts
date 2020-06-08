@@ -127,6 +127,9 @@ export const _handleKibanaApmTrack = function(reportParams:reportParams<trackInf
     spans.forEach( span=>{
         const { name,type,tags=null} = span
         let spanItem =task.startSpan(name,type)
+        spanItem.addTags({
+            typeName:taskName
+        })
         if(tags){
             switch(tags.type){
                 case 'log':

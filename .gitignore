@@ -49,6 +49,9 @@ node_modules/*
 testProject/*
 nodeServer/*
 coverage/*
+1.0.7/*
+1.1.0-1.2.X/*
+备份/*
 .DS_Store
 *.log
 .coveralls.ym

@@ -4797,6 +4797,9 @@ exports._handleKibanaApmTrack = function (reportParams) {
         _a = span.tags,
         tags = _a === void 0 ? null : _a;
     var spanItem = task.startSpan(name, type);
+    spanItem.addTags({
+      typeName: taskName
+    });
 
     if (tags) {
       switch (tags.type) {
@@ -5028,7 +5031,7 @@ function () {
 
     errorLogging.logErrorEvent = function (errorEvent, sendImmediately) {
       callback(errorEvent);
-      return logErrorEventPatch.apply(errorLogging, errorEvent, sendImmediately);
+      return logErrorEventPatch.call(errorLogging, errorEvent, sendImmediately);
     };
   };
 
