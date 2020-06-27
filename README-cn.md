@@ -45,7 +45,7 @@
 
 ## Use And reportMonitorData
 ### 安装与索引
-[ElasticsearchKibana](https://github.com/keep-observer/keepObserver/blob/master/document-cn/ElasticsearchKibanak-cn.md)
+[ElasticsearchKibana](https://github.com/keep-observer/keepObserver/blob/master/document-cn/ElasticsearchKibana-cn.md)
 
 #### 	关于keepObserver:
 keepObserver本身只维护一个**pipeMQ**以及相关**middlewareServer**服务,所有的监控捕获服务以及上报服务均由插件提供,并提供中间件扩展接口,扩展信息通道,
