@@ -25,6 +25,7 @@ module.exports = function(config) {
 		// './test/instance/index.test.js',
 		// './test/middleware/kibanaApmTrack.test.js',
 		// './test/monitor/network.test.js',
+		// './test/public/tool.test.js',
 		'./test/**/*.test.js'
 	],
 	

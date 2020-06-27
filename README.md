@@ -48,6 +48,8 @@
 
 
 ## Use And reportMonitorData
+### Installation and indexing
+[ElasticsearchKibana](https://github.com/keep-observer/keepObserver/blob/master/document/ElasticsearchKibanak.md)
 
 #### 	About keepObserver:
 KeepObserver itself only maintains one **pipeMQ** and the related **middlewareServer** service. All the monitoring and capture services and escalation services are provided by plug-ins, and the middleware extension interface and the extended information channel are provided
