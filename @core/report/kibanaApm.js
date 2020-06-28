@@ -4798,7 +4798,7 @@ exports._handleKibanaApmTrack = function (reportParams) {
         tags = _a === void 0 ? null : _a;
     var spanItem = task.startSpan(name, type);
     spanItem.addTags({
-      typeName: taskName
+      typeName: reportParams.type + "-" + (tags ? tags.type : '')
     });
 
     if (tags) {

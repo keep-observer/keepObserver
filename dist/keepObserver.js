@@ -7282,7 +7282,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 tags = _a === void 0 ? null : _a;
             var spanItem = task.startSpan(name, type);
             spanItem.addTags({
-              typeName: taskName
+              typeName: reportParams.type + "-" + (tags ? tags.type : '')
             });
 
             if (tags) {
