@@ -88,8 +88,9 @@ export const _handleMonitorNetwork = function(reportParams:reportParams<networkT
         responseType,
         timeout,
         errorContent,
-        isTimeout,
-        isError,
+        //不能用布尔值
+        isTimeout: Tools.toString(isTimeout),
+        isError: Tools.toString(isError),
     })
     task.end();
 }

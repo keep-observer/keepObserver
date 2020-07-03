@@ -7240,8 +7240,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             responseType: responseType,
             timeout: timeout,
             errorContent: errorContent,
-            isTimeout: isTimeout,
-            isError: isError
+            //不能用布尔值
+            isTimeout: index_1.Tools.toString(isTimeout),
+            isError: index_1.Tools.toString(isError)
           });
           task.end();
         };
