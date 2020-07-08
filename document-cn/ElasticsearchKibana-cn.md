@@ -68,8 +68,12 @@ rum :
     username = context.user.username
     email = context.user.email
     /*config*/
-    serviceName =  context.service.name
-    agentVersion = context.service.agent.version
+    serviceName =  context.service.name             
+    agentName = context.service.agent.name          /* 类似 --tag */
+    agentVersion = context.service.agent.version    /* 版本区分 --version */
+    /*default*/
+    window.navigator.userAgent = context.user.user-agent  //设备信息-支持模糊查询
+    window.location.href = transaction.name               //当前url信息-支持模糊查询
 ```
 
 2. keepObserverNetwork
@@ -134,6 +138,6 @@ rum :
     context.tags.xPath
     context.tags.value
     //error
-    context.tagsmessage
-    context.tagsfilename
+    context.tags.message   
+    context.tags.filename
 ```

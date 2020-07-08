@@ -1,6 +1,7 @@
 declare const _default: {
     serverUrl: any;
     serviceName: string;
+    agentName: string;
     agentVersion: string;
     automaticStart: boolean;
     isCatchPageload: boolean;

@@ -4,6 +4,8 @@ export default {
     serverUrl: null,
     //服务名
     serviceName: 'undefined',
+    //tag
+    agentName:'undefined',
     //版本
     agentVersion: 'undefined',
     //是否自动启动

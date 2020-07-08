@@ -6848,6 +6848,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           serverUrl: null,
           //服务名
           serviceName: 'undefined',
+          //tag
+          agentName: 'undefined',
           //版本
           agentVersion: 'undefined',
           //是否自动启动
@@ -7168,9 +7170,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               _c = _a.data,
               data = _c === void 0 ? '' : _c;
           var taskName = reportParams.type + "-" + reportParams.typeName;
-          var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName); //tag index limt key
+          var task = this.tracerTransaction.createCustomEventTransaction(window.location.href, reportParams.typeName); //tag index limt key
 
           task.addTags({
+            taskName: taskName,
             type: type,
             data: data
           });
@@ -7221,9 +7224,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           var taskName = reportParams.type + "-" + reportParams.typeName;
-          var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName); //tag index limt key
+          var task = this.tracerTransaction.createCustomEventTransaction(window.location.href, reportParams.typeName); //tag index limt key
 
           task.addTags({
+            taskName: taskName,
             method: method,
             url: url,
             statusType: statusType,
@@ -7249,13 +7253,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports._handleHtmlElementActive = function (reportParams) {
           var taskName = reportParams.type + "-" + reportParams.typeName;
-          var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName);
+          var task = this.tracerTransaction.createCustomEventTransaction(window.location.href, reportParams.typeName);
           var _a = reportParams.data,
               type = _a.type,
               title = _a.title,
               xPath = _a.xPath,
               value = _a.value;
           task.addTags({
+            taskName: taskName,
             type: type,
             title: title,
             xPath: xPath,
@@ -7266,13 +7271,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         exports._handleKibanaApmTrack = function (reportParams) {
           var taskName = reportParams.type + "-" + reportParams.typeName;
-          var task = this.tracerTransaction.createCustomEventTransaction(taskName, reportParams.typeName);
+          var task = this.tracerTransaction.createCustomEventTransaction(window.location.href, reportParams.typeName);
           var _a = reportParams.data,
               tags = _a.tags,
               spans = _a.spans,
               type = _a.type,
               url = _a.url;
           task.addTags(__assign({}, tags, {
+            taskName: taskName,
             type: type,
             url: url
           }));

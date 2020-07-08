@@ -35,9 +35,10 @@ export const _handleMonitor = function(params:reportParams<any>){
 export const _handleMonitorLog = function(reportParams:reportParams<logType>){
     const { type='',data='' } = reportParams.data
     const taskName = `${reportParams.type}-${reportParams.typeName}`
-    const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)
+    const task = this.tracerTransaction.createCustomEventTransaction(window.location.href,reportParams.typeName)
     //tag index limt key
     task.addTags({
+        taskName,
         type,
         data
     })
@@ -69,9 +70,10 @@ export const _handleMonitorNetwork = function(reportParams:reportParams<networkT
         return 
     }
     const taskName = `${reportParams.type}-${reportParams.typeName}`
-    const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)                     
+    const task = this.tracerTransaction.createCustomEventTransaction(window.location.href,reportParams.typeName)                     
     //tag index limt key
     task.addTags({
+        taskName,
         method,
         url,
         statusType,
@@ -96,7 +98,7 @@ export const _handleMonitorNetwork = function(reportParams:reportParams<networkT
 }
 export const _handleHtmlElementActive = function(reportParams:reportParams<elementActiveInfoType>){
     const taskName = `${reportParams.type}-${reportParams.typeName}`
-    const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)
+    const task = this.tracerTransaction.createCustomEventTransaction(window.location.href,reportParams.typeName)
     const { 
         type,
         title,
@@ -104,6 +106,7 @@ export const _handleHtmlElementActive = function(reportParams:reportParams<eleme
         value,
     } = reportParams.data
     task.addTags({
+        taskName,
         type,
         title,
         xPath,
@@ -113,7 +116,7 @@ export const _handleHtmlElementActive = function(reportParams:reportParams<eleme
 }
 export const _handleKibanaApmTrack = function(reportParams:reportParams<trackInfoType>){
     const taskName = `${reportParams.type}-${reportParams.typeName}`
-    const task = this.tracerTransaction.createCustomEventTransaction(taskName,reportParams.typeName)
+    const task = this.tracerTransaction.createCustomEventTransaction(window.location.href,reportParams.typeName)
     const { 
         tags,
         spans,
@@ -122,6 +125,7 @@ export const _handleKibanaApmTrack = function(reportParams:reportParams<trackInf
     } = reportParams.data
     task.addTags({
         ...tags,
+        taskName,
         type,
         url,
     })

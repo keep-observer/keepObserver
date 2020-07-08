@@ -67,9 +67,13 @@ rum :
     id =  context.user.id
     username = context.user.username
     email = context.user.email
-    /*config*/
-    serviceName =  context.service.name
-    agentVersion = context.service.agent.version
+     /*config*/
+    serviceName =  context.service.name             
+    agentName = context.service.agent.name          /* like --tag */
+    agentVersion = context.service.agent.version    /* version info --version */
+    /*default*/
+    window.navigator.userAgent = context.user.user-agent  //Device information - Supports fuzzy queries
+    window.location.href = transaction.name               //Current URL information - Supports fuzzy queries
 ```
 
 2. keepObserverNetwork
@@ -134,6 +138,6 @@ rum :
     context.tags.xPath
     context.tags.value
     //error
-    context.tagsmessage
-    context.tagsfilename
+    context.tags.message  
+    context.tags.filename
 ```
