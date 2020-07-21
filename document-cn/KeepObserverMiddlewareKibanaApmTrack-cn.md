@@ -16,7 +16,16 @@
     	explain: 
     	    判断接收的catchParams中的isError，非错误信息将被interrupt,report服务将无法接收到被中断的信息
     */
-    isInterruptNormal: Boolean
+	isInterruptNormal: Boolean
+	 /*
+    	function:
+    	    自定义判断是否终端
+    	default:
+    	    false
+    	explain: 
+    	    判断接收的catchParams，返回true将被interrupt,report服务将无法接收到被中断的信息
+    */
+    onInterruptJudge:(report:catchParams)=>Boolean
      /*
     	function: 
     	    上报时间的格式化

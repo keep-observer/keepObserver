@@ -16,7 +16,16 @@ Pure middlewareServer processes the monitoring data reported by ProducerServer, 
     	explain: 
     	    Judge the isError in the received catchParams, the non-error message will be interrupt, and the report service will not be able to receive the interrupted information
     */
-    isInterruptNormal: Boolean
+	isInterruptNormal: Boolean
+	 /*
+    	function:
+    	    Custom determines whether terminal or not
+    	default:
+    	    false
+    	explain: 
+    	    Determine received catchParams. Return true will be interrupted and the Report service will not receive the interrupted message
+    */
+    onInterruptJudge:(report:catchParams)=>Boolean
      /*
     	function: 
     	    Format of escalation time

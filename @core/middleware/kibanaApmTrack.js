@@ -127,6 +127,8 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = {
   //是否中断掉正常的catch内容
   isInterruptNormal: false,
+  //自定义中断捕获的catch
+  onInterruptJudge: false,
   //是否自动开始上报
   automaticStart: true,
   //上报时间format
@@ -196,17 +198,19 @@ exports._handleReciceReportMessage = function (interrupt, next) {
       params[_i] = arguments[_i];
     }
 
-    var isInterruptNormal = _this._config.isInterruptNormal;
+    var _a = _this._config,
+        isInterruptNormal = _a.isInterruptNormal,
+        onInterruptJudge = _a.onInterruptJudge;
 
-    var _a = __read(params, 1),
-        _b = _a[0],
-        message = _b === void 0 ? {} : _b;
+    var _b = __read(params, 1),
+        _c = _b[0],
+        message = _c === void 0 ? {} : _c;
 
-    var _c = message.type,
-        type = _c === void 0 ? false : _c,
+    var _d = message.type,
+        type = _d === void 0 ? false : _d,
         typeName = message.typeName,
-        _d = message.isError,
-        isError = _d === void 0 ? false : _d; //中间件执行中会屏蔽发起的sendMessage
+        _e = message.isError,
+        isError = _e === void 0 ? false : _e; //中间件执行中会屏蔽发起的sendMessage
 
     _this.isSendlock = true; //valid message
 
@@ -243,6 +247,11 @@ exports._handleReciceReportMessage = function (interrupt, next) {
       default:
         index_1.consoleTools.warnError("is no support track typeName:" + typeName);
         return next.apply(void 0, __spread(params));
+    } //是否中断判断
+
+
+    if (onInterruptJudge && index_1.Tools.isFunction(onInterruptJudge)) {
+      return onInterruptJudge(message) ? interrupt(false) : next.apply(void 0, __spread(params));
     }
 
     return isInterruptNormal && !isError ? interrupt(false) : next.apply(void 0, __spread(params));

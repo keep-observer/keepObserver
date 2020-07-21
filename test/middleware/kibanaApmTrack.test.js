@@ -188,6 +188,80 @@ describe("KeepObserverMiddlewareKibanaApmTrack service",function(){
             time = Tools.dateFormat(new Date(),'yyyy-MM-dd hh')
         })
     })
+    
+
+    it('KeepObserverMiddlewareKibanaApmTrack config{isInterruptNormal = true} with config{onInterruptJudge=("htmlElementActive")=>false}',function(done){
+        ko = new KeepObserver({ 
+            isGlobalElementActionCatch:true,
+            isInterruptNormal:true,
+            serviceName: "dev-test",
+            reportDateFormat:'yyyy-MM-dd hh',
+            onInterruptJudge:(report)=>{
+                console.log('onInterruptJudge',report.typeName)
+                return report.typeName !== 'htmlElementActive'
+            },
+            agentVersion: "step_1",
+        })
+        ko.use(KeepObserverLog)
+        ko.use(KeepObserverHtmlElementActive)
+        ko.use(KeepObserverMiddlewareKibanaApmTrack)
+        //start
+        var receiveCount = 0;
+        class ConsumerService{
+            getMessage(message){ 
+                expect(message.type).toBe(`monitor`)
+                expect(message.typeName).toBe(`htmlElementActive`)  
+                switch(++receiveCount){
+                    case 1:
+                        expect(message.data).toEqual({
+                            type: "change",
+                            title: "input:",
+                            xPath: "/html/body/input",
+                            value: "test",
+                        })
+                        break;
+                    case 2:
+                        expect(message.data).toEqual({
+                            type: "click",
+                            title: "button:",
+                            xPath: "/html/body/button",
+                            value: "",
+                        })
+                        setTimeout(()=>{
+                            ko.apis('logStop')
+                            ko.apis('htmlElementActiveStop')
+                            ko.apis('cancelTrack')
+                            done()
+                        },200)
+                        break;
+                    default:
+                        fail('receive error message')
+                }
+                return 
+            }
+            apply(pipe,config){
+                const { registerReciveMessage } = pipe
+                registerReciveMessage(this.getMessage)
+            }
+        }
+        ko.use(ConsumerService)
+        setTimeout(()=>{
+            console.log('logTest')
+            console.warn('warnTest')
+            //htmlElementActive start
+            var inputText= document.createElement('input')
+            document.body.appendChild(inputText)
+            inputText.value = 'test'
+            inputText.dispatchEvent(new Event('change', { 'bubbles': true }));
+            //click
+            var button = document.createElement('button')
+            document.body.appendChild(button)
+            button.dispatchEvent(new Event('click', { 'bubbles': true }));
+            //remove
+            document.body.removeChild(inputText)
+            document.body.removeChild(button)
+        })
+    })
 
     
     it('KeepObserverMiddlewareKibanaApmTrack  pageError  handle netowrk',function(done){

@@ -11,7 +11,7 @@ import { errorType } from '../../../types/error'
 
 
 export const _handleReciceReportMessage = function (interrupt:Function,next:Function){return(...params)=>{
-    const { isInterruptNormal } = this._config
+    const { isInterruptNormal,onInterruptJudge } = this._config
     const [ message={} ] = params
     const { type =false,typeName,isError=false } = message
     //中间件执行中会屏蔽发起的sendMessage
@@ -39,6 +39,10 @@ export const _handleReciceReportMessage = function (interrupt:Function,next:Func
         default:
             consoleTools.warnError(`is no support track typeName:${typeName}`)
             return next(...params)
+    }
+    //是否中断判断
+    if(onInterruptJudge && Tools.isFunction(onInterruptJudge)){
+        return onInterruptJudge(message)?interrupt(false):next(...params)
     }
     return isInterruptNormal && !isError?interrupt(false):next(...params)
 }}
