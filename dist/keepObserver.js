@@ -7951,7 +7951,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             } //是否中断判断
 
 
-            if (onInterruptJudge && index_1.Tools.isFunction(onInterruptJudge)) {
+            if (onInterruptJudge && index_1.Tools.isFunction(onInterruptJudge) && !isError) {
               return onInterruptJudge(message) ? interrupt(false) : next.apply(void 0, __spread(params));
             }
 

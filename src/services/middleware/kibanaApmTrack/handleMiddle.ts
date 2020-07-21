@@ -41,7 +41,7 @@ export const _handleReciceReportMessage = function (interrupt:Function,next:Func
             return next(...params)
     }
     //是否中断判断
-    if(onInterruptJudge && Tools.isFunction(onInterruptJudge)){
+    if(onInterruptJudge && Tools.isFunction(onInterruptJudge) && !isError){
         return onInterruptJudge(message)?interrupt(false):next(...params)
     }
     return isInterruptNormal && !isError?interrupt(false):next(...params)
