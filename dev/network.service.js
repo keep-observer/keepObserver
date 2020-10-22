@@ -56,6 +56,16 @@ const networkServer = function(){
         console.log('接收到上传信息',req.body)
         return res.send('success')
     })
+
+    app.put('/putTest', (req, res) => {
+        console.log('接收到put信息',req.body)
+        return res.send('put-success')
+    })
+
+    app.delete('/deleteTest', (req, res) => {
+        console.log('接收到delete信息',req.body)
+        return res.send('delete-success')
+    })
     
     app.listen(9003, () => console.log('network serive is http://localhost:9003'))
 }

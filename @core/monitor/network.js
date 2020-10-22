@@ -384,13 +384,11 @@ exports._patchXMLAjax = function () {
     if (requestHead) {
       _self.networkList[id].requestHead = index_1.Tools.extend({}, requestHead);
       delete XML._setHead[id];
-    } //如果是post数据保存
+    } //如果是data存在
 
 
-    if (method === 'POST') {
-      if (index_1.Tools.isString(data)) {
-        saveData = data;
-      }
+    if (data && index_1.Tools.isString(data)) {
+      saveData = data;
     }
 
     _self.networkList[id].body = saveData; //发送

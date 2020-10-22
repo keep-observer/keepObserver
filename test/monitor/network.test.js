@@ -11,6 +11,8 @@ const testRequest = 'http://localhost:9003/report?time=2000'
 const testTimeout = 'http://localhost:9003/timeout'
 const test404 = 'http://localhost:9003/404'
 const test500 = 'http://localhost:9003/500'
+const put = 'http://localhost:9003/putTest'
+const deleteURL = 'http://localhost:9003/deleteTest'
 
 
 describe("KeepObserverNetwork service",function(){
@@ -133,12 +135,49 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.timeout).toBe(20000)                                    //default timeout 20000 ms
                         expect(message.data.response).toBe('ajax request timeout，time:20000(ms)')
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
+                        return 
+                    //add method
+                    case 9:
+                        expect(message.data.status).toBe(0)
+                        expect(message.data.method).toBe("PUT")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("request")
+                        expect(message.data.url).toBe("http://localhost:9003/putTest")
+                        expect(message.data.body).toBe('{"test":111,"params":{"type":"put"}}')
+                        return
+                    case 10:
+                        expect(message.data.status).toBe(200)
+                        expect(message.data.method).toBe("PUT")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.costTime).toBeGreaterThan(1)
+                        expect(message.data.url).toBe("http://localhost:9003/putTest")
+                        expect(message.data.body).toBe('{"test":111,"params":{"type":"put"}}')
+                        expect(message.data.response).toBe('put-success')
+                        return
+                    case 11:
+                        expect(message.data.status).toBe(0)
+                        expect(message.data.method).toBe("DELETE")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("request")
+                        expect(message.data.url).toBe("http://localhost:9003/deleteTest")
+                        expect(message.data.body).toBe('')
+                        return
+                    case 12:
+                        expect(message.data.status).toBe(200)
+                        expect(message.data.method).toBe("DELETE")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.costTime).toBeGreaterThan(1)
+                        expect(message.data.url).toBe("http://localhost:9003/deleteTest")
+                        expect(message.data.body).toBe('')
+                        expect(message.data.response).toBe('delete-success')
                         setTimeout(()=>{
                             testInstance.apis('networkStop')
                             testInstance.apis('networkCancelPatch')
                             done()
                         },200)
-                        return 
+                        return
                     default:
                         fail('receive error message')
                 }
@@ -159,6 +198,9 @@ describe("KeepObserverNetwork service",function(){
         .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test404).finally(res),200)))
         .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(test500).finally(res),200)))
         .finally(()=>new Promise((res)=>setTimeout(()=>axios.get(testTimeout).finally(res),200)))
+        //add put methd 
+        .finally(()=>new Promise((res)=>setTimeout(()=>axios.put(put,{test:111,params:{type:'put'}}).finally(res),200)))
+        .finally(()=>new Promise((res)=>setTimeout(()=>axios.delete(deleteURL).finally(res),200)))
     })
 
     
@@ -247,12 +289,49 @@ describe("KeepObserverNetwork service",function(){
                         expect(message.data.timeout).toBe(20000)                                    //default timeout 20000 ms
                         expect(message.data.response).toBe('ajax request timeout，time:20000(ms)')
                         expect(message.data.errorContent).toBe('ajax request timeout，time:20000(ms)')
+                        return 
+                           //add method
+                    case 9:
+                        expect(message.data.status).toBe(0)
+                        expect(message.data.method).toBe("PUT")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("request")
+                        expect(message.data.url).toBe("http://localhost:9003/putTest")
+                        expect(message.data.body).toBe('{"test":111,"params":{"type":"put"}}')
+                        return
+                    case 10:
+                        expect(message.data.status).toBe(200)
+                        expect(message.data.method).toBe("PUT")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.costTime).toBeGreaterThan(1)
+                        expect(message.data.url).toBe("http://localhost:9003/putTest")
+                        expect(message.data.body).toBe('{"test":111,"params":{"type":"put"}}')
+                        expect(message.data.response).toBe('put-success')
+                        return
+                    case 11:
+                        expect(message.data.status).toBe(0)
+                        expect(message.data.method).toBe("DELETE")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("request")
+                        expect(message.data.url).toBe("http://localhost:9003/deleteTest")
+                        expect(message.data.body).toBe('')
+                        return
+                    case 12:
+                        expect(message.data.status).toBe(200)
+                        expect(message.data.method).toBe("DELETE")
+                        expect(message.data.params).toEqual('')
+                        expect(message.data.statusType).toBe("response")
+                        expect(message.data.costTime).toBeGreaterThan(1)
+                        expect(message.data.url).toBe("http://localhost:9003/deleteTest")
+                        expect(message.data.body).toBe('')
+                        expect(message.data.response).toBe('delete-success')
                         setTimeout(()=>{
                             testInstance.apis('networkStop')
                             testInstance.apis('networkCancelPatch')
                             done()
                         },200)
-                        return 
+                        return
                     default:
                         fail('receive error message')
                 }
@@ -273,6 +352,9 @@ describe("KeepObserverNetwork service",function(){
         .finally(()=>new Promise((res)=>setTimeout(()=>fetch(test404).finally(res),200)))
         .finally(()=>new Promise((res)=>setTimeout(()=>fetch(test500).finally(res),200)))
         .finally(()=>new Promise((res)=>setTimeout(()=>fetch(testTimeout).finally(res),200)))
+        //add put methd 
+        .finally(()=>new Promise((res)=>setTimeout(()=>fetch(put,{method:'put',body:{test:111,params:{type:'put'}}}).finally(res),200)))
+        .finally(()=>new Promise((res)=>setTimeout(()=>fetch(deleteURL,{method:'delete'}).finally(res),200)))
     })
 
 

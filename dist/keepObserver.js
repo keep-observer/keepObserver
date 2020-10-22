@@ -604,37 +604,16 @@ return /******/ (function(modules) { // webpackBootstrap
         });
         var $log = window.console.log;
         var $wran = window.console.warn;
-        var $error = window.console.error;
-
-        window.console.log = function () {
-          var args = [];
-
-          for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-          }
-
-          $log.apply(window.console, args);
-        };
-
-        window.console.error = function () {
-          var args = [];
-
-          for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-          }
-
-          $error.apply(window.console, args);
-        };
-
-        window.console.warn = function () {
-          var args = [];
-
-          for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i] = arguments[_i];
-          }
-
-          $wran.apply(window.console, args);
-        };
+        var $error = window.console.error; //暂时取消掉这个,不然引入文件就会进行拦截,导致用户误解
+        // window.console.log = (...args) => {
+        //     $log.apply(window.console, args);
+        // };
+        // window.console.error = (...args) => {
+        //     $error.apply(window.console, args);
+        // };
+        // window.console.warn = (...args) => {
+        //     $wran.apply(window.console, args);
+        // };
 
         exports.log = $log;
         exports.error = $error;
@@ -9656,13 +9635,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             if (requestHead) {
               _self.networkList[id].requestHead = index_1.Tools.extend({}, requestHead);
               delete XML._setHead[id];
-            } //如果是post数据保存
+            } //如果是data存在
 
 
-            if (method === 'POST') {
-              if (index_1.Tools.isString(data)) {
-                saveData = data;
-              }
+            if (data && index_1.Tools.isString(data)) {
+              saveData = data;
             }
 
             _self.networkList[id].body = saveData; //发送
