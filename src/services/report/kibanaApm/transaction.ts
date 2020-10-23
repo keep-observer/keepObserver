@@ -2,6 +2,7 @@
 //elastic-apm-js-core 的ServiceFactory提供的TransactionService是返回的单例模式
 //暂时只能从源代码库中拉取原始Transaction
 import Transaction  from 'elastic-apm-js-core/src/performance-monitoring/transaction'
+import Span from  'elastic-apm-js-core/src/performance-monitoring/span'
 import { createServiceFactory } from "elastic-apm-js-core";
 import { kibanaApmUserContext } from '../../../types/report'
 import { Tools,consoleTools } from '@util/index'
@@ -125,6 +126,22 @@ class TracerTransaction {
                     self.Customonitoring.prepareTransaction(this)
                     let payload = self.Customonitoring.createTransactionDataModel(this)
                     self.ApmServer.addTransaction(payload)
+                }
+            }
+        })
+        // safari这里存在点问题,会有获取不到span的现象，非常奇怪，临时解决，待研究这个问题
+        Object.defineProperty(transaction,'_onSpanEnd',{
+            enumerable: false,
+            configurable: false,
+            writable: false,
+            value:function(span){
+                if(this instanceof Transaction ){
+                    //safari下 实测要读取一次this， 不然存在this指向错误的问题，非常的奇怪
+                    var transactionInstance = this
+                    var spanValue = span
+                    transactionInstance.spans.push(spanValue)
+                    // Remove span from _activeSpans
+                    delete transactionInstance._activeSpans[spanValue.id]
                 }
             }
         })

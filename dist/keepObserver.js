@@ -7453,6 +7453,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                     self.ApmServer.addTransaction(payload);
                   }
                 }
+              }); // safari这里存在点问题,会有获取不到span的现象，非常奇怪，临时解决，待研究这个问题
+
+              Object.defineProperty(transaction, '_onSpanEnd', {
+                enumerable: false,
+                configurable: false,
+                writable: false,
+                value: function value(span) {
+                  if (this instanceof transaction_1["default"]) {
+                    //safari下 实测要读取一次this， 不然存在this指向错误的问题，非常的奇怪
+                    var transactionInstance = this;
+                    var spanValue = span;
+                    transactionInstance.spans.push(spanValue); // Remove span from _activeSpans
+
+                    delete transactionInstance._activeSpans[spanValue.id];
+                  }
+                }
               });
               return transaction;
             };
