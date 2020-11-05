@@ -1805,6 +1805,10 @@ return /******/ (function(modules) { // webpackBootstrap
               return '[DomElement]';
             }
 
+            if (value instanceof Error) {
+              return toString(value);
+            }
+
             return value;
           });
         }

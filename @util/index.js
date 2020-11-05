@@ -1549,6 +1549,10 @@ function objectStringify(object) {
       return '[DomElement]';
     }
 
+    if (value instanceof Error) {
+      return toString(value);
+    }
+
     return value;
   });
 }

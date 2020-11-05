@@ -452,6 +452,9 @@ export function objectStringify(object:any):string{
         if(isElement(value)){
             return '[DomElement]'
         }
+        if(value instanceof Error){
+            return toString(value);
+        }
         return value
     })
 }

@@ -59,12 +59,21 @@ describe("KeepObserverLog service",function(){
                             data:'["[Window]",{"a":1,"b":"2","d":"[DomElement]","c":"[Circular]"}]'
                         })
                         expect(message.testAdd).toBe(1)
-                        console.error('send error message')
-                        setTimeout(()=>{
-                            testInstance.apis('logStop')
-                            done()
-                        },200)
                         return
+                    case 3:
+                            expect(message.type).toBe(`monitor`)
+                            expect(message.typeName).toBe(`log`)
+                            expect(message.data).toEqual({
+                                type:'error',
+                                data:'["Error: 测试throw Error object"]'
+                            })
+                            expect(message.testAdd).toBe(1)
+                            console.error('send error message')
+                            setTimeout(()=>{
+                                testInstance.apis('logStop')
+                                done()
+                            },200)
+                            return
                     default:
                         fail('receive error message')
                 }
@@ -90,6 +99,11 @@ describe("KeepObserverLog service",function(){
             }
             loop.c = loop
             console.error(window,loop)
+            try{
+                throw Error('测试throw Error object')
+            }catch(e){
+                console.error(e)
+            }
         },100)
     })
 

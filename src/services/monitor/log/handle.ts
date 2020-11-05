@@ -1,4 +1,4 @@
-import { Tools } from '@util/index'
+import { Tools ,consoleTools } from '@util/index'
 import { logType } from '../../../types/log'
 
 /*
@@ -89,7 +89,7 @@ export var _handleMessage = function(type, agrs) {
     //直接转成字符串形式
     agrs.forEach( (el,index)=>{
         try{
-            if(Tools.isObject(el) || Tools.isArray(el)){
+            if( Tools.isObject(el) || Tools.isArray(el)){
                 data += `${index===0?'':separate}${Tools.objectStringify(el)}`  
             }else{
                 data += `${index===0?'':separate}"${Tools.toString(el)}"`  
