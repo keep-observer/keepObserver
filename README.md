@@ -67,6 +67,14 @@ The MiddlerwareServer is constructed as follows</br>
 ####  About Elasticsearch+kibana
 Data storage stage, the core of usage scenario is that different data dimension of flexible query, analysis step by step in each dimension data quickly to the positioning problem, which can use elasticsearch retrieval features, even for a minimal set of elasticsearch cluster, also can more easily implement every day must level of log volume of storage and query, and supporting kibana complete data visualization, and query search related log content, as well as provide rapid privatization deployment docker
 
+Kibana query log tutorial: https://www.elastic.co/guide/cn/kibana/current/discover.html
+
+index Patten  apm*
+
+On the right, click the APM menu to view the summary of all mounted log services. And page-load information for the service
+
+Report service, index mapping table (filter field table): https://github.com/keep-observer/keepObserver/blob/master/document/ElasticsearchKibana.md
+
 The simplest log query, providing a fine-grained time dimension and search for related fields</br>
 
 ![image](https://raw.githubusercontent.com/wangkai1995/img-lib/master/img/kibana.jpg)</br>
