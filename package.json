@@ -1,6 +1,6 @@
 {
   "name": "keep-observers",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "This is a monitoring service applied to the web side Support Elasticsearch+kiban The middleware extension interface is provided by means of plug-in service compositionkeep-observers",
   "main": "index.js",
   "scripts": {

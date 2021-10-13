@@ -5,6 +5,8 @@
 
 ##### **这是一个应用于web端中的监控服务** 
 
+  [线上demo](https://github.com/keep-observer/keepObserver/blob/master/document-cn/demo-cn.md)
+
 - **关于keep-observer:**    
   - 这是一个基于纯javascript编写用于线上环境监控，适用于web:PC端以及移动端的无感嵌入捕获，并持续追踪用户交互行为，
   - 支持Elasticsearch+kibana数据可视化后台显示,提供docker快速私有化部署
