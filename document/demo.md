@@ -6,7 +6,7 @@
 
 ```TypeScript
     npm install keep-observers
-` ` `
+```
 
 1. Create the monitor.js file as follows
 
