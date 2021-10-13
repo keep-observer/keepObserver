@@ -1,6 +1,6 @@
 # Keep-observer
 
-[![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver)
+<!-- [![Build Status](https://travis-ci.com/keep-observer/keepObserver.svg?branch=master)](https://travis-ci.com/keep-observer/keepObserver) -->
 [![Coverage Status](https://coveralls.io/repos/github/keep-observer/keepObserver/badge.svg)](https://coveralls.io/github/keep-observer/keepObserver)
 
 ##### **这是一个应用于web端中的监控服务** 

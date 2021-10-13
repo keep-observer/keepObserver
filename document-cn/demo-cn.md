@@ -2,6 +2,12 @@
 
 ### 引入前端sdk
 
+0. 在你的项目中安装KeepObserver
+
+```TypeScript
+    npm install keep-observers
+```
+
 1. 建立 monitor.js 文件,代码如下
 
 ```TypeScript

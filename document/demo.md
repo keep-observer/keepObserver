@@ -2,6 +2,12 @@
 
 ### Introducing a front-end SDK
 
+0. Install KeepObserver in your project
+
+```TypeScript
+    npm install keep-observers
+` ` `
+
 1. Create the monitor.js file as follows
 
 ```TypeScript
