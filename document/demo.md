@@ -57,6 +57,8 @@ Demo background Kibana address
 http://114.115.236.50:5601/
 
 Kibana query log tutorial: https://www.elastic.co/guide/cn/kibana/current/discover.html
+Kibana statistical data visualization tutorial: https://www.elastic.co/guide/cn/kibana/current/createvis.html
+Visual icon content of Page-Loade and Error can be viewed by clicking on APM under kibana menu
 
 Index Patten please use APM *
 

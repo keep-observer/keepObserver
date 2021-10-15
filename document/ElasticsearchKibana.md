@@ -59,6 +59,7 @@ rum :
 1. KeepObserverKibanaApmReport provide api
 
 ```typescript
+    /********************************Public parts*************************/
     setUserInfo({
         id: string;       
         username: string;
@@ -67,6 +68,7 @@ rum :
     id =  context.user.id
     username = context.user.username
     email = context.user.email
+    context.user.ip                                 //Description The IP address of a user is reported. It is usually used before a user reset statistic
      /*config*/
     serviceName =  context.service.name             
     agentName = context.service.agent.name          /* like --tag */
@@ -74,6 +76,29 @@ rum :
     /*default*/
     window.navigator.userAgent = context.user.user-agent  //Device information - Supports fuzzy queries
     window.location.href = transaction.name               //Current URL information - Supports fuzzy queries
+    /********************************Functional parts*************************/
+    /*page-load*/
+    //Kibana APM menu to view transaction Type Select Page-Load to view the visual report
+    //discover index
+    transactipn.type = `page-load`
+    transaction.duration.us
+    transaction.marks.agent.domComplete
+    transaction.marks.agent.domInteractive
+    transaction.marks.agent.firstContentfulPaint
+    transaction.marks.agent.timeToFirstByte
+    transaction.marks.navigationTiming = {
+        connectEnd,connectStart,domComplete,domContentLoadedEventEnd,domContentLoadedEventStart,
+        domInteractive,domLoading,domainLookupEnd,domainLookupStart,fetchStart,loadEventEnd,
+        loadEventStart,requestStart,responseEnd,responseStart,
+    }
+    /*error*/
+    //Kibana APM menu under the project detailed photo error view visual report
+    //discover index
+    processor.event = 'error'
+    error.exception.message
+    error.exception.stacktrace
+    error.exception.type
+    error.id
 ```
 
 2. keepObserverNetwork

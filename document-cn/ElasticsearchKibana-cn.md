@@ -59,6 +59,7 @@ rum :
 1. KeepObserverKibanaApmReport提供api
 
 ```typescript
+    /********************************公共部分*************************/
     setUserInfo({
         id: string;       
         username: string;
@@ -67,6 +68,7 @@ rum :
     id =  context.user.id
     username = context.user.username
     email = context.user.email
+    context.user.ip                                 //上报用户ip地址，一般用作,visualize统计用户去重计数
     /*config*/
     serviceName =  context.service.name             
     agentName = context.service.agent.name          /* 类似 --tag */
@@ -74,6 +76,29 @@ rum :
     /*default*/
     window.navigator.userAgent = context.user.user-agent  //设备信息-支持模糊查询
     window.location.href = transaction.name               //当前url信息-支持模糊查询
+    /********************************功能部分*************************/
+    /*page-load*/
+    //Kibana APM菜单下查看  transaction type 选择page-load 查看可视化报表
+    //discover index
+    transactipn.type = `page-load`
+    transaction.duration.us
+    transaction.marks.agent.domComplete
+    transaction.marks.agent.domInteractive
+    transaction.marks.agent.firstContentfulPaint
+    transaction.marks.agent.timeToFirstByte
+    transaction.marks.navigationTiming = {
+        connectEnd,connectStart,domComplete,domContentLoadedEventEnd,domContentLoadedEventStart,
+        domInteractive,domLoading,domainLookupEnd,domainLookupStart,fetchStart,loadEventEnd,
+        loadEventStart,requestStart,responseEnd,responseStart,
+    }
+    /*error*/
+    //Kibana APM菜单下 项目详细照片中  error 查看可视化报表
+    //discover index
+    processor.event = 'error'
+    error.exception.message
+    error.exception.stacktrace
+    error.exception.type
+    error.id
 ```
 
 2. keepObserverNetwork

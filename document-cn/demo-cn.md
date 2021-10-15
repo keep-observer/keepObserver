@@ -57,6 +57,8 @@ demo后台kibana地址
 http://114.115.236.50:5601/
 
 kibana查询日志教程: https://www.elastic.co/guide/cn/kibana/current/discover.html
+kibana统计数据可视化图表教程: https://www.elastic.co/guide/cn/kibana/current/createvis.html
+page-loade 和error的 可视化图标内容请点击 kibana菜单下apm中查看
 
 index Patten 请使用 apm*
 
