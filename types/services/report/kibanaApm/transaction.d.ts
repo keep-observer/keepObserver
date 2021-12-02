@@ -8,6 +8,7 @@ declare class TracerTransaction {
     private ApmServer;
     constructor(config: any);
     private initCustomTransaction;
+    private resetApmServiceLog;
     createTransaction: (name: string, type: string) => any;
     pageLoad(): void;
     catchError(): void;

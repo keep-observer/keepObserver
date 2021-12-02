@@ -7412,7 +7412,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
               _this.Customonitoring.cancelPatchSub();
 
-              _this.ApmServer = _this.serviceFactory.getService('ApmServer');
+              _this.ApmServer = _this.serviceFactory.getService('ApmServer'); //reset login service
+
+              _this.resetApmServiceLog(_this.serviceFactory.getService("LoggingService"));
+
+              _this.resetApmServiceLog(_this.customServiceFactory.getService("LoggingService"));
+
               _this.Initialized = true;
             }; // api
 
@@ -7484,6 +7489,45 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             this.initCustomTransaction(config);
           }
+
+          TracerTransaction.prototype.resetApmServiceLog = function (loggingService) {
+            loggingService.levels.forEach(function (level) {
+              loggingService[level] = log;
+
+              function log() {
+                var prefix = loggingService.prefix;
+                var normalizedLevel;
+
+                switch (level) {
+                  case 'trace':
+                    normalizedLevel = 'info';
+                    break;
+
+                  case 'debug':
+                    normalizedLevel = 'info';
+                    break;
+
+                  default:
+                    normalizedLevel = level;
+                }
+
+                var args = arguments;
+
+                if (prefix) {
+                  if (typeof prefix === 'function') prefix = prefix(level);
+                  args[0] = prefix + args[0];
+                }
+
+                if (index_1.consoleTools) {
+                  var realMethod = index_1.consoleTools[normalizedLevel] ? index_1.consoleTools[normalizedLevel] : index_1.consoleTools.log;
+
+                  if (typeof realMethod === 'function') {
+                    realMethod.apply(index_1.consoleTools, args);
+                  }
+                }
+              }
+            });
+          };
 
           TracerTransaction.prototype.pageLoad = function () {
             //加载load监听

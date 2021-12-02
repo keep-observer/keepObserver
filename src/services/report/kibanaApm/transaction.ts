@@ -38,7 +38,40 @@ class TracerTransaction {
         this.Customonitoring.init();
         this.Customonitoring.cancelPatchSub();
         this.ApmServer = this.serviceFactory.getService('ApmServer')
+        //reset login service
+        this.resetApmServiceLog(this.serviceFactory.getService("LoggingService"))
+        this.resetApmServiceLog(this.customServiceFactory.getService("LoggingService"))
         this.Initialized = true
+    }
+    private resetApmServiceLog(loggingService){
+        loggingService.levels.forEach(function (level) {
+            loggingService[level] = log 
+            function log () {
+                var prefix = loggingService.prefix
+                var normalizedLevel
+                switch (level) {
+                    case 'trace':
+                        normalizedLevel = 'info'
+                        break
+                    case 'debug':
+                        normalizedLevel = 'info'
+                        break
+                    default:
+                        normalizedLevel = level
+                }
+                var args = arguments
+                if (prefix) {
+                    if (typeof prefix === 'function') prefix = prefix(level)
+                        args[0] = prefix + args[0]
+                }
+                if (consoleTools) {
+                    var realMethod = consoleTools[normalizedLevel] ? consoleTools[normalizedLevel] : consoleTools.log
+                    if (typeof realMethod === 'function') {
+                        realMethod.apply(consoleTools, args)
+                    }
+                }
+            }
+        })
     }
 
 
