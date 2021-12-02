@@ -57,7 +57,7 @@
     "shelljs": "^0.7.6",
     "webdriver-manager": "^12.1.7",
     "webpack": "~4.2.0",
-    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-dev-middleware": "^3.7.2",
     "webpack-dev-server": "^3.10.1",
     "webpack-hot-middleware": "^2.25.0",
