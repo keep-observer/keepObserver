@@ -54,7 +54,7 @@
     "protobufjs": "^6.8.8",
     "rimraf": "^2.6.3",
     "semver": "^5.7.0",
-    "shelljs": "^0.7.6",
+    "shelljs": "^0.8.5",
     "webdriver-manager": "^12.1.7",
     "webpack": "~4.2.0",
     "webpack-bundle-analyzer": "^2.13.1",
