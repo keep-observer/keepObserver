@@ -18,7 +18,7 @@
 `docker images` 找到elasticsearch:6.8.1的镜像id
 
 3. 启动镜像并且配置端口
-`docker run -it --name ${上一步获取到的镜像id} -d -p 9200:9200 -p 9300:9300 -p 5601:5601 ${上一步获取到的镜像id}`
+`docker run -it --name ${name} -d -p 9200:9200 -p 9300:9300 -p 5601:5601 ${上一步获取到的镜像id}`
 
 4. 查看容器是否启动成功`
 docker ps`,访问elasticsearch 端口9200，如果能成功访问并且看到一段es详情的json表示启动成功
@@ -32,7 +32,7 @@ docker ps`,访问elasticsearch 端口9200，如果能成功访问并且看到一
 `docker images`
 
 3.启动kibana
-`docker run -it -d -e ELASTICSEARCH_URL=http://127.0.0.1:9200 --name ${kibana:6.8.1的镜像id} --network=container:${找到elasticsearch:6.8.1的镜像id}  ${kibana:6.8.1的镜像id}`
+`docker run -it -d -e ELASTICSEARCH_URL=http://127.0.0.1:9200 --name ${name} --network=container:${找到elasticsearch:6.8.1的镜像id}  ${kibana:6.8.1的镜像id}`
 
 4.访问kiaban
 http://你的IP:5601/app/kibana
