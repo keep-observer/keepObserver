@@ -32,7 +32,7 @@
     "express": "^4.17.1",
     "filemanager-webpack-plugin": "^2.0.5",
     "friendly-errors-webpack-plugin": "^1.1.3",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^5.5.0",
     "http-proxy-middleware": "^0.17.3",
     "iosselect": "^1.1.4",
     "jasmine-core": "^3.5.0",
